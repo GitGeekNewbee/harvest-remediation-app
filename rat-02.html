@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - RAT-02</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100vh; overflow: hidden; user-select: none; touch-action: manipulation;}
+    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    
+    /* HUD */
+    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
+    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
+    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
+    .stats { font-weight: 800; font-size: 1.1rem; }
+    .stats-xp { color: var(--warning); }
+    .stats-mastery { color: var(--primary); }
+    .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
+    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+    /* Content */
+    .content-zone { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .hidden { display: none !important; }
+    h2 { margin-top: 0; color: #333; }
+    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-warning { background: var(--warning); color: #fff; }
+
+    /* Math Displays & Input Boxes */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; margin: 20px 0; gap: 15px; }
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .v-num { border-bottom: 4px solid #333; padding: 0 10px; }
+    .v-den { padding: 0 10px; }
+    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    
+    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .f-box { width: 70px; height: 60px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
+    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
+    .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
+    .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
+    
+    /* Keypad */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 25px; }
+    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 12px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .key:active { background: #e8eaed; transform: translateY(2px); }
+    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+
+    /* Modals */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 80%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="hud">
+    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="progress-wrapper">
+      <div class="mastery-label" id="hud-label">MASTERY METER</div>
+      <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div class="stats stats-mastery" id="hud-stats"><span id="mastery-text">0/5</span></div>
+  </div>
+
+  <!-- ZONE 0: GATEKEEPER INTRO -->
+  <div class="content-zone" id="zone-gate-intro">
+    <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
+    <h2>Fluency Gatekeeper</h2>
+    <p>Before calculating equivalent fractions, prove your basic arithmetic is fully automated.</p>
+    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:20px 0;">
+      <b>The Rules:</b>
+      <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
+        <li>Mixed operations (+, -, ×, ÷).</li>
+        <li>You have exactly 120 seconds.</li>
+        <li>Attempt at least 20 questions with 90% accuracy.</li>
+      </ul>
+    </div>
+    <button class="btn btn-warning" onclick="startSprint()">Start 2-Minute Sprint</button>
+  </div>
+
+  <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
+  <div class="content-zone hidden" id="zone-gate-active">
+    <h2 style="color:var(--warning);">Fluency Sprint</h2>
+    <div class="sprint-math" id="sprint-q"></div>
+    <div class="input-col">
+      <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
+    </div>
+  </div>
+
+  <!-- ZONE 1: GUIDED LEARNING -->
+  <div class="content-zone hidden" id="zone-learn">
+    <div id="slide-1">
+      <h2>What does Equivalent mean?</h2>
+      <p>Equivalent means "equal amount". If I cut your half of the pizza into smaller slices, you still have the exact same amount of food.</p>
+      <div style="display:flex; justify-content:space-around; align-items:center; margin:20px 0;">
+        <svg viewBox="0 0 100 100" style="width: 100px;">
+          <circle cx="50" cy="50" r="45" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+          <path d="M 50 50 L 50 5 A 45 45 0 0 1 50 95 Z" fill="var(--primary)" stroke="#333" stroke-width="2"/>
+          <line x1="50" y1="5" x2="50" y2="95" stroke="#333" stroke-width="2"/>
+        </svg>
+        <span style="font-size: 2rem; font-weight: bold;">=</span>
+        <svg viewBox="0 0 100 100" style="width: 100px;">
+          <circle cx="50" cy="50" r="45" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+          <path d="M 50 50 L 50 5 A 45 45 0 0 1 50 95 Z" fill="var(--primary)" stroke="#333" stroke-width="2"/>
+          <line x1="50" y1="5" x2="50" y2="95" stroke="#333" stroke-width="2"/>
+          <line x1="5" y1="50" x2="95" y2="50" stroke="#333" stroke-width="2"/>
+        </svg>
+      </div>
+      <p style="font-size: 1.5rem; font-weight: bold;">1/2 is equivalent to 2/4</p>
+    </div>
+
+    <div id="slide-2" class="hidden">
+      <h2>The Golden Rule of Fractions</h2>
+      <p>Whatever you do to the bottom, you MUST do to the top.</p>
+      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
+        <p style="color:var(--primary); font-weight:bold; margin-bottom:5px;">× 2</p>
+        <div class="math-row" style="margin: 0;">
+          <div class="v-frac"><div class="v-num">1</div><div class="v-den">3</div></div>
+          <div>➔</div>
+          <div class="v-frac"><div class="v-num">2</div><div class="v-den">6</div></div>
+        </div>
+        <p style="color:var(--danger); font-weight:bold; margin-top:5px;">× 2</p>
+      </div>
+      <p>We multiply the top and bottom by the exact same number to keep the size identical.</p>
+    </div>
+
+    <div id="slide-3" class="hidden">
+      <h2>Step-by-Step: Missing Numbers</h2>
+      <p>1. Look at the bottom numbers. Ask: "What did they multiply by?"<br>2. Multiply the top by that exact same number.</p>
+      <div class="math-row">
+        <div class="v-frac"><div class="v-num">2</div><div class="v-den">5</div></div>
+        <div>=</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den">15</div></div>
+      </div>
+      <p style="font-weight:bold; color:var(--success);">5 × 3 = 15<br>So, 2 × 3 = 6</p>
+    </div>
+
+    <div id="slide-4" class="hidden">
+      <h2>The Adding Trap: Never Add!</h2>
+      <p>We only MULTIPLY. If you add, you completely change the size of the fraction.</p>
+      <div class="math-row" style="opacity: 0.5;">
+        <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
+        <div style="color:red; font-size:1.5rem;">(+2)</div>
+        <div style="color:red;">≠</div>
+        <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
+      </div>
+      <p style="color:red; font-weight:bold;">Do not add to the top and bottom!</p>
+    </div>
+
+    <div id="slide-5" class="hidden">
+      <h2>Ready to Prove Mastery?</h2>
+      <p>You must calculate <b>5 missing numbers correctly in a row</b>.</p>
+      <p>First, find the multiplier on the bottom, then use it on the top.</p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
+  </div>
+
+  <!-- ZONE 2: PRACTICE -->
+  <div class="content-zone hidden" id="zone-practice">
+    <h2>Make an equivalent fraction:</h2>
+    <div class="math-row" style="margin-top: 40px;">
+      <div class="v-frac">
+        <div class="v-num" id="q-n1">0</div>
+        <div class="v-den" id="q-d1">0</div>
+      </div>
+      <div>=</div>
+      <div class="v-frac">
+        <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
+        <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
+        <div class="v-den" id="q-d2">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEYPAD -->
+  <div class="keypad hidden" id="keypad">
+    <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
+    <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
+    <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
+    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" style="background:transparent; border:none; box-shadow:none;"></div>
+    <div class="key key-action" onclick="submitAnswer()">Submit</div>
+  </div>
+
+  <!-- TRAFFIC LIGHT MODAL -->
+  <div class="modal-overlay" id="hint-modal">
+    <div class="modal-box">
+      <div class="traffic-light" id="modal-icon">🟡</div>
+      <h3 id="modal-title" style="margin-top:0;">Hint</h3>
+      <p id="modal-text"></p>
+      <button class="btn btn-primary" onclick="closeModal()" id="modal-btn">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Global State
+  let appState = 'GATEKEEPER'; 
+  let activeBoxId = 'sprint-ans';
+  let xp = 0;
+
+  // Gatekeeper Variables
+  let sprintTimer;
+  let timeLeft = 120;
+  let sprintAttempts = 0;
+  let sprintCorrect = 0;
+  let currentSprintQ = {};
+
+  // Mastery Variables
+  let slideIndex = 1;
+  const totalSlides = 5;
+  let streak = 0, mistakesOnCurrent = 0;
+  let masteryPoints = 0;
+  const masteryTarget = 5;
+  let currentQ = {}; 
+
+  // --- KEYPAD LOGIC ---
+  function setActive(id) {
+    if(document.getElementById(activeBoxId)) {
+      document.getElementById(activeBoxId).classList.remove('active');
+    }
+    activeBoxId = id;
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.add('active');
+    if(box) box.innerText = ''; 
+  }
+
+  function typeNum(num) {
+    let box = document.getElementById(activeBoxId);
+    if(box && box.innerText.length < 3) box.innerText += num;
+  }
+  
+  function deleteNum() {
+    let box = document.getElementById(activeBoxId);
+    if(box) box.innerText = box.innerText.slice(0, -1);
+  }
+
+  function submitAnswer() {
+    if(appState === 'GATEKEEPER') checkSprintAnswer();
+    else if (appState === 'PRACTICE') checkPracticeAnswer();
+  }
+
+  // --- ZONE 0: FLUENCY GATEKEEPER ---
+  function startSprint() {
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    document.getElementById('zone-gate-active').classList.remove('hidden');
+    document.getElementById('keypad').classList.remove('hidden');
+    
+    document.getElementById('hud-label').innerText = "TIME REMAINING";
+    document.getElementById('hud-track').classList.add('hidden');
+    document.getElementById('mastery-text').innerText = "02:00";
+    
+    setActive('sprint-ans');
+    loadSprintQuestion();
+    
+    sprintTimer = setInterval(() => {
+      timeLeft--;
+      let m = Math.floor(timeLeft / 60);
+      let s = timeLeft % 60;
+      document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+      
+      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      
+      if(timeLeft <= 0) {
+        clearInterval(sprintTimer);
+        evaluateSprint();
+      }
+    }, 1000);
+  }
+
+  function generateMixedFact() {
+    const ops = ['+', '-', '×', '÷'];
+    const op = ops[Math.floor(Math.random() * ops.length)];
+    let n1, n2, ans, qText;
+
+    switch(op) {
+      case '+':
+        n1 = Math.floor(Math.random() * 20) + 1; 
+        n2 = Math.floor(Math.random() * 20) + 1; 
+        ans = n1 + n2;
+        qText = `${n1} + ${n2} =`;
+        break;
+      case '-':
+        n1 = Math.floor(Math.random() * 20) + 10; 
+        n2 = Math.floor(Math.random() * (n1 - 1)) + 1; 
+        ans = n1 - n2;
+        qText = `${n1} - ${n2} =`;
+        break;
+      case '×':
+        n1 = Math.floor(Math.random() * 12) + 1;
+        n2 = Math.floor(Math.random() * 12) + 1;
+        ans = n1 * n2;
+        qText = `${n1} × ${n2} =`;
+        break;
+      case '÷':
+        ans = Math.floor(Math.random() * 12) + 1; 
+        n2 = Math.floor(Math.random() * 12) + 1;  
+        n1 = ans * n2; 
+        qText = `${n1} ÷ ${n2} =`;
+        break;
+    }
+    return { qText: qText, ans: ans };
+  }
+
+  function loadSprintQuestion() {
+    currentSprintQ = generateMixedFact();
+    document.getElementById('sprint-q').innerText = currentSprintQ.qText;
+    document.getElementById('sprint-ans').innerText = '';
+    document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
+  }
+
+  function checkSprintAnswer() {
+    let userAns = parseInt(document.getElementById('sprint-ans').innerText);
+    if(isNaN(userAns)) return;
+
+    sprintAttempts++;
+    let box = document.getElementById('sprint-ans');
+    
+    if(userAns === currentSprintQ.ans) {
+      sprintCorrect++;
+      xp += 5;
+      document.getElementById('xp-counter').innerText = xp;
+      box.classList.add('flash-green');
+    } else {
+      box.classList.add('flash-red');
+    }
+    setTimeout(loadSprintQuestion, 200);
+  }
+
+  function evaluateSprint() {
+    document.getElementById('keypad').classList.add('hidden');
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    
+    if(sprintAttempts >= 20 && accuracy >= 90) {
+      showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational fluency. The lesson is now unlocked.`);
+      document.getElementById('modal-btn').onclick = unlockLesson;
+    } else {
+      showModal('🔴', 'Gate Failed', `Attempts: ${sprintAttempts} (Target: 20)\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. This will block you from learning fractions. You must try the sprint again.`);
+      document.getElementById('modal-btn').onclick = resetSprint;
+    }
+  }
+
+  function resetSprint() {
+    closeModal();
+    timeLeft = 120;
+    sprintAttempts = 0;
+    sprintCorrect = 0;
+    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
+  function unlockLesson() {
+    closeModal();
+    appState = 'LEARN';
+    document.getElementById('hud-stats').classList.remove('timer-alert');
+    
+    document.getElementById('hud-label').innerText = "MASTERY METER";
+    document.getElementById('hud-track').classList.remove('hidden');
+    document.getElementById('mastery-text').innerText = "0/5";
+    
+    document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-learn').classList.remove('hidden');
+  }
+
+  // --- ZONE 1: GUIDED LEARNING ---
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+      if(slideIndex === totalSlides) document.getElementById('btn-next-slide').innerText = "Start Practice";
+    } else {
+      startPractice();
+    }
+  }
+
+  // --- ZONE 2: PRACTICE (EQUIVALENT FRACTIONS) ---
+  function startPractice() {
+    appState = 'PRACTICE';
+    document.getElementById('zone-learn').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+    document.getElementById('keypad').classList.remove('hidden');
+    updateProgressBar();
+    setActive('p-num');
+    loadPracticeQuestion();
+  }
+
+  function generateEquivalentFact() {
+    let d1 = Math.floor(Math.random() * 9) + 2; // Denominator 2 to 10
+    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; // Numerator 1 to d1-1
+    let multiplier = Math.floor(Math.random() * 5) + 2; // Multiplier 2 to 6
+    
+    let d2 = d1 * multiplier;
+    let targetN = n1 * multiplier;
+    
+    return { n1: n1, d1: d1, multiplier: multiplier, d2: d2, ans: targetN };
+  }
+
+  function loadPracticeQuestion() {
+    mistakesOnCurrent = 0;
+    document.getElementById('p-num').innerText = '';
+    setActive('p-num');
+    
+    currentQ = generateEquivalentFact();
+    document.getElementById('q-n1').innerText = currentQ.n1;
+    document.getElementById('q-d1').innerText = currentQ.d1;
+    document.getElementById('q-d2').innerText = currentQ.d2;
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let userN = parseInt(document.getElementById('p-num').innerText);
+    if(isNaN(userN)) return;
+
+    if(userN === currentQ.ans) {
+      if (mistakesOnCurrent === 0) {
+        masteryPoints++;
+        streak++;
+        xp += (streak >= 3) ? 150 : 100;
+        updateProgressBar();
+        showModal('🟢', 'Mastery +1', 'Perfect! You multiplied both by ' + currentQ.multiplier);
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
+        else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
+      } else {
+        streak = 0;
+        xp += 10;
+        document.getElementById('xp-counter').innerText = xp;
+        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
+        setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 2500);
+      }
+    } else {
+      streak = 0;
+      if (mistakesOnCurrent === 0) {
+        masteryPoints = Math.max(0, masteryPoints - 1);
+        updateProgressBar();
+      }
+      mistakesOnCurrent++;
+      
+      // DIAGNOSTIC ERROR CATCHING (Agent 1 Specs)
+      let addedDifference = currentQ.n1 + (currentQ.d2 - currentQ.d1);
+      
+      if(userN === addedDifference) {
+        showModal('🟡', 'Mastery Lost', `The Adding Trap! You added to the top instead of multiplying. Find what the bottom was MULTIPLIED by, and multiply the top by that exact same number.`);
+      } else if (userN === currentQ.n1) {
+        showModal('🟡', 'Mastery Lost', `You left the top number exactly the same! Whatever you multiply the bottom by, you MUST multiply the top by.`);
+      } else if (userN % currentQ.n1 === 0 && userN !== currentQ.ans) {
+        showModal('🟡', 'Mastery Lost', `You multiplied, but by the wrong number. Check the bottom again: ${currentQ.d1} × ? = ${currentQ.d2}`);
+      } else {
+        showModal('🔴', 'Mastery Lost', `Let's review. The bottom was multiplied by ${currentQ.multiplier} (${currentQ.d1} × ${currentQ.multiplier} = ${currentQ.d2}). So you must multiply the top by ${currentQ.multiplier} (${currentQ.n1} × ${currentQ.multiplier} = ${currentQ.ans}).`);
+      }
+    }
+  }
+
+  // --- MODAL & END LOGIC ---
+  function showModal(icon, title, text) {
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
+    document.getElementById('modal-text').innerText = text;
+    document.getElementById('hint-modal').classList.add('show');
+    if(appState === 'PRACTICE') document.getElementById('modal-btn').onclick = closeModal;
+  }
+
+  function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
+
+  function endModule() {
+    closeModal();
+    document.getElementById('zone-practice').classList.add('hidden');
+    document.getElementById('keypad').classList.add('hidden');
+    document.getElementById('zone-learn').classList.remove('hidden');
+    document.getElementById('zone-learn').innerHTML = `
+      <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
+      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Concept Lab.</p>`;
+  }
+</script>
+</body>
+</html>
