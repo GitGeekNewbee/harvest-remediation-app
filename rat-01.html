@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - RAT-01</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100vh; overflow: hidden; user-select: none; touch-action: manipulation;}
+    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    
+    /* HUD */
+    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
+    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
+    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; }
+    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
+    .stats { font-weight: 800; font-size: 1.1rem; }
+    .stats-xp { color: var(--warning); }
+    .stats-mastery { color: var(--primary); }
+
+    /* Content */
+    .content-zone { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .hidden { display: none !important; }
+    h2 { margin-top: 0; color: #333; }
+    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
+
+    /* SVG Containers */
+    .svg-container { width: 100%; max-width: 250px; margin: 20px auto; display: flex; justify-content: center; }
+    
+    /* Input Boxes */
+    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; margin-top: 20px; }
+    .f-box { width: 70px; height: 60px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; }
+    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
+    
+    /* Keypad */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 25px; }
+    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 12px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .key:active { background: #e8eaed; transform: translateY(2px); }
+    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+
+    /* Modals */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 80%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="hud">
+    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="progress-wrapper">
+      <div class="mastery-label">MASTERY METER</div>
+      <div class="progress-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div class="stats stats-mastery"><span id="mastery-text">0/5</span></div>
+  </div>
+
+  <!-- ZONE 1: GUIDED LEARNING -->
+  <div class="content-zone" id="zone-learn">
+    <div id="slide-1">
+      <h2>What is a Fraction?</h2>
+      <p>A fraction is just a way to show a piece of something. Think of a pizza.</p>
+      <div class="svg-container">
+        <svg viewBox="0 0 100 100" style="width: 150px; height: 150px;">
+          <!-- 4 Slices, 1 colored -->
+          <circle cx="50" cy="50" r="45" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+          <path d="M 50 50 L 50 5 A 45 45 0 0 1 95 50 Z" fill="var(--primary)" stroke="#333" stroke-width="2"/>
+          <line x1="5" y1="50" x2="95" y2="50" stroke="#333" stroke-width="2"/>
+          <line x1="50" y1="5" x2="50" y2="95" stroke="#333" stroke-width="2"/>
+        </svg>
+      </div>
+      <p style="text-align: left; background: #e8f0fe; padding: 15px; border-radius: 10px;">
+        <strong style="color:var(--primary);">Numerator (Top): 1</strong><br>How many slices you have (the colored slice).<br><br>
+        <strong style="color:var(--danger);">Denominator (Bottom): 4</strong><br>The TOTAL number of equal slices that make up the whole pizza.
+      </p>
+    </div>
+
+    <div id="slide-2" class="hidden">
+      <h2>The Golden Rule: Equal Parts</h2>
+      <p>Fractions only work if every single piece is exactly the same size.</p>
+      <div style="display:flex; justify-content:space-around; margin:20px 0;">
+        <div>
+          <svg viewBox="0 0 100 100" style="width:100px;"><rect x="10" y="10" width="80" height="80" fill="none" stroke="#333" stroke-width="4"/><line x1="50" y1="10" x2="50" y2="90" stroke="#333" stroke-width="4"/></svg>
+          <div style="font-size:2rem; color:var(--success);">✅</div>
+        </div>
+        <div>
+          <svg viewBox="0 0 100 100" style="width:100px;"><rect x="10" y="10" width="80" height="80" fill="none" stroke="#333" stroke-width="4"/><line x1="20" y1="10" x2="20" y2="90" stroke="#333" stroke-width="4"/></svg>
+          <div style="font-size:2rem; color:var(--danger);">❌</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="slide-3" class="hidden">
+      <h2>Ready to Prove Mastery?</h2>
+      <p>You must identify <b>5 fractions correctly in a row</b>.</p>
+      <p>Take your time. Always start by counting the TOTAL pieces to find your bottom number.</p>
+    </div>
+
+    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
+  </div>
+
+  <!-- ZONE 2: PRACTICE -->
+  <div class="content-zone hidden" id="zone-practice">
+    <h2>What fraction is colored?</h2>
+    <div class="svg-container" id="fraction-visual"></div>
+    
+    <div class="input-col">
+      <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
+      <div style="width:90px; height:5px; background:#333;"></div>
+      <div class="f-box" id="p-den" onclick="setActive('p-den')"></div>
+    </div>
+  </div>
+
+  <!-- KEYPAD -->
+  <div class="keypad hidden" id="keypad">
+    <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
+    <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
+    <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
+    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" onclick="nextBox()">↓ Next</div>
+    <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
+  </div>
+
+  <!-- TRAFFIC LIGHT MODAL -->
+  <div class="modal-overlay" id="hint-modal">
+    <div class="modal-box">
+      <div class="traffic-light" id="modal-icon">🟡</div>
+      <h3 id="modal-title" style="margin-top:0;">Hint</h3>
+      <p id="modal-text"></p>
+      <button class="btn btn-primary" onclick="closeModal()">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let slideIndex = 1;
+  const totalSlides = 3;
+  let xp = 0, streak = 0, mistakesOnCurrent = 0;
+  let activeBoxId = 'p-num';
+  
+  let masteryPoints = 0;
+  const masteryTarget = 5;
+  let currentQ = {}; 
+
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+      if(slideIndex === totalSlides) document.getElementById('btn-next-slide').innerText = "Start Practice";
+    } else {
+      startPractice();
+    }
+  }
+
+  function startPractice() {
+    document.getElementById('zone-learn').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+    document.getElementById('keypad').classList.remove('hidden');
+    updateProgressBar();
+    loadQuestion();
+  }
+
+  function setActive(id) {
+    document.getElementById(activeBoxId).classList.remove('active');
+    activeBoxId = id;
+    let box = document.getElementById(activeBoxId);
+    box.classList.add('active');
+    box.innerText = ''; 
+  }
+
+  function typeNum(num) {
+    let box = document.getElementById(activeBoxId);
+    if(box.innerText.length < 2) box.innerText += num;
+  }
+  function deleteNum() {
+    let box = document.getElementById(activeBoxId);
+    box.innerText = box.innerText.slice(0, -1);
+  }
+  function nextBox() {
+    if(activeBoxId === 'p-num') setActive('p-den');
+    else setActive('p-num');
+  }
+
+  // --- SVG ALGORITHMIC GENERATOR (Zero Data Visuals) ---
+  function generateVisualFraction() {
+    let d = Math.floor(Math.random() * 9) + 2; // Denominator 2 to 10
+    let n = Math.floor(Math.random() * (d - 1)) + 1; // Numerator 1 to d-1
+    
+    // Draw an SVG Rectangle based on d and n
+    let width = 300;
+    let height = 80;
+    let pieceWidth = width / d;
+    
+    let svgHTML = `<svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: auto; border: 3px solid #333; border-radius: 4px;">`;
+    
+    for(let i = 0; i < d; i++) {
+      let fill = (i < n) ? "var(--primary)" : "#fff";
+      svgHTML += `<rect x="${i * pieceWidth}" y="0" width="${pieceWidth}" height="${height}" fill="${fill}" stroke="#333" stroke-width="2"/>`;
+    }
+    svgHTML += `</svg>`;
+    
+    return { n: n, d: d, html: svgHTML };
+  }
+
+  function loadQuestion() {
+    mistakesOnCurrent = 0;
+    document.getElementById('p-num').innerText = '';
+    document.getElementById('p-den').innerText = '';
+    setActive('p-num');
+    
+    currentQ = generateVisualFraction();
+    document.getElementById('fraction-visual').innerHTML = currentQ.html;
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function submitAnswer() {
+    let userN = parseInt(document.getElementById('p-num').innerText);
+    let userD = parseInt(document.getElementById('p-den').innerText);
+    if(isNaN(userN) || isNaN(userD)) return;
+
+    if(userN === currentQ.n && userD === currentQ.d) {
+      if (mistakesOnCurrent === 0) {
+        masteryPoints++;
+        streak++;
+        xp += (streak >= 3) ? 150 : 100;
+        updateProgressBar();
+        showModal('🟢', 'Mastery +1', 'Perfect first try!');
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
+        else setTimeout(() => { closeModal(); loadQuestion(); }, 1500);
+      } else {
+        streak = 0;
+        xp += 10;
+        document.getElementById('xp-counter').innerText = xp;
+        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
+        setTimeout(() => { closeModal(); loadQuestion(); }, 2500);
+      }
+    } else {
+      streak = 0;
+      if (mistakesOnCurrent === 0) {
+        masteryPoints = Math.max(0, masteryPoints - 1);
+        updateProgressBar();
+      }
+      mistakesOnCurrent++;
+      
+      // DIAGNOSTIC ERROR CATCHING
+      if(userD === (currentQ.d - currentQ.n)) {
+        showModal('🟡', 'Mastery Lost', `You counted the empty pieces for the bottom number. The bottom number must be the TOTAL pieces (colored + empty).`);
+      } else if (userN === currentQ.d && userD === currentQ.n) {
+        showModal('🟡', 'Mastery Lost', `You flipped the numbers! Total pieces go on the bottom. Colored pieces go on top.`);
+      } else if (userN === currentQ.d) {
+        showModal('🟡', 'Mastery Lost', `The top number is only the COLORED pieces, not all the pieces.`);
+      } else {
+        showModal('🔴', 'Mastery Lost', `Let's review. There are ${currentQ.d} total pieces (bottom). There are ${currentQ.n} colored pieces (top).`);
+      }
+    }
+  }
+
+  function showModal(icon, title, text) {
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
+    document.getElementById('modal-text').innerText = text;
+    document.getElementById('hint-modal').classList.add('show');
+  }
+
+  function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
+
+  function endModule() {
+    closeModal();
+    document.getElementById('zone-practice').classList.add('hidden');
+    document.getElementById('keypad').classList.add('hidden');
+    document.getElementById('zone-learn').classList.remove('hidden');
+    document.getElementById('zone-learn').innerHTML = `
+      <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
+      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Concept Lab.</p>`;
+  }
+</script>
+</body>
+</html>
