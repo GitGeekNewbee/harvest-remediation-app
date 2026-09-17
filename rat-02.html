@@ -24,7 +24,7 @@
     /* Content */
     .content-zone { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hidden { display: none !important; }
-    h2 { margin-top: 0; color: #333; }
+    h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
     .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
@@ -52,7 +52,7 @@
     /* Modals */
     .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
     .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 80%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
     .traffic-light { font-size: 3rem; margin-bottom: 10px; }
   </style>
 </head>
@@ -72,21 +72,22 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Before calculating equivalent fractions, prove your basic arithmetic is fully automated.</p>
+    <p>Before calculating equivalent fractions, you must pass 3 rapid 60-second levels to prove your foundational maths is fully automated.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:20px 0;">
-      <b>The Rules:</b>
+      <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li>Mixed operations (+, -, ×, ÷).</li>
-        <li>You have exactly 120 seconds.</li>
-        <li>Attempt at least 20 questions with 90% accuracy.</li>
+        <li><b>Level 1:</b> Number Bonds</li>
+        <li><b>Level 2:</b> Bridging 10</li>
+        <li><b>Level 3:</b> Times Tables</li>
       </ul>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
-    <button class="btn btn-warning" onclick="startSprint()">Start 2-Minute Sprint</button>
+    <button class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
   </div>
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);">Fluency Sprint</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Number Bonds</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
@@ -184,8 +185,8 @@
     <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
     <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
     <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
-    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" style="background:transparent; border:none; box-shadow:none;"></div>
-    <div class="key key-action" onclick="submitAnswer()">Submit</div>
+    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" id="key-next" onclick="nextBox()">↓ Next</div>
+    <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
   </div>
 
   <!-- TRAFFIC LIGHT MODAL -->
@@ -193,7 +194,7 @@
     <div class="modal-box">
       <div class="traffic-light" id="modal-icon">🟡</div>
       <h3 id="modal-title" style="margin-top:0;">Hint</h3>
-      <p id="modal-text"></p>
+      <p id="modal-text" style="font-size:1.1rem; line-height:1.5;"></p>
       <button class="btn btn-primary" onclick="closeModal()" id="modal-btn">I Understand</button>
     </div>
   </div>
@@ -205,12 +206,14 @@
   let activeBoxId = 'sprint-ans';
   let xp = 0;
 
-  // Gatekeeper Variables
+  // CASCADING GATEKEEPER VARIABLES
+  let gateLevel = 1; 
   let sprintTimer;
-  let timeLeft = 120;
+  let timeLeft = 60; 
   let sprintAttempts = 0;
   let sprintCorrect = 0;
   let currentSprintQ = {};
+  const sprintTargetAttempts = 15;
 
   // Mastery Variables
   let slideIndex = 1;
@@ -228,7 +231,7 @@
     activeBoxId = id;
     let box = document.getElementById(activeBoxId);
     if(box) box.classList.add('active');
-    if(box) box.innerText = ''; 
+    if(box && appState === 'PRACTICE') box.innerText = ''; 
   }
 
   function typeNum(num) {
@@ -241,21 +244,35 @@
     if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
+  function nextBox() {
+    // RAT-02 only has one active input box in practice mode, so Next does nothing here.
+  }
+
   function submitAnswer() {
     if(appState === 'GATEKEEPER') checkSprintAnswer();
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- ZONE 0: FLUENCY GATEKEEPER ---
+  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
+    let nextBtn = document.getElementById('key-next');
+    if(nextBtn) nextBtn.style.display = 'none'; // Ensure hidden during sprint
+    
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Number Bonds";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
+
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
-    document.getElementById('mastery-text').innerText = "02:00";
+    document.getElementById('mastery-text').innerText = "01:00";
     
+    sprintAttempts = 0;
+    sprintCorrect = 0;
+    timeLeft = 60;
     setActive('sprint-ans');
     loadSprintQuestion();
     
@@ -274,42 +291,54 @@
     }, 1000);
   }
 
-  function generateMixedFact() {
-    const ops = ['+', '-', '×', '÷'];
-    const op = ops[Math.floor(Math.random() * ops.length)];
-    let n1, n2, ans, qText;
-
-    switch(op) {
-      case '+':
-        n1 = Math.floor(Math.random() * 20) + 1; 
-        n2 = Math.floor(Math.random() * 20) + 1; 
-        ans = n1 + n2;
-        qText = `${n1} + ${n2} =`;
-        break;
-      case '-':
-        n1 = Math.floor(Math.random() * 20) + 10; 
-        n2 = Math.floor(Math.random() * (n1 - 1)) + 1; 
-        ans = n1 - n2;
-        qText = `${n1} - ${n2} =`;
-        break;
-      case '×':
-        n1 = Math.floor(Math.random() * 12) + 1;
-        n2 = Math.floor(Math.random() * 12) + 1;
-        ans = n1 * n2;
-        qText = `${n1} × ${n2} =`;
-        break;
-      case '÷':
-        ans = Math.floor(Math.random() * 12) + 1; 
-        n2 = Math.floor(Math.random() * 12) + 1;  
-        n1 = ans * n2; 
-        qText = `${n1} ÷ ${n2} =`;
-        break;
+  function generateGateQuestion(level) {
+    let qText, ans;
+    if (level === 1) { 
+      if (Math.random() > 0.5) { 
+         ans = Math.floor(Math.random() * 9) + 1; 
+         let bond = 10 - ans;
+         qText = `10 - ${bond} =`;
+         if(Math.random() > 0.5) { 
+             ans = Math.floor(Math.random() * 19) + 1;
+             bond = 20 - ans;
+             qText = `20 - ${bond} =`;
+         }
+      } else { 
+         ans = Math.floor(Math.random() * 8) + 2; 
+         let n1 = Math.floor(Math.random() * (ans - 1)) + 1;
+         let n2 = ans - n1;
+         qText = `${n1} + ${n2} =`;
+      }
+    } else if (level === 2) { 
+      if (Math.random() > 0.5) { 
+         let n1 = Math.floor(Math.random() * 4) + 6; 
+         let n2 = Math.floor(Math.random() * 4) + 5; 
+         ans = n1 + n2;
+         qText = `${n1} + ${n2} =`;
+      } else { 
+         ans = Math.floor(Math.random() * 4) + 5; 
+         let n2 = Math.floor(Math.random() * 4) + 6; 
+         let n1 = ans + n2; 
+         qText = `${n1} - ${n2} =`;
+      }
+    } else { 
+      if (Math.random() > 0.5) {
+         let n1 = Math.floor(Math.random() * 11) + 2; 
+         let n2 = Math.floor(Math.random() * 11) + 2; 
+         ans = n1 * n2;
+         qText = `${n1} × ${n2} =`;
+      } else {
+         ans = Math.floor(Math.random() * 11) + 2; 
+         let n2 = Math.floor(Math.random() * 11) + 2; 
+         let n1 = ans * n2;
+         qText = `${n1} ÷ ${n2} =`;
+      }
     }
     return { qText: qText, ans: ans };
   }
 
   function loadSprintQuestion() {
-    currentSprintQ = generateMixedFact();
+    currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerText = currentSprintQ.qText;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
@@ -337,34 +366,44 @@
     document.getElementById('keypad').classList.add('hidden');
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
-    if(sprintAttempts >= 20 && accuracy >= 90) {
-      showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational fluency. The lesson is now unlocked.`);
-      document.getElementById('modal-btn').onclick = unlockLesson;
+    if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      if (gateLevel < 3) {
+        showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
+        gateLevel++;
+        document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
+        document.getElementById('modal-btn').onclick = startSprint;
+      } else {
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational maths is fully automated. The lesson is now unlocked.`);
+        document.getElementById('modal-btn').innerText = "Enter Lesson";
+        document.getElementById('modal-btn').onclick = unlockLesson;
+      }
     } else {
-      showModal('🔴', 'Gate Failed', `Attempts: ${sprintAttempts} (Target: 20)\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. This will block you from learning fractions. You must try the sprint again.`);
+      let hintText = "";
+      if (gateLevel === 1) hintText = `\n\n💡 OLICO Hint: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+      else if (gateLevel === 2) hintText = `\n\n💡 OLICO Hint: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+      else if (gateLevel === 3) hintText = `\n\n💡 OLICO Hint: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+
+      showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
+      document.getElementById('modal-btn').innerText = "Try Again";
       document.getElementById('modal-btn').onclick = resetSprint;
     }
   }
 
   function resetSprint() {
     closeModal();
-    timeLeft = 120;
-    sprintAttempts = 0;
-    sprintCorrect = 0;
     document.getElementById('hud-stats').classList.remove('timer-alert');
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.remove('hidden');
+    document.getElementById('keypad').classList.add('hidden'); 
   }
 
   function unlockLesson() {
     closeModal();
     appState = 'LEARN';
     document.getElementById('hud-stats').classList.remove('timer-alert');
-    
     document.getElementById('hud-label').innerText = "MASTERY METER";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
-    
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-learn').classList.remove('hidden');
   }
@@ -387,15 +426,20 @@
     document.getElementById('zone-learn').classList.add('hidden');
     document.getElementById('zone-practice').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
+    
+    // In RAT-02, there is only one box, so we safely hide Next in practice zone to prevent confusion
+    let nextBtn = document.getElementById('key-next');
+    if(nextBtn) nextBtn.style.display = 'none';
+
     updateProgressBar();
     setActive('p-num');
     loadPracticeQuestion();
   }
 
   function generateEquivalentFact() {
-    let d1 = Math.floor(Math.random() * 9) + 2; // Denominator 2 to 10
-    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; // Numerator 1 to d1-1
-    let multiplier = Math.floor(Math.random() * 5) + 2; // Multiplier 2 to 6
+    let d1 = Math.floor(Math.random() * 9) + 2; 
+    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
+    let multiplier = Math.floor(Math.random() * 5) + 2; 
     
     let d2 = d1 * multiplier;
     let targetN = n1 * multiplier;
@@ -449,7 +493,6 @@
       }
       mistakesOnCurrent++;
       
-      // DIAGNOSTIC ERROR CATCHING (Agent 1 Specs)
       let addedDifference = currentQ.n1 + (currentQ.d2 - currentQ.d1);
       
       if(userN === addedDifference) {
@@ -471,7 +514,10 @@
     document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
     document.getElementById('modal-text').innerText = text;
     document.getElementById('hint-modal').classList.add('show');
-    if(appState === 'PRACTICE') document.getElementById('modal-btn').onclick = closeModal;
+    if(appState === 'PRACTICE') {
+      document.getElementById('modal-btn').innerText = "I Understand";
+      document.getElementById('modal-btn').onclick = closeModal;
+    }
   }
 
   function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
