@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - Dashboard</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; --locked: #e0e0e0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; min-height: 100dvh; touch-action: manipulation; }
+    .app-container { width: 100%; max-width: 500px; background: var(--card); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+    
+    /* Header & Profile */
+    .header { padding: 25px 20px 15px; background: var(--primary); color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
+    .profile-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .student-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
+    .stats-pill { background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+    
+    /* Path Container */
+    .path-container { padding: 25px 20px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    
+    /* Node Styling */
+    .node { display: flex; align-items: center; background: white; border: 2px solid #f0f0f0; border-radius: 16px; padding: 15px; text-decoration: none; color: inherit; transition: all 0.2s; position: relative; }
+    .node-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+    .node-content { flex-grow: 1; }
+    .node-title { margin: 0 0 4px 0; font-size: 1.1rem; font-weight: bold; }
+    .node-desc { margin: 0; font-size: 0.85rem; color: #5f6368; }
+    
+    /* Node States */
+    .node.unlocked { border-color: var(--primary); box-shadow: 0 4px 6px rgba(26,115,232,0.1); cursor: pointer; }
+    .node.unlocked .node-icon { background: #e8f0fe; color: var(--primary); }
+    
+    .node.completed { border-color: var(--success); background: #fbfdfc; }
+    .node.completed .node-icon { background: var(--success); color: white; }
+    
+    .node.locked { border-color: var(--locked); opacity: 0.6; cursor: not-allowed; }
+    .node.locked .node-icon { background: var(--locked); color: #777; }
+    
+    .node.intervention { border-color: var(--danger); background: #fffaf9; animation: softPulse 2s infinite alternate;}
+    .node.intervention .node-icon { background: var(--danger); color: white; }
+
+    @keyframes softPulse { from { box-shadow: 0 0 0 rgba(234,67,53,0); } to { box-shadow: 0 0 10px rgba(234,67,53,0.3); } }
+
+    /* Login Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--card); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box;}
+    .modal-overlay.hidden { display: none; }
+    .login-box { width: 100%; max-width: 350px; text-align: center; }
+    .login-input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #e0e0e0; border-radius: 12px; margin: 20px 0; box-sizing: border-box; text-align: center; font-weight: bold;}
+    .login-input:focus { border-color: var(--primary); outline: none; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; width: 100%; background: var(--primary); color: white; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <!-- LOGIN OVERLAY (Shows only on first visit) -->
+  <div class="modal-overlay" id="login-modal">
+    <div class="login-box">
+      <h1 style="font-size:3.5rem; margin-bottom:0;">🧠</h1>
+      <h2 style="color:var(--primary); margin-top:10px;">Harvest Concept Lab</h2>
+      <p style="color:#5f6368;">Enter your name to begin your rational numbers pathway. Your progress will be saved securely on this device.</p>
+      <input type="text" id="student-name-input" class="login-input" placeholder="Your Name" autocomplete="off">
+      <button class="btn" onclick="initializeProfile()">Start Learning</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD UI -->
+  <div class="header" id="dashboard-header" style="display:none;">
+    <div class="profile-row">
+      <h1 class="student-name" id="display-name">Student</h1>
+      <div class="stats-pill"><span id="display-xp">0</span> XP</div>
+    </div>
+    <p style="margin:0; font-size:0.9rem; opacity:0.9;">Master the operations. Build your foundation.</p>
+  </div>
+
+  <div class="path-container" id="path-container" style="display:none;">
+    <!-- Nodes will be injected here by Javascript -->
+  </div>
+
+</div>
+
+<script>
+  // --- DATABASE LOGIC (Zero-Data LocalStorage) ---
+  const STORAGE_KEY = 'harvest_maths_profile';
+  
+  // The master curriculum map
+  const curriculumMap = [
+    { id: 'RAT-01', title: 'Visual Fractions', desc: 'Identify numerators and denominators.', file: 'rat-01.html' },
+    { id: 'RAT-02', title: 'Equivalent Fractions', desc: 'Scale fractions perfectly.', file: 'rat-02.html' },
+    { id: 'RAT-03', title: 'Adding Like Denominators', desc: 'Add pieces of the same size.', file: 'rat-03.html' },
+    { id: 'RAT-04', title: 'Unlike Denominators', desc: 'Find the LCM and balance.', file: 'rat-04.html' },
+    { id: 'RAT-05', title: 'Mixed Numbers', desc: 'Convert top-heavy fractions.', file: 'rat-05.html' },
+    { id: 'RAT-06', title: 'Multiplying Fractions', desc: 'Top × Top, Bottom × Bottom.', file: 'rat-06.html' },
+    { id: 'RAT-07', title: 'Dividing Fractions', desc: 'Keep, Change, Flip.', file: 'rat-07.html' }
+  ];
+
+  let userProfile = {
+    name: "",
+    xp: 0,
+    unlockedNodeIndex: 0, 
+    completedNodes: [],
+    failedAttempts: {} // Tracks Gatekeeper failures to flag Teacher Intervention
+  };
+
+  // --- INITIALISATION ---
+  function loadProfile() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      userProfile = JSON.parse(saved);
+      document.getElementById('login-modal').classList.add('hidden');
+      document.getElementById('dashboard-header').style.display = 'block';
+      document.getElementById('path-container').style.display = 'flex';
+      renderDashboard();
+    }
+  }
+
+  function initializeProfile() {
+    const nameInput = document.getElementById('student-name-input').value.trim();
+    if (nameInput === "") return;
+    
+    userProfile.name = nameInput;
+    userProfile.unlockedNodeIndex = 0; // Starts at RAT-01
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userProfile));
+    loadProfile();
+  }
+
+  // --- RENDERING THE DAG (Directed Acyclic Graph) PATHWAY ---
+  function renderDashboard() {
+    document.getElementById('display-name').innerText = userProfile.name;
+    document.getElementById('display-xp').innerText = userProfile.xp;
+    
+    const container = document.getElementById('path-container');
+    container.innerHTML = ''; // Clear existing
+    
+    curriculumMap.forEach((node, index) => {
+      let stateClass = 'locked';
+      let iconText = '🔒';
+      let clickHandler = '';
+
+      // Determine Node State
+      if (userProfile.completedNodes.includes(node.id)) {
+        stateClass = 'completed';
+        iconText = '✓';
+        clickHandler = `onclick="window.location.href='${node.file}'"`; // Can replay
+      } else if (index === userProfile.unlockedNodeIndex) {
+        stateClass = 'unlocked';
+        iconText = '▶';
+        clickHandler = `onclick="window.location.href='${node.file}'"`;
+        
+        // Check for Attrition Risk (Teacher Flag)
+        if (userProfile.failedAttempts[node.id] >= 5) {
+          stateClass = 'intervention';
+          iconText = '✋';
+          node.desc = "Teacher Intervention Required. Please call Mr. Nash.";
+          clickHandler = ''; // Lock it until teacher overrides
+        }
+      }
+
+      // Build HTML
+      const nodeHTML = `
+        <div class="node ${stateClass}" ${clickHandler}>
+          <div class="node-icon">${iconText}</div>
+          <div class="node-content">
+            <h3 class="node-title">${node.id}: ${node.title}</h3>
+            <p class="node-desc">${node.desc}</p>
+          </div>
+        </div>
+      `;
+      container.innerHTML += nodeHTML;
+    });
+  }
+
+  // Run on load
+  window.onload = loadProfile;
+
+</script>
+</body>
+</html>
