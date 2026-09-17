@@ -532,5 +532,64 @@
       <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Concept Lab.</p>`;
   }
 </script>
+  <!-- 🔌 DASHBOARD SYNC PATCH -->
+  <script>
+    // 1. Auto-detect which module this is based on the HTML Title
+    const currentModuleId = document.title.split('- ')[1]; 
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+
+    // 2. Hook into the end of the module to save progress
+    endModule = function() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        profile.xp += xp; // Add the XP earned in this session
+        
+        // If this is the first time they beat it, log it and unlock the next node
+        if(!profile.completedNodes.includes(currentModuleId)) {
+          profile.completedNodes.push(currentModuleId);
+          
+          let currentIndex = curriculumOrder.indexOf(currentModuleId);
+          if (profile.unlockedNodeIndex === currentIndex) {
+            profile.unlockedNodeIndex = currentIndex + 1; 
+          }
+        }
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+
+      // Update the UI to show the Return button
+      closeModal();
+      document.getElementById('zone-practice').classList.add('hidden');
+      document.getElementById('keypad').classList.add('hidden');
+      document.getElementById('zone-learn').classList.remove('hidden');
+      document.getElementById('zone-learn').innerHTML = `
+        <h1 style="font-size:4rem; margin:0;">🏆</h1>
+        <h2 style="color:var(--success);">Module Mastered!</h2>
+        <h3 style="color:var(--primary);">Total: ${xp} XP</h3>
+        <p>Your progress has been saved securely to your device.</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+      `;
+    };
+
+    // 3. Hook into the Gatekeeper to track repeated failures (Teacher Intervention Flag)
+    const originalEvaluateSprint = evaluateSprint;
+    evaluateSprint = function() {
+      originalEvaluateSprint(); // Run the original Gatekeeper logic
+      
+      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+        // The student failed the sprint
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+          let profile = JSON.parse(saved);
+          if(!profile.failedAttempts[currentModuleId]) {
+            profile.failedAttempts[currentModuleId] = 0;
+          }
+          profile.failedAttempts[currentModuleId]++;
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+        }
+      }
+    };
+  </script>
 </body>
 </html>
