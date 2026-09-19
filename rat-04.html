@@ -403,7 +403,6 @@
     document.getElementById('zone-gate-intro').classList.remove('hidden');
     document.getElementById('keypad').classList.add('hidden'); 
     
-    // THE FIX: Dynamically update the button text to match the current level
     let startBtn = document.getElementById('btn-start-sprint');
     if(startBtn) startBtn.innerText = "Start Level " + gateLevel; 
   }
@@ -582,6 +581,31 @@
       <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
   }
 </script>
+
+  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <script>
+    document.addEventListener('keydown', function(event) {
+      // 1. If a modal is open, let Enter close it
+      let hintModal = document.getElementById('hint-modal');
+      if (hintModal && hintModal.classList.contains('show')) {
+        if (event.key === 'Enter') document.getElementById('modal-btn').click();
+        return;
+      }
+
+      // 2. Map physical keys to keypad functions
+      if (event.key >= '0' && event.key <= '9') {
+        typeNum(event.key);
+      } else if (event.key === 'Backspace' || event.key === 'Delete') {
+        deleteNum();
+      } else if (event.key === 'Enter') {
+        submitAnswer();
+      } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
+        event.preventDefault(); // Prevent tab from natively highlighting the URL bar
+        nextBox();
+      }
+    });
+  </script>
+
   <!-- 🔌 DASHBOARD SYNC PATCH -->
   <script>
     // 1. Auto-detect which module this is based on the HTML Title
