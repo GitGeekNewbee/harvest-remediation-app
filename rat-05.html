@@ -207,7 +207,7 @@
   // CASCADING GATEKEEPER VARIABLES
   let gateLevel = 1; 
   let sprintTimer;
-  let timeLeft = 60; // 60 seconds per level
+  let timeLeft = 60; 
   let sprintAttempts = 0;
   let sprintCorrect = 0;
   let currentSprintQ = {};
@@ -257,15 +257,15 @@
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
+    closeModal(); // FORCE MODAL TO CLOSE ON NEW LEVEL
+    
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    // Safely hide the NEXT button to protect working memory during the sprint
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'none';
     
-    // Update UI based on Level
     if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Number Bonds";
     else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
     else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
@@ -279,6 +279,8 @@
     timeLeft = 60;
     setActive('sprint-ans');
     loadSprintQuestion();
+    
+    if(sprintTimer) clearInterval(sprintTimer); // SAFETY LOCK
     
     sprintTimer = setInterval(() => {
       timeLeft--;
@@ -297,43 +299,43 @@
 
   function generateGateQuestion(level) {
     let qText, ans;
-    if (level === 1) { // Level 1: Number Bonds (Make 10 & 20)
-      if (Math.random() > 0.5) { // Subtraction checking bonds
-         ans = Math.floor(Math.random() * 9) + 1; // 1 to 9
+    if (level === 1) { 
+      if (Math.random() > 0.5) { 
+         ans = Math.floor(Math.random() * 9) + 1; 
          let bond = 10 - ans;
          qText = `10 - ${bond} =`;
-         if(Math.random() > 0.5) { // Expand to 20
+         if(Math.random() > 0.5) { 
              ans = Math.floor(Math.random() * 19) + 1;
              bond = 20 - ans;
              qText = `20 - ${bond} =`;
          }
-      } else { // Addition under 10
-         ans = Math.floor(Math.random() * 8) + 2; // 2 to 9
+      } else { 
+         ans = Math.floor(Math.random() * 8) + 2; 
          let n1 = Math.floor(Math.random() * (ans - 1)) + 1;
          let n2 = ans - n1;
          qText = `${n1} + ${n2} =`;
       }
-    } else if (level === 2) { // Level 2: Bridging 10
-      if (Math.random() > 0.5) { // Addition crossing 10
-         let n1 = Math.floor(Math.random() * 4) + 6; // 6,7,8,9
-         let n2 = Math.floor(Math.random() * 4) + 5; // 5,6,7,8
+    } else if (level === 2) { 
+      if (Math.random() > 0.5) { 
+         let n1 = Math.floor(Math.random() * 4) + 6; 
+         let n2 = Math.floor(Math.random() * 4) + 5; 
          ans = n1 + n2;
          qText = `${n1} + ${n2} =`;
-      } else { // Subtraction crossing 10
-         ans = Math.floor(Math.random() * 4) + 5; // 5..8
-         let n2 = Math.floor(Math.random() * 4) + 6; // 6..9
-         let n1 = ans + n2; // 11..17
+      } else { 
+         ans = Math.floor(Math.random() * 4) + 5; 
+         let n2 = Math.floor(Math.random() * 4) + 6; 
+         let n1 = ans + n2; 
          qText = `${n1} - ${n2} =`;
       }
-    } else { // Level 3: Times Tables (Mult & Div)
+    } else { 
       if (Math.random() > 0.5) {
-         let n1 = Math.floor(Math.random() * 11) + 2; // 2..12
-         let n2 = Math.floor(Math.random() * 11) + 2; // 2..12
+         let n1 = Math.floor(Math.random() * 11) + 2; 
+         let n2 = Math.floor(Math.random() * 11) + 2; 
          ans = n1 * n2;
          qText = `${n1} × ${n2} =`;
       } else {
-         ans = Math.floor(Math.random() * 11) + 2; // 2..12
-         let n2 = Math.floor(Math.random() * 11) + 2; // 2..12
+         ans = Math.floor(Math.random() * 11) + 2; 
+         let n2 = Math.floor(Math.random() * 11) + 2; 
          let n1 = ans * n2;
          qText = `${n1} ÷ ${n2} =`;
       }
@@ -382,15 +384,10 @@
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
     } else {
-      // THE OLICO HINTS MATRIX
       let hintText = "";
-      if (gateLevel === 1) {
-        hintText = `\n\n💡 OLICO Hint: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-      } else if (gateLevel === 2) {
-        hintText = `\n\n💡 OLICO Hint: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-      } else if (gateLevel === 3) {
-        hintText = `\n\n💡 OLICO Hint: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
-      }
+      if (gateLevel === 1) hintText = `\n\n💡 OLICO Hint: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+      else if (gateLevel === 2) hintText = `\n\n💡 OLICO Hint: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+      else if (gateLevel === 3) hintText = `\n\n💡 OLICO Hint: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
       showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
       document.getElementById('modal-btn').innerText = "Try Again";
@@ -403,7 +400,6 @@
     document.getElementById('hud-stats').classList.remove('timer-alert');
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.remove('hidden');
-    // Ensure keypad remains hidden while on intro screen
     document.getElementById('keypad').classList.add('hidden'); 
   }
 
@@ -411,11 +407,9 @@
     closeModal();
     appState = 'LEARN';
     document.getElementById('hud-stats').classList.remove('timer-alert');
-    
     document.getElementById('hud-label').innerText = "MASTERY METER";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
-    
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-learn').classList.remove('hidden');
   }
@@ -439,7 +433,6 @@
     document.getElementById('zone-practice').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    // Safely re-enable the NEXT button so they can toggle between boxes
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'flex';
     
@@ -548,7 +541,7 @@
     document.getElementById('zone-learn').classList.remove('hidden');
     document.getElementById('zone-learn').innerHTML = `
       <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
-      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Concept Lab.</p>`;
+      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
   }
 </script>
   <!-- 🔌 DASHBOARD SYNC PATCH -->
@@ -562,9 +555,8 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
         let profile = JSON.parse(saved);
-        profile.xp += xp; // Add the XP earned in this session
+        profile.xp += xp; 
         
-        // If this is the first time they beat it, log it and unlock the next node
         if(!profile.completedNodes.includes(currentModuleId)) {
           profile.completedNodes.push(currentModuleId);
           
@@ -576,7 +568,6 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
-      // Update the UI to show the Return button
       closeModal();
       document.getElementById('zone-practice').classList.add('hidden');
       document.getElementById('keypad').classList.add('hidden');
@@ -593,11 +584,10 @@
     // 3. Hook into the Gatekeeper to track repeated failures (Teacher Intervention Flag)
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); // Run the original Gatekeeper logic
+      originalEvaluateSprint(); 
       
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-        // The student failed the sprint
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
           let profile = JSON.parse(saved);
