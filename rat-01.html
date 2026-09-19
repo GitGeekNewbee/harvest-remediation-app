@@ -384,6 +384,10 @@
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.remove('hidden');
     document.getElementById('keypad').classList.add('hidden'); 
+    
+    // THE FIX: Dynamically update the button text to match the current level
+    let startBtn = document.getElementById('btn-start-sprint');
+    if(startBtn) startBtn.innerText = "Start Level " + gateLevel; 
   }
 
   function unlockLesson() {
