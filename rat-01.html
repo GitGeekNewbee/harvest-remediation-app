@@ -240,6 +240,8 @@
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
+    closeModal(); // FORCE MODAL TO CLOSE ON NEW LEVEL
+    
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
@@ -260,6 +262,8 @@
     timeLeft = 60;
     setActive('sprint-ans');
     loadSprintQuestion();
+    
+    if(sprintTimer) clearInterval(sprintTimer); // SAFETY LOCK
     
     sprintTimer = setInterval(() => {
       timeLeft--;
@@ -516,7 +520,7 @@
     document.getElementById('zone-learn').classList.remove('hidden');
     document.getElementById('zone-learn').innerHTML = `
       <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
-      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Concept Lab.</p>`;
+      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
   }
 </script>
   <!-- 🔌 DASHBOARD SYNC PATCH -->
@@ -530,9 +534,8 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
         let profile = JSON.parse(saved);
-        profile.xp += xp; // Add the XP earned in this session
+        profile.xp += xp; 
         
-        // If this is the first time they beat it, log it and unlock the next node
         if(!profile.completedNodes.includes(currentModuleId)) {
           profile.completedNodes.push(currentModuleId);
           
@@ -544,7 +547,6 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
-      // Update the UI to show the Return button
       closeModal();
       document.getElementById('zone-practice').classList.add('hidden');
       document.getElementById('keypad').classList.add('hidden');
@@ -561,11 +563,10 @@
     // 3. Hook into the Gatekeeper to track repeated failures (Teacher Intervention Flag)
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); // Run the original Gatekeeper logic
+      originalEvaluateSprint(); 
       
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-        // The student failed the sprint
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
           let profile = JSON.parse(saved);
