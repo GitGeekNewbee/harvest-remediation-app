@@ -6,7 +6,8 @@
   <title>Harvest Concept Lab - RAT-01</title>
   <style>
     :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100vh; overflow: hidden; user-select: none; touch-action: manipulation;}
+    /* FIX 1: 100dvh ensures the mobile browser toolbar never hides the keypad */
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
     .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
     
     /* HUD */
@@ -22,30 +23,30 @@
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
     /* Content */
-    .content-zone { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 20px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 10px 0; gap: 15px; }
     .v-frac { display: inline-flex; flex-direction: column; align-items: center; }
     .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
     .v-den { padding: 0 8px; }
-    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 15px 0; }
     
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { width: 70px; height: 60px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
+    .f-box { width: 70px; height: 55px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
-    /* Keypad */
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 25px; }
-    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 12px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    /* Keypad - Tightened spacing to keep Submit button accessible */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; }
+    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .key:active { background: #e8eaed; transform: translateY(2px); }
     .key-action { grid-column: span 3; background: var(--primary); color: white; }
 
@@ -56,7 +57,7 @@
     .traffic-light { font-size: 3rem; margin-bottom: 10px; }
 
     /* SVG Containers */
-    .svg-container { width: 150px; height: 150px; margin: 20px auto; }
+    .svg-container { width: 130px; height: 130px; margin: 10px auto; }
   </style>
 </head>
 <body>
@@ -76,7 +77,7 @@
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
     <p>Before studying fractions, you must pass 3 rapid 60-second levels to prove your foundational maths is fully automated.</p>
-    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:20px 0;">
+    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
         <li><b>Level 1:</b> Number Bonds</li>
@@ -187,6 +188,7 @@
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
   let xp = 0;
+  const currentModuleId = document.title.split('- ')[1]; 
 
   // CASCADING GATEKEEPER VARIABLES
   let gateLevel = 1; 
@@ -204,6 +206,24 @@
   let masteryPoints = 0;
   const masteryTarget = 5;
   let currentQ = {}; 
+
+  // --- FIX 2: GATEKEEPER MEMORY INITIALIZATION ---
+  let savedProf = localStorage.getItem('harvest_maths_profile');
+  if(savedProf) {
+      let p = JSON.parse(savedProf);
+      if(!p.gateLevels) {
+          p.gateLevels = {};
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      }
+      if(p.gateLevels[currentModuleId]) {
+          gateLevel = p.gateLevels[currentModuleId];
+      }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      let startBtn = document.getElementById('btn-start-sprint');
+      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
+  });
 
   // --- KEYPAD LOGIC ---
   function setActive(id) {
@@ -240,7 +260,7 @@
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
-    closeModal(); // FORCE MODAL TO CLOSE ON NEW LEVEL
+    closeModal(); 
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -263,7 +283,7 @@
     setActive('sprint-ans');
     loadSprintQuestion();
     
-    if(sprintTimer) clearInterval(sprintTimer); // SAFETY LOCK
+    if(sprintTimer) clearInterval(sprintTimer); 
     
     sprintTimer = setInterval(() => {
       timeLeft--;
@@ -359,18 +379,36 @@
       if (gateLevel < 3) {
         showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
         gateLevel++;
+        
+        // Save progress explicitly so they don't fall back if they reload
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            p.gateLevels[currentModuleId] = gateLevel;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+
         document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
         document.getElementById('modal-btn').onclick = startSprint;
       } else {
+        // Reset gatekeeper for future module replays
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            p.gateLevels[currentModuleId] = 1;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+
         showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational maths is fully automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
     } else {
       let hintText = "";
-      if (gateLevel === 1) hintText = `\n\n💡 OLICO Hint: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-      else if (gateLevel === 2) hintText = `\n\n💡 OLICO Hint: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-      else if (gateLevel === 3) hintText = `\n\n💡 OLICO Hint: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+      // FIX 3: SCRUBBED BRANDING
+      if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+      else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+      else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
       showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
       document.getElementById('modal-btn').innerText = "Try Again";
@@ -530,14 +568,11 @@
   <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
-      // 1. If a modal is open, let Enter close it
       let hintModal = document.getElementById('hint-modal');
       if (hintModal && hintModal.classList.contains('show')) {
         if (event.key === 'Enter') document.getElementById('modal-btn').click();
         return;
       }
-
-      // 2. Map physical keys to keypad functions
       if (event.key >= '0' && event.key <= '9') {
         typeNum(event.key);
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
@@ -545,7 +580,7 @@
       } else if (event.key === 'Enter') {
         submitAnswer();
       } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
-        event.preventDefault(); // Prevent tab from natively highlighting the URL bar
+        event.preventDefault(); 
         nextBox();
       }
     });
@@ -553,11 +588,8 @@
 
   <!-- 🔌 DASHBOARD SYNC PATCH -->
   <script>
-    // 1. Auto-detect which module this is based on the HTML Title
-    const currentModuleId = document.title.split('- ')[1]; 
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
 
-    // 2. Hook into the end of the module to save progress
     endModule = function() {
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
@@ -588,7 +620,6 @@
       `;
     };
 
-    // 3. Hook into the Gatekeeper to track repeated failures (Teacher Intervention Flag)
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
       originalEvaluateSprint(); 
