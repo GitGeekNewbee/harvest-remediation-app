@@ -673,7 +673,6 @@
       }
       mistakesOnCurrent++;
       
-      // ERROR CATCHING MATRIX
       if(userD !== currentQ.d) {
         showModal('🟡', 'Changed Denominator', `Check your bottom number! The size of the slices did not change. The denominator must stay exactly the same (${currentQ.d}).`);
       } 
@@ -774,7 +773,8 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); 
+      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
         let saved = localStorage.getItem('harvest_maths_profile');
