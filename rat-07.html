@@ -615,6 +615,7 @@
     let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
     let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
     
+    // K-C-F means answer is (n1/d1) * (d2/n2)
     return { n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * d2, ansD: d1 * n2 };
   }
 
@@ -776,7 +777,8 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); 
+      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
         let saved = localStorage.getItem('harvest_maths_profile');
