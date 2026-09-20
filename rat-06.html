@@ -776,7 +776,8 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); 
+      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
         let saved = localStorage.getItem('harvest_maths_profile');
