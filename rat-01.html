@@ -6,7 +6,6 @@
   <title>Harvest Concept Lab - RAT-01</title>
   <style>
     :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
-    /* FIX 1: 100dvh ensures the mobile browser toolbar never hides the keypad */
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
     .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
     
@@ -44,8 +43,8 @@
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
-    /* Keypad - Tightened spacing to keep Submit button accessible */
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; }
+    /* Keypad */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
     .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .key:active { background: #e8eaed; transform: translateY(2px); }
     .key-action { grid-column: span 3; background: var(--primary); color: white; }
@@ -89,7 +88,7 @@
     <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
   </div>
 
-  <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
+  <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT & REMEDIATION -->
   <div class="content-zone hidden" id="zone-gate-active">
     <h2 style="color:var(--warning);" id="sprint-title">Level 1: Number Bonds</h2>
     <div class="sprint-math" id="sprint-q"></div>
@@ -198,6 +197,11 @@
   let sprintCorrect = 0;
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
+  
+  // REMEDIATION VARIABLES
+  let sessionMissed = [];
+  let currentRemediationQ = null;
+  let remediationIndex = -1;
 
   // Mastery Variables
   let slideIndex = 1;
@@ -207,7 +211,7 @@
   const masteryTarget = 5;
   let currentQ = {}; 
 
-  // --- FIX 2: GATEKEEPER MEMORY INITIALIZATION ---
+  // --- INITIALIZATION & ANTI-AMNESIA ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
   if(savedProf) {
       let p = JSON.parse(savedProf);
@@ -223,10 +227,21 @@
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
+
+      // REMEDIATION LOCK: Check if they abandoned a drill
+      if(savedProf) {
+          let p = JSON.parse(savedProf);
+          if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+              document.getElementById('modal-btn').innerText = "Resume Drill";
+              document.getElementById('modal-btn').onclick = startRemediation;
+          }
+      }
   });
 
   // --- KEYPAD LOGIC ---
   function setActive(id) {
+    if(appState === 'LOCKED') return;
     if(document.getElementById(activeBoxId)) {
       document.getElementById(activeBoxId).classList.remove('active');
     }
@@ -237,11 +252,13 @@
   }
 
   function typeNum(num) {
+    if(appState === 'LOCKED') return;
     let box = document.getElementById(activeBoxId);
     if(box && box.innerText.length < 3) box.innerText += num;
   }
   
   function deleteNum() {
+    if(appState === 'LOCKED') return;
     let box = document.getElementById(activeBoxId);
     if(box) box.innerText = box.innerText.slice(0, -1);
   }
@@ -255,12 +272,15 @@
 
   function submitAnswer() {
     if(appState === 'GATEKEEPER') checkSprintAnswer();
+    else if (appState === 'REMEDIATION') checkRemediationAnswer();
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
     closeModal(); 
+    appState = 'GATEKEEPER';
+    sessionMissed = []; // Clear array for new attempt
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -273,6 +293,7 @@
     else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
     else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
 
+    document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
     document.getElementById('mastery-text').innerText = "01:00";
@@ -367,6 +388,11 @@
       box.classList.add('flash-green');
     } else {
       box.classList.add('flash-red');
+      // OPERAND CATCHER: Save missed fact
+      let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
+      if(!exists) {
+          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
+      }
     }
     setTimeout(loadSprintQuestion, 200);
   }
@@ -376,11 +402,11 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      sessionMissed = []; // Clear array on pass
       if (gateLevel < 3) {
         showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
         gateLevel++;
         
-        // Save progress explicitly so they don't fall back if they reload
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
@@ -391,7 +417,6 @@
         document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
         document.getElementById('modal-btn').onclick = startSprint;
       } else {
-        // Reset gatekeeper for future module replays
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
@@ -404,20 +429,131 @@
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
     } else {
-      let hintText = "";
-      // FIX 3: SCRUBBED BRANDING
-      if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-      else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-      else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+      // If they missed facts, route to REMEDIATION DRILL
+      if(sessionMissed.length > 0) {
+          let saved = localStorage.getItem('harvest_maths_profile');
+          if(saved) {
+              let p = JSON.parse(saved);
+              if(!p.remediation) p.remediation = {};
+              p.remediation[currentModuleId] = sessionMissed;
+              localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          }
+          showModal('🔴', `Level ${gateLevel} Failed`, `Accuracy: ${Math.round(accuracy)}%\n\nYou need to run a focus drill on the specific facts you missed before trying again.`);
+          document.getElementById('modal-btn').innerText = "Start Focus Drill";
+          document.getElementById('modal-btn').onclick = startRemediation;
+      } else {
+          // Standard fail if they didn't miss specific facts (e.g. just too slow)
+          let hintText = "";
+          if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+          else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+          else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
-      showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
-      document.getElementById('modal-btn').innerText = "Try Again";
-      document.getElementById('modal-btn').onclick = resetSprint;
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
+          document.getElementById('modal-btn').innerText = "Try Again";
+          document.getElementById('modal-btn').onclick = resetSprint;
+      }
     }
+  }
+
+  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
+  function startRemediation() {
+      closeModal();
+      appState = 'REMEDIATION';
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      document.getElementById('zone-gate-active').classList.remove('hidden');
+      document.getElementById('keypad').classList.remove('hidden');
+      
+      document.getElementById('sprint-title').innerText = "Focus Drill";
+      document.getElementById('sprint-title').style.color = "var(--danger)";
+      document.getElementById('hud-label').innerText = "FACTS REMAINING";
+      document.getElementById('hud-track').classList.add('hidden');
+      document.getElementById('hud-stats').classList.remove('timer-alert');
+      
+      loadRemediationQuestion();
+  }
+
+  function loadRemediationQuestion() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+          let p = JSON.parse(saved);
+          let queue = p.remediation[currentModuleId] || [];
+          if(queue.length === 0) {
+              endRemediation();
+              return;
+          }
+          document.getElementById('mastery-text').innerText = queue.length;
+          remediationIndex = Math.floor(Math.random() * queue.length);
+          currentRemediationQ = queue[remediationIndex];
+          
+          // Display progress circles based on 3-strike streak
+          let dots = "⚪⚪⚪";
+          if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
+          if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
+          
+          document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
+          document.getElementById('sprint-q').innerText = currentRemediationQ.qText;
+          document.getElementById('sprint-ans').innerText = '';
+          document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
+          document.getElementById('sprint-ans').style.color = 'var(--primary)';
+          setActive('sprint-ans');
+      }
+  }
+
+  function checkRemediationAnswer() {
+      let userAns = parseInt(document.getElementById('sprint-ans').innerText);
+      if(isNaN(userAns)) return;
+
+      let box = document.getElementById('sprint-ans');
+      let saved = localStorage.getItem('harvest_maths_profile');
+      let p = saved ? JSON.parse(saved) : null;
+      if(!p || !p.remediation || !p.remediation[currentModuleId]) return;
+      
+      let queue = p.remediation[currentModuleId];
+
+      if(userAns === currentRemediationQ.ans) {
+          box.classList.add('flash-green');
+          xp += 2; // Micro reward
+          document.getElementById('xp-counter').innerText = xp;
+          
+          queue[remediationIndex].streak++;
+          if(queue[remediationIndex].streak >= 3) {
+              queue.splice(remediationIndex, 1); 
+          }
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          setTimeout(loadRemediationQuestion, 300);
+      } else {
+          box.classList.add('flash-red');
+          queue[remediationIndex].streak = 0; 
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          
+          appState = 'LOCKED'; 
+          document.getElementById('keypad').style.opacity = '0.5';
+          document.getElementById('keypad').style.pointerEvents = 'none';
+          
+          setTimeout(() => {
+              box.innerText = currentRemediationQ.ans; 
+              box.style.color = 'var(--danger)';
+          }, 300);
+
+          setTimeout(() => {
+              appState = 'REMEDIATION';
+              document.getElementById('keypad').style.opacity = '1';
+              document.getElementById('keypad').style.pointerEvents = 'all';
+              loadRemediationQuestion();
+          }, 2500);
+      }
+  }
+
+  function endRemediation() {
+      sessionMissed = [];
+      showModal('🟢', 'Drill Complete!', 'Excellent. You have built fluency in your blind spots. Let\'s try the Gatekeeper again.');
+      document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
+      document.getElementById('modal-btn').onclick = resetSprint; 
   }
 
   function resetSprint() {
     closeModal();
+    sessionMissed = [];
     document.getElementById('hud-stats').classList.remove('timer-alert');
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.remove('hidden');
@@ -482,8 +618,8 @@
     document.getElementById('p-den').innerText = '';
     setActive('p-num');
     
-    let d = Math.floor(Math.random() * 7) + 2; // Denom 2 to 8
-    let n = Math.floor(Math.random() * (d - 1)) + 1; // Num 1 to d-1
+    let d = Math.floor(Math.random() * 7) + 2; 
+    let n = Math.floor(Math.random() * (d - 1)) + 1; 
     currentQ = { n: n, d: d };
     
     document.getElementById('practice-svg').innerHTML = drawRectangleSVG(n, d);
@@ -568,6 +704,7 @@
   <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
+      if(appState === 'LOCKED') return; // Prevent typing while showing right answer
       let hintModal = document.getElementById('hint-modal');
       if (hintModal && hintModal.classList.contains('show')) {
         if (event.key === 'Enter') document.getElementById('modal-btn').click();
@@ -622,20 +759,7 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); 
-      
-      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-        let saved = localStorage.getItem('harvest_maths_profile');
-        if(saved) {
-          let profile = JSON.parse(saved);
-          if(!profile.failedAttempts[currentModuleId]) {
-            profile.failedAttempts[currentModuleId] = 0;
-          }
-          profile.failedAttempts[currentModuleId]++;
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-        }
-      }
+      // Logic handled within updated evaluateSprint above to intercept Remediation.
     };
   </script>
 </body>
