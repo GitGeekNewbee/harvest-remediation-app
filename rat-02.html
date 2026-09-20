@@ -766,7 +766,21 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      // Logic handled within updated evaluateSprint above to intercept Remediation.
+      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      
+      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+          let profile = JSON.parse(saved);
+          if(!profile.failedAttempts) profile.failedAttempts = {};
+          if(!profile.failedAttempts[currentModuleId]) {
+            profile.failedAttempts[currentModuleId] = 0;
+          }
+          profile.failedAttempts[currentModuleId]++;
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+        }
+      }
     };
   </script>
 </body>
