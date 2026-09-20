@@ -618,8 +618,8 @@
     document.getElementById('p-den').innerText = '';
     setActive('p-num');
     
-    let d = Math.floor(Math.random() * 7) + 2; 
-    let n = Math.floor(Math.random() * (d - 1)) + 1; 
+    let d = Math.floor(Math.random() * 7) + 2; // Denom 2 to 8
+    let n = Math.floor(Math.random() * (d - 1)) + 1; // Num 1 to d-1
     currentQ = { n: n, d: d };
     
     document.getElementById('practice-svg').innerHTML = drawRectangleSVG(n, d);
@@ -759,7 +759,21 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      // Logic handled within updated evaluateSprint above to intercept Remediation.
+      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      
+      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+          let profile = JSON.parse(saved);
+          if(!profile.failedAttempts) profile.failedAttempts = {};
+          if(!profile.failedAttempts[currentModuleId]) {
+            profile.failedAttempts[currentModuleId] = 0;
+          }
+          profile.failedAttempts[currentModuleId]++;
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+        }
+      }
     };
   </script>
 </body>
