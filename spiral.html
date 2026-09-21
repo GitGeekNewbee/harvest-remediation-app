@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - Daily Spiral</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
+    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    
+    /* HUD */
+    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
+    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
+    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
+    .stats { font-weight: 800; font-size: 1.1rem; }
+    .stats-xp { color: var(--warning); }
+    .stats-mastery { color: var(--primary); }
+
+    /* Content */
+    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .hidden { display: none !important; }
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.5rem; }
+    .instruction { font-size: 1.1rem; color: #5f6368; line-height: 1.4; margin-bottom: 20px;}
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .btn-primary { background: var(--primary); color: white; }
+
+    /* Math Displays & Input Boxes */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
+    .v-den { padding: 0 8px; }
+    
+    .mixed-container { display: flex; align-items: center; gap: 8px; }
+    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .f-box { height: 55px; min-width: 70px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; padding: 0 10px; }
+    .box-whole { width: 80px; height: 80px; font-size: 3.5rem; }
+    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
+    .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
+    .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
+    
+    /* Keypad */
+    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
+    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .key:active { background: #e8eaed; transform: translateY(2px); }
+    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+
+    /* Modals */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
+    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="hud">
+    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="progress-wrapper">
+      <div class="mastery-label" id="hud-label">SPIRAL PROGRESS</div>
+      <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div class="stats stats-mastery" id="hud-stats"><span id="mastery-text">0/10</span></div>
+  </div>
+
+  <div class="content-zone" id="zone-practice">
+    <h2>Daily Spiral</h2>
+    <div class="instruction" id="q-instruction">Loading warm-up...</div>
+    <div id="dynamic-q-container" style="width: 100%;"></div>
+  </div>
+
+  <!-- KEYPAD -->
+  <div class="keypad" id="keypad">
+    <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
+    <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
+    <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
+    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" id="key-next" onclick="nextBox()">↓ Next</div>
+    <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
+  </div>
+
+  <!-- TRAFFIC LIGHT MODAL -->
+  <div class="modal-overlay" id="hint-modal">
+    <div class="modal-box">
+      <div class="traffic-light" id="modal-icon">🟡</div>
+      <h3 id="modal-title" style="margin-top:0;">Hint</h3>
+      <p id="modal-text" style="font-size:1.1rem; line-height:1.5;"></p>
+      <button class="btn btn-primary" onclick="closeModal()" id="modal-btn">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeBoxId = null;
+  let spiralXP = 0;
+  let currentQIndex = 0;
+  const totalQuestions = 10;
+  let queue = [];
+  let currentQ = null;
+  let appState = 'PRACTICE';
+  let allowedModules = [];
+
+  // MATH UTILS
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+  function getLcm(a, b) { return (a * b) / gcd(a, b); }
+
+  // INITIALIZATION
+  document.addEventListener('DOMContentLoaded', () => {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let p = JSON.parse(saved);
+      document.getElementById('xp-counter').innerText = p.xp || 0;
+      allowedModules = p.completedNodes || [];
+    }
+
+    if (allowedModules.length === 0) {
+      showModal('🔒', 'Spiral Locked', 'You must master at least one module before you can access the Daily Spiral.');
+      document.getElementById('modal-btn').innerText = "Return to Dashboard";
+      document.getElementById('modal-btn').onclick = () => window.location.href = 'index.html';
+      return;
+    }
+
+    buildSpiralQueue();
+    loadNextQuestion();
+  });
+
+  // GENERATORS
+  const generators = {
+    'RAT-01': () => {
+      let d = Math.floor(Math.random() * 7) + 2; 
+      let n = Math.floor(Math.random() * (d - 1)) + 1; 
+      return { type: 'RAT-01', n: n, d: d, instruction: "Write the fraction shown:" };
+    },
+    'RAT-02': () => {
+      let d1 = Math.floor(Math.random() * 9) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
+      let multiplier = Math.floor(Math.random() * 5) + 2; 
+      return { type: 'RAT-02', n1: n1, d1: d1, d2: d1 * multiplier, ansN: n1 * multiplier, m: multiplier, instruction: "Find the missing equivalent number:" };
+    },
+    'RAT-03': () => {
+      let d = Math.floor(Math.random() * 10) + 3; 
+      let n1 = Math.floor(Math.random() * 9) + 1; 
+      let n2 = Math.floor(Math.random() * 9) + 1;
+      let op = Math.random() > 0.5 ? '+' : '-';
+      if (op === '-' && n2 > n1) { let t = n1; n1 = n2; n2 = t; }
+      if (op === '-' && n1 === n2) n1++;
+      return { type: 'RAT-03', n1: n1, d1: d, n2: n2, d2: d, op: op, ansN: op === '+' ? (n1+n2) : (n1-n2), ansD: d, instruction: "Calculate:" };
+    },
+    'RAT-04': () => {
+      while(true) {
+        let d1 = Math.floor(Math.random() * 9) + 2;
+        let d2 = Math.floor(Math.random() * 9) + 2;
+        if (d1 === d2) continue;
+        let lcm = getLcm(d1, d2);
+        if (lcm > 40) continue;
+        let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+        let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+        let op = Math.random() > 0.5 ? '+' : '-';
+        let sN1 = n1 * (lcm/d1);
+        let sN2 = n2 * (lcm/d2);
+        if (op === '-' && sN2 > sN1) { let t=sN1; sN1=sN2; sN2=t; t=n1; n1=n2; n2=t; t=d1; d1=d2; d2=t; }
+        if (op === '-' && sN1 === sN2) continue;
+        return { type: 'RAT-04', n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcm: lcm, ansN: op === '+' ? (sN1+sN2) : (sN1-sN2), ansD: lcm, instruction: "Calculate (Find the LCM first):" };
+      }
+    },
+    'RAT-05': () => {
+      let d = Math.floor(Math.random() * 8) + 2; 
+      let w = Math.floor(Math.random() * 5) + 1; 
+      let n = Math.floor(Math.random() * (d - 1)) + 1; 
+      return { type: 'RAT-05', impNum: (w * d) + n, impDen: d, ansW: w, ansN: n, ansD: d, instruction: "Convert to a mixed number:" };
+    },
+    'RAT-06': () => {
+      let d1 = Math.floor(Math.random() * 9) + 2; let d2 = Math.floor(Math.random() * 9) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+      return { type: 'RAT-06', n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * n2, ansD: d1 * d2, instruction: "Multiply straight across:" };
+    },
+    'RAT-07': () => {
+      let d1 = Math.floor(Math.random() * 8) + 2; let d2 = Math.floor(Math.random() * 8) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+      return { type: 'RAT-07', n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * d2, ansD: d1 * n2, instruction: "Divide (Keep, Change, Flip):" };
+    }
+  };
+
+  function buildSpiralQueue() {
+    for (let i = 0; i < totalQuestions; i++) {
+      let randomModule = allowedModules[Math.floor(Math.random() * allowedModules.length)];
+      queue.push(generators[randomModule]());
+    }
+  }
+
+  // RENDERERS
+  function drawRectangleSVG(n, d) {
+    let svg = `<svg viewBox="0 0 100 20" style="width: 100%; max-width:250px; height: auto; border: 2px solid #333; margin:0 auto; display:block;">`;
+    let width = 100 / d;
+    for (let i = 0; i < d; i++) {
+      let fill = (i < n) ? 'var(--primary)' : '#e0e0e0';
+      svg += `<rect x="${i * width}" y="0" width="${width}" height="20" fill="${fill}" stroke="#333" stroke-width="1"/>`;
+    }
+    svg += `</svg>`;
+    return svg;
+  }
+
+  function loadNextQuestion() {
+    if (currentQIndex >= totalQuestions) {
+      endSpiral();
+      return;
+    }
+    currentQ = queue[currentQIndex];
+    document.getElementById('q-instruction').innerText = currentQ.instruction;
+    let container = document.getElementById('dynamic-q-container');
+    
+    // Update Progress
+    let pct = (currentQIndex / totalQuestions) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = `${currentQIndex}/${totalQuestions}`;
+
+    // Dynamic HTML Injection based on question type
+    if (currentQ.type === 'RAT-01') {
+      container.innerHTML = `
+        ${drawRectangleSVG(currentQ.n, currentQ.d)}
+        <div class="math-row" style="margin-top: 20px;">
+          <div class="input-col">
+            <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
+            <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
+            <div class="f-box" id="p-den" onclick="setActive('p-den')"></div>
+          </div>
+        </div>`;
+      setActive('p-num');
+      document.getElementById('key-next').style.display = 'flex';
+    } 
+    else if (currentQ.type === 'RAT-02') {
+      container.innerHTML = `
+        <div class="math-row">
+          <div class="v-frac"><div class="v-num">${currentQ.n1}</div><div class="v-den">${currentQ.d1}</div></div>
+          <div>=</div>
+          <div class="v-frac">
+            <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
+            <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
+            <div class="v-den">${currentQ.d2}</div>
+          </div>
+        </div>`;
+      setActive('p-num');
+      document.getElementById('key-next').style.display = 'none';
+    }
+    else if (currentQ.type === 'RAT-03' || currentQ.type === 'RAT-04' || currentQ.type === 'RAT-06' || currentQ.type === 'RAT-07') {
+      let symbol = currentQ.type === 'RAT-06' ? '×' : (currentQ.type === 'RAT-07' ? '÷' : currentQ.op);
+      container.innerHTML = `
+        <div class="math-row">
+          <div class="v-frac"><div class="v-num">${currentQ.n1}</div><div class="v-den">${currentQ.d1}</div></div>
+          <div>${symbol}</div>
+          <div class="v-frac"><div class="v-num">${currentQ.n2}</div><div class="v-den">${currentQ.d2}</div></div>
+          <div>=</div>
+          <div class="input-col">
+            <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
+            <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
+            <div class="f-box" id="p-den" onclick="setActive('p-den')"></div>
+          </div>
+        </div>`;
+      setActive('p-num');
+      document.getElementById('key-next').style.display = 'flex';
+    }
+    else if (currentQ.type === 'RAT-05') {
+      container.innerHTML = `
+        <div class="math-row">
+          <div class="v-frac"><div class="v-num">${currentQ.impNum}</div><div class="v-den">${currentQ.impDen}</div></div>
+          <div>=</div>
+          <div class="mixed-container">
+            <div class="f-box box-whole active" id="p-whole" onclick="setActive('p-whole')"></div>
+            <div class="input-col">
+              <div class="f-box" id="p-num" style="min-width:60px;" onclick="setActive('p-num')"></div>
+              <div style="width:60px; height:4px; background:#333; margin: 2px 0;"></div>
+              <div class="f-box" id="p-den" style="min-width:60px;" onclick="setActive('p-den')"></div>
+            </div>
+          </div>
+        </div>`;
+      setActive('p-whole');
+      document.getElementById('key-next').style.display = 'flex';
+    }
+  }
+
+  // KEYPAD LOGIC
+  function setActive(id) {
+    if(appState === 'LOCKED') return;
+    if(document.getElementById(activeBoxId)) document.getElementById(activeBoxId).classList.remove('active');
+    activeBoxId = id;
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.add('active');
+  }
+
+  function typeNum(num) {
+    if(appState === 'LOCKED') return;
+    let box = document.getElementById(activeBoxId);
+    if(box && box.innerText.length < 3) box.innerText += num;
+  }
+  
+  function deleteNum() {
+    if(appState === 'LOCKED') return;
+    let box = document.getElementById(activeBoxId);
+    if(box) box.innerText = box.innerText.slice(0, -1);
+  }
+
+  function nextBox() {
+    if(appState === 'LOCKED') return;
+    if(currentQ.type === 'RAT-05') {
+      if(activeBoxId === 'p-whole') setActive('p-num');
+      else if(activeBoxId === 'p-num') setActive('p-den');
+      else setActive('p-whole');
+    } else if (document.getElementById('p-den')) {
+      if(activeBoxId === 'p-num') setActive('p-den');
+      else setActive('p-num');
+    }
+  }
+
+  // ANSWER CHECKING
+  function submitAnswer() {
+    if (appState === 'LOCKED') return;
+    
+    let isCorrect = false;
+    let feedback = "";
+    
+    let n = parseInt(document.getElementById('p-num') ? document.getElementById('p-num').innerText : 'NaN');
+    let d = parseInt(document.getElementById('p-den') ? document.getElementById('p-den').innerText : 'NaN');
+    let w = parseInt(document.getElementById('p-whole') ? document.getElementById('p-whole').innerText : 'NaN');
+
+    if (currentQ.type === 'RAT-01') {
+      if (isNaN(n) || isNaN(d)) return;
+      isCorrect = (n === currentQ.n && d === currentQ.d);
+      feedback = "Top = Shaded parts. Bottom = Total parts.";
+    } else if (currentQ.type === 'RAT-02') {
+      if (isNaN(n)) return;
+      isCorrect = (n === currentQ.ansN);
+      feedback = `Whatever you multiply the bottom by, you must multiply the top by. Multiply by ${currentQ.m}.`;
+    } else if (currentQ.type === 'RAT-03') {
+      if (isNaN(n) || isNaN(d)) return;
+      isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
+      feedback = "Keep the bottom number identical. Only calculate the top numbers.";
+    } else if (currentQ.type === 'RAT-04') {
+      if (isNaN(n) || isNaN(d)) return;
+      isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
+      feedback = `Find the Lowest Common Multiple (${currentQ.lcm}), scale both top numbers, then calculate.`;
+    } else if (currentQ.type === 'RAT-05') {
+      if (isNaN(w) || isNaN(n) || isNaN(d)) return;
+      isCorrect = (w === currentQ.ansW && n === currentQ.ansN && d === currentQ.ansD);
+      feedback = "Divide the top by the bottom. The answer is your whole number. The remainder goes on top. The bottom stays the same.";
+    } else if (currentQ.type === 'RAT-06') {
+      if (isNaN(n) || isNaN(d)) return;
+      isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
+      feedback = "Multiply the tops straight across. Multiply the bottoms straight across.";
+    } else if (currentQ.type === 'RAT-07') {
+      if (isNaN(n) || isNaN(d)) return;
+      isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
+      feedback = "Keep the first fraction, Change ÷ to ×, Flip the second fraction upside down.";
+    }
+
+    if (isCorrect) {
+      document.getElementById(activeBoxId).classList.add('flash-green');
+      spiralXP += 10;
+      let displayXP = parseInt(document.getElementById('xp-counter').innerText) + 10;
+      document.getElementById('xp-counter').innerText = displayXP;
+      appState = 'LOCKED';
+      
+      setTimeout(() => {
+        appState = 'PRACTICE';
+        currentQIndex++;
+        loadNextQuestion();
+      }, 500);
+    } else {
+      document.getElementById(activeBoxId).classList.add('flash-red');
+      showModal('🟡', 'Check Your Rule', feedback);
+    }
+  }
+
+  // MODAL & END LOGIC
+  function showModal(icon, title, text) {
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-text').innerText = text;
+    document.getElementById('hint-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('hint-modal').classList.remove('show');
+    let activeBox = document.getElementById(activeBoxId);
+    if(activeBox) activeBox.classList.remove('flash-red');
+  }
+
+  function endSpiral() {
+    // Save XP
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let p = JSON.parse(saved);
+      p.xp += spiralXP;
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+    }
+
+    document.getElementById('zone-practice').classList.add('hidden');
+    document.getElementById('keypad').classList.add('hidden');
+    
+    // Update progress bar to 100%
+    document.getElementById('p-bar').style.width = '100%';
+    document.getElementById('mastery-text').innerText = `10/10`;
+
+    let winZone = document.createElement('div');
+    winZone.className = 'content-zone';
+    winZone.innerHTML = `
+      <h1 style="font-size:4rem; margin:0;">🌀</h1>
+      <h2 style="color:var(--success);">Spiral Complete!</h2>
+      <h3 style="color:var(--primary);">+${spiralXP} XP Earned</h3>
+      <p style="margin-bottom:20px;">You have successfully forced your brain to recall these procedures, locking them deeper into your long-term memory.</p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+    `;
+    document.querySelector('.app-container').appendChild(winZone);
+  }
+
+  // KEYBOARD SUPPORT
+  document.addEventListener('keydown', function(event) {
+    if(appState === 'LOCKED') return; 
+    let hintModal = document.getElementById('hint-modal');
+    if (hintModal && hintModal.classList.contains('show')) {
+      if (event.key === 'Enter') document.getElementById('modal-btn').click();
+      return;
+    }
+    if (event.key >= '0' && event.key <= '9') {
+      typeNum(event.key);
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
+      event.preventDefault(); 
+      nextBox();
+    }
+  });
+</script>
+</body>
+</html>
