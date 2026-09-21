@@ -5,175 +5,332 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
-    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; --locked: #e0e0e0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; min-height: 100dvh; touch-action: manipulation; }
-    .app-container { width: 100%; max-width: 500px; background: var(--card); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; --text-main: #202124; --text-muted: #5f6368; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text-main); display: flex; justify-content: center; min-height: 100dvh; overflow-x: hidden; }
+    .app-container { width: 100%; max-width: 600px; background: var(--bg); display: flex; flex-direction: column; position: relative; padding-bottom: 40px; }
     
-    /* Header & Profile */
-    .header { padding: 25px 20px 15px; background: var(--primary); color: white; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
-    .profile-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .student-name { font-size: 1.5rem; font-weight: 800; margin: 0; }
-    .stats-pill { background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; }
+    /* Top Navigation Bar */
+    .top-nav { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .nav-brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+    .nav-stats { display: flex; gap: 15px; align-items: center; font-weight: bold; font-size: 1.1rem; }
+    .stat-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
     
-    /* Path Container */
-    .path-container { padding: 25px 20px; flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+    /* Section Headers */
+    .section-title { font-size: 1.1rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 25px 20px 10px 20px; display: flex; justify-content: space-between; align-items: center; }
     
-    /* Node Styling */
-    .node { display: flex; align-items: center; background: white; border: 2px solid #f0f0f0; border-radius: 16px; padding: 15px; text-decoration: none; color: inherit; transition: all 0.2s; position: relative; }
-    .node-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
-    .node-content { flex-grow: 1; }
-    .node-title { margin: 0 0 4px 0; font-size: 1.1rem; font-weight: bold; }
-    .node-desc { margin: 0; font-size: 0.85rem; color: #5f6368; }
-    
-    /* Node States */
-    .node.unlocked { border-color: var(--primary); box-shadow: 0 4px 6px rgba(26,115,232,0.1); cursor: pointer; }
-    .node.unlocked .node-icon { background: #e8f0fe; color: var(--primary); }
-    
-    .node.completed { border-color: var(--success); background: #fbfdfc; }
-    .node.completed .node-icon { background: var(--success); color: white; }
-    
-    .node.locked { border-color: var(--locked); opacity: 0.6; cursor: not-allowed; }
-    .node.locked .node-icon { background: var(--locked); color: #777; }
-    
-    .node.intervention { border-color: var(--danger); background: #fffaf9; animation: softPulse 2s infinite alternate;}
-    .node.intervention .node-icon { background: var(--danger); color: white; }
+    /* Daily Spiral Banner */
+    .spiral-banner { background: linear-gradient(135deg, #34a853, #2b8c45); margin: 10px 20px; border-radius: 16px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(52,168,83,0.3); cursor: pointer; transition: transform 0.2s; }
+    .spiral-banner:active { transform: scale(0.98); }
+    .spiral-text h3 { margin: 0 0 5px 0; font-size: 1.4rem; }
+    .spiral-text p { margin: 0; font-size: 0.95rem; opacity: 0.9; }
+    .spiral-icon { font-size: 2.5rem; }
+    .spiral-locked { filter: grayscale(100%); opacity: 0.7; cursor: not-allowed; }
 
-    @keyframes softPulse { from { box-shadow: 0 0 0 rgba(234,67,53,0); } to { box-shadow: 0 0 10px rgba(234,67,53,0.3); } }
+    /* Grit Shop */
+    .shop-container { margin: 0 20px; background: var(--card); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .shop-info { display: flex; flex-direction: column; }
+    .shop-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 3px; display: flex; align-items: center; gap: 5px;}
+    .shop-desc { font-size: 0.85rem; color: var(--text-muted); }
+    .btn-buy { background: var(--warning); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 5px rgba(251,188,4,0.3); transition: background 0.2s; }
+    .btn-buy:disabled { background: #e0e0e0; color: #9aa0a6; box-shadow: none; cursor: not-allowed; }
 
-    /* Login Modal */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--card); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; padding: 20px; box-sizing: border-box;}
-    .modal-overlay.hidden { display: none; }
-    .login-box { width: 100%; max-width: 350px; text-align: center; }
-    .login-input { width: 100%; padding: 15px; font-size: 1.2rem; border: 2px solid #e0e0e0; border-radius: 12px; margin: 20px 0; box-sizing: border-box; text-align: center; font-weight: bold;}
-    .login-input:focus { border-color: var(--primary); outline: none; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; width: 100%; background: var(--primary); color: white; }
+    /* Module Grid */
+    .module-grid { display: flex; flex-direction: column; gap: 15px; padding: 0 20px; }
+    .module-card { background: var(--card); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; position: relative; overflow: hidden;}
+    .module-card:active { transform: scale(0.98); }
+    
+    .mod-icon { width: 50px; height: 50px; border-radius: 12px; background: #e8f0fe; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: var(--primary); flex-shrink: 0; }
+    .mod-details { flex-grow: 1; }
+    .mod-title { font-size: 1.2rem; font-weight: bold; margin: 0 0 4px 0; color: var(--text-main); }
+    .mod-status { font-size: 0.85rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    /* Card States */
+    .card-locked { opacity: 0.6; cursor: not-allowed; background: #f8f9fa; }
+    .card-locked .mod-icon { background: #e0e0e0; color: #9aa0a6; }
+    .card-completed { border-color: var(--success); }
+    .card-completed .mod-icon { background: #d4edda; color: var(--success); }
+    .card-active { border-color: var(--primary); box-shadow: 0 4px 15px rgba(26,115,232,0.15); }
+    
+    /* Teacher Beacon */
+    .beacon { background: #fce8e6; color: var(--danger); font-size: 0.85rem; font-weight: bold; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 6px; margin-top: 10px; border: 1px dashed var(--danger); }
+    .clear-beacon-btn { margin-left: auto; background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
+
+    /* Modals */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-box h3 { margin-top: 0; font-size: 1.5rem; color: var(--text-main); }
+    .modal-box p { color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+    .btn-modal { padding: 12px 20px; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; width: 100%; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  
-  <!-- LOGIN OVERLAY (Shows only on first visit) -->
-  <div class="modal-overlay" id="login-modal">
-    <div class="login-box">
-      <h1 style="font-size:3.5rem; margin-bottom:0;">🧠</h1>
-      <h2 style="color:var(--primary); margin-top:10px;">Harvest Concept Lab</h2>
-      <p style="color:#5f6368;">Enter your name to begin your rational numbers pathway. Your progress will be saved securely on this device.</p>
-      <input type="text" id="student-name-input" class="login-input" placeholder="Your Name" autocomplete="off">
-      <button class="btn" onclick="initializeProfile()">Start Learning</button>
+  <!-- Top Nav -->
+  <div class="top-nav">
+    <div class="nav-brand">Concept Lab</div>
+    <div class="nav-stats">
+      <div class="stat-badge" id="hud-streak">🔥 0</div>
+      <div class="stat-badge" id="hud-freezes">🧊 0</div>
+      <div class="stat-badge" id="hud-xp" style="color:#fbbc04;">⭐ 0</div>
     </div>
   </div>
 
-  <!-- DASHBOARD UI -->
-  <div class="header" id="dashboard-header" style="display:none;">
-    <div class="profile-row">
-      <h1 class="student-name" id="display-name">Student</h1>
-      <div class="stats-pill"><span id="display-xp">0</span> XP</div>
+  <!-- Daily Spiral -->
+  <div class="section-title">Retrieval Practice</div>
+  <div class="spiral-banner spiral-locked" id="btn-spiral" onclick="launchSpiral()">
+    <div class="spiral-text">
+      <h3>Daily Spiral</h3>
+      <p id="spiral-desc">Complete a module to unlock.</p>
     </div>
-    <p style="margin:0; font-size:0.9rem; opacity:0.9;">Master the operations. Build your foundation.</p>
+    <div class="spiral-icon">🌀</div>
   </div>
 
-  <div class="path-container" id="path-container" style="display:none;">
-    <!-- Nodes will be injected here by Javascript -->
+  <!-- Grit Shop -->
+  <div class="section-title">Grit Shop</div>
+  <div class="shop-container">
+    <div class="shop-info">
+      <div class="shop-title">🧊 Streak Freeze</div>
+      <div class="shop-desc">Protects your 🔥 if you miss a day.</div>
+    </div>
+    <button class="btn-buy" id="btn-buy-freeze" onclick="buyFreeze()">500 XP</button>
   </div>
 
+  <!-- Curriculum Grid -->
+  <div class="section-title">Curriculum Pathway</div>
+  <div class="module-grid" id="curriculum-grid">
+    <!-- Cards injected by JS -->
+  </div>
+</div>
+
+<!-- General Alert Modal -->
+<div class="modal-overlay" id="alert-modal">
+  <div class="modal-box">
+    <div style="font-size:3rem; margin-bottom:10px;" id="alert-icon">🔔</div>
+    <h3 id="alert-title">Notice</h3>
+    <p id="alert-text">Message goes here.</p>
+    <button class="btn-modal btn-primary" onclick="closeModal()" style="background:var(--primary); color:white;">Got it</button>
+  </div>
 </div>
 
 <script>
-  // --- DATABASE LOGIC (Zero-Data LocalStorage) ---
-  const STORAGE_KEY = 'harvest_maths_profile';
-  
-  // The master curriculum map
-  const curriculumMap = [
-    { id: 'RAT-01', title: 'Visual Fractions', desc: 'Identify numerators and denominators.', file: 'rat-01.html' },
-    { id: 'RAT-02', title: 'Equivalent Fractions', desc: 'Scale fractions perfectly.', file: 'rat-02.html' },
-    { id: 'RAT-03', title: 'Adding Like Denominators', desc: 'Add pieces of the same size.', file: 'rat-03.html' },
-    { id: 'RAT-04', title: 'Unlike Denominators', desc: 'Find the LCM and balance.', file: 'rat-04.html' },
-    { id: 'RAT-05', title: 'Mixed Numbers', desc: 'Convert top-heavy fractions.', file: 'rat-05.html' },
-    { id: 'RAT-06', title: 'Multiplying Fractions', desc: 'Top × Top, Bottom × Bottom.', file: 'rat-06.html' },
-    { id: 'RAT-07', title: 'Dividing Fractions', desc: 'Keep, Change, Flip.', file: 'rat-07.html' }
+  // --- CURRICULUM DEFINITION ---
+  const curriculum = [
+    { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
+    { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
+    { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
+    { id: 'RAT-04', title: 'Unlike Denominators', file: 'rat-04.html' },
+    { id: 'RAT-05', title: 'Improper & Mixed', file: 'rat-05.html' },
+    { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
+    { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' }
   ];
 
-  let userProfile = {
-    name: "",
+  let profile = {
     xp: 0,
-    unlockedNodeIndex: 0, 
+    unlockedNodeIndex: 0,
     completedNodes: [],
-    failedAttempts: {} // Tracks Gatekeeper failures to flag Teacher Intervention
+    failedAttempts: {},
+    gateLevels: {},
+    remediation: {},
+    streak: 0,
+    freezes: 0,
+    lastLoginDate: ""
   };
 
-  // --- INITIALISATION ---
-  function loadProfile() {
-    const saved = localStorage.getItem(STORAGE_KEY);
+  // --- INITIALIZATION ---
+  function init() {
+    let saved = localStorage.getItem('harvest_maths_profile');
     if (saved) {
-      userProfile = JSON.parse(saved);
-      document.getElementById('login-modal').classList.add('hidden');
-      document.getElementById('dashboard-header').style.display = 'block';
-      document.getElementById('path-container').style.display = 'flex';
+      profile = { ...profile, ...JSON.parse(saved) };
+    }
+    
+    processDailyStreak();
+    renderDashboard();
+  }
+
+  // --- HABIT LOOP LOGIC (STREAKS & FREEZES) ---
+  function getTodayString() {
+    let d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function getDaysDifference(dateString1, dateString2) {
+    if (!dateString1 || !dateString2) return 999;
+    let d1 = new Date(dateString1);
+    let d2 = new Date(dateString2);
+    let diffTime = Math.abs(d2 - d1);
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  }
+
+  function processDailyStreak() {
+    const today = getTodayString();
+    
+    if (profile.lastLoginDate === today) {
+      // Already logged in today, do nothing.
+      return; 
+    }
+
+    if (!profile.lastLoginDate) {
+      // Very first login ever
+      profile.streak = 1;
+      profile.lastLoginDate = today;
+    } else {
+      let daysMissed = getDaysDifference(profile.lastLoginDate, today) - 1;
+      
+      if (daysMissed === 0) {
+        // Logged in exactly yesterday. Perfect streak.
+        profile.streak++;
+        profile.lastLoginDate = today;
+      } else if (daysMissed > 0) {
+        // Missed one or more days. Check for freezes.
+        let freezesNeeded = daysMissed;
+        
+        if (profile.freezes >= 1) { // We consume 1 freeze to cover the gap regardless of length for simplicity, or 1 per day missed. Let's do 1 per absence event to be generous.
+          profile.freezes--;
+          profile.streak++; // Streak survives and increments for today
+          profile.lastLoginDate = today;
+          showModal('🧊', 'Streak Saved!', 'You missed a day, but your Streak Freeze automatically protected your flame. Keep it burning!');
+        } else {
+          // No freezes. Streak broken.
+          profile.streak = 1;
+          profile.lastLoginDate = today;
+          showModal('🔥', 'New Streak Started', 'Your streak reset. Consistency is the secret to maths fluency. Let\'s build a new habit today!');
+        }
+      }
+    }
+    saveProfile();
+  }
+
+  // --- GRIT SHOP ---
+  function buyFreeze() {
+    if (profile.xp >= 500) {
+      profile.xp -= 500;
+      profile.freezes++;
+      saveProfile();
       renderDashboard();
+      showModal('🧊', 'Freeze Acquired', 'You purchased a Streak Freeze! If you miss a day, this will automatically deploy to save your flame.');
     }
   }
 
-  function initializeProfile() {
-    const nameInput = document.getElementById('student-name-input').value.trim();
-    if (nameInput === "") return;
-    
-    userProfile.name = nameInput;
-    userProfile.unlockedNodeIndex = 0; // Starts at RAT-01
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userProfile));
-    loadProfile();
-  }
-
-  // --- RENDERING THE DAG (Directed Acyclic Graph) PATHWAY ---
+  // --- RENDER ENGINE ---
   function renderDashboard() {
-    document.getElementById('display-name').innerText = userProfile.name;
-    document.getElementById('display-xp').innerText = userProfile.xp;
-    
-    const container = document.getElementById('path-container');
-    container.innerHTML = ''; // Clear existing
-    
-    curriculumMap.forEach((node, index) => {
-      let stateClass = 'locked';
-      let iconText = '🔒';
-      let clickHandler = '';
+    // 1. Update HUD
+    document.getElementById('hud-xp').innerText = `⭐ ${profile.xp}`;
+    document.getElementById('hud-streak').innerText = `🔥 ${profile.streak}`;
+    document.getElementById('hud-freezes').innerText = `🧊 ${profile.freezes}`;
 
-      // Determine Node State
-      if (userProfile.completedNodes.includes(node.id)) {
-        stateClass = 'completed';
-        iconText = '✓';
-        clickHandler = `onclick="window.location.href='${node.file}'"`; // Can replay
-      } else if (index === userProfile.unlockedNodeIndex) {
-        stateClass = 'unlocked';
-        iconText = '▶';
-        clickHandler = `onclick="window.location.href='${node.file}'"`;
-        
-        // Check for Attrition Risk (Teacher Flag)
-        if (userProfile.failedAttempts[node.id] >= 5) {
-          stateClass = 'intervention';
-          iconText = '✋';
-          node.desc = "Teacher Intervention Required. Please call Mr. Nash.";
-          clickHandler = ''; // Lock it until teacher overrides
-        }
+    // 2. Update Shop Button
+    let buyBtn = document.getElementById('btn-buy-freeze');
+    if (profile.xp < 500) {
+      buyBtn.disabled = true;
+      buyBtn.innerText = "Need 500 XP";
+    } else {
+      buyBtn.disabled = false;
+      buyBtn.innerText = "Buy (500 XP)";
+    }
+
+    // 3. Update Daily Spiral
+    let spiralBanner = document.getElementById('btn-spiral');
+    let spiralDesc = document.getElementById('spiral-desc');
+    if (profile.completedNodes.length > 0) {
+      spiralBanner.classList.remove('spiral-locked');
+      spiralDesc.innerText = "10 quick questions to build long-term memory.";
+    }
+
+    // 4. Render Curriculum Grid
+    let grid = document.getElementById('curriculum-grid');
+    grid.innerHTML = '';
+
+    curriculum.forEach((mod, index) => {
+      let isUnlocked = index <= profile.unlockedNodeIndex;
+      let isCompleted = profile.completedNodes.includes(mod.id);
+      let isActive = index === profile.unlockedNodeIndex && !isCompleted;
+      
+      let cardClass = 'module-card';
+      if (!isUnlocked) cardClass += ' card-locked';
+      if (isActive) cardClass += ' card-active';
+      if (isCompleted) cardClass += ' card-completed';
+
+      let statusText = isCompleted ? 'Mastered' : (isActive ? 'Next Module' : 'Locked');
+      let iconText = isCompleted ? '✓' : (index + 1);
+
+      // Check Teacher Intervention Flag
+      let fails = profile.failedAttempts[mod.id] || 0;
+      let beaconHtml = '';
+      if (fails >= 5) {
+        beaconHtml = `
+          <div class="beacon">
+            ⚠️ Guide Consultation Needed
+            <button class="clear-beacon-btn" onclick="clearBeacon(event, '${mod.id}')">Clear</button>
+          </div>`;
       }
 
-      // Build HTML
-      const nodeHTML = `
-        <div class="node ${stateClass}" ${clickHandler}>
-          <div class="node-icon">${iconText}</div>
-          <div class="node-content">
-            <h3 class="node-title">${node.id}: ${node.title}</h3>
-            <p class="node-desc">${node.desc}</p>
+      // Remediation Check
+      let hasRemediation = (profile.remediation && profile.remediation[mod.id] && profile.remediation[mod.id].length > 0);
+      if (hasRemediation) {
+          statusText = 'Focus Drill Active';
+          cardClass += ' card-active';
+          cardClass = cardClass.replace('card-completed', ''); // Overwrite mastery if they regressed
+      }
+
+      let cardHtml = `
+        <a href="${isUnlocked ? mod.file : '#'}" class="${cardClass}" onclick="return checkLock(event, ${isUnlocked})">
+          <div class="mod-icon">${iconText}</div>
+          <div class="mod-details">
+            <div class="mod-status" style="color: ${isCompleted ? 'var(--success)' : (isActive || hasRemediation ? 'var(--primary)' : 'var(--text-muted)')}">${statusText}</div>
+            <h3 class="mod-title">${mod.id}: ${mod.title}</h3>
+            ${beaconHtml}
           </div>
-        </div>
+        </a>
       `;
-      container.innerHTML += nodeHTML;
+      grid.innerHTML += cardHtml;
     });
   }
 
-  // Run on load
-  window.onload = loadProfile;
+  // --- INTERACTION LOGIC ---
+  function checkLock(e, isUnlocked) {
+    if (!isUnlocked) {
+      e.preventDefault();
+      showModal('🔒', 'Module Locked', 'You must master the previous modules before accessing this content to prevent conceptual gaps.');
+      return false;
+    }
+    return true;
+  }
 
+  function launchSpiral() {
+    if (profile.completedNodes.length === 0) {
+      showModal('🔒', 'Spiral Locked', 'The Daily Spiral combines facts from modules you have already mastered. Master your first module to unlock it!');
+    } else {
+      showModal('🌀', 'Daily Spiral', 'Generating your 10-question algorithmic warm-up...\n\n(Note: The spiral.html retrieval engine is the next phase of the architecture build).');
+    }
+  }
+
+  function clearBeacon(e, moduleId) {
+    e.preventDefault(); // Stop the link from opening the module
+    profile.failedAttempts[moduleId] = 0;
+    saveProfile();
+    renderDashboard();
+    showModal('✅', 'Consultation Cleared', `The intervention flag for ${moduleId} has been reset by the Guide.`);
+  }
+
+  function saveProfile() {
+    localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+  }
+
+  function showModal(icon, title, text) {
+    document.getElementById('alert-icon').innerText = icon;
+    document.getElementById('alert-title').innerText = title;
+    document.getElementById('alert-text').innerText = text;
+    document.getElementById('alert-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('alert-modal').classList.remove('show');
+  }
+
+  // Boot up the dashboard
+  init();
 </script>
 </body>
 </html>
