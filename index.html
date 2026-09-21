@@ -11,7 +11,8 @@
     
     /* Top Navigation Bar */
     .top-nav { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .nav-brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; }
+    .nav-brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; display: flex; flex-direction: column; }
+    .student-name-display { font-size: 0.8rem; font-weight: normal; opacity: 0.8; margin-top: 2px; }
     .nav-stats { display: flex; gap: 15px; align-items: center; font-weight: bold; font-size: 1.1rem; }
     .stat-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
     
@@ -69,7 +70,10 @@
 <div class="app-container">
   <!-- Top Nav -->
   <div class="top-nav">
-    <div class="nav-brand">Concept Lab</div>
+    <div class="nav-brand">
+      Concept Lab
+      <span class="student-name-display" id="display-student-name">Loading...</span>
+    </div>
     <div class="nav-stats">
       <div class="stat-badge" id="hud-streak">🔥 0</div>
       <div class="stat-badge" id="hud-freezes">🧊 0</div>
@@ -104,6 +108,16 @@
   </div>
 </div>
 
+<!-- Student ID Modal -->
+<div class="modal-overlay" id="student-modal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:10px;">Welcome to Concept Lab</h3>
+    <p>Please enter your First and Last name so your Guide can track your progress.</p>
+    <input type="text" id="student-name-input" placeholder="e.g. Sipho Ndlovu" style="width:90%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #ccc; font-size:1.1rem; text-align:center;">
+    <button class="btn-modal btn-primary" onclick="saveStudentName()" style="background:var(--primary); color:white;">Let's Go ➔</button>
+  </div>
+</div>
+
 <!-- General Alert Modal -->
 <div class="modal-overlay" id="alert-modal">
   <div class="modal-box">
@@ -115,6 +129,37 @@
 </div>
 
 <script>
+  // --- TELEMETRY SYNC ENGINE ---
+  const TELEMETRY_URL = "https://script.google.com/macros/s/AKfycbx4vErx32y3Y1tCbw1On37dsoQgyKWmEOnReyPT6NrLYnDyvErq6kpUh4kDY5jIDvKm/exec";
+
+  function processTelemetryQueue() {
+    if (!navigator.onLine) return; // Stop if completely offline
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    if (queue.length === 0) return;
+
+    let item = queue[0]; // Take the first event in the queue
+
+    fetch(TELEMETRY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Bypasses CORS preflight
+      body: JSON.stringify(item)
+    }).then(response => {
+      // Remove it from the queue now that it safely sent
+      queue.shift();
+      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+      
+      // If there are more items, sync them 1 second later
+      if (queue.length > 0) setTimeout(processTelemetryQueue, 1000);
+    }).catch(err => {
+      console.log("Telemetry sync paused (offline or network error). Data is safe in local storage.");
+    });
+  }
+
+  // Run the sync engine on load, and every 15 seconds in the background
+  window.addEventListener('online', processTelemetryQueue);
+  setInterval(processTelemetryQueue, 15000);
+
   // --- CURRICULUM DEFINITION ---
   const curriculum = [
     { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
@@ -127,6 +172,7 @@
   ];
 
   let profile = {
+    studentId: null,
     xp: 0,
     unlockedNodeIndex: 0,
     completedNodes: [],
@@ -144,6 +190,25 @@
     if (saved) {
       profile = { ...profile, ...JSON.parse(saved) };
     }
+    
+    if (!profile.studentId) {
+      document.getElementById('student-modal').classList.add('show');
+    } else {
+      document.getElementById('display-student-name').innerText = profile.studentId;
+      processDailyStreak();
+      renderDashboard();
+      processTelemetryQueue(); // Trigger sync attempt
+    }
+  }
+
+  function saveStudentName() {
+    let nameInput = document.getElementById('student-name-input').value.trim();
+    if (nameInput.length < 2) return;
+    
+    profile.studentId = nameInput;
+    saveProfile();
+    document.getElementById('student-modal').classList.remove('show');
+    document.getElementById('display-student-name').innerText = profile.studentId;
     
     processDailyStreak();
     renderDashboard();
@@ -166,33 +231,24 @@
   function processDailyStreak() {
     const today = getTodayString();
     
-    if (profile.lastLoginDate === today) {
-      // Already logged in today, do nothing.
-      return; 
-    }
+    if (profile.lastLoginDate === today) { return; }
 
     if (!profile.lastLoginDate) {
-      // Very first login ever
       profile.streak = 1;
       profile.lastLoginDate = today;
     } else {
       let daysMissed = getDaysDifference(profile.lastLoginDate, today) - 1;
       
       if (daysMissed === 0) {
-        // Logged in exactly yesterday. Perfect streak.
         profile.streak++;
         profile.lastLoginDate = today;
       } else if (daysMissed > 0) {
-        // Missed one or more days. Check for freezes.
-        let freezesNeeded = daysMissed;
-        
-        if (profile.freezes >= 1) { // We consume 1 freeze to cover the gap regardless of length for simplicity, or 1 per day missed. Let's do 1 per absence event to be generous.
+        if (profile.freezes >= 1) { 
           profile.freezes--;
-          profile.streak++; // Streak survives and increments for today
+          profile.streak++; 
           profile.lastLoginDate = today;
           showModal('🧊', 'Streak Saved!', 'You missed a day, but your Streak Freeze automatically protected your flame. Keep it burning!');
         } else {
-          // No freezes. Streak broken.
           profile.streak = 1;
           profile.lastLoginDate = today;
           showModal('🔥', 'New Streak Started', 'Your streak reset. Consistency is the secret to maths fluency. Let\'s build a new habit today!');
@@ -215,12 +271,10 @@
 
   // --- RENDER ENGINE ---
   function renderDashboard() {
-    // 1. Update HUD
     document.getElementById('hud-xp').innerText = `⭐ ${profile.xp}`;
     document.getElementById('hud-streak').innerText = `🔥 ${profile.streak}`;
     document.getElementById('hud-freezes').innerText = `🧊 ${profile.freezes}`;
 
-    // 2. Update Shop Button
     let buyBtn = document.getElementById('btn-buy-freeze');
     if (profile.xp < 500) {
       buyBtn.disabled = true;
@@ -230,7 +284,6 @@
       buyBtn.innerText = "Buy (500 XP)";
     }
 
-    // 3. Update Daily Spiral
     let spiralBanner = document.getElementById('btn-spiral');
     let spiralDesc = document.getElementById('spiral-desc');
     if (profile.completedNodes.length > 0) {
@@ -238,7 +291,6 @@
       spiralDesc.innerText = "10 quick questions to build long-term memory.";
     }
 
-    // 4. Render Curriculum Grid
     let grid = document.getElementById('curriculum-grid');
     grid.innerHTML = '';
 
@@ -255,7 +307,6 @@
       let statusText = isCompleted ? 'Mastered' : (isActive ? 'Next Module' : 'Locked');
       let iconText = isCompleted ? '✓' : (index + 1);
 
-      // Check Teacher Intervention Flag
       let fails = profile.failedAttempts[mod.id] || 0;
       let beaconHtml = '';
       if (fails >= 5) {
@@ -266,12 +317,11 @@
           </div>`;
       }
 
-      // Remediation Check
       let hasRemediation = (profile.remediation && profile.remediation[mod.id] && profile.remediation[mod.id].length > 0);
       if (hasRemediation) {
           statusText = 'Focus Drill Active';
           cardClass += ' card-active';
-          cardClass = cardClass.replace('card-completed', ''); // Overwrite mastery if they regressed
+          cardClass = cardClass.replace('card-completed', '');
       }
 
       let cardHtml = `
@@ -302,14 +352,28 @@
     if (profile.completedNodes.length === 0) {
       showModal('🔒', 'Spiral Locked', 'The Daily Spiral combines facts from modules you have already mastered. Master your first module to unlock it!');
     } else {
-      showModal('🌀', 'Daily Spiral', 'Generating your 10-question algorithmic warm-up...\n\n(Note: The spiral.html retrieval engine is the next phase of the architecture build).');
+      window.location.href = 'spiral.html';
     }
   }
 
   function clearBeacon(e, moduleId) {
-    e.preventDefault(); // Stop the link from opening the module
+    e.preventDefault(); 
     profile.failedAttempts[moduleId] = 0;
     saveProfile();
+    
+    // Send a telemetry event that the teacher cleared it
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: profile.studentId,
+      moduleId: moduleId,
+      xp: 0,
+      accuracy: 0,
+      fails: 0,
+      action: "Guide Cleared Intervention"
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+    processTelemetryQueue();
+
     renderDashboard();
     showModal('✅', 'Consultation Cleared', `The intervention flag for ${moduleId} has been reset by the Guide.`);
   }
@@ -329,7 +393,6 @@
     document.getElementById('alert-modal').classList.remove('show');
   }
 
-  // Boot up the dashboard
   init();
 </script>
 </body>
