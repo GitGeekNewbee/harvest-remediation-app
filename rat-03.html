@@ -746,9 +746,27 @@
     });
   </script>
 
-  <!-- 🔌 DASHBOARD SYNC PATCH -->
+<!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+
+    // Helper to log telemetry safely
+    function logTelemetryEvent(action, accuracyVal) {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      let student = p.studentId || "Unknown";
+      let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+      
+      let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+      queue.push({
+        studentId: student,
+        moduleId: currentModuleId,
+        xp: xp,
+        accuracy: accuracyVal,
+        fails: fails,
+        action: action
+      });
+      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+    }
 
     endModule = function() {
       let saved = localStorage.getItem('harvest_maths_profile');
@@ -767,6 +785,9 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
+      // Record Telemetry
+      logTelemetryEvent("Mastered Module", 100);
+
       closeModal();
       document.getElementById('zone-practice').classList.add('hidden');
       document.getElementById('keypad').classList.add('hidden');
@@ -782,7 +803,7 @@
 
     const originalEvaluateSprint = evaluateSprint;
     evaluateSprint = function() {
-      originalEvaluateSprint(); // THE CRITICAL MISSING EXECUTION
+      originalEvaluateSprint(); 
       
       let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
       if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
@@ -796,6 +817,11 @@
           profile.failedAttempts[currentModuleId]++;
           localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
         }
+        // Log Fail
+        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      } else {
+        // Log Pass
+        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
       }
     };
   </script>
