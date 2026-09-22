@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - Diagnostic</title>
+  <style>
+    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
+    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    
+    /* HUD */
+    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
+    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
+    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--warning); width: 0%; transition: width 0.4s; }
+    .stats { font-weight: 800; font-size: 1.1rem; }
+    
+    /* Content */
+    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; justify-content: center;}
+    .hidden { display: none !important; }
+    h2 { margin-top: 0; color: var(--primary); font-size: 1.5rem; }
+    .instruction { font-size: 1.1rem; color: #5f6368; line-height: 1.4; margin-bottom: 20px;}
+    
+    /* Math Displays */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 3rem; font-weight: bold; margin: 20px 0; gap: 15px; }
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .v-num { border-bottom: 4px solid #333; padding: 0 10px; }
+    .v-den { padding: 0 10px; }
+    
+    /* Multiple Choice Grid */
+    .mcq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 400px; margin-top: 20px; }
+    .mcq-btn { background: #f8f9fa; border: 2px solid #dadce0; border-radius: 12px; padding: 15px; font-size: 1.5rem; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; min-height: 80px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: all 0.2s; }
+    .mcq-btn:active { transform: translateY(2px); box-shadow: 0 2px 3px rgba(0,0,0,0.05); }
+    
+    /* Modals */
+    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .btn-modal { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; background: var(--primary); color: white; }
+    
+    /* SVG Containers */
+    .svg-container { width: 100%; max-width: 250px; margin: 10px auto; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="hud">
+    <div class="stats" style="color:var(--primary);">DIAGNOSTIC</div>
+    <div class="progress-wrapper">
+      <div class="mastery-label">CLUSTER PROGRESS</div>
+      <div class="progress-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div class="stats" id="hud-stats">0/5</div>
+  </div>
+
+  <!-- ZONE 0: INTRO -->
+  <div class="content-zone" id="zone-intro">
+    <h1 style="font-size:4rem; margin:10px 0;">🧠</h1>
+    <h2>Concept Placement</h2>
+    <p class="instruction">This assessment will dynamically adapt to find exactly where you need to start your journey.</p>
+    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0; width:80%;">
+      <ul style="margin:5px 0; padding-left:20px; color:#5f6368; font-size:0.95rem;">
+        <li>Take your time. This is not timed.</li>
+        <li>Do not guess. Use scratch paper.</li>
+        <li>Your pathway will be custom-built based on your answers.</li>
+      </ul>
+    </div>
+    <button class="btn-modal" onclick="startDiagnostic()">Begin Assessment</button>
+  </div>
+
+  <!-- ZONE 1: ACTIVE TEST -->
+  <div class="content-zone hidden" id="zone-test">
+    <div class="instruction" id="q-instruction">Calculate:</div>
+    <div id="dynamic-q-container" style="width: 100%;"></div>
+    <div class="mcq-grid" id="mcq-container">
+      <!-- Buttons injected via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- PLACEMENT MODAL -->
+<div class="modal-overlay" id="placement-modal">
+  <div class="modal-box">
+    <div style="font-size:3rem; margin-bottom:10px;">🎯</div>
+    <h3 style="margin-top:0; color:var(--primary);">Pathway Generated</h3>
+    <p id="placement-text" style="font-size:1.1rem; line-height:1.5; color:#5f6368;"></p>
+    <button class="btn-modal" id="btn-finish" onclick="finalizePlacement()">Enter Concept Lab</button>
+  </div>
+</div>
+
+<!-- STUDENT NAME MODAL (Failsafe) -->
+<div class="modal-overlay" id="student-modal">
+  <div class="modal-box">
+    <h3 style="margin-bottom:10px;">Welcome to Concept Lab</h3>
+    <p>Please enter your First and Last name to link your placement data.</p>
+    <input type="text" id="student-name-input" placeholder="e.g. Sipho Ndlovu" style="width:90%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #ccc; font-size:1.1rem; text-align:center;">
+    <button class="btn-modal" onclick="saveStudentName()">Save Name</button>
+  </div>
+</div>
+
+<script>
+  // --- TELEMETRY ENGINE ---
+  const TELEMETRY_URL = "https://script.google.com/macros/s/AKfycbx4vErx32y3Y1tCbw1On37dsoQgyKWmEOnReyPT6NrLYnDyvErq6kpUh4kDY5jIDvKm/exec";
+
+  // --- STATE MACHINE ---
+  let currentNode = 'RAT-04'; // Middle-out starting point
+  let questionsAnswered = 0;
+  let correctAnswers = 0;
+  const questionsPerNode = 5;
+  let currentOptions = [];
+  
+  const moduleMap = {
+    'RAT-01': { index: 0, title: 'Fractions Intro' },
+    'RAT-02': { index: 1, title: 'Equivalent Fractions' },
+    'RAT-03': { index: 2, title: 'Adding Like Fractions' },
+    'RAT-04': { index: 3, title: 'Unlike Denominators' },
+    'RAT-05': { index: 4, title: 'Improper & Mixed' },
+    'RAT-06': { index: 5, title: 'Multiplying Fractions' },
+    'RAT-07': { index: 6, title: 'Dividing Fractions' },
+    'MASTERED': { index: 7, title: 'Gatekeeper Mastery' }
+  };
+
+  // --- UTILS ---
+  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+  function getLcm(a, b) { return (a * b) / gcd(a, b); }
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+  function renderFrac(n, d) {
+    return `<div class="v-frac"><div class="v-num">${n}</div><div class="v-den">${d}</div></div>`;
+  }
+  function drawRectangleSVG(n, d) {
+    let svg = `<svg viewBox="0 0 100 20" style="width: 100%; height: auto; border: 2px solid #333;">`;
+    let width = 100 / d;
+    for (let i = 0; i < d; i++) {
+      let fill = (i < n) ? 'var(--primary)' : '#e0e0e0';
+      svg += `<rect x="${i * width}" y="0" width="${width}" height="20" fill="${fill}" stroke="#333" stroke-width="1"/>`;
+    }
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if (!saved || !JSON.parse(saved).studentId) {
+      document.getElementById('student-modal').classList.add('show');
+    }
+  });
+
+  function saveStudentName() {
+    let nameInput = document.getElementById('student-name-input').value.trim();
+    if (nameInput.length < 2) return;
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    p.studentId = nameInput;
+    localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+    document.getElementById('student-modal').classList.remove('show');
+  }
+
+  function startDiagnostic() {
+    document.getElementById('zone-intro').classList.add('hidden');
+    document.getElementById('zone-test').classList.remove('hidden');
+    loadQuestion();
+  }
+
+  // --- DISTRACTOR GENERATORS ---
+  function generateOptions(type) {
+    let ops = [];
+    if (type === 'RAT-04') {
+      while(true) {
+        let d1 = Math.floor(Math.random() * 7) + 3;
+        let d2 = Math.floor(Math.random() * 7) + 3;
+        if (d1 === d2) continue;
+        let lcm = getLcm(d1, d2);
+        if (lcm > 40) continue;
+        let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+        let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+        let sN1 = n1 * (lcm/d1);
+        let sN2 = n2 * (lcm/d2);
+        
+        document.getElementById('q-instruction').innerText = "Calculate:";
+        document.getElementById('dynamic-q-container').innerHTML = `
+          <div class="math-row">${renderFrac(n1, d1)} <div>+</div> ${renderFrac(n2, d2)} <div>=</div></div>`;
+        
+        ops.push({ html: renderFrac(sN1+sN2, lcm), correct: true }); // Correct
+        ops.push({ html: renderFrac(n1+n2, d1+d2), correct: false }); // Conjoining Trap
+        ops.push({ html: renderFrac(n1+n2, lcm), correct: false }); // Unscaled Numerator
+        ops.push({ html: renderFrac(sN1+sN2, lcm+lcm), correct: false }); // Added Denominators
+        break;
+      }
+    } 
+    else if (type === 'RAT-06') {
+      let d1 = Math.floor(Math.random() * 7) + 2; let d2 = Math.floor(Math.random() * 7) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+      
+      document.getElementById('q-instruction').innerText = "Calculate:";
+      document.getElementById('dynamic-q-container').innerHTML = `
+        <div class="math-row">${renderFrac(n1, d1)} <div>×</div> ${renderFrac(n2, d2)} <div>=</div></div>`;
+      
+      ops.push({ html: renderFrac(n1*n2, d1*d2), correct: true }); // Correct
+      ops.push({ html: renderFrac(n1*d2, d1*n2), correct: false }); // Cross Trap
+      ops.push({ html: renderFrac(n1+n2, d1+d2), correct: false }); // Addition Trap
+      ops.push({ html: renderFrac(n1*n2, d1), correct: false }); // Locked Denominator Trap
+    }
+    else if (type === 'RAT-07') {
+      let d1 = Math.floor(Math.random() * 7) + 2; let d2 = Math.floor(Math.random() * 7) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+      
+      document.getElementById('q-instruction').innerText = "Calculate:";
+      document.getElementById('dynamic-q-container').innerHTML = `
+        <div class="math-row">${renderFrac(n1, d1)} <div>÷</div> ${renderFrac(n2, d2)} <div>=</div></div>`;
+      
+      ops.push({ html: renderFrac(n1*d2, d1*n2), correct: true }); // Correct
+      ops.push({ html: renderFrac(n1*n2, d1*d2), correct: false }); // Forgot to Flip
+      ops.push({ html: renderFrac(d1*n2, n1*d2), correct: false }); // Flipped First
+      ops.push({ html: renderFrac(d1*d2, n1*n2), correct: false }); // Flipped Both
+    }
+    else if (type === 'RAT-02') {
+      let d1 = Math.floor(Math.random() * 6) + 2; 
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
+      let m = Math.floor(Math.random() * 4) + 2; 
+      
+      document.getElementById('q-instruction').innerText = "Find the missing number:";
+      document.getElementById('dynamic-q-container').innerHTML = `
+        <div class="math-row">${renderFrac(n1, d1)} <div>=</div> ${renderFrac('?', d1*m)}</div>`;
+      
+      ops.push({ html: n1*m, correct: true }); // Correct
+      ops.push({ html: n1 + ((d1*m) - d1), correct: false }); // Adding Trap
+      ops.push({ html: n1, correct: false }); // Static Numerator
+      ops.push({ html: n1*(m+1), correct: false }); // Wrong Multiplier
+    }
+    else if (type === 'RAT-01') {
+      let d = Math.floor(Math.random() * 6) + 3; 
+      let n = Math.floor(Math.random() * (d - 1)) + 1; 
+      
+      document.getElementById('q-instruction').innerText = "Write the fraction shown:";
+      document.getElementById('dynamic-q-container').innerHTML = `
+        <div class="svg-container">${drawRectangleSVG(n, d)}</div>`;
+        
+      ops.push({ html: renderFrac(n, d), correct: true }); // Correct
+      ops.push({ html: renderFrac(d, n), correct: false }); // Flipped Trap
+      ops.push({ html: renderFrac(n, d-n), correct: false }); // Part-to-Part
+      ops.push({ html: renderFrac(d-n, n), correct: false }); // Part-to-Part Flipped
+    }
+    return shuffle(ops);
+  }
+
+  function loadQuestion() {
+    currentOptions = generateOptions(currentNode);
+    let mcq = document.getElementById('mcq-container');
+    mcq.innerHTML = '';
+    currentOptions.forEach((opt, index) => {
+      mcq.innerHTML += `<div class="mcq-btn" onclick="selectAnswer(${index})">${opt.html}</div>`;
+    });
+    
+    document.getElementById('hud-stats').innerText = `${questionsAnswered}/5`;
+    document.getElementById('p-bar').style.width = `${(questionsAnswered/5)*100}%`;
+  }
+
+  function selectAnswer(index) {
+    if(currentOptions[index].correct) {
+      correctAnswers++;
+    }
+    questionsAnswered++;
+    
+    if (questionsAnswered >= questionsPerNode) {
+      evaluateCluster();
+    } else {
+      loadQuestion();
+    }
+  }
+
+  // --- MIDDLE-OUT DECISION TREE ---
+  function evaluateCluster() {
+    document.getElementById('p-bar').style.width = '100%';
+    document.getElementById('hud-stats').innerText = `5/5`;
+    
+    let passed = correctAnswers >= 4;
+    
+    if (currentNode === 'RAT-04') {
+      if (passed) branchTo('RAT-06');
+      else branchTo('RAT-02');
+    }
+    else if (currentNode === 'RAT-06') {
+      if (passed) branchTo('RAT-07');
+      else concludeDiagnostic('RAT-06');
+    }
+    else if (currentNode === 'RAT-07') {
+      if (passed) concludeDiagnostic('MASTERED');
+      else concludeDiagnostic('RAT-07');
+    }
+    else if (currentNode === 'RAT-02') {
+      if (passed) concludeDiagnostic('RAT-03'); // Skipped RAT-01, failed RAT-04, but passed equivalent scaling. Needs Add/Subtract logic.
+      else branchTo('RAT-01');
+    }
+    else if (currentNode === 'RAT-01') {
+      if (passed) concludeDiagnostic('RAT-02');
+      else concludeDiagnostic('RAT-01');
+    }
+  }
+
+  function branchTo(newNode) {
+    currentNode = newNode;
+    questionsAnswered = 0;
+    correctAnswers = 0;
+    setTimeout(() => {
+      document.getElementById('p-bar').style.width = '0%';
+      document.getElementById('hud-stats').innerText = `0/5`;
+      loadQuestion();
+    }, 400);
+  }
+
+  // --- FINALIZATION & TELEMETRY ---
+  let placedModuleId = '';
+
+  function concludeDiagnostic(placedId) {
+    placedModuleId = placedId;
+    let title = moduleMap[placedId].title;
+    
+    let text = placedId === 'MASTERED' 
+      ? "You have demonstrated mastery across all rational number operations. You will proceed directly to building factual fluency."
+      : `Based on your diagnostic profile, your optimal starting point is <b>${placedId}: ${title}</b>. We have successfully bypassed what you already know to focus on what you need.`;
+      
+    document.getElementById('placement-text').innerHTML = text;
+    document.getElementById('placement-modal').classList.add('show');
+  }
+
+  function finalizePlacement() {
+    let btn = document.getElementById('btn-finish');
+    btn.innerText = "Syncing Profile...";
+    btn.disabled = true;
+
+    // 1. Update Profile
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    p.unlockedNodeIndex = moduleMap[placedModuleId].index;
+    p.xp = (p.xp || 0) + 100; // Bonus for completing diagnostic
+    localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+
+    // 2. Log to Telemetry Queue
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    let payload = {
+      studentId: p.studentId || "Unknown",
+      moduleId: "DIAGNOSTIC",
+      xp: 100,
+      accuracy: 0,
+      fails: 0,
+      action: `Placed in: ${placedModuleId}`
+    };
+    queue.push(payload);
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+
+    // 3. Attempt Live Sync, then redirect
+    if(navigator.onLine) {
+      fetch(TELEMETRY_URL, {
+        method: 'POST',
+        headers: {'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(queue[0])
+      }).then(r => {
+        queue.shift(); // Remove sent item
+        localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+        window.location.href = 'index.html';
+      }).catch(e => {
+        window.location.href = 'index.html'; // Redirect even if fetch fails
+      });
+    } else {
+      window.location.href = 'index.html'; // Redirect if offline
+    }
+  }
+</script>
+</body>
+</html>
