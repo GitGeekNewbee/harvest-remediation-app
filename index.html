@@ -207,11 +207,17 @@
     
     profile.studentId = nameInput;
     saveProfile();
-    document.getElementById('student-modal').classList.remove('show');
-    document.getElementById('display-student-name').innerText = profile.studentId;
     
-    processDailyStreak();
-    renderDashboard();
+    // THE NEW ROUTING HOOK: Send new students to the Diagnostic
+    if (profile.completedNodes.length === 0 && profile.unlockedNodeIndex === 0) {
+        window.location.href = 'diagnostic.html';
+    } else {
+        // Existing students just close the modal and see the dashboard
+        document.getElementById('student-modal').classList.remove('show');
+        document.getElementById('display-student-name').innerText = profile.studentId;
+        processDailyStreak();
+        renderDashboard();
+    }
   }
 
   // --- HABIT LOOP LOGIC (STREAKS & FREEZES) ---
