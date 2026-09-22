@@ -245,7 +245,6 @@
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
-      // REMEDIATION LOCK: Check if they abandoned a drill
       if(savedProf) {
           let p = JSON.parse(savedProf);
           if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
@@ -297,7 +296,7 @@
   function startSprint() {
     closeModal(); 
     appState = 'GATEKEEPER';
-    sessionMissed = []; // Clear array for new attempt
+    sessionMissed = []; 
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -405,7 +404,6 @@
       box.classList.add('flash-green');
     } else {
       box.classList.add('flash-red');
-      // OPERAND CATCHER: Save missed fact
       let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
       if(!exists) {
           sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
@@ -419,7 +417,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
-      sessionMissed = []; // Clear array on pass
+      sessionMissed = []; 
       if (gateLevel < 3) {
         showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
         gateLevel++;
@@ -446,7 +444,6 @@
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
     } else {
-      // If they missed facts, route to REMEDIATION DRILL
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -459,7 +456,6 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          // Standard fail if they didn't miss specific facts (e.g. just too slow)
           let hintText = "";
           if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
           else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
@@ -502,7 +498,6 @@
           remediationIndex = Math.floor(Math.random() * queue.length);
           currentRemediationQ = queue[remediationIndex];
           
-          // Display progress circles based on 3-strike streak
           let dots = "⚪⚪⚪";
           if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
@@ -529,7 +524,7 @@
 
       if(userAns === currentRemediationQ.ans) {
           box.classList.add('flash-green');
-          xp += 2; // Micro reward
+          xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
           
           queue[remediationIndex].streak++;
@@ -604,6 +599,8 @@
   }
 
   // --- ZONE 2: PRACTICE (ADDING/SUBTRACTING) ---
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -619,8 +616,8 @@
   }
 
   function generateFractionFact() {
-    let d = Math.floor(Math.random() * 10) + 3; // Denom 3 to 12
-    let n1 = Math.floor(Math.random() * 9) + 1; // Num 1 to 9
+    let d = Math.floor(Math.random() * 10) + 3; 
+    let n1 = Math.floor(Math.random() * 9) + 1; 
     let n2 = Math.floor(Math.random() * 9) + 1;
     let op = Math.random() > 0.5 ? '+' : '-';
     
@@ -631,8 +628,10 @@
       n1++;
     }
 
-    let targetN = op === '+' ? (n1 + n2) : (n1 - n2);
-    return { n1: n1, n2: n2, d: d, op: op, ansN: targetN, ansD: d };
+    let rawN = op === '+' ? (n1 + n2) : (n1 - n2);
+    let g = hcf(rawN, d);
+
+    return { n1: n1, n2: n2, d: d, op: op, rawN: rawN, rawD: d, ansN: rawN/g, ansD: d/g };
   }
 
   function loadPracticeQuestion() {
@@ -666,7 +665,7 @@
         streak++;
         xp += (streak >= 3) ? 150 : 100;
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! You kept the denominator locked.');
+        showModal('🟢', 'Mastery +1', 'Perfect! You kept the denominator locked and simplified your answer.');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
         else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
@@ -685,15 +684,18 @@
       }
       mistakesOnCurrent++;
       
-      if(userD === (currentQ.d + currentQ.d)) {
+      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
+        showModal('🟡', 'Simplify Your Answer', `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is mathematically correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
+      }
+      else if(userD === (currentQ.d + currentQ.d)) {
         showModal('🟡', 'Mastery Lost', `Conjoining Trap! You added the denominators (${currentQ.d} + ${currentQ.d}). The bottom numbers tell you the size of the piece, which does not change.`);
-      } else if (userD !== currentQ.ansD) {
-        showModal('🟡', 'Mastery Lost', `Check the Denominator. When the bottom numbers are already identical, leave them exactly the same.`);
-      } else if (userN !== currentQ.ansN) {
+      } else if (userD !== currentQ.ansD && userD !== currentQ.rawD) {
+        showModal('🟡', 'Mastery Lost', `Check the Denominator. When the bottom numbers are already identical, leave them exactly the same before simplifying.`);
+      } else if (userN !== currentQ.rawN && userN !== currentQ.ansN) {
         let opWord = currentQ.op === '+' ? 'add' : 'subtract';
         showModal('🟡', 'Mastery Lost', `Your denominator is perfect! Recalculate the top numbers: check whether you need to ${opWord} them.`);
       } else {
-        showModal('🔴', 'Mastery Lost', `Let's review. The denominator stays ${currentQ.d}. You calculate the numerators: ${currentQ.n1} ${currentQ.op} ${currentQ.n2} = ${currentQ.ansN}.`);
+        showModal('🔴', 'Mastery Lost', `Let's review. The denominator stays ${currentQ.d}. You calculate the numerators: ${currentQ.n1} ${currentQ.op} ${currentQ.n2} = ${currentQ.rawN}. Then simplify if possible.`);
       }
     }
   }
