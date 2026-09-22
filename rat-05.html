@@ -457,9 +457,9 @@
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
           let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
           showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
           document.getElementById('modal-btn').innerText = "Try Again";
@@ -599,6 +599,8 @@
   }
 
   // --- ZONE 2: PRACTICE (IMPROPER -> MIXED) ---
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -614,13 +616,16 @@
   }
 
   function generateImproperFraction() {
-    let d = Math.floor(Math.random() * 8) + 2; 
-    let w = Math.floor(Math.random() * 5) + 1; 
-    let n = Math.floor(Math.random() * (d - 1)) + 1; 
-    
-    let improperNum = (w * d) + n;
-    
-    return { impNum: improperNum, d: d, ansW: w, ansN: n };
+    while(true) {
+      let d = Math.floor(Math.random() * 8) + 2; 
+      let w = Math.floor(Math.random() * 5) + 1; 
+      let n = Math.floor(Math.random() * (d - 1)) + 1; 
+      
+      if (hcf(n, d) > 1) continue; 
+      
+      let improperNum = (w * d) + n;
+      return { impNum: improperNum, d: d, ansW: w, ansN: n };
+    }
   }
 
   function loadPracticeQuestion() {
@@ -703,22 +708,12 @@
   }
 
   function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
-
-  function endModule() {
-    closeModal();
-    document.getElementById('zone-practice').classList.add('hidden');
-    document.getElementById('keypad').classList.add('hidden');
-    document.getElementById('zone-learn').classList.remove('hidden');
-    document.getElementById('zone-learn').innerHTML = `
-      <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
-      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
-  }
 </script>
 
   <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
-      if(appState === 'LOCKED') return; // Prevent typing while showing right answer
+      if(appState === 'LOCKED') return; 
       let hintModal = document.getElementById('hint-modal');
       if (hintModal && hintModal.classList.contains('show')) {
         if (event.key === 'Enter') document.getElementById('modal-btn').click();
@@ -737,7 +732,7 @@
     });
   </script>
 
- <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
+  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
 
