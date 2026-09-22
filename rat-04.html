@@ -26,7 +26,7 @@
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: margin-top: 15px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
@@ -111,13 +111,13 @@
     </div>
 
     <div id="slide-2" class="hidden">
-      <h2>Step 1: Find the LCM</h2>
-      <p>Find the <b>Lowest Common Multiple (LCM)</b>. Count in your multiples for both numbers until you find the first match.</p>
+      <h2>Step 1: Find the LCD</h2>
+      <p>Find the <b>Lowest Common Denominator (LCD)</b>. Count in your multiples for both numbers until you find the first match.</p>
       <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; text-align:left;">
         <p><b>Multiples of 3:</b> 3, 6, 9, <span style="background:var(--success); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">12</span>, 15...</p>
         <p><b>Multiples of 4:</b> 4, 8, <span style="background:var(--success); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">12</span>, 16...</p>
       </div>
-      <p>The LCM is 12. This becomes your new <b>Common Denominator</b>.</p>
+      <p>The LCD is 12. This becomes your new <b>Common Denominator</b>.</p>
     </div>
 
     <div id="slide-3" class="hidden">
@@ -148,7 +148,7 @@
     <div id="slide-5" class="hidden">
       <h2>Ready to Prove Mastery?</h2>
       <p>You must calculate <b>5 correct answers in a row</b> on your first attempt.</p>
-      <p>1. Find the LCM.<br>2. Multiply to make them match.<br>3. Add or subtract the top numbers.</p>
+      <p>1. Find the LCD.<br>2. Multiply to make them match.<br>3. Add or subtract the top numbers.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
@@ -242,7 +242,6 @@
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
-      // REMEDIATION LOCK: Check if they abandoned a drill
       if(savedProf) {
           let p = JSON.parse(savedProf);
           if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
@@ -252,10 +251,6 @@
           }
       }
   });
-
-  // --- MATH UTILS ---
-  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-  function getLcm(a, b) { return (a * b) / gcd(a, b); }
 
   // --- KEYPAD LOGIC ---
   function setActive(id) {
@@ -298,7 +293,7 @@
   function startSprint() {
     closeModal(); 
     appState = 'GATEKEEPER';
-    sessionMissed = []; // Clear array for new attempt
+    sessionMissed = []; 
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -406,7 +401,6 @@
       box.classList.add('flash-green');
     } else {
       box.classList.add('flash-red');
-      // OPERAND CATCHER: Save missed fact
       let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
       if(!exists) {
           sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
@@ -420,7 +414,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
-      sessionMissed = []; // Clear array on pass
+      sessionMissed = []; 
       if (gateLevel < 3) {
         showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
         gateLevel++;
@@ -447,7 +441,6 @@
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
     } else {
-      // If they missed facts, route to REMEDIATION DRILL
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -460,11 +453,10 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          // Standard fail if they didn't miss specific facts (e.g. just too slow)
           let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
           showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
           document.getElementById('modal-btn').innerText = "Try Again";
@@ -503,7 +495,6 @@
           remediationIndex = Math.floor(Math.random() * queue.length);
           currentRemediationQ = queue[remediationIndex];
           
-          // Display progress circles based on 3-strike streak
           let dots = "⚪⚪⚪";
           if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
@@ -530,7 +521,7 @@
 
       if(userAns === currentRemediationQ.ans) {
           box.classList.add('flash-green');
-          xp += 2; // Micro reward
+          xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
           
           queue[remediationIndex].streak++;
@@ -605,6 +596,9 @@
   }
 
   // --- ZONE 2: PRACTICE (UNLIKE DENOMINATORS) ---
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+  function getLcd(a, b) { return (a * b) / hcf(a, b); }
+
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -625,14 +619,14 @@
       let d2 = Math.floor(Math.random() * 9) + 2;
       if (d1 === d2) continue;
       
-      let lcm = getLcm(d1, d2);
-      if (lcm > 40) continue; // Protect working memory
+      let lcd = getLcd(d1, d2);
+      if (lcd > 40) continue; 
 
       let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
       let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
       
-      let m1 = lcm / d1;
-      let m2 = lcm / d2;
+      let m1 = lcd / d1;
+      let m2 = lcd / d2;
       let sN1 = n1 * m1;
       let sN2 = n2 * m2;
       
@@ -646,8 +640,10 @@
       }
       if (op === '-' && sN1 === sN2) continue;
 
-      let targetN = op === '+' ? (sN1 + sN2) : (sN1 - sN2);
-      return { n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcm: lcm, m1: m1, m2: m2, sN1: sN1, sN2: sN2, ansN: targetN, ansD: lcm };
+      let rawN = op === '+' ? (sN1 + sN2) : (sN1 - sN2);
+      let g = hcf(rawN, lcd);
+
+      return { n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcd: lcd, m1: m1, m2: m2, sN1: sN1, sN2: sN2, rawN: rawN, rawD: lcd, ansN: rawN/g, ansD: lcd/g };
     }
   }
 
@@ -682,7 +678,7 @@
         streak++;
         xp += (streak >= 3) ? 150 : 100;
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! You scaled the fractions and kept the denominator locked.');
+        showModal('🟢', 'Mastery +1', 'Perfect! You scaled the fractions, locked the denominator, and simplified.');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
         else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
@@ -702,29 +698,32 @@
       mistakesOnCurrent++;
       
       if(userD === (currentQ.d1 + currentQ.d2) && userN === (currentQ.n1 + currentQ.n2)) {
-        showModal('🟡', 'Conjoining Trap', `You added straight across! You cannot do this when the bottom numbers are different. Find the Lowest Common Multiple (LCM) first.`);
+        showModal('🟡', 'Conjoining Trap', `You added straight across! You cannot do this when the bottom numbers are different. Find the Lowest Common Denominator (LCD) first.`);
       } 
-      else if (userN === currentQ.ansN && userD === (currentQ.lcm + currentQ.lcm)) {
-        showModal('🟡', 'Denominator Addition', `You scaled the top perfectly, but then you added the new bottom numbers together! Once the bottom numbers match (${currentQ.lcm}), keep them locked.`);
+      else if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
+        showModal('🟡', 'Simplify Your Answer', `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
       }
-      else if (userD === currentQ.lcm && userN === (currentQ.op === '+' ? currentQ.n1 + currentQ.n2 : currentQ.n1 - currentQ.n2)) {
-        showModal('🟡', 'Unscaled Numerator', `You found the correct LCM (${currentQ.lcm}), but you dragged the old top numbers over! If you change the bottom, you MUST multiply the top by the exact same amount.`);
+      else if (userN === currentQ.ansN && userD === (currentQ.lcd + currentQ.lcd)) {
+        showModal('🟡', 'Denominator Addition', `You scaled the top perfectly, but then you added the new bottom numbers together! Once the bottom numbers match (${currentQ.lcd}), keep them locked.`);
       }
-      else if (userD === currentQ.lcm && currentQ.op === '-' && userN === (currentQ.sN1 + currentQ.sN2)) {
+      else if (userD === currentQ.lcd && userN === (currentQ.op === '+' ? currentQ.n1 + currentQ.n2 : currentQ.n1 - currentQ.n2)) {
+        showModal('🟡', 'Unscaled Numerator', `You found the correct LCD (${currentQ.lcd}), but you dragged the old top numbers over! If you change the bottom, you MUST multiply the top by the exact same amount.`);
+      }
+      else if (userD === currentQ.lcd && currentQ.op === '-' && userN === (currentQ.sN1 + currentQ.sN2)) {
          showModal('🟡', 'Wrong Operation', `You scaled the fractions perfectly, but the symbol is subtraction (-), not addition. You need to subtract the top numbers.`);
       }
-      else if (userD === currentQ.lcm && currentQ.op === '+' && userN === (currentQ.sN1 - currentQ.sN2)) {
+      else if (userD === currentQ.lcd && currentQ.op === '+' && userN === (currentQ.sN1 - currentQ.sN2)) {
          showModal('🟡', 'Wrong Operation', `You scaled the fractions perfectly, but the symbol is addition (+), not subtraction. You need to add the top numbers.`);
       }
-      else if (userD !== currentQ.lcm) {
-        showModal('🟡', 'Incorrect LCM', `Check your denominator. What is the lowest number that both ${currentQ.d1} and ${currentQ.d2} can divide perfectly into?`);
+      else if (userD !== currentQ.lcd && userD !== currentQ.ansD) {
+        showModal('🟡', 'Incorrect LCD', `Check your denominator. What is the lowest number that both ${currentQ.d1} and ${currentQ.d2} can divide perfectly into?`);
       } 
       else {
         let opWord = currentQ.op === '+' ? 'added' : 'subtracted';
         let feedback = `Let's review the scaling steps:\n\n`;
-        feedback += `1. ${currentQ.d1} becomes ${currentQ.lcm} (multiplied by ${currentQ.m1}). So ${currentQ.n1} × ${currentQ.m1} = ${currentQ.sN1}.\n`;
-        feedback += `2. ${currentQ.d2} becomes ${currentQ.lcm} (multiplied by ${currentQ.m2}). So ${currentQ.n2} × ${currentQ.m2} = ${currentQ.sN2}.\n\n`;
-        feedback += `Finally, ${currentQ.sN1} ${currentQ.op} ${currentQ.sN2} = ${currentQ.ansN}.`;
+        feedback += `1. ${currentQ.d1} becomes ${currentQ.lcd} (multiplied by ${currentQ.m1}). So ${currentQ.n1} × ${currentQ.m1} = ${currentQ.sN1}.\n`;
+        feedback += `2. ${currentQ.d2} becomes ${currentQ.lcd} (multiplied by ${currentQ.m2}). So ${currentQ.n2} × ${currentQ.m2} = ${currentQ.sN2}.\n\n`;
+        feedback += `Finally, ${currentQ.sN1} ${currentQ.op} ${currentQ.sN2} = ${currentQ.rawN}. Then simplify if possible.`;
         showModal('🔴', 'Arithmetic Error', feedback);
       }
     }
@@ -744,22 +743,12 @@
   }
 
   function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
-
-  function endModule() {
-    closeModal();
-    document.getElementById('zone-practice').classList.add('hidden');
-    document.getElementById('keypad').classList.add('hidden');
-    document.getElementById('zone-learn').classList.remove('hidden');
-    document.getElementById('zone-learn').innerHTML = `
-      <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
-      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
-  }
 </script>
 
   <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
-      if(appState === 'LOCKED') return; // Prevent typing while showing right answer
+      if(appState === 'LOCKED') return; 
       let hintModal = document.getElementById('hint-modal');
       if (hintModal && hintModal.classList.contains('show')) {
         if (event.key === 'Enter') document.getElementById('modal-btn').click();
@@ -778,7 +767,7 @@
     });
   </script>
 
-<!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
+  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
 
