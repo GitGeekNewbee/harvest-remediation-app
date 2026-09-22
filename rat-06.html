@@ -106,7 +106,7 @@
       </div>
       <p style="font-weight:bold; color:var(--success); background:#d4edda; padding:15px; border-radius:8px;">
         ✅ Different bottoms are fine!<br><br>
-        Ignore the Lowest Common Multiple completely.
+        Ignore the Lowest Common Denominator completely.
       </p>
     </div>
 
@@ -462,9 +462,9 @@
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
           let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Concept Lab Strategy: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Concept Lab Strategy: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Concept Lab Strategy: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
+          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
+          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
+          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
 
           showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
           document.getElementById('modal-btn').innerText = "Try Again";
@@ -604,6 +604,8 @@
   }
 
   // --- ZONE 2: PRACTICE (MULTIPLICATION) ---
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -624,7 +626,11 @@
     let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
     let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
     
-    return { n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * n2, ansD: d1 * d2 };
+    let rawN = n1 * n2;
+    let rawD = d1 * d2;
+    let g = hcf(rawN, rawD);
+
+    return { n1: n1, d1: d1, n2: n2, d2: d2, rawN: rawN, rawD: rawD, ansN: rawN/g, ansD: rawD/g };
   }
 
   function loadPracticeQuestion() {
@@ -658,7 +664,7 @@
         streak++;
         xp += (streak >= 3) ? 150 : 100;
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! Top × Top, Bottom × Bottom.');
+        showModal('🟢', 'Mastery +1', 'Perfect! Top × Top, Bottom × Bottom, and fully simplified.');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
         else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
@@ -677,7 +683,10 @@
       }
       mistakesOnCurrent++;
       
-      if(userN === (currentQ.n1 + currentQ.n2) || userD === (currentQ.d1 + currentQ.d2)) {
+      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
+        showModal('🟡', 'Simplify Your Answer', `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
+      }
+      else if(userN === (currentQ.n1 + currentQ.n2) || userD === (currentQ.d1 + currentQ.d2)) {
         showModal('🟡', 'Addition Confusion', `You added instead of multiplying! Look at the symbol (×). You must multiply the tops together and multiply the bottoms together.`);
       } 
       else if (userD === currentQ.d1 || userD === currentQ.d2) {
@@ -687,7 +696,7 @@
         showModal('🟡', 'The Cross Trap', `You multiplied diagonally. Remember: always multiply straight across horizontally (top × top, bottom × bottom).`);
       }
       else {
-        showModal('🔴', 'Arithmetic Error', `Check your times tables.\n\nTop: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.ansN}.\nBottom: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.ansD}.`);
+        showModal('🔴', 'Arithmetic Error', `Check your times tables.\n\nTop: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}.\nBottom: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}.\nThen simplify if possible.`);
       }
     }
   }
@@ -707,21 +716,12 @@
 
   function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
 
-  function endModule() {
-    closeModal();
-    document.getElementById('zone-practice').classList.add('hidden');
-    document.getElementById('keypad').classList.add('hidden');
-    document.getElementById('zone-learn').classList.remove('hidden');
-    document.getElementById('zone-learn').innerHTML = `
-      <h1 style="font-size:4rem; margin:0;">🏆</h1><h2 style="color:var(--success);">Module Mastered!</h2>
-      <h3 style="color:var(--primary);">Total: ${xp} XP</h3><p>Please return to the Dashboard.</p>`;
-  }
 </script>
 
   <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
-      if(appState === 'LOCKED') return; // Prevent typing while showing right answer
+      if(appState === 'LOCKED') return; 
       let hintModal = document.getElementById('hint-modal');
       if (hintModal && hintModal.classList.contains('show')) {
         if (event.key === 'Enter') document.getElementById('modal-btn').click();
