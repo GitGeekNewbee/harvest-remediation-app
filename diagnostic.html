@@ -91,16 +91,6 @@
   </div>
 </div>
 
-<!-- STUDENT NAME MODAL (Failsafe) -->
-<div class="modal-overlay" id="student-modal">
-  <div class="modal-box">
-    <h3 style="margin-bottom:10px;">Welcome to Concept Lab</h3>
-    <p>Please enter your First and Last name to link your placement data.</p>
-    <input type="text" id="student-name-input" placeholder="e.g. Sipho Ndlovu" style="width:90%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #ccc; font-size:1.1rem; text-align:center;">
-    <button class="btn-modal" onclick="saveStudentName()">Save Name</button>
-  </div>
-</div>
-
 <script>
   // --- TELEMETRY ENGINE ---
   const TELEMETRY_URL = "https://script.google.com/macros/s/AKfycbx4vErx32y3Y1tCbw1On37dsoQgyKWmEOnReyPT6NrLYnDyvErq6kpUh4kDY5jIDvKm/exec";
@@ -147,10 +137,28 @@
     return svg;
   }
 
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+    // If the student bypasses the dashboard without a name, send them back
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if (!saved || !JSON.parse(saved).studentId) {
+      window.location.href = 'index.html';
+    }
+  });
+
+  function startDiagnostic() {
+    document.getElementById('zone-intro').classList.add('hidden');
+    document.getElementById('zone-test').classList.remove('hidden');
+    loadQuestion();
+  }
+
   // --- DISTRACTOR GENERATORS ---
   function generateOptions(type) {
-    while(true) {
+    let safetyCounter = 0;
+    while(safetyCounter < 50) {
+      safetyCounter++;
       let ops = [];
+      
       if (type === 'RAT-04') {
         let d1 = Math.floor(Math.random() * 7) + 3;
         let d2 = Math.floor(Math.random() * 7) + 3;
@@ -162,7 +170,12 @@
         let sN1 = n1 * (lcd/d1);
         let sN2 = n2 * (lcd/d2);
         let op = Math.random() > 0.5 ? '+' : '-';
-        if (op === '-' && sN2 > sN1) { let t=sN1; sN1=sN2; sN2=t; t=n1; n1=n2; n2=t; t=d1; d1=d2; d2=t; }
+        
+        if (op === '-' && sN2 > sN1) { 
+          let temp = sN1; sN1 = sN2; sN2 = temp; 
+          temp = n1; n1 = n2; n2 = temp; 
+          temp = d1; d1 = d2; d2 = temp; 
+        }
         if (op === '-' && sN1 === sN2) continue;
 
         let rawN = op === '+' ? (sN1+sN2) : (sN1-sN2);
@@ -238,13 +251,14 @@
         ops.push({ html: renderFrac(d-n, n), correct: false }); 
       }
 
-      // Uniqueness validation
+      // Uniqueness validation with safety counter break
       let uniqueCheck = new Set(ops.map(o => o.html));
-      if (uniqueCheck.size === 4) {
+      if (uniqueCheck.size === 4 || safetyCounter >= 49) {
         return shuffle(ops);
       }
     }
   }
+
   function loadQuestion() {
     currentOptions = generateOptions(currentNode);
     let mcq = document.getElementById('mcq-container');
@@ -290,7 +304,7 @@
       else concludeDiagnostic('RAT-07');
     }
     else if (currentNode === 'RAT-02') {
-      if (passed) concludeDiagnostic('RAT-03'); // Skipped RAT-01, failed RAT-04, but passed equivalent scaling. Needs Add/Subtract logic.
+      if (passed) concludeDiagnostic('RAT-03'); 
       else branchTo('RAT-01');
     }
     else if (currentNode === 'RAT-01') {
