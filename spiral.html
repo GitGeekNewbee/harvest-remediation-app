@@ -103,8 +103,8 @@
   let allowedModules = [];
 
   // MATH UTILS
-  function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
-  function getLcm(a, b) { return (a * b) / gcd(a, b); }
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+  function getLcd(a, b) { return (a * b) / hcf(a, b); }
 
   // INITIALIZATION
   document.addEventListener('DOMContentLoaded', () => {
@@ -118,7 +118,7 @@
     if (allowedModules.length === 0) {
       showModal('🔒', 'Spiral Locked', 'You must master at least one module before you can access the Daily Spiral.');
       document.getElementById('modal-btn').innerText = "Return to Dashboard";
-      document.getElementById('modal-btn').onclick = () => window.location.href = 'index.html';
+      document.getElementById('modal-btn').onclick = function() { window.location.replace('index.html'); };
       return;
     }
 
@@ -131,7 +131,8 @@
     'RAT-01': () => {
       let d = Math.floor(Math.random() * 7) + 2; 
       let n = Math.floor(Math.random() * (d - 1)) + 1; 
-      return { type: 'RAT-01', n: n, d: d, instruction: "Write the fraction shown:" };
+      let g = hcf(n, d);
+      return { type: 'RAT-01', n: n/g, d: d/g, instruction: "Write the fraction shown (in simplest form):", svgN: n, svgD: d };
     },
     'RAT-02': () => {
       let d1 = Math.floor(Math.random() * 9) + 2; 
@@ -146,40 +147,49 @@
       let op = Math.random() > 0.5 ? '+' : '-';
       if (op === '-' && n2 > n1) { let t = n1; n1 = n2; n2 = t; }
       if (op === '-' && n1 === n2) n1++;
-      return { type: 'RAT-03', n1: n1, d1: d, n2: n2, d2: d, op: op, ansN: op === '+' ? (n1+n2) : (n1-n2), ansD: d, instruction: "Calculate:" };
+      let rawN = op === '+' ? (n1+n2) : (n1-n2);
+      let g = hcf(rawN, d);
+      return { type: 'RAT-03', n1: n1, d1: d, n2: n2, d2: d, op: op, rawN: rawN, rawD: d, ansN: rawN/g, ansD: d/g, instruction: "Calculate (in simplest form):" };
     },
     'RAT-04': () => {
       while(true) {
         let d1 = Math.floor(Math.random() * 9) + 2;
         let d2 = Math.floor(Math.random() * 9) + 2;
         if (d1 === d2) continue;
-        let lcm = getLcm(d1, d2);
-        if (lcm > 40) continue;
+        let lcd = getLcd(d1, d2);
+        if (lcd > 40) continue;
         let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
         let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
         let op = Math.random() > 0.5 ? '+' : '-';
-        let sN1 = n1 * (lcm/d1);
-        let sN2 = n2 * (lcm/d2);
+        let sN1 = n1 * (lcd/d1);
+        let sN2 = n2 * (lcd/d2);
         if (op === '-' && sN2 > sN1) { let t=sN1; sN1=sN2; sN2=t; t=n1; n1=n2; n2=t; t=d1; d1=d2; d2=t; }
         if (op === '-' && sN1 === sN2) continue;
-        return { type: 'RAT-04', n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcm: lcm, ansN: op === '+' ? (sN1+sN2) : (sN1-sN2), ansD: lcm, instruction: "Calculate (Find the LCM first):" };
+        let rawN = op === '+' ? (sN1+sN2) : (sN1-sN2);
+        let g = hcf(rawN, lcd);
+        return { type: 'RAT-04', n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcd: lcd, rawN: rawN, rawD: lcd, ansN: rawN/g, ansD: lcd/g, instruction: "Calculate (in simplest form):" };
       }
     },
     'RAT-05': () => {
-      let d = Math.floor(Math.random() * 8) + 2; 
-      let w = Math.floor(Math.random() * 5) + 1; 
-      let n = Math.floor(Math.random() * (d - 1)) + 1; 
-      return { type: 'RAT-05', impNum: (w * d) + n, impDen: d, ansW: w, ansN: n, ansD: d, instruction: "Convert to a mixed number:" };
+      while(true) {
+        let d = Math.floor(Math.random() * 8) + 2; 
+        let w = Math.floor(Math.random() * 5) + 1; 
+        let n = Math.floor(Math.random() * (d - 1)) + 1; 
+        if (hcf(n, d) > 1) continue;
+        return { type: 'RAT-05', impNum: (w * d) + n, impDen: d, ansW: w, ansN: n, ansD: d, instruction: "Convert to a mixed number:" };
+      }
     },
     'RAT-06': () => {
       let d1 = Math.floor(Math.random() * 9) + 2; let d2 = Math.floor(Math.random() * 9) + 2; 
       let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-      return { type: 'RAT-06', n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * n2, ansD: d1 * d2, instruction: "Multiply straight across:" };
+      let rawN = n1*n2; let rawD = d1*d2; let g = hcf(rawN, rawD);
+      return { type: 'RAT-06', n1: n1, d1: d1, n2: n2, d2: d2, rawN: rawN, rawD: rawD, ansN: rawN/g, ansD: rawD/g, instruction: "Multiply (in simplest form):" };
     },
     'RAT-07': () => {
       let d1 = Math.floor(Math.random() * 8) + 2; let d2 = Math.floor(Math.random() * 8) + 2; 
       let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-      return { type: 'RAT-07', n1: n1, d1: d1, n2: n2, d2: d2, ansN: n1 * d2, ansD: d1 * n2, instruction: "Divide (Keep, Change, Flip):" };
+      let rawN = n1*d2; let rawD = d1*n2; let g = hcf(rawN, rawD);
+      return { type: 'RAT-07', n1: n1, d1: d1, n2: n2, d2: d2, rawN: rawN, rawD: rawD, ansN: rawN/g, ansD: rawD/g, instruction: "Divide (Keep, Change, Flip, Simplify):" };
     }
   };
 
@@ -219,7 +229,7 @@
     // Dynamic HTML Injection based on question type
     if (currentQ.type === 'RAT-01') {
       container.innerHTML = `
-        ${drawRectangleSVG(currentQ.n, currentQ.d)}
+        ${drawRectangleSVG(currentQ.svgN, currentQ.svgD)}
         <div class="math-row" style="margin-top: 20px;">
           <div class="input-col">
             <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
@@ -327,7 +337,7 @@
     if (currentQ.type === 'RAT-01') {
       if (isNaN(n) || isNaN(d)) return;
       isCorrect = (n === currentQ.n && d === currentQ.d);
-      feedback = "Top = Shaded parts. Bottom = Total parts.";
+      feedback = "Top = Shaded parts. Bottom = Total parts. Ensure it is simplified.";
     } else if (currentQ.type === 'RAT-02') {
       if (isNaN(n)) return;
       isCorrect = (n === currentQ.ansN);
@@ -335,11 +345,11 @@
     } else if (currentQ.type === 'RAT-03') {
       if (isNaN(n) || isNaN(d)) return;
       isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
-      feedback = "Keep the bottom number identical. Only calculate the top numbers.";
+      feedback = "Keep the bottom number identical. Calculate the top numbers, then simplify.";
     } else if (currentQ.type === 'RAT-04') {
       if (isNaN(n) || isNaN(d)) return;
       isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
-      feedback = `Find the Lowest Common Multiple (${currentQ.lcm}), scale both top numbers, then calculate.`;
+      feedback = `Find the Lowest Common Denominator (${currentQ.lcd}), scale both top numbers, calculate, and simplify.`;
     } else if (currentQ.type === 'RAT-05') {
       if (isNaN(w) || isNaN(n) || isNaN(d)) return;
       isCorrect = (w === currentQ.ansW && n === currentQ.ansN && d === currentQ.ansD);
@@ -347,11 +357,11 @@
     } else if (currentQ.type === 'RAT-06') {
       if (isNaN(n) || isNaN(d)) return;
       isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
-      feedback = "Multiply the tops straight across. Multiply the bottoms straight across.";
+      feedback = "Multiply the tops straight across. Multiply the bottoms straight across. Simplify the result.";
     } else if (currentQ.type === 'RAT-07') {
       if (isNaN(n) || isNaN(d)) return;
       isCorrect = (n === currentQ.ansN && d === currentQ.ansD);
-      feedback = "Keep the first fraction, Change ÷ to ×, Flip the second fraction upside down.";
+      feedback = "Keep the first fraction, Change ÷ to ×, Flip the second fraction upside down. Multiply and simplify.";
     }
 
     if (isCorrect) {
@@ -368,6 +378,12 @@
       }, 500);
     } else {
       document.getElementById(activeBoxId).classList.add('flash-red');
+      
+      // Specifically catch unsimplified correct answers
+      if (currentQ.rawN && currentQ.rawD && n === currentQ.rawN && d === currentQ.rawD) {
+          feedback = `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`;
+      }
+      
       showModal('🟡', 'Check Your Rule', feedback);
     }
   }
@@ -378,6 +394,10 @@
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-text').innerText = text;
     document.getElementById('hint-modal').classList.add('show');
+    if(appState === 'PRACTICE') {
+      document.getElementById('modal-btn').innerText = "I Understand";
+      document.getElementById('modal-btn').onclick = closeModal;
+    }
   }
 
   function closeModal() {
@@ -389,11 +409,25 @@
   function endSpiral() {
     // Save XP
     let saved = localStorage.getItem('harvest_maths_profile');
+    let student = "Unknown";
     if(saved) {
       let p = JSON.parse(saved);
       p.xp += spiralXP;
+      student = p.studentId || "Unknown";
       localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
     }
+
+    // Telemetry Sync for Spiral
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: "DAILY-SPIRAL",
+      xp: spiralXP,
+      accuracy: 100, // Spiral forces 100% completion
+      fails: 0,
+      action: "Completed Daily Spiral"
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
 
     document.getElementById('zone-practice').classList.add('hidden');
     document.getElementById('keypad').classList.add('hidden');
