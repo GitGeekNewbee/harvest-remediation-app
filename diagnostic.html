@@ -341,13 +341,30 @@
 
   function finalizePlacement() {
     let btn = document.getElementById('btn-finish');
-    btn.innerText = "Syncing Profile...";
+    btn.innerText = "Entering Lab...";
     btn.disabled = true;
 
     // 1. Update Profile
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
-    p.unlockedNodeIndex = moduleMap[placedModuleId].index;
+    let targetIndex = moduleMap[placedModuleId].index;
+    p.unlockedNodeIndex = targetIndex;
     p.xp = (p.xp || 0) + 100; // Bonus for completing diagnostic
+    
+    p.completedNodes = p.completedNodes || [];
+    
+    // Prevent routing loop on Dashboard
+    if(!p.completedNodes.includes('DIAGNOSTIC-COMPLETE')) {
+        p.completedNodes.push('DIAGNOSTIC-COMPLETE');
+    }
+    
+    // Auto-master bypassed modules so they render correctly on the Dashboard
+    const order = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+    for (let i = 0; i < targetIndex; i++) {
+        if (order[i] && !p.completedNodes.includes(order[i])) {
+            p.completedNodes.push(order[i]);
+        }
+    }
+    
     localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
 
     // 2. Log to Telemetry Queue
@@ -363,23 +380,6 @@
     queue.push(payload);
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
 
-    // 3. Attempt Live Sync, then redirect
-    if(navigator.onLine) {
-      fetch(TELEMETRY_URL, {
-        method: 'POST',
-        headers: {'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify(queue[0])
-      }).then(r => {
-        queue.shift(); // Remove sent item
-        localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
-        window.location.href = 'index.html';
-      }).catch(e => {
-        window.location.href = 'index.html'; // Redirect even if fetch fails
-      });
-    } else {
-      window.location.href = 'index.html'; // Redirect if offline
-    }
+    // 3. Instant Offline-First Redirect (Let index.html handle the background sync)
+    window.location.href = 'index.html';
   }
-</script>
-</body>
-</html>
