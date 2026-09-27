@@ -39,6 +39,7 @@
     .modal-overlay.show { opacity: 1; pointer-events: all; }
     .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .btn-modal { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; background: var(--primary); color: white; }
+    .btn-bypass { background: #e0e0e0; color: #5f6368; border: 2px solid #ccc; width: 100%; max-width: 400px; margin-top: 20px; }
     
     /* SVG Containers */
     .svg-container { width: 100%; max-width: 250px; margin: 10px auto; }
@@ -78,6 +79,7 @@
     <div class="mcq-grid" id="mcq-container">
       <!-- Buttons injected via JS -->
     </div>
+    <button class="btn-modal btn-bypass" onclick="skipNode()">I haven't learned this yet</button>
   </div>
 </div>
 
@@ -110,7 +112,8 @@
     'RAT-05': { index: 4, title: 'Improper & Mixed' },
     'RAT-06': { index: 5, title: 'Multiplying Fractions' },
     'RAT-07': { index: 6, title: 'Dividing Fractions' },
-    'MASTERED': { index: 7, title: 'Gatekeeper Mastery' }
+    'RAT-08': { index: 7, title: 'Word Problems' },
+    'MASTERED': { index: 8, title: 'Gatekeeper Mastery' }
   };
 
   // --- UTILS ---
@@ -139,7 +142,6 @@
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
-    // If the student bypasses the dashboard without a name, send them back
     let saved = localStorage.getItem('harvest_maths_profile');
     if (!saved || !JSON.parse(saved).studentId) {
       window.location.href = 'index.html';
@@ -284,6 +286,13 @@
     }
   }
 
+  function skipNode() {
+    // Instantly fails the node to protect data integrity and branches downwards
+    questionsAnswered = 5;
+    correctAnswers = 0;
+    evaluateCluster();
+  }
+
   // --- MIDDLE-OUT DECISION TREE ---
   function evaluateCluster() {
     document.getElementById('p-bar').style.width = '100%';
@@ -300,8 +309,12 @@
       else concludeDiagnostic('RAT-06');
     }
     else if (currentNode === 'RAT-07') {
-      if (passed) concludeDiagnostic('MASTERED');
+      if (passed) branchTo('RAT-08'); // Re-routed to the new Word Problems module
       else concludeDiagnostic('RAT-07');
+    }
+    else if (currentNode === 'RAT-08') {
+      if (passed) concludeDiagnostic('MASTERED');
+      else concludeDiagnostic('RAT-08');
     }
     else if (currentNode === 'RAT-02') {
       if (passed) concludeDiagnostic('RAT-03'); 
@@ -332,7 +345,7 @@
     let title = moduleMap[placedId].title;
     
     let text = placedId === 'MASTERED' 
-      ? "You have demonstrated mastery across all rational number operations. You will proceed directly to building factual fluency."
+      ? "You have demonstrated mastery across all rational number operations and application. You will proceed directly to building factual fluency."
       : `Based on your diagnostic profile, your optimal starting point is <b>${placedId}: ${title}</b>. We have successfully bypassed what you already know to focus on what you need.`;
       
     document.getElementById('placement-text').innerHTML = text;
@@ -358,7 +371,7 @@
     }
     
     // Auto-master bypassed modules so they render correctly on the Dashboard
-    const order = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+    const order = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
     for (let i = 0; i < targetIndex; i++) {
         if (order[i] && !p.completedNodes.includes(order[i])) {
             p.completedNodes.push(order[i]);
@@ -380,6 +393,9 @@
     queue.push(payload);
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
 
-    // 3. Instant Offline-First Redirect (Let index.html handle the background sync)
+    // 3. Instant Offline-First Redirect
     window.location.href = 'index.html';
   }
+</script>
+</body>
+</html>
