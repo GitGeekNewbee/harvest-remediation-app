@@ -43,6 +43,16 @@
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
+    /* Interactive Manipulative */
+    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .svg-wrapper { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; }
+    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
+    .ctrl-btn:active { transform: scale(0.95); }
+    .ctrl-btn-yellow { border-color: #e1b12c; color: #e1b12c; background: #fdf5e6; }
+    .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
+    .ctrl-btn-green { border-color: var(--success); color: var(--success); background: #e6f4ea; }
+
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
     .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -72,13 +82,13 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Before multiplying fractions, you must pass 3 rapid 60-second levels to prove your foundational maths is fully automated.</p>
+    <p>Multiplying fractions correctly means you must have absolute command over your times tables. Pass 3 rapid levels to prove it.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Number Bonds</li>
-        <li><b>Level 2:</b> Bridging 10</li>
-        <li><b>Level 3:</b> Times Tables</li>
+        <li><b>Level 1:</b> Multiplication (Lower tables)</li>
+        <li><b>Level 2:</b> Multiplication (Upper tables)</li>
+        <li><b>Level 3:</b> Perfect Squares (e.g., 4 × 4)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -87,76 +97,72 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Number Bonds</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
     </div>
   </div>
 
-  <!-- ZONE 1: GUIDED LEARNING -->
+  <!-- ZONE 1: GUIDED LEARNING (WITH MANIPULATIVE) -->
   <div class="content-zone hidden" id="zone-learn">
     <div id="slide-1">
-      <h2 style="color:var(--success);">No Common Denominators!</h2>
-      <p>Multiplying fractions is actually much faster than adding them. You do NOT need to make the bottom numbers match.</p>
-      <div class="math-row" style="margin: 30px 0;">
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">3</div></div>
-        <div>×</div>
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">4</div></div>
+      <h2>The Secret Meaning of "Of"</h2>
+      <p>When you multiply fractions, you are finding a fraction <b>OF</b> another fraction. It always makes a smaller piece.</p>
+      
+      <div class="manipulative-container">
+        <div class="math-row" style="font-size:1.8rem; margin: 0 0 10px 0;">
+          <div class="v-frac"><div class="v-num" style="color:var(--primary);">2</div><div class="v-den">3</div></div>
+          <div style="font-size:1.2rem; color:#5f6368; padding-top:10px;">OF</div>
+          <div class="v-frac"><div class="v-num" style="color:#e1b12c;">3</div><div class="v-den">4</div></div>
+          <div id="man-ans" style="opacity:0; display:flex; gap:10px; align-items:center;">
+            <div>=</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--success);">6</div><div class="v-den">12</div></div>
+          </div>
+        </div>
+
+        <div class="svg-wrapper" id="svg-area-model"></div>
+        
+        <p id="man-text" style="margin:5px 0; font-size:0.95rem; min-height:40px; color:#5f6368;">Start with an empty whole space.</p>
+        
+        <div class="controls-row">
+          <button class="ctrl-btn ctrl-btn-yellow" id="btn-man-1" onclick="manStep(1)">Show 3/4</button>
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-2" onclick="manStep(2)" disabled style="opacity:0.5;">Take 2/3</button>
+          <button class="ctrl-btn ctrl-btn-green" id="btn-man-3" onclick="manStep(3)" disabled style="opacity:0.5;">Result</button>
+          <button class="ctrl-btn" onclick="manStep(0)" style="max-width:50px;">↻</button>
+        </div>
       </div>
-      <p style="font-weight:bold; color:var(--success); background:#d4edda; padding:15px; border-radius:8px;">
-        ✅ Different bottoms are fine!<br><br>
-        Ignore the Lowest Common Denominator completely.
-      </p>
+      <p style="text-align:left;">Notice how the overlapping grids create a denominator of 12 (3 rows × 4 columns), and a numerator of 6 (the double-shaded pieces).</p>
     </div>
 
     <div id="slide-2" class="hidden">
-      <h2>Step 1: Multiply the Tops</h2>
-      <p>Simply multiply the top numbers <b>straight across</b> from left to right. This gives you your new numerator.</p>
+      <h2>The Golden Rule of Multiplication</h2>
+      <p>Because of the grid, multiplication is the easiest operation.</p>
       <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="color:var(--primary); font-weight:bold; margin-bottom:5px;">2 × 4 = 8</p>
-        <div class="math-row" style="margin: 0;">
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">2</div><div class="v-den">3</div></div>
-          <div>×</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">4</div><div class="v-den">5</div></div>
-          <div>➔</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">8</div><div class="v-den">?</div></div>
-        </div>
+        <p style="font-size:1.2rem; font-weight:bold; margin:0; color:var(--primary);">Multiply straight across. Top × Top, Bottom × Bottom.</p>
       </div>
+      <div class="math-row">
+        <div class="v-frac"><div class="v-num">5</div><div class="v-den">7</div></div>
+        <div>×</div>
+        <div class="v-frac"><div class="v-num">2</div><div class="v-den">3</div></div>
+        <div>=</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--primary);">10</div><div class="v-den" style="color:var(--primary);">21</div></div>
+      </div>
+      <p style="text-align:left; color:var(--danger); font-weight:bold;">Do not find a common denominator! You only do that for addition and subtraction.</p>
     </div>
 
     <div id="slide-3" class="hidden">
-      <h2>Step 2: Multiply the Bottoms</h2>
-      <p>Now do the exact same thing to the bottom numbers. Multiply them straight across.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <div class="math-row" style="margin: 0;">
-          <div class="v-frac"><div class="v-num">2</div><div class="v-den" style="color:var(--primary);">3</div></div>
-          <div>×</div>
-          <div class="v-frac"><div class="v-num">4</div><div class="v-den" style="color:var(--primary);">5</div></div>
-          <div>=</div>
-          <div class="v-frac" style="box-shadow: 0 0 0 3px var(--success); border-radius:4px;"><div class="v-num">8</div><div class="v-den" style="color:var(--primary);">15</div></div>
-        </div>
-        <p style="color:var(--primary); font-weight:bold; margin-top:5px;">3 × 5 = 15</p>
-      </div>
-      <p>This final fraction is your <b>Product</b>.</p>
-    </div>
-
-    <div id="slide-4" class="hidden">
-      <h2 style="color:var(--danger);">The Cross Trap: Do Not Cross!</h2>
-      <p>A massive mistake is trying to multiply diagonally (crossing the numbers). We never cross when multiplying.</p>
-      <div class="math-row" style="opacity: 0.5; position: relative;">
-        <div class="v-frac"><div class="v-num">2</div><div class="v-den">3</div></div>
+      <h2>Always Simplify</h2>
+      <p>Multiplication creates large numbers. You must always reduce them.</p>
+      <div class="math-row">
+        <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
         <div>×</div>
-        <div class="v-frac"><div class="v-num">4</div><div class="v-den">5</div></div>
-        <div style="position:absolute; font-size:5rem; color:red;">X</div>
+        <div class="v-frac"><div class="v-num">2</div><div class="v-den">5</div></div>
+        <div>=</div>
+        <div class="v-frac"><div class="v-num">6</div><div class="v-den">20</div></div>
+        <div>➔</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--success);">3</div><div class="v-den" style="color:var(--success);">10</div></div>
       </div>
-      <p style="color:red; font-weight:bold;">Always drive straight across the bridge.</p>
-    </div>
-
-    <div id="slide-5" class="hidden">
-      <h2>Ready to Prove Mastery?</h2>
-      <p>You must calculate <b>5 correct products in a row</b> on your first attempt.</p>
-      <p>1. Multiply the tops straight across.<br>2. Multiply the bottoms straight across.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
@@ -164,17 +170,11 @@
 
   <!-- ZONE 2: PRACTICE -->
   <div class="content-zone hidden" id="zone-practice">
-    <h2>Multiply:</h2>
-    <div class="math-row" style="margin-top: 40px;">
-      <div class="v-frac">
-        <div class="v-num" id="q-n1">0</div>
-        <div class="v-den" id="q-d1">0</div>
-      </div>
+    <div class="instruction">Multiply and simplify to the lowest terms:</div>
+    <div class="math-row" style="margin-top:20px;">
+      <div class="v-frac"><div class="v-num" id="p-n1"></div><div class="v-den" id="p-d1"></div></div>
       <div>×</div>
-      <div class="v-frac">
-        <div class="v-num" id="q-n2">0</div>
-        <div class="v-den" id="q-d2">0</div>
-      </div>
+      <div class="v-frac"><div class="v-num" id="p-n2"></div><div class="v-den" id="p-d2"></div></div>
       <div>=</div>
       <div class="input-col">
         <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
@@ -209,7 +209,10 @@
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
   let xp = 0;
-  const currentModuleId = document.title.split('- ')[1]; 
+  const currentModuleId = 'RAT-06'; 
+
+  // Math Utils
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
 
   // CASCADING GATEKEEPER VARIABLES
   let gateLevel = 1; 
@@ -227,7 +230,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 5;
+  const totalSlides = 3;
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -237,10 +240,7 @@
   let savedProf = localStorage.getItem('harvest_maths_profile');
   if(savedProf) {
       let p = JSON.parse(savedProf);
-      if(!p.gateLevels) {
-          p.gateLevels = {};
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-      }
+      if(!p.gateLevels) p.gateLevels = {};
       if(p.gateLevels[currentModuleId]) {
           gateLevel = p.gateLevels[currentModuleId];
       }
@@ -258,6 +258,8 @@
               document.getElementById('modal-btn').onclick = startRemediation;
           }
       }
+      
+      manStep(0); // Init Interactive SVG Area Model
   });
 
   // --- KEYPAD LOGIC ---
@@ -297,6 +299,62 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
+  // --- INTERACTIVE AREA MODEL (MANIPULATIVE) ---
+  function manStep(state) {
+    let svg = `<svg width="200" height="200" viewBox="0 0 200 200" style="background: white; border: 2px solid #dadce0; border-radius: 8px;">`;
+    let btn1 = document.getElementById('btn-man-1');
+    let btn2 = document.getElementById('btn-man-2');
+    let btn3 = document.getElementById('btn-man-3');
+    let txt = document.getElementById('man-text');
+    let ans = document.getElementById('man-ans');
+
+    if (state === 0) {
+      ans.style.opacity = '0';
+      txt.innerText = "Start with an empty whole space.";
+      btn1.disabled = false; btn1.style.opacity = '1';
+      btn2.disabled = true; btn2.style.opacity = '0.5';
+      btn3.disabled = true; btn3.style.opacity = '0.5';
+    }
+    
+    if (state >= 1) { // Show 3/4 vertical
+      for(let i=0; i<4; i++) {
+        let fill = (i<3) ? 'rgba(253,203,110,0.5)' : 'none'; // Yellow
+        svg += `<rect x="${i*50}" y="0" width="50" height="200" fill="${fill}"/>`;
+      }
+      for(let x=1; x<4; x++) svg += `<line x1="${x*50}" y1="0" x2="${x*50}" y2="200" stroke="#dadce0" stroke-width="2"/>`;
+      
+      if(state === 1) {
+        txt.innerText = "First, slice the space into 4 columns and shade 3 of them.";
+        btn1.disabled = true; btn1.style.opacity = '0.5';
+        btn2.disabled = false; btn2.style.opacity = '1';
+      }
+    }
+    
+    if (state >= 2) { // Show 2/3 horizontal
+      for(let i=0; i<3; i++) {
+        let fill = (i<2) ? 'rgba(26,115,232,0.5)' : 'none'; // Blue
+        svg += `<rect x="0" y="${i*66.66}" width="200" height="66.66" fill="${fill}"/>`;
+      }
+      for(let y=1; y<3; y++) svg += `<line x1="0" y1="${y*66.66}" x2="200" y2="${y*66.66}" stroke="#dadce0" stroke-width="2"/>`;
+      
+      if (state === 2) {
+        txt.innerText = "Next, slice the space into 3 rows and shade 2 of them.";
+        btn2.disabled = true; btn2.style.opacity = '0.5';
+        btn3.disabled = false; btn3.style.opacity = '1';
+      }
+    }
+
+    if (state === 3) { // Highlight Overlap
+      svg += `<rect x="0" y="0" width="150" height="133.32" fill="none" stroke="var(--success)" stroke-width="4"/>`;
+      ans.style.opacity = '1';
+      txt.innerText = "The overlapping area (green) is 6 pieces. The total grid is 12 pieces. 6/12 simplifies to 1/2.";
+      btn3.disabled = true; btn3.style.opacity = '0.5';
+    }
+
+    svg += `</svg>`;
+    document.getElementById('svg-area-model').innerHTML = svg;
+  }
+
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
     closeModal(); 
@@ -310,9 +368,9 @@
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'none';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Number Bonds";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Lower Tables";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Upper Tables";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Perfect Squares";
 
     document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
@@ -345,45 +403,19 @@
   function generateGateQuestion(level) {
     let qText, ans;
     if (level === 1) { 
-      if (Math.random() > 0.5) { 
-         ans = Math.floor(Math.random() * 9) + 1; 
-         let bond = 10 - ans;
-         qText = `10 - ${bond} =`;
-         if(Math.random() > 0.5) { 
-             ans = Math.floor(Math.random() * 19) + 1;
-             bond = 20 - ans;
-             qText = `20 - ${bond} =`;
-         }
-      } else { 
-         ans = Math.floor(Math.random() * 8) + 2; 
-         let n1 = Math.floor(Math.random() * (ans - 1)) + 1;
-         let n2 = ans - n1;
-         qText = `${n1} + ${n2} =`;
-      }
+      let n1 = Math.floor(Math.random() * 5) + 2; // 2 to 6
+      let n2 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      ans = n1 * n2;
+      qText = `${n1} × ${n2} =`;
     } else if (level === 2) { 
-      if (Math.random() > 0.5) { 
-         let n1 = Math.floor(Math.random() * 4) + 6; 
-         let n2 = Math.floor(Math.random() * 4) + 5; 
-         ans = n1 + n2;
-         qText = `${n1} + ${n2} =`;
-      } else { 
-         ans = Math.floor(Math.random() * 4) + 5; 
-         let n2 = Math.floor(Math.random() * 4) + 6; 
-         let n1 = ans + n2; 
-         qText = `${n1} - ${n2} =`;
-      }
+      let n1 = Math.floor(Math.random() * 6) + 7; // 7 to 12
+      let n2 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      ans = n1 * n2;
+      qText = `${n1} × ${n2} =`;
     } else { 
-      if (Math.random() > 0.5) {
-         let n1 = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         ans = n1 * n2;
-         qText = `${n1} × ${n2} =`;
-      } else {
-         ans = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         let n1 = ans * n2;
-         qText = `${n1} ÷ ${n2} =`;
-      }
+      let n1 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      ans = n1 * n1;
+      qText = `${n1} × ${n1} =`;
     }
     return { qText: qText, ans: ans };
   }
@@ -444,7 +476,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational maths is fully automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your multiplication facts are fully automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -461,12 +493,7 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
-
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour multiplication facts are not yet automatic. Keep practicing.`);
           document.getElementById('modal-btn').innerText = "Try Again";
           document.getElementById('modal-btn').onclick = resetSprint;
       }
@@ -603,9 +630,7 @@
     }
   }
 
-  // --- ZONE 2: PRACTICE (MULTIPLICATION) ---
-  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
-
+  // --- ZONE 2: PRACTICE LOGIC ---
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -614,18 +639,18 @@
     
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'flex';
-    
+
     updateProgressBar();
     setActive('p-num');
     loadPracticeQuestion();
   }
 
-  function generateMultiplicationFact() {
-    let d1 = Math.floor(Math.random() * 9) + 2; 
-    let d2 = Math.floor(Math.random() * 9) + 2; 
+  function generatePracticeQuestion() {
+    let d1 = Math.floor(Math.random() * 6) + 2; // 2 to 7
+    let d2 = Math.floor(Math.random() * 6) + 2; 
     let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
     let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-    
+
     let rawN = n1 * n2;
     let rawD = d1 * d2;
     let g = hcf(rawN, rawD);
@@ -637,13 +662,15 @@
     mistakesOnCurrent = 0;
     document.getElementById('p-num').innerText = '';
     document.getElementById('p-den').innerText = '';
+    document.getElementById('p-num').classList.remove('flash-green', 'flash-red');
+    document.getElementById('p-den').classList.remove('flash-green', 'flash-red');
     setActive('p-num');
     
-    currentQ = generateMultiplicationFact();
-    document.getElementById('q-n1').innerText = currentQ.n1;
-    document.getElementById('q-d1').innerText = currentQ.d1;
-    document.getElementById('q-n2').innerText = currentQ.n2;
-    document.getElementById('q-d2').innerText = currentQ.d2;
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-n1').innerText = currentQ.n1;
+    document.getElementById('p-d1').innerText = currentQ.d1;
+    document.getElementById('p-n2').innerText = currentQ.n2;
+    document.getElementById('p-d2').innerText = currentQ.d2;
   }
 
   function updateProgressBar() {
@@ -655,7 +682,6 @@
   function checkPracticeAnswer() {
     let userN = parseInt(document.getElementById('p-num').innerText);
     let userD = parseInt(document.getElementById('p-den').innerText);
-    
     if(isNaN(userN) || isNaN(userD)) return;
 
     if(userN === currentQ.ansN && userD === currentQ.ansD) {
@@ -664,10 +690,10 @@
         streak++;
         xp += (streak >= 3) ? 150 : 100;
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! Top × Top, Bottom × Bottom, and fully simplified.');
+        document.getElementById(activeBoxId).classList.add('flash-green');
         
-        if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
-        else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
       } else {
         streak = 0;
         xp += 10;
@@ -683,20 +709,16 @@
       }
       mistakesOnCurrent++;
       
-      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
-        showModal('🟡', 'Simplify Your Answer', `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
-      }
-      else if(userN === (currentQ.n1 + currentQ.n2) || userD === (currentQ.d1 + currentQ.d2)) {
-        showModal('🟡', 'Addition Confusion', `You added instead of multiplying! Look at the symbol (×). You must multiply the tops together and multiply the bottoms together.`);
-      } 
-      else if (userD === currentQ.d1 || userD === currentQ.d2) {
-        showModal('🟡', 'Locked Denominator', `You kept the bottom number the same! That rule is only for addition and subtraction. For multiplication, you MUST multiply the bottom numbers together.`);
-      }
-      else if (userN === (currentQ.n1 * currentQ.d2) || userN === (currentQ.n2 * currentQ.d1)) {
-        showModal('🟡', 'The Cross Trap', `You multiplied diagonally. Remember: always multiply straight across horizontally (top × top, bottom × bottom).`);
-      }
-      else {
-        showModal('🔴', 'Arithmetic Error', `Check your times tables.\n\nTop: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}.\nBottom: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}.\nThen simplify if possible.`);
+      document.getElementById(activeBoxId).classList.add('flash-red');
+
+      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.ansN !== currentQ.rawN) {
+        showModal('🟡', 'Simplify Your Answer', `Your multiplication is correct, but ${currentQ.rawN}/${currentQ.rawD} is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
+      } else if (userN === currentQ.n1 * currentQ.d2 || userN === currentQ.n2 * currentQ.d1) {
+        showModal('🔴', 'No Cross Multiplication', `Do not cross-multiply!\n\nFor multiplying fractions, simply multiply straight across: Top × Top, Bottom × Bottom.`);
+      } else if (userN === currentQ.n1 + currentQ.n2) {
+        showModal('🔴', 'Multiply, Do Not Add', `You added the numbers instead of multiplying them.\n\nUse your times tables: ${currentQ.n1} × ${currentQ.n2}`);
+      } else {
+        showModal('🔴', 'Check Your Math', `Multiply straight across:\n\n1. ${currentQ.n1} × ${currentQ.n2}\n2. ${currentQ.d1} × ${currentQ.d2}`);
       }
     }
   }
@@ -706,7 +728,7 @@
     document.getElementById('modal-icon').innerText = icon;
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
-    document.getElementById('modal-text').innerText = text;
+    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
     document.getElementById('hint-modal').classList.add('show');
     if(appState === 'PRACTICE') {
       document.getElementById('modal-btn').innerText = "I Understand";
@@ -714,11 +736,15 @@
     }
   }
 
-  function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
+  function closeModal() { 
+    document.getElementById('hint-modal').classList.remove('show'); 
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.remove('flash-red');
+  }
 
 </script>
 
-  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <!-- ⌨ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
       if(appState === 'LOCKED') return; 
@@ -742,9 +768,8 @@
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
 
-    // Helper to log telemetry safely
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
@@ -779,7 +804,6 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
-      // Record Telemetry
       logTelemetryEvent("Mastered Module", 100);
 
       closeModal();
@@ -811,10 +835,8 @@
           profile.failedAttempts[currentModuleId]++;
           localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
         }
-        // Log Fail
         logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
       } else {
-        // Log Pass
         logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
       }
     };
