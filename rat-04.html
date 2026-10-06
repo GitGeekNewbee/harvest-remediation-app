@@ -26,16 +26,16 @@
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: margin-top: 15px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 10px 0; gap: 10px; }
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; position: relative; }
     .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
     .v-den { padding: 0 8px; }
-    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 15px 0; }
+    .sprint-math { font-size: 3.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .f-box { width: 70px; height: 55px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
@@ -43,6 +43,18 @@
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
+    /* Interactive Manipulative */
+    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .svg-row { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; font-size: 1.5rem; font-weight: bold; }
+    .svg-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .svg-frac-label { font-size: 1.2rem; }
+    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; }
+    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
+    .ctrl-btn:active { transform: scale(0.95); }
+    .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); }
+    .ctrl-btn-yellow { border-color: #e1b12c; color: #e1b12c; }
+    .ctrl-btn-green { border-color: var(--success); color: var(--success); }
+
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
     .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
@@ -72,13 +84,13 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Before balancing unlike denominators, you must pass 3 rapid 60-second levels to prove your foundational maths is fully automated.</p>
+    <p>To add unlike fractions, you must find the Lowest Common Denominator (LCD). Prove your multiplication facts are automated.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Number Bonds</li>
-        <li><b>Level 2:</b> Bridging 10</li>
-        <li><b>Level 3:</b> Times Tables</li>
+        <li><b>Level 1:</b> Multiplication Facts</li>
+        <li><b>Level 2:</b> Lowest Common Multiple (LCM)</li>
+        <li><b>Level 3:</b> Scaling Numerators</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -87,68 +99,75 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Number Bonds</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
     </div>
   </div>
 
-  <!-- ZONE 1: GUIDED LEARNING -->
+  <!-- ZONE 1: GUIDED LEARNING (WITH MANIPULATIVE) -->
   <div class="content-zone hidden" id="zone-learn">
     <div id="slide-1">
-      <h2 style="color:var(--danger);">Why We Cannot Add Yet</h2>
-      <p>Look at the bottom numbers. If they are different, the pieces are completely different sizes.</p>
-      <div class="math-row" style="opacity: 0.6; margin: 30px 0;">
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
-        <div style="color:red;">+</div>
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">4</div></div>
+      <h2>The Problem with Different Sizes</h2>
+      <p>If you have a half and a third, you cannot just say you have "two" of something, because the slices are <b>different sizes</b>.</p>
+      
+      <div class="manipulative-container">
+        <div class="svg-row">
+          <div class="svg-wrapper">
+            <div id="svg-pie-1"></div>
+            <div class="svg-frac-label v-frac"><div class="v-num" id="s-n1" style="color:var(--primary);">1</div><div class="v-den" id="s-d1">2</div></div>
+          </div>
+          <div>+</div>
+          <div class="svg-wrapper">
+            <div id="svg-pie-2"></div>
+            <div class="svg-frac-label v-frac"><div class="v-num" id="s-n2" style="color:#e1b12c;">1</div><div class="v-den" id="s-d2">3</div></div>
+          </div>
+          <div>=</div>
+          <div class="svg-wrapper">
+            <div id="svg-pie-3"></div>
+            <div class="svg-frac-label" id="s-ans" style="font-size:1.8rem; color:var(--text-muted);">?</div>
+          </div>
+        </div>
+        <p id="man-text" style="margin:5px 0; font-size:0.9rem; min-height:40px;">Slices are mismatched! You cannot add them together yet.</p>
+        <div class="controls-row">
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-lcd" onclick="manFindLCD()">Find LCD (6)</button>
+          <button class="ctrl-btn ctrl-btn-green" id="btn-man-add" onclick="manAdd()" disabled style="opacity:0.5;">Add Slices</button>
+          <button class="ctrl-btn" onclick="manReset()" style="flex:0.5;">↻</button>
+        </div>
       </div>
-      <p style="font-weight:bold; color:var(--danger); background:#f8d7da; padding:15px; border-radius:8px;">
-        ⚠️ Unequal Parts!<br><br>
-        You cannot add a half-pizza to a quarter-pizza and call it "two pizzas". You must make the pieces equal first.
-      </p>
+      <p style="text-align:left;">To fix this, we must physically slice both pies into smaller, matching pieces. This is called finding the <b>Lowest Common Denominator</b>.</p>
     </div>
 
     <div id="slide-2" class="hidden">
-      <h2>Step 1: Find the LCD</h2>
-      <p>Find the <b>Lowest Common Denominator (LCD)</b>. Count in your multiples for both numbers until you find the first match.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; text-align:left;">
-        <p><b>Multiples of 3:</b> 3, 6, 9, <span style="background:var(--success); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">12</span>, 15...</p>
-        <p><b>Multiples of 4:</b> 4, 8, <span style="background:var(--success); color:white; padding:2px 6px; border-radius:4px; font-weight:bold;">12</span>, 16...</p>
+      <h2>Scaling the Fractions</h2>
+      <p>Once you find the LCD, you must use the <b>Golden Rule</b> to scale up both top numbers.</p>
+      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
+        <p style="font-size:1.1rem; font-weight:bold; margin:0; color:var(--primary);">Whatever you multiply the bottom by to get the LCD, you must multiply the top by.</p>
       </div>
-      <p>The LCD is 12. This becomes your new <b>Common Denominator</b>.</p>
+      <div class="math-row">
+        <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
+        <div style="font-size:1rem; color:#5f6368;">(×3) ➔</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--primary);">3</div><div class="v-den">6</div></div>
+      </div>
+      <div class="math-row">
+        <div class="v-frac"><div class="v-num">1</div><div class="v-den">3</div></div>
+        <div style="font-size:1rem; color:#5f6368;">(×2) ➔</div>
+        <div class="v-frac"><div class="v-num" style="color:#e1b12c;">2</div><div class="v-den">6</div></div>
+      </div>
     </div>
 
     <div id="slide-3" class="hidden">
-      <h2>Step 2: Make Equivalent Fractions</h2>
-      <p>Look at the first fraction (1/3). Ask yourself: <b>"How does a 3 become a 12?"</b></p>
-      <p>We multiply it by 4. Because the bottom multiplied by 4, the top must also multiply by 4.</p>
+      <h2>Calculate & Simplify</h2>
+      <p>Now that the slices are the exact same size, you can add them normally.</p>
       <div class="math-row">
-        <div class="v-frac" style="font-size:1.5rem; color:var(--primary);"><div>×4</div><div>↓</div></div>
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">3</div></div>
-        <div>➔</div>
-        <div class="v-frac"><div class="v-num">4</div><div class="v-den">12</div></div>
-      </div>
-      <p>Do the exact same check for the second fraction.</p>
-    </div>
-
-    <div id="slide-4" class="hidden">
-      <h2>Step 3: Calculate and Lock</h2>
-      <p>Now the bottom numbers match! Keep the new denominator locked, and just calculate the top numbers.</p>
-      <div class="math-row">
-        <div class="v-frac"><div class="v-num">4</div><div class="v-den" style="color:#777;">12</div></div>
+        <div class="v-frac"><div class="v-num">3</div><div class="v-den">6</div></div>
         <div>+</div>
-        <div class="v-frac"><div class="v-num">3</div><div class="v-den" style="color:#777;">12</div></div>
+        <div class="v-frac"><div class="v-num">2</div><div class="v-den">6</div></div>
         <div>=</div>
-        <div class="v-frac"><div class="v-num" style="color:var(--primary);">7</div><div class="v-den" style="color:#777;">12</div></div>
+        <div class="v-frac"><div class="v-num">5</div><div class="v-den">6</div></div>
       </div>
-    </div>
-
-    <div id="slide-5" class="hidden">
-      <h2>Ready to Prove Mastery?</h2>
-      <p>You must calculate <b>5 correct answers in a row</b> on your first attempt.</p>
-      <p>1. Find the LCD.<br>2. Multiply to make them match.<br>3. Add or subtract the top numbers.</p>
+      <p style="text-align:left; color:var(--danger); font-weight:bold;">Do not forget! Always check if your final answer can be simplified.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
@@ -156,17 +175,11 @@
 
   <!-- ZONE 2: PRACTICE -->
   <div class="content-zone hidden" id="zone-practice">
-    <h2>Calculate:</h2>
-    <div class="math-row" style="margin-top: 30px;">
-      <div class="v-frac">
-        <div class="v-num" id="q-n1">0</div>
-        <div class="v-den" id="q-d1">0</div>
-      </div>
-      <div id="q-op">+</div>
-      <div class="v-frac">
-        <div class="v-num" id="q-n2">0</div>
-        <div class="v-den" id="q-d2">0</div>
-      </div>
+    <div class="instruction">Calculate and simplify:</div>
+    <div class="math-row" style="margin-top:20px;">
+      <div class="v-frac"><div class="v-num" id="p-n1"></div><div class="v-den" id="p-d1"></div></div>
+      <div id="p-op">+</div>
+      <div class="v-frac"><div class="v-num" id="p-n2"></div><div class="v-den" id="p-d2"></div></div>
       <div>=</div>
       <div class="input-col">
         <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
@@ -201,7 +214,11 @@
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
   let xp = 0;
-  const currentModuleId = document.title.split('- ')[1]; 
+  const currentModuleId = 'RAT-04'; 
+
+  // Math Utils
+  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
+  function getLcm(a, b) { return (a * b) / hcf(a, b); }
 
   // CASCADING GATEKEEPER VARIABLES
   let gateLevel = 1; 
@@ -211,7 +228,7 @@
   let sprintCorrect = 0;
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
-  
+
   // REMEDIATION VARIABLES
   let sessionMissed = [];
   let currentRemediationQ = null;
@@ -219,7 +236,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 5;
+  const totalSlides = 3;
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -229,10 +246,7 @@
   let savedProf = localStorage.getItem('harvest_maths_profile');
   if(savedProf) {
       let p = JSON.parse(savedProf);
-      if(!p.gateLevels) {
-          p.gateLevels = {};
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-      }
+      if(!p.gateLevels) p.gateLevels = {};
       if(p.gateLevels[currentModuleId]) {
           gateLevel = p.gateLevels[currentModuleId];
       }
@@ -250,6 +264,8 @@
               document.getElementById('modal-btn').onclick = startRemediation;
           }
       }
+      
+      manReset(); // Init Interactive SVG Manipulative
   });
 
   // --- KEYPAD LOGIC ---
@@ -289,11 +305,95 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
+  // --- INTERACTIVE SVG MANIPULATIVE LOGIC ---
+  function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+    let angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+    return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
+  }
+
+  function describeArc(x, y, radius, startAngle, endAngle) {
+    let start = polarToCartesian(x, y, radius, endAngle);
+    let end = polarToCartesian(x, y, radius, startAngle);
+    let largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+    return [ "M", x, y, "L", start.x, start.y, "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y, "Z" ].join(" ");
+  }
+
+  function drawPie(n, d, color, containerId) {
+    let sliceAngle = 360 / d;
+    let svgHTML = `<svg width="100" height="100" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="50" fill="#f1f3f4" stroke="#dadce0" stroke-width="2"/>`;
+    for (let s = 0; s < d; s++) {
+      let isFilled = s < n;
+      let fill = isFilled ? color : 'none';
+      let stroke = isFilled ? color.replace('0.8','1') : '#dcdde1';
+      svgHTML += `<path d="${describeArc(55, 55, 50, s * sliceAngle, (s + 1) * sliceAngle)}" 
+                        fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+    }
+    svgHTML += `</svg>`;
+    document.getElementById(containerId).innerHTML = svgHTML;
+  }
+
+  let manState = 0; 
+  function manReset() {
+    manState = 0;
+    document.getElementById('s-n1').innerText = "1"; document.getElementById('s-d1').innerText = "2";
+    document.getElementById('s-n2').innerText = "1"; document.getElementById('s-d2').innerText = "3";
+    document.getElementById('s-ans').innerHTML = "?";
+    
+    drawPie(1, 2, 'rgba(26,115,232,0.8)', 'svg-pie-1');
+    drawPie(1, 3, 'rgba(253,203,110,0.8)', 'svg-pie-2');
+    drawPie(0, 1, 'rgba(0,0,0,0)', 'svg-pie-3');
+    
+    document.getElementById('btn-man-lcd').disabled = false;
+    document.getElementById('btn-man-lcd').style.opacity = '1';
+    document.getElementById('btn-man-add').disabled = true;
+    document.getElementById('btn-man-add').style.opacity = '0.5';
+    document.getElementById('man-text').innerText = "Slices are mismatched! You cannot add them together yet.";
+  }
+
+  function manFindLCD() {
+    if(manState !== 0) return;
+    manState = 1;
+    document.getElementById('s-n1').innerText = "3"; document.getElementById('s-d1').innerText = "6";
+    document.getElementById('s-n2').innerText = "2"; document.getElementById('s-d2').innerText = "6";
+    
+    drawPie(3, 6, 'rgba(26,115,232,0.8)', 'svg-pie-1');
+    drawPie(2, 6, 'rgba(253,203,110,0.8)', 'svg-pie-2');
+    
+    document.getElementById('btn-man-lcd').disabled = true;
+    document.getElementById('btn-man-lcd').style.opacity = '0.5';
+    document.getElementById('btn-man-add').disabled = false;
+    document.getElementById('btn-man-add').style.opacity = '1';
+    document.getElementById('man-text').innerText = "Perfect! Both pies are now sliced into Sixths. We can add them.";
+  }
+
+  function manAdd() {
+    if(manState !== 1) return;
+    manState = 2;
+    document.getElementById('s-ans').innerHTML = `<div class="v-frac"><div class="v-num" style="color:var(--success);">5</div><div class="v-den">6</div></div>`;
+    
+    let svgHTML = `<svg width="100" height="100" viewBox="0 0 110 110">
+                    <circle cx="55" cy="55" r="50" fill="#f1f3f4" stroke="#dadce0" stroke-width="2"/>`;
+    let sliceAngle = 360 / 6;
+    for (let s = 0; s < 6; s++) {
+      let fill = s < 3 ? 'rgba(26,115,232,0.8)' : (s < 5 ? 'rgba(253,203,110,0.8)' : 'none');
+      let stroke = s < 3 ? 'rgba(26,115,232,1)' : (s < 5 ? 'rgba(253,203,110,1)' : '#dcdde1');
+      svgHTML += `<path d="${describeArc(55, 55, 50, s * sliceAngle, (s + 1) * sliceAngle)}" 
+                        fill="${fill}" stroke="${stroke}" stroke-width="1.5"/>`;
+    }
+    svgHTML += `</svg>`;
+    document.getElementById('svg-pie-3').innerHTML = svgHTML;
+    
+    document.getElementById('btn-man-add').disabled = true;
+    document.getElementById('btn-man-add').style.opacity = '0.5';
+    document.getElementById('man-text').innerText = "3 sixths + 2 sixths = 5 sixths!";
+  }
+
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
     closeModal(); 
     appState = 'GATEKEEPER';
-    sessionMissed = []; 
+    sessionMissed = [];
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -302,9 +402,9 @@
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'none';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Number Bonds";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Multiplication";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: LCM";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Scaling";
 
     document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
@@ -337,45 +437,23 @@
   function generateGateQuestion(level) {
     let qText, ans;
     if (level === 1) { 
-      if (Math.random() > 0.5) { 
-         ans = Math.floor(Math.random() * 9) + 1; 
-         let bond = 10 - ans;
-         qText = `10 - ${bond} =`;
-         if(Math.random() > 0.5) { 
-             ans = Math.floor(Math.random() * 19) + 1;
-             bond = 20 - ans;
-             qText = `20 - ${bond} =`;
-         }
-      } else { 
-         ans = Math.floor(Math.random() * 8) + 2; 
-         let n1 = Math.floor(Math.random() * (ans - 1)) + 1;
-         let n2 = ans - n1;
-         qText = `${n1} + ${n2} =`;
-      }
+      let n1 = Math.floor(Math.random() * 8) + 3; // 3 to 10
+      let n2 = Math.floor(Math.random() * 8) + 3; 
+      ans = n1 * n2;
+      qText = `${n1} × ${n2} =`;
     } else if (level === 2) { 
-      if (Math.random() > 0.5) { 
-         let n1 = Math.floor(Math.random() * 4) + 6; 
-         let n2 = Math.floor(Math.random() * 4) + 5; 
-         ans = n1 + n2;
-         qText = `${n1} + ${n2} =`;
-      } else { 
-         ans = Math.floor(Math.random() * 4) + 5; 
-         let n2 = Math.floor(Math.random() * 4) + 6; 
-         let n1 = ans + n2; 
-         qText = `${n1} - ${n2} =`;
-      }
+      // Curated LCM pairs that aren't too hard mentally
+      const pairs = [[2,3,6],[3,4,12],[4,6,12],[3,5,15],[2,5,10],[5,10,10],[6,8,24],[4,8,8],[3,6,6],[4,5,20]];
+      let p = pairs[Math.floor(Math.random() * pairs.length)];
+      if (Math.random() > 0.5) { let t = p[0]; p[0] = p[1]; p[1] = t; }
+      ans = p[2];
+      qText = `LCM of ${p[0]} & ${p[1]}`;
     } else { 
-      if (Math.random() > 0.5) {
-         let n1 = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         ans = n1 * n2;
-         qText = `${n1} × ${n2} =`;
-      } else {
-         ans = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         let n1 = ans * n2;
-         qText = `${n1} ÷ ${n2} =`;
-      }
+      let d1 = Math.floor(Math.random() * 6) + 2;
+      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+      let m = Math.floor(Math.random() * 4) + 2; 
+      ans = n1 * m;
+      qText = `${n1}/${d1} = ?/${d1*m}`;
     }
     return { qText: qText, ans: ans };
   }
@@ -383,6 +461,7 @@
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerText = currentSprintQ.qText;
+    document.getElementById('sprint-q').style.fontSize = gateLevel === 2 ? '2.5rem' : '3.5rem';
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
   }
@@ -436,7 +515,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational maths is fully automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your denominator skills are fully automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -453,12 +532,7 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
-
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour multiplier facts are not yet automatic. Keep practicing.`);
           document.getElementById('modal-btn').innerText = "Try Again";
           document.getElementById('modal-btn').onclick = resetSprint;
       }
@@ -501,6 +575,7 @@
           
           document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
           document.getElementById('sprint-q').innerText = currentRemediationQ.qText;
+          document.getElementById('sprint-q').style.fontSize = currentRemediationQ.qText.includes('LCM') ? '2.5rem' : '3.5rem';
           document.getElementById('sprint-ans').innerText = '';
           document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
           document.getElementById('sprint-ans').style.color = 'var(--primary)';
@@ -595,10 +670,7 @@
     }
   }
 
-  // --- ZONE 2: PRACTICE (UNLIKE DENOMINATORS) ---
-  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
-  function getLcd(a, b) { return (a * b) / hcf(a, b); }
-
+  // --- ZONE 2: PRACTICE LOGIC ---
   function startPractice() {
     appState = 'PRACTICE';
     document.getElementById('zone-learn').classList.add('hidden');
@@ -607,58 +679,64 @@
     
     let nextBtn = document.getElementById('key-next');
     if(nextBtn) nextBtn.style.display = 'flex';
-    
+
     updateProgressBar();
     setActive('p-num');
     loadPracticeQuestion();
   }
 
-  function generateUnlikeFractions() {
-    while(true) {
-      let d1 = Math.floor(Math.random() * 9) + 2;
-      let d2 = Math.floor(Math.random() * 9) + 2;
+  function generatePracticeQuestion() {
+    let d1, d2, lcd;
+    let tries = 0;
+    while(tries < 100) {
+      tries++;
+      d1 = Math.floor(Math.random() * 8) + 2;
+      d2 = Math.floor(Math.random() * 8) + 2;
       if (d1 === d2) continue;
       
-      let lcd = getLcd(d1, d2);
-      if (lcd > 40) continue; 
-
-      let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-      let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-      
-      let m1 = lcd / d1;
-      let m2 = lcd / d2;
-      let sN1 = n1 * m1;
-      let sN2 = n2 * m2;
-      
-      let op = Math.random() > 0.5 ? '+' : '-';
-      
-      if (op === '-' && sN2 > sN1) {
-         let temp = sN1; sN1 = sN2; sN2 = temp;
-         temp = n1; n1 = n2; n2 = temp;
-         temp = d1; d1 = d2; d2 = temp;
-         temp = m1; m1 = m2; m2 = temp;
-      }
-      if (op === '-' && sN1 === sN2) continue;
-
-      let rawN = op === '+' ? (sN1 + sN2) : (sN1 - sN2);
-      let g = hcf(rawN, lcd);
-
-      return { n1: n1, d1: d1, n2: n2, d2: d2, op: op, lcd: lcd, m1: m1, m2: m2, sN1: sN1, sN2: sN2, rawN: rawN, rawD: lcd, ansN: rawN/g, ansD: lcd/g };
+      lcd = getLcm(d1, d2);
+      if (lcd <= 40) break; 
     }
+
+    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+    let op = Math.random() > 0.5 ? '+' : '-';
+
+    let sN1 = n1 * (lcd / d1);
+    let sN2 = n2 * (lcd / d2);
+
+    if (op === '-') {
+      if (sN2 > sN1) { 
+        let t = sN1; sN1 = sN2; sN2 = t; 
+        t = n1; n1 = n2; n2 = t; 
+        t = d1; d1 = d2; d2 = t; 
+      }
+      if (sN1 === sN2) n1 = Math.min(d1 - 1, n1 + 1);
+    }
+
+    sN1 = n1 * (lcd / d1);
+    sN2 = n2 * (lcd / d2);
+
+    let rawN = op === '+' ? (sN1 + sN2) : (sN1 - sN2);
+    let g = hcf(rawN, lcd);
+
+    return { n1: n1, d1: d1, op: op, n2: n2, d2: d2, lcd: lcd, rawN: rawN, ansN: rawN/g, ansD: lcd/g };
   }
 
   function loadPracticeQuestion() {
     mistakesOnCurrent = 0;
     document.getElementById('p-num').innerText = '';
     document.getElementById('p-den').innerText = '';
+    document.getElementById('p-num').classList.remove('flash-green', 'flash-red');
+    document.getElementById('p-den').classList.remove('flash-green', 'flash-red');
     setActive('p-num');
     
-    currentQ = generateUnlikeFractions();
-    document.getElementById('q-n1').innerText = currentQ.n1;
-    document.getElementById('q-d1').innerText = currentQ.d1;
-    document.getElementById('q-op').innerText = currentQ.op;
-    document.getElementById('q-n2').innerText = currentQ.n2;
-    document.getElementById('q-d2').innerText = currentQ.d2;
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-n1').innerText = currentQ.n1;
+    document.getElementById('p-d1').innerText = currentQ.d1;
+    document.getElementById('p-n2').innerText = currentQ.n2;
+    document.getElementById('p-d2').innerText = currentQ.d2;
+    document.getElementById('p-op').innerText = currentQ.op;
   }
 
   function updateProgressBar() {
@@ -678,10 +756,10 @@
         streak++;
         xp += (streak >= 3) ? 150 : 100;
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! You scaled the fractions, locked the denominator, and simplified.');
+        document.getElementById(activeBoxId).classList.add('flash-green');
         
-        if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
-        else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
       } else {
         streak = 0;
         xp += 10;
@@ -697,34 +775,16 @@
       }
       mistakesOnCurrent++;
       
-      if(userD === (currentQ.d1 + currentQ.d2) && userN === (currentQ.n1 + currentQ.n2)) {
-        showModal('🟡', 'Conjoining Trap', `You added straight across! You cannot do this when the bottom numbers are different. Find the Lowest Common Denominator (LCD) first.`);
-      } 
-      else if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
-        showModal('🟡', 'Simplify Your Answer', `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
-      }
-      else if (userN === currentQ.ansN && userD === (currentQ.lcd + currentQ.lcd)) {
-        showModal('🟡', 'Denominator Addition', `You scaled the top perfectly, but then you added the new bottom numbers together! Once the bottom numbers match (${currentQ.lcd}), keep them locked.`);
-      }
-      else if (userD === currentQ.lcd && userN === (currentQ.op === '+' ? currentQ.n1 + currentQ.n2 : currentQ.n1 - currentQ.n2)) {
-        showModal('🟡', 'Unscaled Numerator', `You found the correct LCD (${currentQ.lcd}), but you dragged the old top numbers over! If you change the bottom, you MUST multiply the top by the exact same amount.`);
-      }
-      else if (userD === currentQ.lcd && currentQ.op === '-' && userN === (currentQ.sN1 + currentQ.sN2)) {
-         showModal('🟡', 'Wrong Operation', `You scaled the fractions perfectly, but the symbol is subtraction (-), not addition. You need to subtract the top numbers.`);
-      }
-      else if (userD === currentQ.lcd && currentQ.op === '+' && userN === (currentQ.sN1 - currentQ.sN2)) {
-         showModal('🟡', 'Wrong Operation', `You scaled the fractions perfectly, but the symbol is addition (+), not subtraction. You need to add the top numbers.`);
-      }
-      else if (userD !== currentQ.lcd && userD !== currentQ.ansD) {
-        showModal('🟡', 'Incorrect LCD', `Check your denominator. What is the lowest number that both ${currentQ.d1} and ${currentQ.d2} can divide perfectly into?`);
-      } 
-      else {
-        let opWord = currentQ.op === '+' ? 'added' : 'subtracted';
-        let feedback = `Let's review the scaling steps:\n\n`;
-        feedback += `1. ${currentQ.d1} becomes ${currentQ.lcd} (multiplied by ${currentQ.m1}). So ${currentQ.n1} × ${currentQ.m1} = ${currentQ.sN1}.\n`;
-        feedback += `2. ${currentQ.d2} becomes ${currentQ.lcd} (multiplied by ${currentQ.m2}). So ${currentQ.n2} × ${currentQ.m2} = ${currentQ.sN2}.\n\n`;
-        feedback += `Finally, ${currentQ.sN1} ${currentQ.op} ${currentQ.sN2} = ${currentQ.rawN}. Then simplify if possible.`;
-        showModal('🔴', 'Arithmetic Error', feedback);
+      document.getElementById(activeBoxId).classList.add('flash-red');
+
+      if (userN === currentQ.rawN && userD === currentQ.lcd && currentQ.ansN !== currentQ.rawN) {
+        showModal('🟡', 'Simplify Your Answer', `Your calculation is correct, but ${currentQ.rawN}/${currentQ.lcd} is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
+      } else if (userD === currentQ.d1 + currentQ.d2) {
+        showModal('🔴', 'The Golden Rule', `Never add the bottom numbers!\n\nYou must find the Lowest Common Denominator (LCD) of ${currentQ.d1} and ${currentQ.d2} first.`);
+      } else if (userD === currentQ.lcd && (userN === currentQ.n1 + currentQ.n2 || userN === currentQ.n1 - currentQ.n2)) {
+        showModal('🔴', 'Scale the Top', `You found the LCD (${currentQ.lcd}), but you forgot to scale the top numbers.\n\nWhatever you multiplied the bottoms by to get ${currentQ.lcd}, you must multiply the tops by first.`);
+      } else {
+        showModal('🔴', 'Check Your Steps', `1. Find the LCD of ${currentQ.d1} and ${currentQ.d2}.\n2. Scale both top numbers.\n3. Add or subtract the top numbers.\n4. Simplify.`);
       }
     }
   }
@@ -734,7 +794,7 @@
     document.getElementById('modal-icon').innerText = icon;
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
-    document.getElementById('modal-text').innerText = text;
+    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
     document.getElementById('hint-modal').classList.add('show');
     if(appState === 'PRACTICE') {
       document.getElementById('modal-btn').innerText = "I Understand";
@@ -742,10 +802,15 @@
     }
   }
 
-  function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
+  function closeModal() { 
+    document.getElementById('hint-modal').classList.remove('show'); 
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.remove('flash-red');
+  }
+
 </script>
 
-  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <!-- ⌨ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
       if(appState === 'LOCKED') return; 
@@ -769,9 +834,8 @@
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
 
-    // Helper to log telemetry safely
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
@@ -806,7 +870,6 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
-      // Record Telemetry
       logTelemetryEvent("Mastered Module", 100);
 
       closeModal();
@@ -838,10 +901,8 @@
           profile.failedAttempts[currentModuleId]++;
           localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
         }
-        // Log Fail
         logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
       } else {
-        // Log Pass
         logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
       }
     };
