@@ -12,7 +12,7 @@
     /* Top Navigation Bar */
     .top-nav { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .nav-brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; display: flex; flex-direction: column; }
-    .student-name-display { font-size: 0.8rem; font-weight: normal; opacity: 0.8; margin-top: 2px; }
+    .student-name-display { font-size: 0.85rem; font-weight: normal; opacity: 0.9; margin-top: 2px; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
     .nav-stats { display: flex; gap: 15px; align-items: center; font-weight: bold; font-size: 1.1rem; }
     .stat-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
     
@@ -72,7 +72,8 @@
   <div class="top-nav">
     <div class="nav-brand">
       Concept Lab
-      <span class="student-name-display" id="display-student-name">Loading...</span>
+      <!-- Clickable Name Display triggers switchUser() -->
+      <span class="student-name-display" id="display-student-name" onclick="switchUser()">Loading...</span>
     </div>
     <div class="nav-stats">
       <div class="stat-badge" id="hud-streak">🔥 0</div>
@@ -112,7 +113,7 @@
 <div class="modal-overlay" id="student-modal">
   <div class="modal-box">
     <h3 style="margin-bottom:10px;">Welcome to Concept Lab</h3>
-    <p>Please enter your First and Last name so your Guide can track your progress.</p>
+    <p>Please enter your First and Last name.<br><br><span style="font-size: 0.85rem;">Dev Tools: Type <b>SuperUser</b> to unlock all, or <b>Reset</b> to wipe data.</span></p>
     <input type="text" id="student-name-input" placeholder="e.g. Sipho Ndlovu" style="width:90%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #ccc; font-size:1.1rem; text-align:center;">
     <button class="btn-modal btn-primary" onclick="saveStudentName()" style="background:var(--primary); color:white;">Let's Go ➔</button>
   </div>
@@ -133,30 +134,25 @@
   const TELEMETRY_URL = "https://script.google.com/macros/s/AKfycbx4vErx32y3Y1tCbw1On37dsoQgyKWmEOnReyPT6NrLYnDyvErq6kpUh4kDY5jIDvKm/exec";
 
   function processTelemetryQueue() {
-    if (!navigator.onLine) return; // Stop if completely offline
-    
+    if (!navigator.onLine) return; 
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     if (queue.length === 0) return;
 
-    let item = queue[0]; // Take the first event in the queue
+    let item = queue[0]; 
 
     fetch(TELEMETRY_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Bypasses CORS preflight
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(item)
     }).then(response => {
-      // Remove it from the queue now that it safely sent
       queue.shift();
       localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
-      
-      // If there are more items, sync them 1 second later
       if (queue.length > 0) setTimeout(processTelemetryQueue, 1000);
     }).catch(err => {
-      console.log("Telemetry sync paused (offline or network error). Data is safe in local storage.");
+      console.log("Telemetry sync paused (offline or network error).");
     });
   }
 
-  // Run the sync engine on load, and every 15 seconds in the background
   window.addEventListener('online', processTelemetryQueue);
   setInterval(processTelemetryQueue, 15000);
 
@@ -198,22 +194,52 @@
       document.getElementById('display-student-name').innerText = profile.studentId;
       processDailyStreak();
       renderDashboard();
-      processTelemetryQueue(); // Trigger sync attempt
+      processTelemetryQueue(); 
     }
+  }
+
+  function switchUser() {
+    document.getElementById('student-name-input').value = profile.studentId || "";
+    document.getElementById('student-modal').classList.add('show');
   }
 
   function saveStudentName() {
     let nameInput = document.getElementById('student-name-input').value.trim();
     if (nameInput.length < 2) return;
     
+    // Developer Secret Triggers
+    let lowerName = nameInput.toLowerCase();
+    
+    if (lowerName === 'reset' || lowerName === 'clear') {
+      localStorage.removeItem('harvest_maths_profile');
+      window.location.reload();
+      return;
+    }
+    
+    if (lowerName === 'superuser' || lowerName === 'admin') {
+      profile.studentId = "SuperUser (Admin)";
+      profile.unlockedNodeIndex = curriculum.length;
+      profile.completedNodes = curriculum.map(c => c.id);
+      profile.completedNodes.push('DIAGNOSTIC-COMPLETE');
+      profile.xp = Math.max(profile.xp, 5000);
+      profile.streak = Math.max(profile.streak, 10);
+      profile.freezes = Math.max(profile.freezes, 5);
+      
+      saveProfile();
+      document.getElementById('student-modal').classList.remove('show');
+      document.getElementById('display-student-name').innerText = profile.studentId;
+      renderDashboard();
+      showModal('🔓', 'God Mode Activated', 'All modules unlocked. Diagnostic bypassed. Shop credits applied.');
+      return;
+    }
+    
+    // Normal Student Flow
     profile.studentId = nameInput;
     saveProfile();
     
-    // THE NEW ROUTING HOOK: Send new students to the Diagnostic
     if (profile.completedNodes.length === 0 && profile.unlockedNodeIndex === 0) {
         window.location.href = 'diagnostic.html';
     } else {
-        // Existing students just close the modal and see the dashboard
         document.getElementById('student-modal').classList.remove('show');
         document.getElementById('display-student-name').innerText = profile.studentId;
         processDailyStreak();
@@ -302,7 +328,7 @@
     grid.innerHTML = '';
 
     curriculum.forEach((mod, index) => {
-      let isUnlocked = index <= profile.unlockedNodeIndex;
+      let isUnlocked = index <= profile.unlockedNodeIndex || profile.studentId.includes('SuperUser');
       let isCompleted = profile.completedNodes.includes(mod.id);
       let isActive = index === profile.unlockedNodeIndex && !isCompleted;
       
@@ -368,7 +394,6 @@
     profile.failedAttempts[moduleId] = 0;
     saveProfile();
     
-    // Send a telemetry event that the teacher cleared it
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
       studentId: profile.studentId,
