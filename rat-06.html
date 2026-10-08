@@ -238,21 +238,22 @@
 
   // --- INITIALIZATION & ANTI-AMNESIA ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
-  if(savedProf) {
-      let p = JSON.parse(savedProf);
-      if(!p.gateLevels) p.gateLevels = {};
-      if(p.gateLevels[currentModuleId]) {
-          gateLevel = p.gateLevels[currentModuleId];
-      }
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
+      let isSuperUser = false;
       if(savedProf) {
           let p = JSON.parse(savedProf);
-          if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+          if(p.gateLevels && p.gateLevels[currentModuleId]) {
+              gateLevel = p.gateLevels[currentModuleId];
+          }
+          if(p.studentId && p.studentId.includes('SuperUser')) {
+              isSuperUser = true;
+          }
+
+          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
               showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
               document.getElementById('modal-btn').innerText = "Resume Drill";
               document.getElementById('modal-btn').onclick = startRemediation;
@@ -260,6 +261,12 @@
       }
       
       manStep(0); // Init Interactive SVG Area Model
+
+      // --- GOD MODE BYPASS ---
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
   });
 
   // --- KEYPAD LOGIC ---
@@ -318,7 +325,7 @@
     
     if (state >= 1) { // Show 3/4 vertical
       for(let i=0; i<4; i++) {
-        let fill = (i<3) ? 'rgba(253,203,110,0.5)' : 'none'; // Yellow
+        let fill = (i<3) ? 'rgba(253,203,110,0.5)' : 'none'; 
         svg += `<rect x="${i*50}" y="0" width="50" height="200" fill="${fill}"/>`;
       }
       for(let x=1; x<4; x++) svg += `<line x1="${x*50}" y1="0" x2="${x*50}" y2="200" stroke="#dadce0" stroke-width="2"/>`;
@@ -332,7 +339,7 @@
     
     if (state >= 2) { // Show 2/3 horizontal
       for(let i=0; i<3; i++) {
-        let fill = (i<2) ? 'rgba(26,115,232,0.5)' : 'none'; // Blue
+        let fill = (i<2) ? 'rgba(26,115,232,0.5)' : 'none'; 
         svg += `<rect x="0" y="${i*66.66}" width="200" height="66.66" fill="${fill}"/>`;
       }
       for(let y=1; y<3; y++) svg += `<line x1="0" y1="${y*66.66}" x2="200" y2="${y*66.66}" stroke="#dadce0" stroke-width="2"/>`;
@@ -403,17 +410,17 @@
   function generateGateQuestion(level) {
     let qText, ans;
     if (level === 1) { 
-      let n1 = Math.floor(Math.random() * 5) + 2; // 2 to 6
-      let n2 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      let n1 = Math.floor(Math.random() * 5) + 2; 
+      let n2 = Math.floor(Math.random() * 11) + 2; 
       ans = n1 * n2;
       qText = `${n1} × ${n2} =`;
     } else if (level === 2) { 
-      let n1 = Math.floor(Math.random() * 6) + 7; // 7 to 12
-      let n2 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      let n1 = Math.floor(Math.random() * 6) + 7; 
+      let n2 = Math.floor(Math.random() * 11) + 2; 
       ans = n1 * n2;
       qText = `${n1} × ${n2} =`;
     } else { 
-      let n1 = Math.floor(Math.random() * 11) + 2; // 2 to 12
+      let n1 = Math.floor(Math.random() * 11) + 2; 
       ans = n1 * n1;
       qText = `${n1} × ${n1} =`;
     }
@@ -646,7 +653,7 @@
   }
 
   function generatePracticeQuestion() {
-    let d1 = Math.floor(Math.random() * 6) + 2; // 2 to 7
+    let d1 = Math.floor(Math.random() * 6) + 2; 
     let d2 = Math.floor(Math.random() * 6) + 2; 
     let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
     let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
