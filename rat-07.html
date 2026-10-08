@@ -679,4 +679,185 @@
   function loadPracticeQuestion() {
     mistakesOnCurrent = 0;
     document.getElementById('p-num').innerText = '';
-    document.getElementById('p-den').innerText
+    document.getElementById('p-den').innerText = '';
+    document.getElementById('p-num').classList.remove('flash-green', 'flash-red');
+    document.getElementById('p-den').classList.remove('flash-green', 'flash-red');
+    setActive('p-num');
+    
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-n1').innerText = currentQ.n1;
+    document.getElementById('p-d1').innerText = currentQ.d1;
+    document.getElementById('p-n2').innerText = currentQ.n2;
+    document.getElementById('p-d2').innerText = currentQ.d2;
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let userN = parseInt(document.getElementById('p-num').innerText);
+    let userD = parseInt(document.getElementById('p-den').innerText);
+    if(isNaN(userN) || isNaN(userD)) return;
+
+    if(userN === currentQ.ansN && userD === currentQ.ansD) {
+      if (mistakesOnCurrent === 0) {
+        masteryPoints++;
+        streak++;
+        xp += (streak >= 3) ? 150 : 100;
+        updateProgressBar();
+        document.getElementById(activeBoxId).classList.add('flash-green');
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+      } else {
+        streak = 0;
+        xp += 10;
+        document.getElementById('xp-counter').innerText = xp;
+        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
+        setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 2500);
+      }
+    } else {
+      streak = 0;
+      if (mistakesOnCurrent === 0) {
+        masteryPoints = Math.max(0, masteryPoints - 1);
+        updateProgressBar();
+      }
+      mistakesOnCurrent++;
+      
+      document.getElementById(activeBoxId).classList.add('flash-red');
+
+      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.ansN !== currentQ.rawN) {
+        showModal('🟡', 'Simplify Your Answer', `Your calculation is correct, but ${currentQ.rawN}/${currentQ.rawD} is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
+      } else if (userN === currentQ.n1 * currentQ.n2 && userD === currentQ.d1 * currentQ.d2) {
+        showModal('🔴', 'Forgot to Flip', `You multiplied straight across without flipping!\n\nAlways use Keep-Change-Flip: ${currentQ.n1}/${currentQ.d1} × ${currentQ.d2}/${currentQ.n2}.`);
+      } else if (userN === currentQ.d1 * currentQ.n2 && userD === currentQ.n1 * currentQ.d2) {
+        showModal('🔴', 'Flipped the Wrong Fraction', `You flipped the first fraction instead of the second.\n\nKeep the first fraction exactly the same. Only flip the second fraction.`);
+      } else {
+        showModal('🔴', 'Check Your Math', `Use Keep-Change-Flip:\n\n1. Keep: ${currentQ.n1}/${currentQ.d1}\n2. Change: ÷ becomes ×\n3. Flip: ${currentQ.d2}/${currentQ.n2}\n\nThen multiply top × top, bottom × bottom.`);
+      }
+    }
+  }
+
+  // --- MODAL & END LOGIC ---
+  function showModal(icon, title, text) {
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
+    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
+    document.getElementById('hint-modal').classList.add('show');
+    if(appState === 'PRACTICE') {
+      document.getElementById('modal-btn').innerText = "I Understand";
+      document.getElementById('modal-btn').onclick = closeModal;
+    }
+  }
+
+  function closeModal() { 
+    document.getElementById('hint-modal').classList.remove('show'); 
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.remove('flash-red');
+  }
+
+</script>
+
+  <!-- ⌨ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <script>
+    document.addEventListener('keydown', function(event) {
+      if(appState === 'LOCKED') return; 
+      let hintModal = document.getElementById('hint-modal');
+      if (hintModal && hintModal.classList.contains('show')) {
+        if (event.key === 'Enter') document.getElementById('modal-btn').click();
+        return;
+      }
+      if (event.key >= '0' && event.key <= '9') {
+        typeNum(event.key);
+      } else if (event.key === 'Backspace' || event.key === 'Delete') {
+        deleteNum();
+      } else if (event.key === 'Enter') {
+        submitAnswer();
+      } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
+        event.preventDefault(); 
+        nextBox();
+      }
+    });
+  </script>
+
+  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
+  <script>
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
+
+    function logTelemetryEvent(action, accuracyVal) {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      let student = p.studentId || "Unknown";
+      let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+      
+      let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+      queue.push({
+        studentId: student,
+        moduleId: currentModuleId,
+        xp: xp,
+        accuracy: accuracyVal,
+        fails: fails,
+        action: action
+      });
+      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+    }
+
+    endModule = function() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        profile.xp += xp; 
+        
+        if(!profile.completedNodes.includes(currentModuleId)) {
+          profile.completedNodes.push(currentModuleId);
+          
+          let currentIndex = curriculumOrder.indexOf(currentModuleId);
+          if (profile.unlockedNodeIndex === currentIndex) {
+            profile.unlockedNodeIndex = currentIndex + 1; 
+          }
+        }
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+
+      logTelemetryEvent("Mastered Module", 100);
+
+      closeModal();
+      document.getElementById('zone-practice').classList.add('hidden');
+      document.getElementById('keypad').classList.add('hidden');
+      document.getElementById('zone-learn').classList.remove('hidden');
+      document.getElementById('zone-learn').innerHTML = `
+        <h1 style="font-size:4rem; margin:0;">🏆</h1>
+        <h2 style="color:var(--success);">Module Mastered!</h2>
+        <h3 style="color:var(--primary);">Total: ${xp} XP</h3>
+        <p>Your progress has been saved securely to your device.</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+      `;
+    };
+
+    const originalEvaluateSprint = evaluateSprint;
+    evaluateSprint = function() {
+      originalEvaluateSprint(); 
+      
+      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+          let profile = JSON.parse(saved);
+          if(!profile.failedAttempts) profile.failedAttempts = {};
+          if(!profile.failedAttempts[currentModuleId]) {
+            profile.failedAttempts[currentModuleId] = 0;
+          }
+          profile.failedAttempts[currentModuleId]++;
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+        }
+        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      } else {
+        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      }
+    };
+  </script>
+</body>
+</html>
