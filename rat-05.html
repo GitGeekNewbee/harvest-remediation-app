@@ -26,7 +26,7 @@
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: margin-top: 15px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
@@ -228,28 +228,35 @@
 
   // --- INITIALIZATION & ANTI-AMNESIA ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
-  if(savedProf) {
-      let p = JSON.parse(savedProf);
-      if(!p.gateLevels) p.gateLevels = {};
-      if(p.gateLevels[currentModuleId]) {
-          gateLevel = p.gateLevels[currentModuleId];
-      }
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
+      let isSuperUser = false;
       if(savedProf) {
           let p = JSON.parse(savedProf);
-          if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+          if(p.gateLevels && p.gateLevels[currentModuleId]) {
+              gateLevel = p.gateLevels[currentModuleId];
+          }
+          if(p.studentId && p.studentId.includes('SuperUser')) {
+              isSuperUser = true;
+          }
+
+          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
               showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
               document.getElementById('modal-btn').innerText = "Resume Drill";
               document.getElementById('modal-btn').onclick = startRemediation;
           }
       }
       
-      manSetMode('mixed'); // Init Interactive SVG Manipulative
+      manSetMode('mixed'); // Init Interactive SVG
+
+      // --- GOD MODE BYPASS ---
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
   });
 
   // --- KEYPAD LOGIC ---
@@ -408,8 +415,8 @@
       ans = n1 * n2;
       qText = `${n1} × ${n2} =`;
     } else if (level === 2) { 
-      let w = Math.floor(Math.random() * 5) + 2; // 2 to 6
-      let d = Math.floor(Math.random() * 5) + 2; // 2 to 6
+      let w = Math.floor(Math.random() * 5) + 2; 
+      let d = Math.floor(Math.random() * 5) + 2; 
       let n = Math.floor(Math.random() * (d - 1)) + 1;
       ans = (w * d) + n;
       qText = `(${w} × ${d}) + ${n}`;
