@@ -244,21 +244,22 @@
 
   // --- INITIALIZATION & ANTI-AMNESIA ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
-  if(savedProf) {
-      let p = JSON.parse(savedProf);
-      if(!p.gateLevels) p.gateLevels = {};
-      if(p.gateLevels[currentModuleId]) {
-          gateLevel = p.gateLevels[currentModuleId];
-      }
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
+      let isSuperUser = false;
       if(savedProf) {
           let p = JSON.parse(savedProf);
-          if(p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+          if(p.gateLevels && p.gateLevels[currentModuleId]) {
+              gateLevel = p.gateLevels[currentModuleId];
+          }
+          if(p.studentId && p.studentId.includes('SuperUser')) {
+              isSuperUser = true;
+          }
+
+          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
               showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
               document.getElementById('modal-btn').innerText = "Resume Drill";
               document.getElementById('modal-btn').onclick = startRemediation;
@@ -266,6 +267,12 @@
       }
       
       manReset(); // Init Interactive SVG Manipulative
+
+      // --- GOD MODE BYPASS ---
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
   });
 
   // --- KEYPAD LOGIC ---
@@ -442,7 +449,6 @@
       ans = n1 * n2;
       qText = `${n1} × ${n2} =`;
     } else if (level === 2) { 
-      // Curated LCM pairs that aren't too hard mentally
       const pairs = [[2,3,6],[3,4,12],[4,6,12],[3,5,15],[2,5,10],[5,10,10],[6,8,24],[4,8,8],[3,6,6],[4,5,20]];
       let p = pairs[Math.floor(Math.random() * pairs.length)];
       if (Math.random() > 0.5) { let t = p[0]; p[0] = p[1]; p[1] = t; }
