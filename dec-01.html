@@ -25,7 +25,7 @@
     .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
+    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
     .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
@@ -45,7 +45,7 @@
     
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .grid-comparison { display: flex; width: 100%; justify-content: space-around; align-items: flex-end; gap: 10px; }
+    .grid-comparison { display: flex; width: 100%; justify-content: space-around; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
     .grid-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
     .grid-label { font-size: 1.5rem; font-weight: bold; color: var(--text-main); }
     .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top:10px; }
@@ -53,7 +53,7 @@
     .ctrl-btn:active { transform: scale(0.95); }
 
     /* Comparison Options */
-    .opt-box { padding: 15px 25px; font-size: 2.5rem; font-weight: bold; border: 3px solid #dadce0; border-radius: 16px; background: #f8f9fa; color: #333; display: flex; justify-content: center; align-items: center; }
+    .opt-box { padding: 15px 10px; font-size: 2.2rem; font-weight: bold; border: 3px solid #dadce0; border-radius: 16px; background: #f8f9fa; color: #333; display: flex; justify-content: center; align-items: center; flex: 1; }
 
     /* Keypad (Modified for Decimals) */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -112,13 +112,13 @@
       <h2>What is a Decimal?</h2>
       <p>A decimal is just a quick way to write a fraction out of 10, 100, or 1000 without drawing the fraction line.</p>
       
-      <div class="manipulative-container" style="flex-direction:row; justify-content:space-around; align-items:center;">
+      <div class="manipulative-container">
         <div class="math-row" style="margin:0;">
           <div class="v-frac"><div class="v-num">3</div><div class="v-den">10</div></div>
           <div>=</div>
           <div style="color:var(--primary);">0,3</div>
         </div>
-        <div style="width:2px; height:80px; background:#e0e0e0;"></div>
+        <div style="width:80%; height:2px; background:#e0e0e0; margin: 15px 0;"></div>
         <div class="math-row" style="margin:0;">
           <div class="v-frac"><div class="v-num">25</div><div class="v-den">100</div></div>
           <div>=</div>
@@ -140,7 +140,7 @@
             <div class="grid-label" style="color:var(--primary);">0,2</div>
             <div style="font-size:0.85rem; color:#5f6368;">2 tenths</div>
           </div>
-          <div style="font-size:2rem; font-weight:bold; color:var(--text-muted); padding-bottom:30px;">vs</div>
+          <div style="font-size:1.5rem; font-weight:bold; color:var(--text-muted); padding-bottom:30px;">vs</div>
           <div class="grid-box">
             <div id="svg-grid-2"></div>
             <div class="grid-label" style="color:#e1b12c;">0,15</div>
@@ -171,7 +171,7 @@
   <div class="content-zone hidden" id="zone-practice">
     <div class="instruction">Type the LARGER decimal:</div>
     
-    <div style="display:flex; justify-content:center; gap:20px; margin: 30px 0;">
+    <div style="display:flex; justify-content:center; gap:15px; margin: 30px 0; width:100%; padding:0 10px; box-sizing:border-box;">
       <div class="opt-box" id="p-opt1"></div>
       <div class="opt-box" id="p-opt2"></div>
     </div>
@@ -304,7 +304,7 @@
 
   // --- INTERACTIVE GRID MANIPULATIVE LOGIC ---
   function getGridSVG(shadedCount, color) {
-    let svg = `<svg width="120" height="120" viewBox="0 0 100 100" style="border:1px solid #ccc; background:#fff; border-radius:4px;">`;
+    let svg = `<svg width="110" height="110" viewBox="0 0 100 100" style="border:1px solid #ccc; background:#fff; border-radius:4px;">`;
     // Render columns first to naturally show "tenths"
     for(let col=0; col<10; col++) {
       for(let row=0; row<10; row++) {
