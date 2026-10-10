@@ -136,6 +136,7 @@
         <div class="v-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den">20</div></div>
       </div>
       <p style="text-align:left;"><b>Step 1:</b> Ask yourself, "How did 4 become 20?" (It was multiplied by 5).<br><br><b>Step 2:</b> Multiply the top number by 5 as well. 3 × 5 = 15. The missing number is 15.</p>
+    </div>
 
     <div id="slide-3" class="hidden">
       <h2>Ready to Prove Mastery?</h2>
@@ -211,13 +212,6 @@
 
   // --- INITIALIZATION & ANTI-AMNESIA ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
-  if(savedProf) {
-      let p = JSON.parse(savedProf);
-      if(!p.gateLevels) p.gateLevels = {};
-      if(p.gateLevels[currentModuleId]) {
-          gateLevel = p.gateLevels[currentModuleId];
-      }
-  }
 
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
