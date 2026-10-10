@@ -40,20 +40,20 @@
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
-    /* Vertical Alignment Tool */
-    .align-grid { display: grid; grid-template-columns: repeat(5, 30px); gap: 5px; font-size: 2rem; font-weight: bold; margin: 20px auto; width: max-content; text-align: center; }
-    .align-cell { width: 30px; height: 40px; display: flex; justify-content: center; align-items: center; }
-    .comma-col { color: var(--danger); }
-    .zero-fill { color: #ccc; transition: color 0.5s; }
-    .zero-fill.show { color: var(--primary); }
-    .bottom-border { border-bottom: 3px solid #333; }
+    /* Interactive Step Grid */
+    .calc-grid { display: grid; gap: 5px; font-size: 2.5rem; font-weight: bold; margin: 20px auto; text-align: center; align-items: end; }
+    .bottom-border { border-bottom: 3px solid #333; padding-bottom: 5px;}
+    .borrow-txt { font-size: 1.2rem; color: var(--danger); display: block; margin-bottom: -15px; opacity: 0; transition: opacity 0.3s;}
+    .crossed { text-decoration: line-through; color: #9aa0a6; }
+    .active-col { color: var(--primary); background: #e8f0fe; border-radius: 8px; }
     
-    /* Interactive Manipulative */
-    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top:10px; }
+    /* Manipulative Container */
+    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 250px;}
+    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top:auto; }
     .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
     .ctrl-btn:active { transform: scale(0.95); }
     .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
+    .ctrl-btn-danger { border-color: var(--danger); color: var(--danger); background: #fce8e6; }
 
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -108,48 +108,62 @@
 
   <!-- ZONE 1: GUIDED LEARNING (WITH MANIPULATIVE) -->
   <div class="content-zone hidden" id="zone-learn">
+    
+    <!-- SLIDE 1: ALIGNMENT & ZEROS -->
     <div id="slide-1">
       <h2>The Comma Anchor</h2>
-      <p>If you add <b>3,4</b> and <b>1,25</b> like whole numbers without lining up the comma, you will add tenths to hundredths. This is entirely wrong.</p>
+      <p>If you add <b>3,4</b> and <b>1,25</b> without lining up the comma, you will accidentally add tenths to hundredths. Drop the comma straight down.</p>
       
       <div class="manipulative-container">
-        <div id="align-display" class="align-grid">
-          <!-- Populated by JS -->
+        <div id="align-display" class="calc-grid" style="grid-template-columns: 30px 40px 20px 40px 40px;">
+          <!-- Initially Misaligned -->
+          <div></div> <div></div> <div>3</div> <div style="color:var(--danger);">,</div> <div>4</div>
+          <div class="bottom-border">+</div> <div class="bottom-border">1</div> <div class="bottom-border" style="color:var(--danger);">,</div> <div class="bottom-border">2</div> <div class="bottom-border">5</div>
         </div>
-        <p id="man-text-1" style="font-size:0.95rem; color:#5f6368; height:40px;">The comma is your anchor. It must drop straight down.</p>
+        <p id="man-text-1" style="font-size:0.95rem; color:#5f6368; height:40px;">The comma is your anchor. It must align vertically.</p>
         <div class="controls-row">
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-1" onclick="manAlign()">1. Line Up Commas</button>
         </div>
       </div>
-      <p style="text-align:left;">By stacking the commas on top of each other, you guarantee that the Tenths line up with the Tenths.</p>
+      <p style="text-align:left;">Once aligned, fill empty spaces with <b>placeholder zeros</b>. 3,4 is the exact same as 3,40. Now the lengths match perfectly.</p>
     </div>
 
+    <!-- SLIDE 2: ADDING RIGHT TO LEFT -->
     <div id="slide-2" class="hidden">
-      <h2>The Placeholder Zero</h2>
-      <p>Once the commas are lined up, you might have empty spaces hanging over the edge.</p>
+      <h2>Adding Right to Left</h2>
+      <p>Now that the commas are anchored and the placeholder zero is inserted, you must calculate from the far right.</p>
       
       <div class="manipulative-container">
-        <div id="zero-display" class="align-grid">
-           <!-- Populated by JS -->
+        <div class="calc-grid" style="grid-template-columns: 30px 40px 20px 40px 40px;">
+          <div></div> <div>3</div> <div>,</div> <div id="a-col2-top">4</div> <div id="a-col1-top" style="color:var(--primary);">0</div>
+          <div class="bottom-border">+</div> <div class="bottom-border" id="a-col3-mid">1</div> <div class="bottom-border">,</div> <div class="bottom-border" id="a-col2-mid">2</div> <div class="bottom-border" id="a-col1-mid">5</div>
+          <div></div> <div id="a-res3" style="color:var(--success);"></div> <div id="a-resc" style="color:var(--success);"></div> <div id="a-res2" style="color:var(--success);"></div> <div id="a-res1" style="color:var(--success);"></div>
         </div>
-        <p id="man-text-2" style="font-size:0.95rem; color:#5f6368; height:40px;">Fill the empty gaps so the numbers match in length.</p>
+        <p id="add-text" style="font-size:0.95rem; font-weight:bold; color:var(--primary); height:20px;">Start with the Hundredths column.</p>
         <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-2" onclick="manFillZero()">2. Add Placeholder Zeros</button>
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-add-next" onclick="addNextStep()">Next Column ➔</button>
         </div>
       </div>
-      <p style="text-align:left;">Because 3,4 is the exact same as 3,40, we can drop a zero into the empty space. Now you can safely calculate straight down: 3,40 + 1,25 = <b>4,65</b>.</p>
     </div>
 
+    <!-- SLIDE 3: SUBTRACTION & BORROWING -->
     <div id="slide-3" class="hidden">
       <h2>The Subtraction Trap</h2>
-      <p>Placeholder zeros are <b>mandatory</b> for subtraction.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="font-size:1.1rem; font-weight:bold; margin:0; color:var(--danger); text-align:left;">
-          Try calculating: 5 - 2,3<br><br>
-          <span style="color:#5f6368; font-weight:normal;">If you just drop the 3 down, you will get 3,3. This is WRONG.</span>
-        </p>
+      <p>Placeholder zeros are <b>mandatory</b> for subtraction. You cannot subtract 2,3 from 5 without borrowing.</p>
+      
+      <div class="manipulative-container">
+        <div class="calc-grid" style="grid-template-columns: 30px 40px 20px 40px;">
+          <div></div> <div><span id="b-w" class="borrow-txt">4</span></div> <div></div> <div><span id="b-d" class="borrow-txt">1</span></div>
+          <div></div> <div id="t-w">5</div> <div id="t-c" style="opacity:0; color:var(--primary);">,</div> <div id="t-d" style="opacity:0; color:var(--primary);">0</div>
+          <div class="bottom-border">-</div> <div class="bottom-border">2</div> <div class="bottom-border">,</div> <div class="bottom-border">3</div>
+          <div></div> <div id="r-w" style="color:var(--success);"></div> <div id="r-c" style="color:var(--success);"></div> <div id="r-d" style="color:var(--success);"></div>
+        </div>
+        <p id="sub-text" style="font-size:0.95rem; font-weight:bold; color:var(--danger); height:40px; margin:0;">Whole numbers have an invisible comma at the end.</p>
+        <div class="controls-row">
+          <button class="ctrl-btn ctrl-btn-danger" id="btn-sub-next" onclick="subNextStep()">1. Add ,0</button>
+        </div>
       </div>
-      <p style="text-align:left;">Whole numbers have an invisible comma at the end. <b>5</b> becomes <b>5,0</b>. <br><br>Now you have 5,0 - 2,3. You must borrow from the 5 to subtract the 3. The correct answer is <b>2,7</b>.</p>
+      <p style="text-align:left;">If you don't add the invisible <b>,0</b>, you will forget to borrow and get the answer completely wrong.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
@@ -170,7 +184,7 @@
       </div>
     </div>
     
-    <p style="font-size:0.85rem; color:var(--danger); margin-top:10px; padding-bottom:40px;">Write it down on paper, line up your commas, and use placeholder zeros!</p>
+    <p style="font-size:0.85rem; color:var(--danger); margin-top:10px; padding-bottom:40px;">Write it down on paper, line up your commas, and work right-to-left!</p>
   </div>
 
   <!-- KEYPAD -->
@@ -249,8 +263,6 @@
               document.getElementById('modal-btn').onclick = startRemediation;
           }
       }
-      
-      initManipulative(); 
 
       // --- GOD MODE BYPASS ---
       if (isSuperUser) {
@@ -291,36 +303,90 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- INTERACTIVE ALIGNMENT MANIPULATIVE LOGIC ---
-  function initManipulative() {
-    // Initial Unaligned State
-    document.getElementById('align-display').innerHTML = `
-        <div class="align-cell"></div><div class="align-cell">3</div><div class="align-cell comma-col">,</div><div class="align-cell">4</div><div class="align-cell"></div>
-        <div class="align-cell">+</div><div class="align-cell">1</div><div class="align-cell">,</div><div class="align-cell">2</div><div class="align-cell">5</div>
-    `;
-
-    // Slide 2 Initial State (Aligned but missing zero)
-    document.getElementById('zero-display').innerHTML = `
-        <div class="align-cell"></div><div class="align-cell">3</div><div class="align-cell comma-col">,</div><div class="align-cell">4</div><div class="align-cell zero-fill" id="man-zero">0</div>
-        <div class="align-cell bottom-border">+</div><div class="align-cell bottom-border">1</div><div class="align-cell bottom-border comma-col">,</div><div class="align-cell bottom-border">2</div><div class="align-cell bottom-border">5</div>
-    `;
-  }
-
+  // --- INTERACTIVE MANIPULATIVE: SLIDE 1 (ALIGNMENT) ---
+  let alignStep = 0;
   function manAlign() {
-    document.getElementById('align-display').innerHTML = `
-        <div class="align-cell"></div><div class="align-cell">3</div><div class="align-cell comma-col">,</div><div class="align-cell">4</div><div class="align-cell"></div>
-        <div class="align-cell bottom-border">+</div><div class="align-cell bottom-border">1</div><div class="align-cell bottom-border comma-col">,</div><div class="align-cell bottom-border">2</div><div class="align-cell bottom-border">5</div>
-    `;
-    document.getElementById('man-text-1').innerText = "Perfect! The commas are exactly on top of each other.";
-    document.getElementById('btn-man-1').disabled = true;
-    document.getElementById('btn-man-1').style.opacity = '0.5';
+    if (alignStep === 0) {
+      document.getElementById('align-display').innerHTML = `
+          <div></div> <div>3</div> <div class="comma-col">,</div> <div>4</div> <div></div>
+          <div class="bottom-border">+</div> <div class="bottom-border">1</div> <div class="bottom-border comma-col">,</div> <div class="bottom-border">2</div> <div class="bottom-border">5</div>
+      `;
+      document.getElementById('man-text-1').innerText = "Commas are aligned! Now we must fill the empty space so the lengths match.";
+      document.getElementById('btn-man-1').innerText = "2. Add Placeholder Zero";
+      alignStep++;
+    } else if (alignStep === 1) {
+      document.getElementById('align-display').innerHTML = `
+          <div></div> <div>3</div> <div class="comma-col">,</div> <div>4</div> <div style="color:var(--primary);">0</div>
+          <div class="bottom-border">+</div> <div class="bottom-border">1</div> <div class="bottom-border comma-col">,</div> <div class="bottom-border">2</div> <div class="bottom-border">5</div>
+      `;
+      document.getElementById('man-text-1').innerText = "Zero added! Now you can easily add vertically down the columns.";
+      document.getElementById('btn-man-1').disabled = true;
+      document.getElementById('btn-man-1').style.opacity = '0.5';
+    }
   }
 
-  function manFillZero() {
-    document.getElementById('man-zero').classList.add('show');
-    document.getElementById('man-text-2').innerHTML = "Zero added! Now the lengths match and you can easily add down columns.";
-    document.getElementById('btn-man-2').disabled = true;
-    document.getElementById('btn-man-2').style.opacity = '0.5';
+  // --- INTERACTIVE MANIPULATIVE: SLIDE 2 (ADDITION) ---
+  let addStep = 0;
+  function addNextStep() {
+    let t = document.getElementById('add-text');
+    let btn = document.getElementById('btn-add-next');
+    
+    if (addStep === 0) { // Hundredths
+      document.getElementById('a-col1-top').classList.add('active-col');
+      document.getElementById('a-col1-mid').classList.add('active-col');
+      document.getElementById('a-res1').innerText = "5";
+      t.innerText = "0 + 5 = 5. Next column!";
+      addStep++;
+    } else if (addStep === 1) { // Tenths
+      document.getElementById('a-col1-top').classList.remove('active-col');
+      document.getElementById('a-col1-mid').classList.remove('active-col');
+      document.getElementById('a-col2-top').classList.add('active-col');
+      document.getElementById('a-col2-mid').classList.add('active-col');
+      document.getElementById('a-res2').innerText = "6";
+      t.innerText = "4 + 2 = 6. Drop the comma down!";
+      addStep++;
+    } else if (addStep === 2) { // Comma & Units
+      document.getElementById('a-col2-top').classList.remove('active-col');
+      document.getElementById('a-col2-mid').classList.remove('active-col');
+      document.getElementById('a-resc').innerText = ",";
+      document.getElementById('a-res3').innerText = "4";
+      t.innerText = "3 + 1 = 4. Final Answer: 4,65";
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    }
+  }
+
+  // --- INTERACTIVE MANIPULATIVE: SLIDE 3 (SUBTRACTION) ---
+  let subStep = 0;
+  function subNextStep() {
+    let t = document.getElementById('sub-text');
+    let btn = document.getElementById('btn-sub-next');
+    
+    if (subStep === 0) { // Add ,0
+      document.getElementById('t-c').style.opacity = '1';
+      document.getElementById('t-d').style.opacity = '1';
+      t.innerText = "Start on the right. 0 minus 3? We can't do that! We must borrow.";
+      btn.innerText = "2. Borrow from 5";
+      subStep++;
+    } else if (subStep === 1) { // Borrow
+      document.getElementById('t-w').classList.add('crossed');
+      document.getElementById('b-w').style.opacity = '1';
+      document.getElementById('b-d').style.opacity = '1';
+      t.innerText = "Cross out the 5, make it a 4. Give the 1 to the zero to make it 10.";
+      btn.innerText = "3. Subtract Tenths";
+      subStep++;
+    } else if (subStep === 2) { // Subtract Tenths
+      document.getElementById('r-d').innerText = "7";
+      t.innerText = "10 - 3 = 7. Drop the comma down.";
+      btn.innerText = "4. Subtract Units";
+      subStep++;
+    } else if (subStep === 3) { // Subtract Units
+      document.getElementById('r-c').innerText = ",";
+      document.getElementById('r-w').innerText = "2";
+      t.innerText = "4 - 2 = 2. Final Answer: 2,7.";
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+    }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -657,26 +723,26 @@
       let d1 = p1[1].padEnd(dLen, '0');
       let d2 = p2[1].padEnd(dLen, '0');
 
-      let html = `<div class="align-grid" style="font-size:1.5rem; margin:10px auto; background:#f8f9fa; padding:10px; border-radius:8px;">`;
+      let html = `<div class="calc-grid" style="grid-template-columns: 30px repeat(${wLen}, 30px) 20px repeat(${dLen}, 30px); font-size:1.8rem; background:#f8f9fa; padding:10px; border-radius:8px; width:max-content; margin: 15px auto;">`;
       
       // Top Row
-      html += `<div class="align-cell"></div>`;
-      for(let i=0; i<wLen; i++) html += `<div class="align-cell">${w1[i] !== ' ' ? w1[i] : ''}</div>`;
-      html += `<div class="align-cell comma-col">,</div>`;
+      html += `<div></div>`;
+      for(let i=0; i<wLen; i++) html += `<div>${w1[i] !== ' ' ? w1[i] : ''}</div>`;
+      html += `<div style="color:var(--danger);">,</div>`;
       for(let i=0; i<dLen; i++) {
           let c = d1[i];
           let cl = (p1[1].length <= i) ? 'color:var(--primary);' : '';
-          html += `<div class="align-cell" style="${cl}">${c}</div>`;
+          html += `<div style="${cl}">${c}</div>`;
       }
       
       // Bottom Row
-      html += `<div class="align-cell bottom-border">${q.op}</div>`;
-      for(let i=0; i<wLen; i++) html += `<div class="align-cell bottom-border">${w2[i] !== ' ' ? w2[i] : ''}</div>`;
-      html += `<div class="align-cell bottom-border comma-col">,</div>`;
+      html += `<div class="bottom-border">${q.op}</div>`;
+      for(let i=0; i<wLen; i++) html += `<div class="bottom-border">${w2[i] !== ' ' ? w2[i] : ''}</div>`;
+      html += `<div class="bottom-border" style="color:var(--danger);">,</div>`;
       for(let i=0; i<dLen; i++) {
           let c = d2[i];
           let cl = (p2[1].length <= i) ? 'color:var(--primary);' : '';
-          html += `<div class="align-cell bottom-border" style="${cl}">${c}</div>`;
+          html += `<div class="bottom-border" style="${cl}">${c}</div>`;
       }
       
       html += `</div>`;
@@ -752,7 +818,7 @@
       
       let hintGrid = buildHintGrid(currentQ);
       document.getElementById('modal-align-hint').innerHTML = hintGrid;
-      showModal('🔴', 'Alignment Check', `You mixed up the place values!\n\nTo solve this correctly, you must drop the commas straight down and add placeholder zeros (shown in blue).`);
+      showModal('🔴', 'Alignment Check', `To solve this correctly, you must drop the commas straight down and add placeholder zeros (shown in blue). Then calculate from right to left.`);
     }
   }
 
