@@ -42,7 +42,7 @@
     
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); min-height: 200px;}
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top:auto; }
+    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 15px; }
     .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
     .ctrl-btn:active { transform: scale(0.95); }
     .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
@@ -116,7 +116,7 @@
         <div id="sl1-display" class="slider-display">
           <div>3</div><div class="comma-jump">,</div><div>4</div><div>5</div>
         </div>
-        <p id="man-text-1" style="font-size:0.95rem; color:#5f6368; height:40px; margin:0;">One zero in 10 means ONE jump to the right.</p>
+        <p id="man-text-1" style="font-size:0.95rem; color:#5f6368; margin: 10px 0; line-height: 1.4;">One zero in 10 means ONE jump to the right.</p>
         <div class="controls-row">
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-1" onclick="manSlide1()">Jump 1 Right ➔</button>
         </div>
@@ -134,7 +134,7 @@
         <div id="sl2-display" class="slider-display">
           <div>1</div><div>2</div><div class="comma-jump">,</div><div>5</div>
         </div>
-        <p id="man-text-2" style="font-size:0.95rem; color:#5f6368; height:40px; margin:0;">Two zeros in 100 means TWO jumps to the left.</p>
+        <p id="man-text-2" style="font-size:0.95rem; color:#5f6368; margin: 10px 0; line-height: 1.4;">Two zeros in 100 means TWO jumps to the left.</p>
         <div class="controls-row">
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-2" onclick="manSlide2()">Jump 1 Left ⬅</button>
         </div>
@@ -152,7 +152,7 @@
         <div id="sl3-display" class="slider-display">
           <div>4</div><div class="comma-jump">,</div><div>2</div>
         </div>
-        <p id="man-text-3" style="font-size:0.95rem; font-weight:bold; color:var(--primary); height:40px; margin:0;">We need 2 jumps to the right.</p>
+        <p id="man-text-3" style="font-size:0.95rem; font-weight:bold; color:var(--primary); margin: 10px 0; line-height: 1.4;">We need 2 jumps to the right.</p>
         <div class="controls-row">
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-3" onclick="manSlide3()">Jump 1 Right ➔</button>
         </div>
