@@ -35,7 +35,7 @@
     .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 90px; height: 55px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
+    .f-box { min-width: 90px; height: 45px; padding: 0 10px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
@@ -49,15 +49,11 @@
     
     .shift-display { font-size: 3.5rem; font-weight: bold; margin: 15px 0; display:flex; gap:10px; justify-content:center; align-items:center; letter-spacing: 2px; }
     .comma-red { color: var(--danger); font-weight: 900; }
-    
-    /* NEW: Short Division Visual */
-    .div-grid { display: grid; grid-template-columns: auto 25px 25px 15px 25px; font-size: 2.5rem; font-weight: bold; color:#333; text-align:center; width:max-content; margin: 10px auto; }
-    .roof-line { border-bottom: 3px solid #333; }
 
     /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; opacity: 1; transition: opacity 0.3s; }
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 10px; }
+    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 8px; line-height:1.3; }
     .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; }
 
     /* Keypad */
@@ -116,26 +112,26 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Problem</h2>
-      <p>It is incredibly difficult to divide by a decimal. We must convert the divisor into a whole number first.</p>
+      <h2>The Whole Number Puzzle</h2>
+      <p>We can make dividing decimals easy by turning it into a whole number puzzle.</p>
       
       <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0; text-align:left;">
-        <p style="font-size:1.1rem; font-weight:bold; margin:0 0 10px 0; color:var(--primary);">The Linked Chain Rule:</p>
+        <p style="font-size:1.1rem; font-weight:bold; margin:0 0 10px 0; color:var(--primary);">The Balance Rule:</p>
         <p style="margin:0; color:#333; line-height:1.6;">
-          Whatever you do to the divisor (the second number), you <b>must</b> do to the dividend (the first number) to keep the ratio perfectly balanced.
+          You are not allowed to change just one number in a division problem. Whatever jumps you give the <b>second number</b>, you must also give the <b>first number</b> to keep them perfectly balanced.
         </p>
       </div>
-      <p style="text-align:left;">If you jump the comma one space right in the divisor, you must jump it one space right in the dividend.</p>
+      <p style="text-align:left;">Our goal is to make the second number a whole number so it is easy to work with.</p>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Watch The Chain</h2>
-      <p>Let's solve: <b>0,125 ÷ 0,25</b></p>
+      <h2>Watch The Balance</h2>
+      <p>Let's balance this equation: <b>0,125 ÷ 0,25</b></p>
       
       <div class="manipulative-container">
         <div style="width:100%; text-align:left; font-size:1rem;">
-          <div style="color:#5f6368; margin-bottom:5px;" id="s2-text">The divisor is 0,25. We need to jump the comma to the right until it's a whole number.</div>
+          <div style="color:#5f6368; margin-bottom:5px;" id="s2-text">The second number is 0,25. We need to jump its comma to the right until it is a whole number.</div>
         </div>
         
         <div class="shift-display" id="shift-display">
@@ -148,40 +144,27 @@
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-shift" onclick="manShift()">Jump Right ➔</button>
         </div>
       </div>
-      <p style="text-align:left;">The commas are locked together by an invisible chain.</p>
+      <p style="text-align:left;">By giving both sides 2 jumps, we created a much easier equation.</p>
     </div>
 
-    <!-- NEW Slide 3: The Pop-Up Comma -->
+    <!-- Slide 3: Ignore and Restore -->
     <div id="slide-3" class="hidden">
-      <h2>The Pop-Up Comma</h2>
-      <p>Once the divisor is a whole number, how do you actually divide <b>12,5 ÷ 25</b>?</p>
+      <h2>Ignore and Restore</h2>
+      <p>Now we just solve the new balanced equation: <b>12,5 ÷ 25</b></p>
       
-      <div class="manipulative-container">
-        
-        <div class="div-grid">
-           <!-- Roof -->
-           <div style="border-bottom: 3px solid transparent;"></div>
-           <div class="roof-line" style="color:var(--primary); opacity:0;" id="r-0">0</div>
-           <div class="roof-line" style="color:var(--primary); opacity:0;" id="r-x"></div>
-           <div class="roof-line comma-red" style="opacity:0;" id="r-c">,</div>
-           <div class="roof-line" style="color:var(--primary); opacity:0;" id="r-5">5</div>
-           <!-- Base -->
-           <div style="border-right: 3px solid #333; padding-right:10px; text-align:right;">25</div>
-           <div>1</div>
-           <div>2</div>
-           <div class="comma-red">,</div>
-           <div>5</div>
+      <div class="manipulative-container" style="align-items:flex-start; font-size:1.1rem; line-height:1.6;">
+        <div style="margin-bottom:10px;">
+            <b style="color:var(--primary);">Step 1: Ignore the comma.</b><br>
+            Just divide the basic numbers: 125 ÷ 25 = <span style="font-weight:bold; color:var(--success);">5</span>
         </div>
-
-        <p id="pop-text" style="font-size:0.95rem; color:#5f6368; margin: 10px 0; line-height: 1.5; text-align:left;">
-          <b>Step 1:</b> Set up the division house.<br>Because we are dividing into exactly 25 whole groups, the place values don't change. Tenths stay tenths!
-        </p>
-
-        <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-danger" id="btn-man-pop" onclick="manPop()">1. Pop Comma Up ⬆️</button>
+        <hr style="width:100%; border:0; border-top:1px solid #eee; margin:10px 0;">
+        <div>
+            <b style="color:var(--primary);">Step 2: Put it back.</b><br>
+            Look at the first number (12,5). It has <b>1 decimal place</b>. Give your answer 1 decimal place.<br><br>
+            Final Answer: <span style="font-size:1.5rem; font-weight:bold; color:var(--success);">0,5</span>
         </div>
       </div>
-      <p style="text-align:left; font-size:0.95rem;">Always pop the comma onto the roof <b>before</b> you start dividing to lock the decimals in place.</p>
+      <p style="text-align:left; font-size:0.95rem;">This is the exact same trick we used for multiplication!</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -190,11 +173,11 @@
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
   <div class="content-zone hidden" id="zone-guided">
     <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
-    <div style="font-size:2.5rem; font-weight:bold; margin-bottom:20px; color:#333;" id="g-q">0,144 ÷ 0,12</div>
+    <div style="font-size:2rem; font-weight:bold; margin-bottom:10px; color:#333;" id="g-q">0,144 ÷ 0,12</div>
 
     <!-- Step 1 -->
     <div class="guided-step" id="g-box-1">
-      <div class="guided-text" id="g-t1">1. How many jumps right to make the divisor a whole number?</div>
+      <div class="guided-text" id="g-t1">1. Jump comma to make the second number whole: 0,12 ➔</div>
       <div class="guided-row">
         <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
       </div>
@@ -202,7 +185,7 @@
 
     <!-- Step 2 -->
     <div class="guided-step locked" id="g-box-2">
-      <div class="guided-text" id="g-t2">2. Apply those jumps to BOTH. What is the new dividend?</div>
+      <div class="guided-text" id="g-t2">2. Give the first number the exact same jumps: 0,144 ➔</div>
       <div class="guided-row">
         <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
       </div>
@@ -210,9 +193,17 @@
 
     <!-- Step 3 -->
     <div class="guided-step locked" id="g-box-3">
-      <div class="guided-text" id="g-t3">3. Pop the comma up and solve: 14,4 ÷ 12 =</div>
+      <div class="guided-text" id="g-t3">3. Ignore comma & divide basic numbers: 144 ÷ 12 =</div>
       <div class="guided-row">
         <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
+      </div>
+    </div>
+    
+    <!-- Step 4 -->
+    <div class="guided-step locked" id="g-box-4">
+      <div class="guided-text" id="g-t4">4. Put the 1 decimal place back into the answer:</div>
+      <div class="guided-row">
+        <div class="f-box" id="g-ans-4" onclick="setActive('g-ans-4')"></div>
       </div>
     </div>
   </div>
@@ -361,36 +352,14 @@
       
       if (shiftStep === 0) {
           d.innerHTML = `<div>1<span class="comma-red">,</span>25</div><div style="color:var(--primary); font-size:2rem;">÷</div><div>2<span class="comma-red">,</span>5</div>`;
-          t.innerHTML = "One jump. But the divisor is still a decimal (2,5). We must jump again.";
+          t.innerHTML = "One jump. But the second number is still a decimal (2,5). We must give them both another jump.";
           shiftStep++;
       } else if (shiftStep === 1) {
           d.innerHTML = `<div>12<span class="comma-red">,</span>5</div><div style="color:var(--primary); font-size:2rem;">÷</div><div>25</div>`;
-          t.innerHTML = "Two jumps! The divisor is finally a whole number (25). <br><br><b>The new equation is 12,5 ÷ 25</b>.";
-          document.getElementById('btn-man-shift').innerText = "Chain Complete";
+          t.innerHTML = "Two jumps! The second number is finally a whole number (25). <br><br><b>The new equation is 12,5 ÷ 25</b>.";
+          document.getElementById('btn-man-shift').innerText = "Balance Complete";
           document.getElementById('btn-man-shift').disabled = true;
           document.getElementById('btn-man-shift').style.opacity = '0.5';
-      }
-  }
-
-  let popStep = 0;
-  function manPop() {
-      let t = document.getElementById('pop-text');
-      let btn = document.getElementById('btn-man-pop');
-
-      if (popStep === 0) {
-          document.getElementById('r-c').style.opacity = '1';
-          t.innerHTML = "<b>Step 2:</b> The comma pops straight up! This ensures the final answer lines up exactly with the dividend's place values.";
-          btn.innerText = "2. Divide ⬇️";
-          btn.classList.remove('ctrl-btn-danger');
-          btn.classList.add('ctrl-btn-blue');
-          popStep++;
-      } else if (popStep === 1) {
-          document.getElementById('r-0').style.opacity = '1';
-          document.getElementById('r-5').style.opacity = '1';
-          t.innerHTML = "<b>Step 3:</b> Divide. 25 into 12 is 0. 25 into 125 is 5. Answer: <b>0,5</b>.";
-          btn.innerText = "Complete!";
-          btn.disabled = true;
-          btn.style.opacity = '0.5';
       }
   }
 
@@ -677,40 +646,42 @@
   function loadGuidedQuestion() {
       guidedSubStep = 1;
       
-      // These examples guarantee decimal-by-whole division practice
       if (guidedLevel === 1) {
           gData = { 
-              str1: "0,144", 
-              str2: "0,12", 
-              divOrig: "0,12", 
-              jumps: "2", 
-              newDivd: "14,4", 
-              finalAns: "1,2", 
-              cleanEq: "14,4 ÷ 12",
-              t3: "3. Pop the comma up and solve: 14,4 ÷ 12 ="
+              q: "0,144 ÷ 0,12",
+              t1: "1. Jump comma to make the second number whole: 0,12 ➔", a1: "12",
+              t2: "2. Give the first number the exact same jumps: 0,144 ➔", a2: "14,4",
+              t3: "3. Ignore comma & divide basic numbers: 144 ÷ 12 =", a3: "12",
+              t4: "4. Put the 1 decimal place back into the answer:", a4: "1,2",
+              err1: "Look at 0,12. You need 2 jumps to make it the whole number 12.",
+              err2: "You gave the second number 2 jumps. Give 0,144 exactly 2 jumps to the right.",
+              err3: "Just calculate 144 ÷ 12.",
+              err4: "14,4 has 1 decimal place. Give your answer 1 decimal place."
           };
       } else {
           gData = { 
-              str1: "0,027", 
-              str2: "0,3", 
-              divOrig: "0,3", 
-              jumps: "1", 
-              newDivd: "0,27", 
-              finalAns: "0,09", 
-              cleanEq: "0,27 ÷ 3",
-              t3: "3. Pop the comma up and solve: 0,27 ÷ 3 =" 
+              q: "0,027 ÷ 0,3",
+              t1: "1. Jump comma to make the second number whole: 0,3 ➔", a1: "3",
+              t2: "2. Give the first number the exact same jumps: 0,027 ➔", a2: "0,27",
+              t3: "3. Ignore comma & divide basic numbers: 27 ÷ 3 =", a3: "9",
+              t4: "4. Put the 2 decimal places back into the answer:", a4: "0,09",
+              err1: "Look at 0,3. You need 1 jump to make it the whole number 3.",
+              err2: "You gave the second number 1 jump. Give 0,027 exactly 1 jump to the right.",
+              err3: "Just calculate 27 ÷ 3.",
+              err4: "0,27 has 2 decimal places. Give your answer 2 decimal places."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q').innerText = `${gData.str1} ÷ ${gData.str2}`;
+      document.getElementById('g-q').innerText = gData.q;
       
-      document.getElementById('g-t1').innerText = `1. How many jumps right to make ${gData.divOrig} a whole number?`;
-      document.getElementById('g-t2').innerText = `2. Apply those jumps to ${gData.str1}. What is the new dividend?`;
+      document.getElementById('g-t1').innerText = gData.t1;
+      document.getElementById('g-t2').innerText = gData.t2;
       document.getElementById('g-t3').innerText = gData.t3;
+      document.getElementById('g-t4').innerText = gData.t4;
       
       // Reset Boxes
-      [1, 2, 3].forEach(i => {
+      [1, 2, 3, 4].forEach(i => {
           let b = document.getElementById('g-ans-' + i);
           b.innerText = '';
           b.classList.remove('flash-green', 'flash-red', 'active');
@@ -718,6 +689,7 @@
       
       document.getElementById('g-box-2').classList.add('locked');
       document.getElementById('g-box-3').classList.add('locked');
+      document.getElementById('g-box-4').classList.add('locked');
       
       setActive('g-ans-1');
   }
@@ -727,12 +699,12 @@
       let val = box.innerText;
       if (val === '') return;
 
-      if (val.includes('.') && (guidedSubStep === 2 || guidedSubStep === 3)) {
+      if (val.includes('.') && (guidedSubStep === 2 || guidedSubStep === 4)) {
           showModal('🔴', 'Format Error', 'Use a comma ( , ) instead of a full stop.');
           box.innerText = ''; return;
       }
 
-      let target = guidedSubStep === 1 ? gData.jumps : (guidedSubStep === 2 ? gData.newDivd : gData.finalAns);
+      let target = guidedSubStep === 1 ? gData.a1 : (guidedSubStep === 2 ? gData.a2 : (guidedSubStep === 3 ? gData.a3 : gData.a4));
 
       if (val === target) {
           box.classList.add('flash-green');
@@ -753,21 +725,29 @@
                   document.getElementById('g-box-3').classList.remove('locked');
                   setActive('g-ans-3');
               }, 400);
+          } else if (guidedSubStep === 3) {
+              guidedSubStep = 4;
+              setTimeout(() => {
+                  box.classList.remove('active');
+                  document.getElementById('g-box-4').classList.remove('locked');
+                  setActive('g-ans-4');
+              }, 400);
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You preserved the ratio perfectly and popped the comma up. Let\'s try one more.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You followed the 4 steps perfectly. Let\'s try one more.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
-                  showModal('🟢', 'Training Complete', 'You have mastered the Shift Rule and the Pop-Up Comma. Now, you must prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You have mastered the Ignore and Restore method for division! Now, you must prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Counting Error', `Look at ${gData.divOrig}. How many digits are after the comma?`);
-          else if (guidedSubStep === 2) showModal('🔴', 'Shift Error', `You need to jump the comma ${gData.jumps} space(s) right in ${gData.str1}.\n\nAdd placeholder zeros if you run out of numbers!`);
-          else showModal('🔴', 'Division Error', `Set up a short division box. Pop the comma straight up into your answer, then divide!`);
+          if (guidedSubStep === 1) showModal('🔴', 'Step 1 Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Step 2 Error', gData.err2);
+          else if (guidedSubStep === 3) showModal('🔴', 'Step 3 Error', gData.err3);
+          else showModal('🔴', 'Final Step Error', gData.err4);
       }
   }
 
@@ -778,7 +758,7 @@
     document.getElementById('zone-practice').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
 
-    masteryPoints = 0; // Ensure fresh start
+    masteryPoints = 0; 
     updateProgressBar();
     setActive('p-ans');
     loadPracticeQuestion();
@@ -789,7 +769,7 @@
     let wDiv = Math.floor(Math.random() * 8) + 2; // 2 to 9
     let wAns = Math.floor(Math.random() * 15) + 2; // 2 to 16
     
-    // Guarantee that the final answer is a decimal, forcing the pop-up comma rule
+    // Guarantee that the final answer is a decimal, forcing the restore comma rule
     if (wAns % 10 === 0) wAns += 1; 
 
     let shiftDiv = Math.floor(Math.random() * 2) + 1; // 1 or 2 (e.g. 0,2 or 0,02)
@@ -808,7 +788,11 @@
     let sDivd = actualDivd.toString().replace('.', ',');
     let sAns = actualAns.toString().replace('.', ',');
 
-    return { str1: sDivd, str2: sDiv, ansStr: sAns, shiftReq: shiftDiv };
+    // Precalculate hint data
+    let wDivdScale = Math.round(actualDivd * Math.pow(10, shiftDiv) * 100) / 100;
+    let sDivdScale = wDivdScale.toString().replace('.', ',');
+    
+    return { str1: sDivd, str2: sDiv, ansStr: sAns, wDiv: wDiv, sDivdScale: sDivdScale, wAnsOrig: (wDivdScale*1000)/(wDiv*1000), decPlaces: shiftAns };
   }
 
   function loadPracticeQuestion() {
@@ -861,7 +845,7 @@
         updateProgressBar();
         document.getElementById('p-ans').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review ${currentQ.str1} ÷ ${currentQ.str2}:\n\n1. Jump the comma ${currentQ.shiftReq} space(s) right in BOTH numbers.\n2. Set up a short division box.\n3. POP the comma straight up onto the answer line!\n4. Divide carefully.`);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review ${currentQ.str1} ÷ ${currentQ.str2}:\n\n1. Jump both commas until the second number is whole: ${currentQ.sDivdScale} ÷ ${currentQ.wDiv}\n2. Ignore the comma and divide.\n3. ${currentQ.sDivdScale} has ${currentQ.decPlaces} decimal place(s). Put it back in your final answer!`);
     }
   }
 
