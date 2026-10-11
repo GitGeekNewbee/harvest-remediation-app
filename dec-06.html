@@ -49,7 +49,13 @@
     
     .shift-display { font-size: 3.5rem; font-weight: bold; margin: 15px 0; display:flex; gap:10px; justify-content:center; align-items:center; letter-spacing: 2px; }
     .comma-red { color: var(--danger); }
-    .zero-blue { color: var(--primary); }
+    
+    /* Short Division Visual */
+    .div-house { font-size: 2.5rem; font-weight: bold; color: #333; margin: 10px 0; display: flex; flex-direction: column; align-items: center; }
+    .div-roof { border-bottom: 3px solid #333; padding-bottom: 5px; padding-left: 65px; width: 100%; text-align: left; box-sizing: border-box; }
+    .div-base { display: flex; width: 100%; }
+    .div-divisor { padding-right: 10px; border-right: 3px solid #333; width: 65px; text-align: right; }
+    .div-dividend { padding-left: 10px; letter-spacing: 2px; }
 
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; opacity: 1; transition: opacity 0.3s; }
@@ -111,6 +117,7 @@
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-zone hidden" id="zone-learn">
     
+    <!-- Slide 1 -->
     <div id="slide-1">
       <h2>The Problem</h2>
       <p>It is incredibly difficult to divide by a decimal. We must convert the divisor into a whole number first.</p>
@@ -124,6 +131,7 @@
       <p style="text-align:left;">If you jump the comma one space right in the divisor, you must jump it one space right in the dividend.</p>
     </div>
 
+    <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <h2>Watch The Chain</h2>
       <p>Let's solve: <b>0,125 ÷ 0,25</b></p>
@@ -146,6 +154,29 @@
       <p style="text-align:left;">The commas are locked together by an invisible chain.</p>
     </div>
 
+    <!-- NEW Slide 3: The Pop-Up Comma -->
+    <div id="slide-3" class="hidden">
+      <h2>The Pop-Up Comma</h2>
+      <p>Once the divisor is a whole number, how do you actually divide <b>12,5 ÷ 25</b>?</p>
+      
+      <div class="manipulative-container">
+        <div class="div-house">
+          <div class="div-roof">
+            <span style="color:#9aa0a6;">0</span><span class="comma-red">,</span><span style="color:var(--primary);">5</span>
+          </div>
+          <div class="div-base">
+            <div class="div-divisor">25</div>
+            <div class="div-dividend">12<span class="comma-red">,</span>5</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:left; color:#333; line-height:1.5;">
+        <b>Step 1:</b> Set up a short division house.<br>
+        <b>Step 2:</b> The comma in the dividend pops <b>straight up</b> onto the answer line.<br>
+        <b>Step 3:</b> Divide! 25 goes into 12 zero times. 25 into 125 is 5.
+      </div>
+    </div>
+
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
   </div>
 
@@ -164,7 +195,7 @@
 
     <!-- Step 2 -->
     <div class="guided-step locked" id="g-box-2">
-      <div class="guided-text" id="g-t2">2. Apply jumps to BOTH. What is the new dividend?</div>
+      <div class="guided-text" id="g-t2">2. Apply those jumps to BOTH. What is the new dividend?</div>
       <div class="guided-row">
         <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
       </div>
@@ -172,7 +203,7 @@
 
     <!-- Step 3 -->
     <div class="guided-step locked" id="g-box-3">
-      <div class="guided-text" id="g-t3">3. Solve the new whole-number division:</div>
+      <div class="guided-text" id="g-t3">3. Pop the comma up and solve: 2,4 ÷ 6 =</div>
       <div class="guided-row">
         <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
       </div>
@@ -242,7 +273,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2;
+  const totalSlides = 3; // Updated to 3 slides
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -276,7 +307,6 @@
           }
       }
 
-      // --- GOD MODE BYPASS ---
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
           unlockLesson();
@@ -380,13 +410,13 @@
   function generateGateQuestion(level) {
     let qText, ans, n1, n2;
     if (level === 1) { 
-      n2 = Math.floor(Math.random() * 4) + 2; // 2 to 5
+      n2 = Math.floor(Math.random() * 4) + 2; 
       ans = Math.floor(Math.random() * 12) + 2; 
     } else if (level === 2) { 
-      n2 = Math.floor(Math.random() * 4) + 6; // 6 to 9
+      n2 = Math.floor(Math.random() * 4) + 6; 
       ans = Math.floor(Math.random() * 11) + 2;
     } else { 
-      n2 = Math.floor(Math.random() * 3) + 10; // 10 to 12
+      n2 = Math.floor(Math.random() * 3) + 10; 
       ans = Math.floor(Math.random() * 11) + 2;
     }
     n1 = n2 * ans;
@@ -619,9 +649,27 @@
       guidedSubStep = 1;
       
       if (guidedLevel === 1) {
-          gData = { str1: "0,24", str2: "0,6", divOrig: "0,6", jumps: "1", newDivd: "2,4", finalAns: "0,4", cleanEq: "2,4 ÷ 6" };
+          gData = { 
+              str1: "0,24", 
+              str2: "0,6", 
+              divOrig: "0,6", 
+              jumps: "1", 
+              newDivd: "2,4", 
+              finalAns: "0,4", 
+              cleanEq: "2,4 ÷ 6",
+              t3: "3. Pop the comma up and solve: 2,4 ÷ 6 ="
+          };
       } else {
-          gData = { str1: "1,5", str2: "0,05", divOrig: "0,05", jumps: "2", newDivd: "150", finalAns: "30", cleanEq: "150 ÷ 5" };
+          gData = { 
+              str1: "1,5", 
+              str2: "0,05", 
+              divOrig: "0,05", 
+              jumps: "2", 
+              newDivd: "150", 
+              finalAns: "30", 
+              cleanEq: "150 ÷ 5",
+              t3: "3. Solve the whole number division: 150 ÷ 5 =" 
+          };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -629,7 +677,7 @@
       
       document.getElementById('g-t1').innerText = `1. How many jumps right to make ${gData.divOrig} a whole number?`;
       document.getElementById('g-t2').innerText = `2. Apply those jumps to ${gData.str1}. What is the new dividend?`;
-      document.getElementById('g-t3').innerText = `3. Solve: ${gData.cleanEq} =`;
+      document.getElementById('g-t3').innerText = gData.t3;
       
       // Reset Boxes
       [1, 2, 3].forEach(i => {
@@ -689,7 +737,7 @@
           box.classList.add('flash-red');
           if (guidedSubStep === 1) showModal('🔴', 'Counting Error', `Look at ${gData.divOrig}. How many digits are after the comma?`);
           else if (guidedSubStep === 2) showModal('🔴', 'Shift Error', `You need to jump the comma ${gData.jumps} space(s) right in ${gData.str1}.\n\nAdd placeholder zeros if you run out of numbers!`);
-          else showModal('🔴', 'Arithmetic Error', `Look closely at ${gData.cleanEq}. Break it down step by step.`);
+          else showModal('🔴', 'Division Error', `Set up a short division box. If there is a comma in the house, pop it straight up to the roof (the answer line), then divide!`);
       }
   }
 
@@ -780,7 +828,7 @@
         updateProgressBar();
         document.getElementById('p-ans').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review ${currentQ.str1} ÷ ${currentQ.str2}:\n\n1. Jump the comma ${currentQ.shiftReq} space(s) right in BOTH numbers.\n2. This creates the new equation: calculate it carefully!`);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review ${currentQ.str1} ÷ ${currentQ.str2}:\n\n1. Jump the comma ${currentQ.shiftReq} space(s) right in BOTH numbers.\n2. Set up a short division box. Pop the comma straight up into your answer!`);
     }
   }
 
