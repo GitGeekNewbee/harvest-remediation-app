@@ -31,7 +31,8 @@
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; flex-wrap: wrap;}
+    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
     .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; }
     .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; }
@@ -49,11 +50,19 @@
     .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
     .ctrl-btn:active { transform: scale(0.95); }
     .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
+    
+    /* Area Model Styles */
+    .area-model { display: flex; width: 100%; margin: 10px 0; font-weight: bold; position: relative; padding-top: 30px; padding-left: 30px; }
+    .area-side { position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 1.8rem; color: #333; margin-top:15px;}
+    .area-block { height: 70px; border: 3px solid var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--primary); background: #e8f0fe; position: relative; transition: opacity 0.5s; opacity: 0; }
+    .area-b1 { width: 70%; border-right: none; border-radius: 8px 0 0 8px; }
+    .area-b2 { width: 30%; border-radius: 0 8px 8px 0; }
+    .area-top { position: absolute; top: -35px; width: 100%; text-align: center; color: var(--success); font-size: 1.5rem; }
 
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-text { font-size: 1.05rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
     .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* Keypad */
@@ -131,7 +140,7 @@
       <p>Let's completely clear the decimals from <b>12,5 ÷ 0,05</b>.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="sweep-text">We must multiply the top and bottom by 10 until all commas are gone.</p>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="sweep-text">We must multiply top and bottom by 10 until ALL commas are gone.</p>
         
         <div class="math-row" style="font-size:1.8rem;">
           <div class="v-frac"><div class="v-num">12,5</div><div class="v-den">0,05</div></div>
@@ -143,11 +152,39 @@
           <button class="ctrl-btn ctrl-btn-blue" id="btn-man-sweep" onclick="manSweep()">Multiply by 10 ➔</button>
         </div>
       </div>
-      <p style="text-align:left;">We do not stop multiplying until both numbers are perfectly clean.</p>
+      <p style="text-align:left;" id="sweep-footer">We do not stop multiplying until both numbers are perfectly clean.</p>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
+      <h2>Solve using the Area Model</h2>
+      <p>Because we kept the scale balanced, <b>1250 ÷ 5</b> has the exact same answer as <b>12,5 ÷ 0,05</b>.</p>
+      
+      <div class="manipulative-container">
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="area-text">Let's solve 1250 ÷ 5 by thinking of it as a missing multiplier: <b>5 × ? = 1250</b></p>
+        
+        <div class="area-model">
+            <div class="area-side">5</div>
+            <div class="area-block area-b1" id="a-b1">
+                <div class="area-top" id="a-t1"></div>
+                <span id="a-v1"></span>
+            </div>
+            <div class="area-block area-b2" id="a-b2">
+                <div class="area-top" id="a-t2"></div>
+                <span id="a-v2"></span>
+            </div>
+        </div>
+
+        <div style="font-size:2rem; font-weight:bold; color:var(--success); margin-top:10px; opacity:0; transition:0.5s;" id="area-ans">200 + 50 = 250</div>
+        
+        <div class="controls-row">
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-area" onclick="manArea()">Build the Chunks ➔</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4 -->
+    <div id="slide-4" class="hidden">
       <h2>When the Top is Smaller</h2>
       <p>What happens when we do a clean sweep on <b>0,04 ÷ 0,08</b>?</p>
       
@@ -163,34 +200,10 @@
         </div>
         <p style="margin:15px 0 0 0; font-size:0.95rem; color:#333; line-height: 1.5;">
             <b>Step 1: Simplify.</b> 4/8 simplifies to exactly 1/2.<br>
-            <b>Step 2: Scale.</b> To easily write a decimal, the bottom number must be 10 or 100. We multiply the top and bottom of 1/2 by <b>5</b> to make it 5/10.<br>
+            <b>Step 2: Scale.</b> To easily write a decimal, the bottom number must be 10 or 100. Multiply top and bottom by <b>5</b>.<br>
             <b>Step 3: Write it.</b> 5 tenths is <b>0,5</b>.
         </p>
       </div>
-    </div>
-
-    <!-- Slide 4 -->
-    <div id="slide-4" class="hidden">
-      <h2>When the Top is Bigger</h2>
-      <p>Look back at our clean sweep of <b>1250 ÷ 5</b>. Big numbers can be broken into friendly chunks!</p>
-      
-      <div class="manipulative-container">
-        <div class="math-row" style="font-size:1.8rem; margin:0; width:100%; justify-content:space-evenly;">
-            <div class="v-frac"><div class="v-num">1250</div><div class="v-den">5</div></div>
-            <div>=</div>
-            <div class="v-frac"><div class="v-num">1000</div><div class="v-den">5</div></div>
-            <div>+</div>
-            <div class="v-frac"><div class="v-num">250</div><div class="v-den">5</div></div>
-        </div>
-        <div class="math-row" style="font-size:1.8rem; margin-top:15px; color:var(--success);">
-            <div>200</div>
-            <div>+</div>
-            <div>50</div>
-            <div>=</div>
-            <div style="font-weight:900;">250</div>
-        </div>
-      </div>
-      <p style="text-align:left;">By using fractions, we never have to build a scary division house.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -350,19 +363,55 @@
   function manSweep() {
       let d = document.getElementById('sweep-frac');
       let t = document.getElementById('sweep-text');
+      let f = document.getElementById('sweep-footer');
       let b = document.getElementById('btn-man-sweep');
       
       if (sweepStep === 0) {
           d.innerHTML = `<div class="v-num">125</div><div class="v-den">0,5</div>`;
-          t.innerHTML = "We multiplied top and bottom by 10. But there is still a comma! We must jump again.";
+          t.innerHTML = "We multiplied top and bottom by 10 once. But there is still a comma! We must jump again.";
           b.innerText = "Multiply by 10 again ➔";
           sweepStep++;
       } else if (sweepStep === 1) {
           d.innerHTML = `<div class="v-num" style="color:var(--success);">1250</div><div class="v-den" style="color:var(--success);">5</div>`;
-          t.innerHTML = "We multiplied by 10 again (which means we multiplied by 100 in total). Both numbers are completely clean!";
+          t.innerHTML = "We multiplied by 10 again! Both numbers are completely clean whole numbers.";
+          f.innerHTML = "Because we balanced the scale (x10 then x10), <b>12,5 ÷ 0,05</b> has the exact same answer as <b>1250 ÷ 5</b>.";
           b.innerText = "Clean Sweep Complete";
           b.disabled = true;
           b.style.opacity = '0.5';
+      }
+  }
+
+  let areaStep = 0;
+  function manArea() {
+      let b1 = document.getElementById('a-b1');
+      let t1 = document.getElementById('a-t1');
+      let v1 = document.getElementById('a-v1');
+      let b2 = document.getElementById('a-b2');
+      let t2 = document.getElementById('a-t2');
+      let v2 = document.getElementById('a-v2');
+      let txt = document.getElementById('area-text');
+      let btn = document.getElementById('btn-man-area');
+
+      if (areaStep === 0) {
+          b1.style.opacity = '1';
+          t1.innerText = "200";
+          v1.innerText = "1000";
+          txt.innerHTML = "What is 5 × 200? It's <b>1000</b>. We have built 1000 out of our 1250 target.";
+          btn.innerText = "Find the missing piece ➔";
+          areaStep++;
+      } else if (areaStep === 1) {
+          b2.style.opacity = '1';
+          t2.innerText = "50";
+          v2.innerText = "250";
+          txt.innerHTML = "We need 250 more. What is 5 × 50? It's <b>250</b>. Our area model is complete!";
+          btn.innerText = "Add the top row ➔";
+          areaStep++;
+      } else if (areaStep === 2) {
+          document.getElementById('area-ans').style.opacity = '1';
+          txt.innerHTML = "Add the top numbers! 1250 ÷ 5 = <b>250</b>. Therefore, 12,5 ÷ 0,05 = <b>250</b>.";
+          btn.innerText = "Complete!";
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
       }
   }
 
@@ -650,10 +699,10 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = ''; 
 
-      // Step 1: Clean Sweep
+      // Step 1: Multiply x10
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Multiply top and bottom by 10 until ALL commas are gone. Write your clean fraction:</div>
+          <div class="guided-text" id="g-t1">1. Multiply top and bottom by 10 once:</div>
           <div class="guided-row">
             <div class="v-frac">
               <div class="v-num"><div class="f-box" id="g-ans-1a" onclick="setActive('g-ans-1a')"></div></div>
@@ -663,20 +712,24 @@
         </div>
       `;
 
+      // Step 2: Multiply x10 again
+      container.innerHTML += `
+        <div class="guided-step locked" id="g-box-2">
+          <div class="guided-text" id="g-t2">2. Still a comma! Multiply top and bottom by 10 again:</div>
+          <div class="guided-row">
+            <div class="v-frac">
+              <div class="v-num"><div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
+              <div class="v-den"><div class="f-box" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
+            </div>
+          </div>
+        </div>
+      `;
+
       if (gData.isFractionAns) {
           // Fraction Path
           container.innerHTML += `
-            <div class="guided-step locked" id="g-box-2">
-              <div class="guided-text" id="g-t2">2. The top is smaller. Simplify the fraction to its lowest terms:</div>
-              <div class="guided-row">
-                <div class="v-frac">
-                  <div class="v-num"><div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
-                  <div class="v-den"><div class="f-box" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
-                </div>
-              </div>
-            </div>
             <div class="guided-step locked" id="g-box-3">
-              <div class="guided-text" id="g-t3">3. Scale the bottom to 10 or 100:</div>
+              <div class="guided-text" id="g-t3">3. Simplify the clean fraction to its lowest terms:</div>
               <div class="guided-row">
                 <div class="v-frac">
                   <div class="v-num"><div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
@@ -685,19 +738,26 @@
               </div>
             </div>
             <div class="guided-step locked" id="g-box-4">
-              <div class="guided-text" id="g-t4">4. Write your final decimal:</div>
+              <div class="guided-text" id="g-t4">4. Make the bottom 10 or 100 to write your final decimal:</div>
               <div class="guided-row">
-                <div class="f-box" id="g-ans-4" onclick="setActive('g-ans-4')"></div>
+                <div class="f-box" style="width:100px;" id="g-ans-4" onclick="setActive('g-ans-4')"></div>
               </div>
             </div>
           `;
       } else {
-          // Whole Number Path
+          // Area Model Path
           container.innerHTML += `
-            <div class="guided-step locked" id="g-box-2">
-              <div class="guided-text" id="g-t2">2. Divide the whole numbers. You can decompose (chunk) them if needed: ${gData.aTop} ÷ ${gData.aBot} =</div>
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. Solve ${gData.cleanTop} ÷ ${gData.cleanBot}. Build it with Area Model chunks:</div>
+              <div class="guided-row" style="font-size:1.2rem;">
+                 ${gData.cleanBot} × <div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div> = ${gData.chunk1}<br>
+                 ${gData.cleanBot} × <div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div> = ${gData.chunk2}
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-4">
+              <div class="guided-text" id="g-t4">4. Add your top row chunks to get the final answer:</div>
               <div class="guided-row">
-                <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
+                <div class="f-box" style="width:100px;" id="g-ans-4" onclick="setActive('g-ans-4')"></div>
               </div>
             </div>
           `;
@@ -712,24 +772,29 @@
       if (guidedLevel === 1) {
           gData = { 
               q: `<div class="v-num">0,72</div><div class="v-den">0,06</div>`,
-              aTop: "72", aBot: "6",
+              m1Top: "7,2", m1Bot: "0,6",
+              cleanTop: "72", cleanBot: "6",
+              chunk1: "60", chunk2: "12",
+              c1Ans: "10", c2Ans: "2",
               finalAns: "12", 
               isFractionAns: false,
-              err1: "Multiply top and bottom by 10 twice (x100) to clear all commas. Write 72 on top and 6 on the bottom.",
-              err2: "Break it into chunks! 72/6 = 60/6 + 12/6. Calculate that."
+              err1: "Multiply top and bottom by 10 by moving the comma one space right. Write 7,2 on top and 0,6 on bottom.",
+              err2: "Multiply by 10 again to completely clear the commas. 72 over 6.",
+              err3: "What times 6 is 60? (10). What times 6 is 12? (2).",
+              err4: "Add your chunks: 10 + 2."
           };
       } else {
           gData = { 
-              q: `<div class="v-num">0,15</div><div class="v-den">0,20</div>`,
-              aTop: "15", aBot: "20",
-              simpTop: "3", simpBot: "4",
-              sclTop: "75", sclBot: "100",
-              finalAns: "0,75", 
+              q: `<div class="v-num">0,04</div><div class="v-den">0,08</div>`,
+              m1Top: "0,4", m1Bot: "0,8",
+              cleanTop: "4", cleanBot: "8",
+              simpTop: "1", simpBot: "2",
+              finalAns: "0,5", 
               isFractionAns: true,
-              err1: "Multiply top and bottom by 100 to clear the commas. Write 15 on top and 20 on the bottom.",
-              err2: "Simplify! Both numbers divide by 5.",
-              err3: "Make the bottom 100. Multiply top and bottom by 25.",
-              err4: "75 hundredths is written as 0,75."
+              err1: "Multiply top and bottom by 10. Write 0,4 on top and 0,8 on bottom.",
+              err2: "Multiply by 10 again to clear the commas. 4 over 8.",
+              err3: "Simplify! Both numbers divide by 4. Write 1 on top, 2 on bottom.",
+              err4: "Make the bottom 10! Multiply top and bottom of 1/2 by 5 to get 5/10. 5 tenths is 0,5."
           };
       }
 
@@ -744,7 +809,7 @@
       let val = box.innerText;
       if (val === '') return;
 
-      if (val.includes('.') && ((!gData.isFractionAns && guidedSubStep === 2) || (gData.isFractionAns && guidedSubStep === 4))) {
+      if (val.includes('.') && ((!gData.isFractionAns) || (gData.isFractionAns && guidedSubStep === 4))) {
           showModal('🔴', 'Format Error', 'Use a comma ( , ) instead of a full stop.');
           box.innerText = ''; return;
       }
@@ -753,30 +818,36 @@
       if (guidedSubStep === 1) {
           let topVal = document.getElementById('g-ans-1a').innerText;
           let botVal = document.getElementById('g-ans-1b').innerText;
-          if (activeBoxId === 'g-ans-1a' && val === gData.aTop) {
+          if (activeBoxId === 'g-ans-1a' && val === gData.m1Top) {
               box.classList.add('flash-green'); setActive('g-ans-1b'); return; 
-          } else if (activeBoxId === 'g-ans-1b' && val === gData.aBot) {
-              isCorrect = (topVal === gData.aTop && botVal === gData.aBot);
+          } else if (activeBoxId === 'g-ans-1b' && val === gData.m1Bot) {
+              isCorrect = (topVal === gData.m1Top && botVal === gData.m1Bot);
           }
       } else if (guidedSubStep === 2) {
+          let topVal = document.getElementById('g-ans-2a').innerText;
+          let botVal = document.getElementById('g-ans-2b').innerText;
+          if (activeBoxId === 'g-ans-2a' && val === gData.cleanTop) {
+              box.classList.add('flash-green'); setActive('g-ans-2b'); return; 
+          } else if (activeBoxId === 'g-ans-2b' && val === gData.cleanBot) {
+              isCorrect = (topVal === gData.cleanTop && botVal === gData.cleanBot);
+          }
+      } else if (guidedSubStep === 3) {
           if (gData.isFractionAns) {
-              let topVal = document.getElementById('g-ans-2a').innerText;
-              let botVal = document.getElementById('g-ans-2b').innerText;
-              if (activeBoxId === 'g-ans-2a' && val === gData.simpTop) {
-                  box.classList.add('flash-green'); setActive('g-ans-2b'); return; 
-              } else if (activeBoxId === 'g-ans-2b' && val === gData.simpBot) {
+              let topVal = document.getElementById('g-ans-3a').innerText;
+              let botVal = document.getElementById('g-ans-3b').innerText;
+              if (activeBoxId === 'g-ans-3a' && val === gData.simpTop) {
+                  box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+              } else if (activeBoxId === 'g-ans-3b' && val === gData.simpBot) {
                   isCorrect = (topVal === gData.simpTop && botVal === gData.simpBot);
               }
           } else {
-              isCorrect = (val === gData.finalAns);
-          }
-      } else if (guidedSubStep === 3) {
-          let topVal = document.getElementById('g-ans-3a').innerText;
-          let botVal = document.getElementById('g-ans-3b').innerText;
-          if (activeBoxId === 'g-ans-3a' && val === gData.sclTop) {
-              box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
-          } else if (activeBoxId === 'g-ans-3b' && val === gData.sclBot) {
-              isCorrect = (topVal === gData.sclTop && botVal === gData.sclBot);
+              let topVal = document.getElementById('g-ans-3a').innerText;
+              let botVal = document.getElementById('g-ans-3b').innerText;
+              if (activeBoxId === 'g-ans-3a' && val === gData.c1Ans) {
+                  box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+              } else if (activeBoxId === 'g-ans-3b' && val === gData.c2Ans) {
+                  isCorrect = (topVal === gData.c1Ans && botVal === gData.c2Ans);
+              }
           }
       } else if (guidedSubStep === 4) {
           isCorrect = (val === gData.finalAns);
@@ -792,17 +863,16 @@
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-2').classList.remove('locked');
-                  if (gData.isFractionAns) setActive('g-ans-2a');
-                  else setActive('g-ans-2');
+                  setActive('g-ans-2a');
               }, 400);
-          } else if (gData.isFractionAns && guidedSubStep === 2) {
+          } else if (guidedSubStep === 2) {
               guidedSubStep = 3;
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-3').classList.remove('locked');
                   setActive('g-ans-3a');
               }, 400);
-          } else if (gData.isFractionAns && guidedSubStep === 3) {
+          } else if (guidedSubStep === 3) {
               guidedSubStep = 4;
               setTimeout(() => {
                   box.classList.remove('active');
@@ -812,7 +882,7 @@
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You cleared the commas and divided the chunks perfectly. Let\'s try one where the top is smaller.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You cleared the commas and solved the Area Model chunks perfectly. Let\'s try one where the top is smaller.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
                   showModal('🟢', 'Training Complete', 'You have mastered the Fraction Method! Now, prove it in the Strict Practice zone.');
@@ -821,10 +891,10 @@
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Clean Sweep Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Calculation Error', gData.err2);
-          else if (guidedSubStep === 3) showModal('🔴', 'Scaling Error', gData.err3);
-          else showModal('🔴', 'Decimal Error', gData.err4);
+          if (guidedSubStep === 1) showModal('🔴', 'Scale Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Clean Sweep Error', gData.err2);
+          else if (guidedSubStep === 3) showModal('🔴', 'Calculation Error', gData.err3);
+          else showModal('🔴', 'Final Step Error', gData.err4);
       }
   }
 
@@ -846,8 +916,8 @@
     
     let den, num, ansVal;
     if (isCleanDiv) {
-        den = Math.floor(Math.random() * 8) + 2; // 2 to 9
-        ansVal = Math.floor(Math.random() * 11) + 2; // 2 to 12
+        den = Math.floor(Math.random() * 8) + 2; 
+        ansVal = Math.floor(Math.random() * 11) + 2; 
         num = den * ansVal;
     } else {
         let simpleFractions = [{n:1,d:2,a:0.5}, {n:1,d:4,a:0.25}, {n:3,d:4,a:0.75}, {n:1,d:5,a:0.2}, {n:2,d:5,a:0.4}];
@@ -915,13 +985,12 @@
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // STRICT MODE: HARD RESET
         masteryPoints = 0;
         streak = 0;
         updateProgressBar();
         document.getElementById('p-ans').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Multiply the top and bottom by 10 until ALL commas are gone.\n2. Your clean, balanced fraction is ${currentQ.numVal} / ${currentQ.denVal}.\n3. Simplify it, make the bottom 10 or 100, and write your decimal!\n4. The final answer is ${currentQ.ansStr}.`);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Multiply the top and bottom by 10 until ALL commas are gone.\n2. Your clean fraction is ${currentQ.numVal} / ${currentQ.denVal}.\n3. If the top is smaller, simplify it, then make the bottom 10 or 100!\n4. The final answer is ${currentQ.ansStr}.`);
     }
   }
 
