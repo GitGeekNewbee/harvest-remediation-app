@@ -32,14 +32,13 @@
 
     /* Math Displays & Input Boxes */
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
     .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; }
     .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; }
     .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; }
 
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 90px; height: 50px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
+    .f-box { min-width: 60px; height: 45px; padding: 0 10px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
@@ -54,8 +53,8 @@
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1.05rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
-    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; }
+    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -86,7 +85,7 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Dividing decimals requires perfectly automated division. Prove you can divide whole numbers rapidly.</p>
+    <p>We can turn any decimal puzzle into a simple whole number puzzle. First, prove you can divide basic numbers rapidly.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
@@ -113,8 +112,8 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Whole Number Puzzle</h2>
-      <p>We can easily divide decimals by turning them into whole numbers! Division is exactly the same as a fraction.</p>
+      <h2>The Visual Shift</h2>
+      <p>A division problem is exactly the same thing as a fraction.</p>
       
       <div class="manipulative-container" style="font-size: 2rem; font-weight:bold; color:#333;">
         <div class="math-row">
@@ -123,57 +122,75 @@
             <div class="v-frac"><div class="v-num" style="color:var(--primary);">0,04</div><div class="v-den" style="color:var(--danger);">0,08</div></div>
         </div>
       </div>
-      <p style="text-align:left;">By writing it as a fraction, we can use the golden rule: If we multiply the top and bottom by the exact same number, the value stays perfectly balanced.</p>
+      <p style="text-align:left;">By putting the numbers on top of each other, we can use the golden rule of fractions: <b>Whatever you do to the bottom, you must do to the top.</b></p>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Clearing the Decimals</h2>
-      <p>Let's solve: <b>12,5 ÷ 0,05</b></p>
+      <h2>The Clean Sweep</h2>
+      <p>Let's completely clear the decimals from <b>12,5 ÷ 0,05</b>.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;">Look at the bottom number (0,05). It has 2 decimal places. We must multiply it by 100 to make it a whole number.</p>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="sweep-text">We must multiply the top and bottom by 10 until all commas are gone.</p>
         
-        <div class="math-row" style="font-size:1.8rem;" id="m-eq-1">
+        <div class="math-row" style="font-size:1.8rem;">
           <div class="v-frac"><div class="v-num">12,5</div><div class="v-den">0,05</div></div>
-          <div style="margin:0 15px;">=</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den" style="color:var(--primary);">?</div></div>
+          <div style="margin:0 15px;">➔</div>
+          <div class="v-frac" id="sweep-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den" style="color:var(--primary);">?</div></div>
         </div>
         
         <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-mult" onclick="manMult()">Multiply Top & Bottom by 100 ➔</button>
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-sweep" onclick="manSweep()">Multiply by 10 ➔</button>
         </div>
       </div>
-      <p style="text-align:left;">Because we multiply the bottom by 100, we MUST multiply the top by 100 to keep the scale balanced.</p>
+      <p style="text-align:left;">We do not stop multiplying until both numbers are perfectly clean.</p>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <h2>Solve the Clean Fraction</h2>
-      <p>Now we just solve the whole numbers! Because we kept the fraction balanced, the answer will be exactly the same.</p>
+      <h2>When the Top is Smaller</h2>
+      <p>What happens when we do a clean sweep on <b>0,04 ÷ 0,08</b>?</p>
       
       <div class="manipulative-container" style="align-items:flex-start;">
-        <div style="background: #e8f0fe; padding: 15px; border-radius: 12px; margin-bottom: 15px; width: 100%; box-sizing: border-box;">
-            <p style="margin:0 0 10px 0; font-weight:bold; color:var(--primary);">Example A (Top is bigger):</p>
-            <div class="math-row" style="font-size:1.8rem; margin:0;">
-                <div class="v-frac"><div class="v-num">1250</div><div class="v-den">5</div></div>
-                <div style="margin:0 10px;">=</div>
-                <div style="color:var(--success);">250</div>
-            </div>
+        <div class="math-row" style="font-size:1.5rem; margin:0; width:100%; justify-content:space-evenly;">
+            <div class="v-frac"><div class="v-num">4</div><div class="v-den">8</div></div>
+            <div style="margin:0 5px;">➔</div>
+            <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
+            <div style="margin:0 5px;">➔</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--primary);">5</div><div class="v-den" style="color:var(--primary);">10</div></div>
+            <div style="margin:0 5px;">=</div>
+            <div style="color:var(--success);">0,5</div>
         </div>
+        <p style="margin:15px 0 0 0; font-size:0.95rem; color:#333; line-height: 1.5;">
+            <b>Step 1: Simplify.</b> 4/8 simplifies to exactly 1/2.<br>
+            <b>Step 2: Scale.</b> To easily write a decimal, the bottom number must be 10 or 100. We multiply the top and bottom of 1/2 by <b>5</b> to make it 5/10.<br>
+            <b>Step 3: Write it.</b> 5 tenths is <b>0,5</b>.
+        </p>
+      </div>
+    </div>
 
-        <div style="background: #fce8e6; padding: 15px; border-radius: 12px; width: 100%; box-sizing: border-box;">
-            <p style="margin:0 0 10px 0; font-weight:bold; color:var(--danger);">Example B (Top is smaller):</p>
-            <div class="math-row" style="font-size:1.8rem; margin:0;">
-                <div class="v-frac"><div class="v-num">4</div><div class="v-den">8</div></div>
-                <div style="margin:0 10px;">➔</div>
-                <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
-                <div style="margin:0 10px;">=</div>
-                <div style="color:var(--success);">0,5</div>
-            </div>
-            <p style="margin:10px 0 0 0; font-size:0.9rem; color:#333;">If the top is smaller, simplify the fraction first! You already know what ½ is as a decimal.</p>
+    <!-- Slide 4 -->
+    <div id="slide-4" class="hidden">
+      <h2>When the Top is Bigger</h2>
+      <p>Look back at our clean sweep of <b>1250 ÷ 5</b>. Big numbers can be broken into friendly chunks!</p>
+      
+      <div class="manipulative-container">
+        <div class="math-row" style="font-size:1.8rem; margin:0; width:100%; justify-content:space-evenly;">
+            <div class="v-frac"><div class="v-num">1250</div><div class="v-den">5</div></div>
+            <div>=</div>
+            <div class="v-frac"><div class="v-num">1000</div><div class="v-den">5</div></div>
+            <div>+</div>
+            <div class="v-frac"><div class="v-num">250</div><div class="v-den">5</div></div>
+        </div>
+        <div class="math-row" style="font-size:1.8rem; margin-top:15px; color:var(--success);">
+            <div>200</div>
+            <div>+</div>
+            <div>50</div>
+            <div>=</div>
+            <div style="font-weight:900;">250</div>
         </div>
       </div>
+      <p style="text-align:left;">By using fractions, we never have to build a scary division house.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -188,7 +205,7 @@
     </div>
 
     <div id="g-dynamic-steps" style="width:100%;">
-        <!-- Steps injected by JS to support both paths dynamically -->
+        <!-- Steps injected by JS -->
     </div>
   </div>
 
@@ -255,7 +272,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 3; 
+  const totalSlides = 4; 
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -329,15 +346,24 @@
   }
 
   // --- LEARN ZONE MANIPULATIVES ---
-  function manMult() {
-      document.getElementById('m-eq-1').innerHTML = `
-          <div class="v-frac"><div class="v-num">12,5</div><div class="v-den">0,05</div></div>
-          <div style="margin:0 15px;">=</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--success);">1250</div><div class="v-den" style="color:var(--success);">5</div></div>
-      `;
-      document.getElementById('btn-man-mult').innerText = "Fraction Balanced!";
-      document.getElementById('btn-man-mult').disabled = true;
-      document.getElementById('btn-man-mult').style.opacity = '0.5';
+  let sweepStep = 0;
+  function manSweep() {
+      let d = document.getElementById('sweep-frac');
+      let t = document.getElementById('sweep-text');
+      let b = document.getElementById('btn-man-sweep');
+      
+      if (sweepStep === 0) {
+          d.innerHTML = `<div class="v-num">125</div><div class="v-den">0,5</div>`;
+          t.innerHTML = "We multiplied top and bottom by 10. But there is still a comma! We must jump again.";
+          b.innerText = "Multiply by 10 again ➔";
+          sweepStep++;
+      } else if (sweepStep === 1) {
+          d.innerHTML = `<div class="v-num" style="color:var(--success);">1250</div><div class="v-den" style="color:var(--success);">5</div>`;
+          t.innerHTML = "We multiplied by 10 again (which means we multiplied by 100 in total). Both numbers are completely clean!";
+          b.innerText = "Clean Sweep Complete";
+          b.disabled = true;
+          b.style.opacity = '0.5';
+      }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -622,65 +648,62 @@
 
   function buildGuidedSteps() {
       let container = document.getElementById('g-dynamic-steps');
-      container.innerHTML = ''; // Clear previous
+      container.innerHTML = ''; 
 
-      // Step 1: Multiply to clear
+      // Step 1: Clean Sweep
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. What must you multiply the bottom by to make it a whole number?</div>
-          <div class="guided-row">
-            <div style="font-size:1.5rem; font-weight:bold;">×</div>
-            <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
-          </div>
-        </div>
-      `;
-
-      // Step 2: New Fraction
-      container.innerHTML += `
-        <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. Multiply top AND bottom by ${gData.mult}. What is your new clean fraction?</div>
+          <div class="guided-text" id="g-t1">1. Multiply top and bottom by 10 until ALL commas are gone. Write your clean fraction:</div>
           <div class="guided-row">
             <div class="v-frac">
-              <div class="v-num"><div class="f-box" style="min-width:60px; height:40px; font-size:1.5rem;" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
-              <div class="v-den"><div class="f-box" style="min-width:60px; height:40px; font-size:1.5rem;" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
+              <div class="v-num"><div class="f-box" id="g-ans-1a" onclick="setActive('g-ans-1a')"></div></div>
+              <div class="v-den"><div class="f-box" id="g-ans-1b" onclick="setActive('g-ans-1b')"></div></div>
             </div>
           </div>
         </div>
       `;
 
       if (gData.isFractionAns) {
-          // Fraction Path: Simplify then convert
+          // Fraction Path
           container.innerHTML += `
-            <div class="guided-step locked" id="g-box-3">
-              <div class="guided-text" id="g-t3">3. The top is smaller. Simplify the fraction to its lowest terms:</div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. The top is smaller. Simplify the fraction to its lowest terms:</div>
               <div class="guided-row">
                 <div class="v-frac">
-                  <div class="v-num"><div class="f-box" style="min-width:60px; height:40px; font-size:1.5rem;" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
-                  <div class="v-den"><div class="f-box" style="min-width:60px; height:40px; font-size:1.5rem;" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+                  <div class="v-num"><div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
                 </div>
               </div>
             </div>
-            
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. Scale the bottom to 10 or 100:</div>
+              <div class="guided-row">
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+                </div>
+              </div>
+            </div>
             <div class="guided-step locked" id="g-box-4">
-              <div class="guided-text" id="g-t4">4. Write your simplified fraction as a decimal:</div>
+              <div class="guided-text" id="g-t4">4. Write your final decimal:</div>
               <div class="guided-row">
                 <div class="f-box" id="g-ans-4" onclick="setActive('g-ans-4')"></div>
               </div>
             </div>
           `;
       } else {
-          // Clean Division Path: Divide directly
+          // Whole Number Path
           container.innerHTML += `
-            <div class="guided-step locked" id="g-box-3">
-              <div class="guided-text" id="g-t3">3. Divide the clean whole numbers: ${gData.aTop} ÷ ${gData.aBot} =</div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. Divide the whole numbers. You can decompose (chunk) them if needed: ${gData.aTop} ÷ ${gData.aBot} =</div>
               <div class="guided-row">
-                <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
+                <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
               </div>
             </div>
           `;
       }
       
-      setActive('g-ans-1');
+      setActive('g-ans-1a');
   }
 
   function loadGuidedQuestion() {
@@ -688,27 +711,25 @@
       
       if (guidedLevel === 1) {
           gData = { 
-              q: `<div class="v-num">12,5</div><div class="v-den">0,05</div>`,
-              mult: "100", 
-              aTop: "1250", aBot: "5",
-              finalAns: "250", 
+              q: `<div class="v-num">0,72</div><div class="v-den">0,06</div>`,
+              aTop: "72", aBot: "6",
+              finalAns: "12", 
               isFractionAns: false,
-              err1: "Look at the denominator (0,05). It has 2 decimal places. You need to multiply by 100 to make it the whole number 5.",
-              err2: "Multiply both 12,5 and 0,05 by 100. Be careful adding zeros!",
-              err3: "Just calculate the clean division: 1250 ÷ 5."
+              err1: "Multiply top and bottom by 10 twice (x100) to clear all commas. Write 72 on top and 6 on the bottom.",
+              err2: "Break it into chunks! 72/6 = 60/6 + 12/6. Calculate that."
           };
       } else {
           gData = { 
-              q: `<div class="v-num">0,04</div><div class="v-den">0,08</div>`,
-              mult: "100", 
-              aTop: "4", aBot: "8",
-              simpTop: "1", simpBot: "2",
-              finalAns: "0,5", 
+              q: `<div class="v-num">0,15</div><div class="v-den">0,20</div>`,
+              aTop: "15", aBot: "20",
+              simpTop: "3", simpBot: "4",
+              sclTop: "75", sclBot: "100",
+              finalAns: "0,75", 
               isFractionAns: true,
-              err1: "Look at the denominator (0,08). It has 2 decimal places. You need to multiply by 100.",
-              err2: "Multiply top and bottom by 100 to get clean whole numbers.",
-              err3: "Simplify the fraction! 4/8 shares a common factor. Divide top and bottom by 4.",
-              err4: "You know what a half (1/2) is as a decimal. Write it with a comma."
+              err1: "Multiply top and bottom by 100 to clear the commas. Write 15 on top and 20 on the bottom.",
+              err2: "Simplify! Both numbers divide by 5.",
+              err3: "Make the bottom 100. Multiply top and bottom by 25.",
+              err4: "75 hundredths is written as 0,75."
           };
       }
 
@@ -723,37 +744,39 @@
       let val = box.innerText;
       if (val === '') return;
 
-      if (val.includes('.') && ((!gData.isFractionAns && guidedSubStep === 3) || (gData.isFractionAns && guidedSubStep === 4))) {
+      if (val.includes('.') && ((!gData.isFractionAns && guidedSubStep === 2) || (gData.isFractionAns && guidedSubStep === 4))) {
           showModal('🔴', 'Format Error', 'Use a comma ( , ) instead of a full stop.');
           box.innerText = ''; return;
       }
 
       let isCorrect = false;
       if (guidedSubStep === 1) {
-          isCorrect = (val === gData.mult);
-      } else if (guidedSubStep === 2) {
-          let topVal = document.getElementById('g-ans-2a').innerText;
-          let botVal = document.getElementById('g-ans-2b').innerText;
-          if (activeBoxId === 'g-ans-2a' && val === gData.aTop) {
-              box.classList.add('flash-green');
-              setActive('g-ans-2b');
-              return; 
-          } else if (activeBoxId === 'g-ans-2b' && val === gData.aBot) {
+          let topVal = document.getElementById('g-ans-1a').innerText;
+          let botVal = document.getElementById('g-ans-1b').innerText;
+          if (activeBoxId === 'g-ans-1a' && val === gData.aTop) {
+              box.classList.add('flash-green'); setActive('g-ans-1b'); return; 
+          } else if (activeBoxId === 'g-ans-1b' && val === gData.aBot) {
               isCorrect = (topVal === gData.aTop && botVal === gData.aBot);
           }
-      } else if (guidedSubStep === 3) {
+      } else if (guidedSubStep === 2) {
           if (gData.isFractionAns) {
-              let topVal = document.getElementById('g-ans-3a').innerText;
-              let botVal = document.getElementById('g-ans-3b').innerText;
-              if (activeBoxId === 'g-ans-3a' && val === gData.simpTop) {
-                  box.classList.add('flash-green');
-                  setActive('g-ans-3b');
-                  return; 
-              } else if (activeBoxId === 'g-ans-3b' && val === gData.simpBot) {
+              let topVal = document.getElementById('g-ans-2a').innerText;
+              let botVal = document.getElementById('g-ans-2b').innerText;
+              if (activeBoxId === 'g-ans-2a' && val === gData.simpTop) {
+                  box.classList.add('flash-green'); setActive('g-ans-2b'); return; 
+              } else if (activeBoxId === 'g-ans-2b' && val === gData.simpBot) {
                   isCorrect = (topVal === gData.simpTop && botVal === gData.simpBot);
               }
           } else {
               isCorrect = (val === gData.finalAns);
+          }
+      } else if (guidedSubStep === 3) {
+          let topVal = document.getElementById('g-ans-3a').innerText;
+          let botVal = document.getElementById('g-ans-3b').innerText;
+          if (activeBoxId === 'g-ans-3a' && val === gData.sclTop) {
+              box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+          } else if (activeBoxId === 'g-ans-3b' && val === gData.sclBot) {
+              isCorrect = (topVal === gData.sclTop && botVal === gData.sclBot);
           }
       } else if (guidedSubStep === 4) {
           isCorrect = (val === gData.finalAns);
@@ -769,16 +792,15 @@
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-2').classList.remove('locked');
-                  document.getElementById('g-t2').innerText = `2. Multiply top AND bottom by ${gData.mult}. What is your new clean fraction?`;
-                  setActive('g-ans-2a');
+                  if (gData.isFractionAns) setActive('g-ans-2a');
+                  else setActive('g-ans-2');
               }, 400);
-          } else if (guidedSubStep === 2) {
+          } else if (gData.isFractionAns && guidedSubStep === 2) {
               guidedSubStep = 3;
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-3').classList.remove('locked');
-                  if (gData.isFractionAns) setActive('g-ans-3a');
-                  else setActive('g-ans-3');
+                  setActive('g-ans-3a');
               }, 400);
           } else if (gData.isFractionAns && guidedSubStep === 3) {
               guidedSubStep = 4;
@@ -790,18 +812,18 @@
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You cleared the decimals perfectly by multiplying. Let\'s try the fraction method.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You cleared the commas and divided the chunks perfectly. Let\'s try one where the top is smaller.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
-                  showModal('🟢', 'Training Complete', 'You have mastered the Equivalent Fraction method for division! Now, prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You have mastered the Fraction Method! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Scale Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Multiplication Error', gData.err2);
-          else if (guidedSubStep === 3) showModal('🔴', 'Calculation Error', gData.err3);
+          if (guidedSubStep === 1) showModal('🔴', 'Clean Sweep Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Calculation Error', gData.err2);
+          else if (guidedSubStep === 3) showModal('🔴', 'Scaling Error', gData.err3);
           else showModal('🔴', 'Decimal Error', gData.err4);
       }
   }
@@ -820,7 +842,6 @@
   }
 
   function generatePracticeQuestion() {
-    // We want a mix of clean division (e.g. 125/5 = 25) and simplifying fractions to decimals (e.g. 4/8 = 0,5)
     let isCleanDiv = Math.random() > 0.5;
     
     let den, num, ansVal;
@@ -829,16 +850,14 @@
         ansVal = Math.floor(Math.random() * 11) + 2; // 2 to 12
         num = den * ansVal;
     } else {
-        // Generate fraction that simplifies to a clean decimal (1/2, 1/4, 1/5, etc.)
         let simpleFractions = [{n:1,d:2,a:0.5}, {n:1,d:4,a:0.25}, {n:3,d:4,a:0.75}, {n:1,d:5,a:0.2}, {n:2,d:5,a:0.4}];
         let f = simpleFractions[Math.floor(Math.random() * simpleFractions.length)];
-        let multiplier = Math.floor(Math.random() * 4) + 2; // scale it up so they have to simplify
+        let multiplier = Math.floor(Math.random() * 4) + 2; 
         num = f.n * multiplier;
         den = f.d * multiplier;
         ansVal = f.a;
     }
     
-    // Scale both top and bottom down by 10 or 100 to create decimals
     let shift = [10, 100][Math.floor(Math.random() * 2)];
     
     let str1 = (num / shift).toString().replace('.', ',');
@@ -902,7 +921,7 @@
         updateProgressBar();
         document.getElementById('p-ans').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Multiply the top and bottom until there are no decimals left.\n2. Your clean, balanced fraction is ${currentQ.numVal} / ${currentQ.denVal}.\n3. If the top is smaller, simplify the fraction first! \n4. The final answer is ${currentQ.ansStr}.`);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Multiply the top and bottom by 10 until ALL commas are gone.\n2. Your clean, balanced fraction is ${currentQ.numVal} / ${currentQ.denVal}.\n3. Simplify it, make the bottom 10 or 100, and write your decimal!\n4. The final answer is ${currentQ.ansStr}.`);
     }
   }
 
