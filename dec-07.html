@@ -31,30 +31,33 @@
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; position: relative; }
-    .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
-    .v-den { padding: 0 8px; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
     .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 5px;}
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; box-sizing: border-box;}
+    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; box-sizing: border-box;}
+
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 90px; height: 55px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
+    .f-box { min-width: 60px; height: 45px; padding: 0 10px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; }
-    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
-    .ctrl-btn:active { transform: scale(0.95); }
-    .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
 
     /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; opacity: 1; transition: opacity 0.3s; }
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 10px; }
-    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; }
+    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    /* Translation Table */
+    .trans-table { display: flex; width: 100%; justify-content: space-between; align-items: center; background: #e8f0fe; border-radius: 16px; padding: 20px 10px; box-sizing: border-box; border: 2px solid #aecbfa; margin: 20px 0; }
+    .trans-col { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .trans-label { font-size: 0.85rem; font-weight: bold; color: #174ea6; text-transform: uppercase; letter-spacing: 1px; }
+    .trans-val { font-size: 2.2rem; font-weight: bold; color: #333; display:flex; align-items:center; height: 100px; justify-content:center;}
 
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -85,22 +88,22 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>To convert fractions to percentages, you must be able to rapidly scale numbers up to 100.</p>
+    <p>The secret to percentages is the number <b>100</b>. Prove you know the factors of 100 automatically.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
-      <b>The 3-Level Pathway:</b>
+      <b>The Target:</b>
+      <p style="margin-top:5px; color:#5f6368;">You must correctly identify the missing multiplier to reach 100.</p>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Factors of 100 (e.g. 20 × ? = 100)</li>
-        <li><b>Level 2:</b> Decimals out of 100 (e.g. 0,75 = ?/100)</li>
-        <li><b>Level 3:</b> Simplest form from 100 (e.g. 50/100 = 1/?)</li>
+        <li>Example: 4 × <b>?</b> = 100</li>
+        <li>Example: 20 × <b>?</b> = 100</li>
       </ul>
-      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions at 90% accuracy.</p>
     </div>
-    <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
+    <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Gatekeeper</button>
   </div>
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Factors of 100</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">The Power of 100</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
@@ -110,43 +113,67 @@
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-zone hidden" id="zone-learn">
     
+    <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Holy Trinity</h2>
+      <h2>The Three Languages</h2>
       <p>Fractions, Decimals, and Percentages are three different languages describing the exact same thing.</p>
       
-      <div class="manipulative-container">
-        <div class="math-row" style="width:100%; justify-content:space-evenly;">
-          <div class="v-frac"><div class="v-num">1</div><div class="v-den">4</div></div>
-          <div>=</div>
-          <div style="color:var(--primary);">0,25</div>
-          <div>=</div>
-          <div style="color:var(--danger);">25%</div>
+      <div class="manipulative-container" style="font-size: 2.2rem; font-weight:bold; color:#333;">
+        <div class="math-row">
+            <div class="v-frac"><div class="v-num">1</div><div class="v-den">4</div></div>
+            <div style="margin:0 5px;">=</div>
+            <div style="color:var(--primary);">0,25</div> 
+            <div style="margin:0 5px;">=</div>
+            <div style="color:var(--danger);">25%</div> 
         </div>
       </div>
       <p style="text-align:left;">The word <b>Percent</b> literally means "for every 100". If you can make a fraction have a bottom number of 100, you have unlocked the percentage.</p>
     </div>
 
+    <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Scaling to 100</h2>
-      <p>Let's convert <b>3/5</b> into a percentage.</p>
+      <h2>Forward Translation</h2>
+      <p>How do we translate <b>2/5</b> into a Decimal and a Percentage?</p>
       
-      <div class="manipulative-container">
-        <div style="width:100%; text-align:left; font-size:1rem; margin-bottom:15px;">
-          <div style="color:#5f6368; margin-bottom:5px;"><b>Step 1:</b> What do we multiply 5 by to get 100? <span style="color:var(--primary); font-weight:bold;">(× 20)</span></div>
-          <div style="color:#5f6368;"><b>Step 2:</b> Multiply the top by the same amount.</div>
+      <div class="manipulative-container" style="align-items:flex-start;">
+        <div class="math-row" style="font-size:1.5rem; margin:0; width:100%; justify-content:space-evenly;">
+            <div class="v-frac"><div class="v-num">2</div><div class="v-den">5</div></div>
+            <div style="margin:0 5px;">➔</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--primary);">40</div><div class="v-den" style="color:var(--primary);">100</div></div>
+            <div style="margin:0 5px;">=</div>
+            <div style="color:var(--danger);">40%</div>
+            <div style="margin:0 5px;">=</div>
+            <div style="color:var(--success);">0,40</div>
         </div>
-        
-        <div class="math-row" style="font-size:1.8rem;" id="man-eq">
-          <div class="v-frac"><div class="v-num">3</div><div class="v-den">5</div></div>
-          <div>=</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den" style="color:var(--primary);">100</div></div>
-        </div>
-        
-        <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-scale" onclick="manScale()">Multiply Top by 20 ➔</button>
-        </div>
+        <p style="margin:15px 0 0 0; font-size:0.95rem; color:#333; line-height: 1.5;">
+            <b>Step 1: Scale to 100.</b> Multiply top and bottom by 20. We get 40/100.<br>
+            <b>Step 2: The Percent.</b> 40 out of 100 is exactly <b>40%</b>.<br>
+            <b>Step 3: The Decimal.</b> 40 hundredths is written as <b>0,40</b> (or just 0,4).
+        </p>
       </div>
-      <p style="text-align:left;">Because 3 × 20 = 60, the equivalent fraction is 60/100. This instantly translates to <b>60%</b>.</p>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <h2>Reverse Translation</h2>
+      <p>What if we start with a decimal like <b>0,08</b>?</p>
+      
+      <div class="manipulative-container" style="align-items:flex-start;">
+        <div class="math-row" style="font-size:1.5rem; margin:0; width:100%; justify-content:space-evenly;">
+            <div style="color:var(--success);">0,08</div>
+            <div style="margin:0 5px;">➔</div>
+            <div style="color:var(--danger);">8%</div>
+            <div style="margin:0 5px;">=</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--primary);">8</div><div class="v-den" style="color:var(--primary);">100</div></div>
+            <div style="margin:0 5px;">➔</div>
+            <div class="v-frac"><div class="v-num">2</div><div class="v-den">25</div></div>
+        </div>
+        <p style="margin:15px 0 0 0; font-size:0.95rem; color:#333; line-height: 1.5;">
+            <b>Step 1: The Percent.</b> 0,08 means 8 hundredths. That is exactly <b>8%</b>.<br>
+            <b>Step 2: The Fraction.</b> 8% means <b>8/100</b>.<br>
+            <b>Step 3: Simplify.</b> Divide top and bottom by their common factor (4) to reach <b>2/25</b>.
+        </p>
+      </div>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -156,56 +183,39 @@
   <div class="content-zone hidden" id="zone-guided">
     <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
     
-    <div class="math-row" style="margin-bottom:20px;" id="g-q-container">
-      <div class="v-frac" id="g-q"><div class="v-num">4</div><div class="v-den">25</div></div>
-      <div>➔</div>
-      <div style="color:var(--danger);">? %</div>
+    <div class="math-row" style="margin-bottom:15px;" id="g-q-container">
+      <!-- Populated dynamically -->
     </div>
 
-    <!-- Step 1 -->
-    <div class="guided-step" id="g-box-1">
-      <div class="guided-text" id="g-t1">1. What must you multiply 25 by to get 100?</div>
-      <div class="guided-row">
-        <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
-      </div>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="guided-step locked" id="g-box-2">
-      <div class="guided-text" id="g-t2">2. Multiply the top (4) by that same number:</div>
-      <div class="guided-row">
-        <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
-      </div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="guided-step locked" id="g-box-3">
-      <div class="guided-text" id="g-t3">3. Write as a final percentage:</div>
-      <div class="guided-row">
-        <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
-        <div style="font-size:2rem; font-weight:bold;">%</div>
-      </div>
+    <div id="g-dynamic-steps" style="width:100%;">
+        <!-- Steps injected by JS -->
     </div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Convert to a Percentage:</div>
+    <div class="instruction">Complete the Translation:</div>
 
-    <div class="math-row" style="margin: 30px 0; font-size:3.5rem; color:#333;" id="p-q-display">
-      <!-- Populated by JS -->
-    </div>
-
-    <div class="math-row" style="margin-top:20px;">
-      <div>=</div>
-      <div class="input-col">
-        <div class="f-box active" id="p-ans" onclick="setActive('p-ans')"></div>
-      </div>
-      <div style="font-size:2.5rem; font-weight:bold;">%</div>
+    <div class="trans-table">
+        <div class="trans-col">
+            <div class="trans-label">Fraction</div>
+            <div class="trans-val" id="p-box-frac"></div>
+        </div>
+        <div class="trans-val" style="color:#aecbfa;">=</div>
+        <div class="trans-col">
+            <div class="trans-label">Decimal</div>
+            <div class="trans-val" id="p-box-dec"></div>
+        </div>
+        <div class="trans-val" style="color:#aecbfa;">=</div>
+        <div class="trans-col">
+            <div class="trans-label">Percent</div>
+            <div class="trans-val" id="p-box-pct"></div>
+        </div>
     </div>
     
     <p style="font-size:0.85rem; color:var(--danger); margin-top:10px; padding-bottom:40px; text-align:left;">
-      <b>Strict Mode Active:</b> You must get 5 correct in a row. A single mistake resets your mastery to zero.
+      <b>Strict Mode Active:</b> You must get 5 correct in a row. A single mistake resets your mastery to zero.<br><br>
+      <i>*Fractions must be fully simplified.</i>
     </p>
   </div>
 
@@ -237,7 +247,6 @@
   const currentModuleId = 'DEC-07'; 
 
   // Gatekeeper Variables
-  let gateLevel = 1; 
   let sprintTimer;
   let timeLeft = 60; 
   let sprintAttempts = 0;
@@ -245,14 +254,9 @@
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
 
-  // Remediation Variables
-  let sessionMissed = [];
-  let currentRemediationQ = null;
-  let remediationIndex = -1;
-
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2;
+  const totalSlides = 3; 
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -263,30 +267,37 @@
   let guidedSubStep = 1;
   let gData = {};
 
+  // Data Arrays
+  const factorsOf100 = [2, 4, 5, 10, 20, 25, 50];
+  const percentFamilies = [
+      {n: 1, d: 2, pct: "50", dec: "0,5"},
+      {n: 1, d: 4, pct: "25", dec: "0,25"},
+      {n: 3, d: 4, pct: "75", dec: "0,75"},
+      {n: 1, d: 5, pct: "20", dec: "0,2"},
+      {n: 2, d: 5, pct: "40", dec: "0,4"},
+      {n: 3, d: 5, pct: "60", dec: "0,6"},
+      {n: 4, d: 5, pct: "80", dec: "0,8"},
+      {n: 1, d: 10, pct: "10", dec: "0,1"},
+      {n: 3, d: 10, pct: "30", dec: "0,3"},
+      {n: 7, d: 10, pct: "70", dec: "0,7"},
+      {n: 9, d: 10, pct: "90", dec: "0,9"},
+      {n: 1, d: 20, pct: "5", dec: "0,05"},
+      {n: 3, d: 20, pct: "15", dec: "0,15"},
+      {n: 7, d: 20, pct: "35", dec: "0,35"},
+      {n: 1, d: 25, pct: "4", dec: "0,04"},
+      {n: 2, d: 25, pct: "8", dec: "0,08"}
+  ];
+
   // --- INITIALIZATION ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
-
   document.addEventListener('DOMContentLoaded', () => {
-      let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
+      let savedProf = localStorage.getItem('harvest_maths_profile');
       let isSuperUser = false;
       if(savedProf) {
           let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
-          }
           if(p.studentId && p.studentId.includes('SuperUser')) {
               isSuperUser = true;
           }
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
       }
-
-      // --- GOD MODE BYPASS ---
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
           unlockLesson();
@@ -310,7 +321,7 @@
     if(!box) return;
     
     if(char === ',' && box.innerText.includes(',')) return;
-    if(box.innerText.length < 5) box.innerText += char;
+    if(box.innerText.length < 8) box.innerText += char;
   }
   
   function deleteNum() {
@@ -321,40 +332,19 @@
 
   function submitAnswer() {
     if(appState === 'GATEKEEPER') checkSprintAnswer();
-    else if (appState === 'REMEDIATION') checkRemediationAnswer();
     else if (appState === 'GUIDED') checkGuidedAnswer();
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- LEARN ZONE MANIPULATIVE ---
-  function manScale() {
-      document.getElementById('man-eq').innerHTML = `
-          <div class="v-frac"><div class="v-num">3</div><div class="v-den">5</div></div>
-          <div>=</div>
-          <div class="v-frac"><div class="v-num" style="color:var(--success);">60</div><div class="v-den" style="color:var(--primary);">100</div></div>
-          <div>=</div>
-          <div style="color:var(--danger);">60%</div>
-      `;
-      document.getElementById('btn-man-scale').innerText = "Converted!";
-      document.getElementById('btn-man-scale').disabled = true;
-      document.getElementById('btn-man-scale').style.opacity = '0.5';
-  }
-
-  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
+  // --- ZONE 0: GATEKEEPER ---
   function startSprint() {
     closeModal(); 
     appState = 'GATEKEEPER';
-    sessionMissed = [];
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Factors of 100";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Decimals out of 100";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Simplest Form";
-
-    document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
     document.getElementById('mastery-text').innerText = "01:00";
@@ -382,30 +372,15 @@
     }, 1000);
   }
 
-  function generateGateQuestion(level) {
-    let qText, ans;
-    if (level === 1) { 
-      const factors = [2, 4, 5, 10, 20, 25, 50];
-      let f1 = factors[Math.floor(Math.random() * factors.length)];
-      ans = 100 / f1;
-      qText = `${f1} × ? = 100`;
-    } else if (level === 2) { 
-      let d = Math.floor(Math.random() * 99) + 1; 
-      let dStr = d < 10 ? `0,0${d}` : `0,${d}`;
-      qText = `${dStr} = ? / 100`;
-      ans = d;
-    } else { 
-      const pairs = [{n:50, a:2}, {n:25, a:4}, {n:20, a:5}, {n:10, a:10}];
-      let pair = pairs[Math.floor(Math.random() * pairs.length)];
-      qText = `${pair.n}/100 = 1 / ?`;
-      ans = pair.a;
-    }
-    let logText = qText.replace(/<[^>]*>/g, '').replace('  ', ' ').trim();
-    return { qHtml: `<span style="font-size:2.2rem;">${qText}</span>`, qText: logText, ans: ans.toString() };
+  function generateGateQuestion() {
+    let f = factorsOf100[Math.floor(Math.random() * factorsOf100.length)];
+    let ans = 100 / f;
+    let qText = `${f} × ? = 100`;
+    return { qHtml: qText, ans: ans.toString() };
   }
 
   function loadSprintQuestion() {
-    currentSprintQ = generateGateQuestion(gateLevel);
+    currentSprintQ = generateGateQuestion();
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
@@ -425,10 +400,6 @@
       box.classList.add('flash-green');
     } else {
       box.classList.add('flash-red');
-      let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
-      if(!exists) {
-          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
-      }
     }
     setTimeout(loadSprintQuestion, 200);
   }
@@ -438,157 +409,22 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
-      sessionMissed = []; 
-      if (gateLevel < 3) {
-        showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
-        gateLevel++;
-        
-        let saved = localStorage.getItem('harvest_maths_profile');
-        if(saved) {
-            let p = JSON.parse(saved);
-            p.gateLevels[currentModuleId] = gateLevel;
-            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-        }
-
-        document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
-        document.getElementById('modal-btn').onclick = startSprint;
-      } else {
-        let saved = localStorage.getItem('harvest_maths_profile');
-        if(saved) {
-            let p = JSON.parse(saved);
-            p.gateLevels[currentModuleId] = 1;
-            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-        }
-
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your scaling facts are automated. The lesson is now unlocked.`);
-        document.getElementById('modal-btn').innerText = "Enter Lesson";
-        document.getElementById('modal-btn').onclick = unlockLesson;
-      }
+      showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your factor knowledge is automated. The lesson is now unlocked.`);
+      document.getElementById('modal-btn').innerText = "Enter Lesson";
+      document.getElementById('modal-btn').onclick = unlockLesson;
     } else {
-      if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
-          if(saved) {
-              let p = JSON.parse(saved);
-              if(!p.remediation) p.remediation = {};
-              p.remediation[currentModuleId] = sessionMissed;
-              localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-          }
-          showModal('🔴', `Level ${gateLevel} Failed`, `Accuracy: ${Math.round(accuracy)}%\n\nYou need to run a focus drill on the specific facts you missed before trying again.`);
-          document.getElementById('modal-btn').innerText = "Start Focus Drill";
-          document.getElementById('modal-btn').onclick = startRemediation;
-      } else {
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
-          document.getElementById('modal-btn').innerText = "Try Again";
-          document.getElementById('modal-btn').onclick = resetSprint;
-      }
+      showModal('🔴', `Gate Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing your factors of 100!`);
+      document.getElementById('modal-btn').innerText = "Try Again";
+      document.getElementById('modal-btn').onclick = resetSprint;
     }
-  }
-
-  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
-  function startRemediation() {
-      closeModal();
-      appState = 'REMEDIATION';
-      document.getElementById('zone-gate-intro').classList.add('hidden');
-      document.getElementById('zone-gate-active').classList.remove('hidden');
-      document.getElementById('keypad').classList.remove('hidden');
-      
-      document.getElementById('sprint-title').innerText = "Focus Drill";
-      document.getElementById('sprint-title').style.color = "var(--danger)";
-      document.getElementById('hud-label').innerText = "FACTS REMAINING";
-      document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
-      
-      loadRemediationQuestion();
-  }
-
-  function loadRemediationQuestion() {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-          let p = JSON.parse(saved);
-          let queue = p.remediation[currentModuleId] || [];
-          if(queue.length === 0) {
-              endRemediation();
-              return;
-          }
-          document.getElementById('mastery-text').innerText = queue.length;
-          remediationIndex = Math.floor(Math.random() * queue.length);
-          currentRemediationQ = queue[remediationIndex];
-          
-          let dots = "⚪⚪⚪";
-          if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
-          if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
-          
-          document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
-          document.getElementById('sprint-q').innerHTML = `<div style="font-size:2rem; font-weight:bold;">${currentRemediationQ.qText}</div>`;
-          document.getElementById('sprint-ans').innerText = '';
-          document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
-          document.getElementById('sprint-ans').style.color = 'var(--primary)';
-          setActive('sprint-ans');
-      }
-  }
-
-  function checkRemediationAnswer() {
-      let boxText = document.getElementById('sprint-ans').innerText;
-      if(boxText === '') return;
-
-      let box = document.getElementById('sprint-ans');
-      let saved = localStorage.getItem('harvest_maths_profile');
-      let p = saved ? JSON.parse(saved) : null;
-      if(!p || !p.remediation || !p.remediation[currentModuleId]) return;
-      
-      let queue = p.remediation[currentModuleId];
-
-      if(boxText === currentRemediationQ.ans) {
-          box.classList.add('flash-green');
-          xp += 2; 
-          document.getElementById('xp-counter').innerText = xp;
-          
-          queue[remediationIndex].streak++;
-          if(queue[remediationIndex].streak >= 3) {
-              queue.splice(remediationIndex, 1); 
-          }
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-          setTimeout(loadRemediationQuestion, 300);
-      } else {
-          box.classList.add('flash-red');
-          queue[remediationIndex].streak = 0; 
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-          
-          appState = 'LOCKED'; 
-          document.getElementById('keypad').style.opacity = '0.5';
-          document.getElementById('keypad').style.pointerEvents = 'none';
-          
-          setTimeout(() => {
-              box.innerText = currentRemediationQ.ans; 
-              box.style.color = 'var(--danger)';
-          }, 300);
-
-          setTimeout(() => {
-              appState = 'REMEDIATION';
-              document.getElementById('keypad').style.opacity = '1';
-              document.getElementById('keypad').style.pointerEvents = 'all';
-              loadRemediationQuestion();
-          }, 2500);
-      }
-  }
-
-  function endRemediation() {
-      sessionMissed = [];
-      showModal('🟢', 'Drill Complete!', 'Excellent. Let\'s try the Gatekeeper again.');
-      document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
-      document.getElementById('modal-btn').onclick = resetSprint; 
   }
 
   function resetSprint() {
     closeModal();
-    sessionMissed = [];
     document.getElementById('hud-stats').classList.remove('timer-alert');
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.remove('hidden');
     document.getElementById('keypad').classList.add('hidden'); 
-    
-    let startBtn = document.getElementById('btn-start-sprint');
-    if(startBtn) startBtn.innerText = "Start Level " + gateLevel; 
   }
 
   function unlockLesson() {
@@ -624,32 +460,94 @@
       loadGuidedQuestion();
   }
 
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = ''; 
+
+      if (gData.type === 'forward') {
+          container.innerHTML += `
+            <div class="guided-step" id="g-box-1">
+              <div class="guided-text" id="g-t1">1. Multiply top and bottom to make the denominator 100. Write the new numerator:</div>
+              <div class="guided-row">
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div></div>
+                  <div class="v-den">100</div>
+                </div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. What is this as a percentage?</div>
+              <div class="guided-row">
+                <div class="f-box" style="width:90px;" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
+                <div style="font-size:2rem; font-weight:bold; color:var(--danger);">%</div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. What is this as a decimal?</div>
+              <div class="guided-row">
+                <div class="f-box" style="width:100px;" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
+              </div>
+            </div>
+          `;
+      } else {
+          container.innerHTML += `
+            <div class="guided-step" id="g-box-1">
+              <div class="guided-text" id="g-t1">1. 0,45 is 45 hundredths. What is this as a percentage?</div>
+              <div class="guided-row">
+                <div class="f-box active" style="width:90px;" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
+                <div style="font-size:2rem; font-weight:bold; color:var(--danger);">%</div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. Write the percentage as a fraction over 100:</div>
+              <div class="guided-row">
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. Simplify the fraction completely:</div>
+              <div class="guided-row">
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+                </div>
+              </div>
+            </div>
+          `;
+      }
+      setActive(gData.type === 'forward' ? 'g-ans-1' : 'g-ans-1');
+  }
+
   function loadGuidedQuestion() {
       guidedSubStep = 1;
       
       if (guidedLevel === 1) {
-          gData = { num: 4, den: 25, mult: "4", newNum: "16", finalAns: "16", qHtml: `<div class="v-num">4</div><div class="v-den">25</div>` };
+          gData = { 
+              type: 'forward',
+              q: `<div class="v-num">3</div><div class="v-den">4</div>`,
+              a1: "75", a2: "75", a3: "0,75",
+              err1: "To make 4 into 100, multiply by 25. Multiply the top (3) by 25 as well.",
+              err2: "75 over 100 is exactly 75 percent.",
+              err3: "75 hundredths is written as 0,75."
+          };
       } else {
-          gData = { num: 7, den: 20, mult: "5", newNum: "35", finalAns: "35", qHtml: `<div class="v-num">7</div><div class="v-den">20</div>` };
+          gData = { 
+              type: 'reverse',
+              q: `<span style="color:var(--success);">0,45</span>`,
+              a1: "45", a2a: "45", a2b: "100", a3a: "9", a3b: "20",
+              err1: "0,45 is 45 hundredths. This is 45 percent.",
+              err2: "Write 45 on top and 100 on the bottom.",
+              err3: "Divide top and bottom by their common factor of 5."
+          };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q').innerHTML = gData.qHtml;
+      document.getElementById('g-q-container').innerHTML = `<div class="v-frac" style="font-size:2.5rem;">${gData.q}</div>`;
       
-      document.getElementById('g-t1').innerText = `1. What must you multiply ${gData.den} by to get 100?`;
-      document.getElementById('g-t2').innerText = `2. Multiply the top (${gData.num}) by that same number:`;
-      
-      // Reset Boxes
-      [1, 2, 3].forEach(i => {
-          let b = document.getElementById('g-ans-' + i);
-          b.innerText = '';
-          b.classList.remove('flash-green', 'flash-red', 'active');
-      });
-      
-      document.getElementById('g-box-2').classList.add('locked');
-      document.getElementById('g-box-3').classList.add('locked');
-      
-      setActive('g-ans-1');
+      buildGuidedSteps();
   }
 
   function checkGuidedAnswer() {
@@ -657,9 +555,38 @@
       let val = box.innerText;
       if (val === '') return;
 
-      let target = guidedSubStep === 1 ? gData.mult : (guidedSubStep === 2 ? gData.newNum : gData.finalAns);
+      if (val.includes('.') && ((gData.type === 'forward' && guidedSubStep === 3) || gData.type === 'reverse')) {
+          showModal('🔴', 'Format Error', 'Use a comma ( , ) instead of a full stop.');
+          box.innerText = ''; return;
+      }
 
-      if (val === target) {
+      let isCorrect = false;
+      if (gData.type === 'forward') {
+          if (guidedSubStep === 1) isCorrect = (val === gData.a1);
+          else if (guidedSubStep === 2) isCorrect = (val === gData.a2);
+          else if (guidedSubStep === 3) isCorrect = (val === gData.a3);
+      } else {
+          if (guidedSubStep === 1) isCorrect = (val === gData.a1);
+          else if (guidedSubStep === 2) {
+              let t = document.getElementById('g-ans-2a').innerText;
+              let b = document.getElementById('g-ans-2b').innerText;
+              if (activeBoxId === 'g-ans-2a' && val === gData.a2a) {
+                  box.classList.add('flash-green'); setActive('g-ans-2b'); return;
+              } else if (activeBoxId === 'g-ans-2b' && val === gData.a2b) {
+                  isCorrect = (t === gData.a2a && b === gData.a2b);
+              }
+          } else if (guidedSubStep === 3) {
+              let t = document.getElementById('g-ans-3a').innerText;
+              let b = document.getElementById('g-ans-3b').innerText;
+              if (activeBoxId === 'g-ans-3a' && val === gData.a3a) {
+                  box.classList.add('flash-green'); setActive('g-ans-3b'); return;
+              } else if (activeBoxId === 'g-ans-3b' && val === gData.a3b) {
+                  isCorrect = (t === gData.a3a && b === gData.a3b);
+              }
+          }
+      }
+
+      if (isCorrect) {
           box.classList.add('flash-green');
           xp += 10;
           document.getElementById('xp-counter').innerText = xp;
@@ -669,30 +596,30 @@
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-2').classList.remove('locked');
-                  setActive('g-ans-2');
+                  setActive(gData.type === 'forward' ? 'g-ans-2' : 'g-ans-2a');
               }, 400);
           } else if (guidedSubStep === 2) {
               guidedSubStep = 3;
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-3').classList.remove('locked');
-                  setActive('g-ans-3');
+                  setActive(gData.type === 'forward' ? 'g-ans-3' : 'g-ans-3a');
               }, 400);
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You scaled the fraction perfectly. Let\'s try one more.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You translated forward. Now let\'s try reversing it.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
-                  showModal('🟢', 'Training Complete', 'You have mastered the conversion rule. Now, you must prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You know how to translate in both directions! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Factors Error', `What is 100 ÷ ${gData.den}?`);
-          else if (guidedSubStep === 2) showModal('🔴', 'Multiplication Error', `You must multiply the top (${gData.num}) by ${gData.mult} to keep the fraction equivalent.`);
-          else showModal('🔴', 'Final Step', `If the fraction is ${gData.newNum}/100, then the percentage is simply the top number!`);
+          if (guidedSubStep === 1) showModal('🔴', 'Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Error', gData.err2);
+          else showModal('🔴', 'Error', gData.err3);
       }
   }
 
@@ -705,48 +632,39 @@
 
     masteryPoints = 0; 
     updateProgressBar();
-    setActive('p-ans');
     loadPracticeQuestion();
   }
 
   function generatePracticeQuestion() {
-    let type = Math.random();
-    
-    if (type < 0.6) {
-        // Fraction to Percentage
-        const dens = [2, 4, 5, 10, 20, 25, 50];
-        let den = dens[Math.floor(Math.random() * dens.length)];
-        let num = Math.floor(Math.random() * (den - 1)) + 1; // 1 to den-1
-        let mult = 100 / den;
-        let ans = num * mult;
-        
-        return { 
-            type: 'frac', 
-            qHtml: `<div class="v-frac"><div class="v-num">${num}</div><div class="v-den">${den}</div></div>`,
-            ansStr: ans.toString(),
-            hint: `Multiply the bottom (${den}) by ${mult} to get 100. Multiply the top (${num}) by ${mult} to get your percentage.`
-        };
-    } else {
-        // Decimal to Percentage
-        let dec = Math.floor(Math.random() * 99) + 1;
-        let decStr = dec < 10 ? `0,0${dec}` : `0,${dec}`;
-        
-        return {
-            type: 'dec',
-            qHtml: `<div>${decStr}</div>`,
-            ansStr: dec.toString(),
-            hint: `Decimals with two places after the comma are already out of 100. ${decStr} is exactly ${dec}/100.`
-        };
-    }
+    let f = percentFamilies[Math.floor(Math.random() * percentFamilies.length)];
+    let types = ['frac', 'dec', 'pct'];
+    let given = types[Math.floor(Math.random() * types.length)];
+    return { n: f.n.toString(), d: f.d.toString(), pct: f.pct, dec: f.dec, given: given };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans').innerText = '';
-    document.getElementById('p-ans').classList.remove('flash-green', 'flash-red');
-    setActive('p-ans');
-    
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    
+    let fracHTML = `<div class="v-frac"><div class="v-num"><div class="f-box" id="p-f-n" onclick="setActive('p-f-n')"></div></div><div class="v-den"><div class="f-box" id="p-f-d" onclick="setActive('p-f-d')"></div></div></div>`;
+    let decHTML = `<div class="f-box" style="width:110px;" id="p-d" onclick="setActive('p-d')"></div>`;
+    let pctHTML = `<div style="display:flex; align-items:center; gap:5px;"><div class="f-box" style="width:90px;" id="p-p" onclick="setActive('p-p')"></div><span style="font-size:1.5rem; color:var(--danger);">%</span></div>`;
+
+    if (currentQ.given === 'frac') {
+        fracHTML = `<div class="v-frac"><div class="v-num">${currentQ.n}</div><div class="v-den">${currentQ.d}</div></div>`;
+    } else if (currentQ.given === 'dec') {
+        decHTML = `<div style="color:var(--primary);">${currentQ.dec}</div>`;
+    } else {
+        pctHTML = `<div style="color:var(--danger);">${currentQ.pct}%</div>`;
+    }
+
+    document.getElementById('p-box-frac').innerHTML = fracHTML;
+    document.getElementById('p-box-dec').innerHTML = decHTML;
+    document.getElementById('p-box-pct').innerHTML = pctHTML;
+
+    // Set first active box
+    if (currentQ.given !== 'frac') setActive('p-f-n');
+    else if (currentQ.given !== 'dec') setActive('p-d');
+    else setActive('p-p');
   }
 
   function updateProgressBar() {
@@ -756,30 +674,76 @@
   }
 
   function checkPracticeAnswer() {
-    let boxText = document.getElementById('p-ans').innerText;
-    if(boxText === '') return;
+    let box = document.getElementById(activeBoxId);
+    let val = box.innerText;
+    if (val === '') return;
 
-    if (boxText.includes(',')) {
-        boxText = boxText.replace(',', ''); // They shouldn't type commas for standard whole % answers in Grade 9 for these basics
+    if (val.includes('.') && activeBoxId === 'p-d') {
+        showModal('🔴', 'Format Error', 'Please use a comma ( , ) instead of a full stop.');
+        box.innerText = '';
+        return;
     }
 
-    if(boxText === currentQ.ansStr) {
+    // Auto-advance logic for multi-box input
+    if (activeBoxId === 'p-f-n') {
+        box.classList.add('flash-green');
+        setActive('p-f-d');
+        return;
+    } else if (activeBoxId === 'p-f-d') {
+        box.classList.add('flash-green');
+        if (currentQ.given !== 'dec') setActive('p-d');
+        else setActive('p-p');
+        return;
+    } else if (activeBoxId === 'p-d') {
+        box.classList.add('flash-green');
+        if (currentQ.given !== 'pct') setActive('p-p');
+        else { /* Trigger validation */ }
+    } else if (activeBoxId === 'p-p') {
+        box.classList.add('flash-green');
+        // Validation will trigger below
+    }
+
+    // Full Validation Check
+    let valN = currentQ.given === 'frac' ? currentQ.n : document.getElementById('p-f-n').innerText;
+    let valD = currentQ.given === 'frac' ? currentQ.d : document.getElementById('p-f-d').innerText;
+    let valDec = currentQ.given === 'dec' ? currentQ.dec : document.getElementById('p-d').innerText;
+    let valPct = currentQ.given === 'pct' ? currentQ.pct : document.getElementById('p-p').innerText;
+
+    // Remove any trailing commas
+    if (valDec && valDec.endsWith(',')) valDec = valDec.slice(0,-1);
+
+    // Strict validation
+    let isCorrect = (valN === currentQ.n && valD === currentQ.d && valDec === currentQ.dec && valPct === currentQ.pct);
+
+    if(isCorrect) {
         masteryPoints++;
         streak++;
         xp += 50; 
         updateProgressBar();
-        document.getElementById('p-ans').classList.add('flash-green');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // STRICT MODE: HARD RESET
+        // Specific feedback for unsimplified fractions
+        let mathDec = parseFloat(currentQ.dec.replace(',','.'));
+        let mathFrac = parseFloat(valN) / parseFloat(valD);
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n${currentQ.n}/${currentQ.d} = ${currentQ.dec} = ${currentQ.pct}%`;
+        
+        if (!isNaN(mathFrac) && mathFrac === mathDec && (valN !== currentQ.n || valD !== currentQ.d)) {
+            errorMsg = `Your fraction (${valN}/${valD}) is technically correct, but it is NOT SIMPLIFIED! You must always simplify to lowest terms.\n\nYour streak has been reset to 0.`;
+        }
+
         masteryPoints = 0;
         streak = 0;
         updateProgressBar();
-        document.getElementById('p-ans').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\n${currentQ.hint}`);
+        if(document.getElementById('p-f-n')) document.getElementById('p-f-n').classList.add('flash-red');
+        if(document.getElementById('p-f-d')) document.getElementById('p-f-d').classList.add('flash-red');
+        if(document.getElementById('p-d')) document.getElementById('p-d').classList.add('flash-red');
+        if(document.getElementById('p-p')) document.getElementById('p-p').classList.add('flash-red');
+        
+        showModal('🔴', 'Streak Broken', errorMsg);
+        setTimeout(loadPracticeQuestion, 3000);
     }
   }
 
@@ -828,7 +792,7 @@
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
