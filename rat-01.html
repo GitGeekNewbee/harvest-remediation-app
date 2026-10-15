@@ -34,6 +34,10 @@
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
     .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 10px;}
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; }
+    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; }
+
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .f-box { min-width: 60px; height: 50px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
@@ -47,12 +51,12 @@
     .ctrl-btn:active { transform: scale(0.95); }
     .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
 
-    /* Visual Blocks for Ratios */
-    .dot-container { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin: 10px 0; max-width: 250px; }
-    .dot { width: 30px; height: 30px; border-radius: 6px; }
-    .dot-blue { background-color: var(--primary); }
-    .dot-red { background-color: var(--danger); }
-    .dot-group { border: 2px dashed #999; padding: 4px; border-radius: 8px; display: flex; gap: 4px; }
+    /* Fraction Bars */
+    .frac-bar { display: flex; width: 100%; height: 60px; border: 3px solid #333; border-radius: 8px; overflow: hidden; margin: 10px 0;}
+    .frac-piece { flex: 1; border-right: 2px solid #333; transition: background 0.3s; }
+    .frac-piece:last-child { border-right: none; }
+    .frac-shaded { background-color: var(--primary); }
+    .frac-empty { background-color: #fff; }
 
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
@@ -89,13 +93,13 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>To master ratios, you must be able to divide whole numbers instantly. Prove your fluency.</p>
+    <p>Fractions are all about scaling blocks. Prove you can multiply whole numbers rapidly.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Division Facts (÷ 2 to 5)</li>
-        <li><b>Level 2:</b> Division Facts (÷ 6 to 9)</li>
-        <li><b>Level 3:</b> Division Facts (÷ 10 to 12)</li>
+        <li><b>Level 1:</b> Multiplication Facts (× 2 to 5)</li>
+        <li><b>Level 2:</b> Multiplication Facts (× 6 to 9)</li>
+        <li><b>Level 3:</b> Multiplication Facts (× 10 to 12)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -104,7 +108,7 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Division</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
@@ -116,77 +120,57 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Comparison Puzzle</h2>
-      <p>A ratio is just a way to compare two amounts using numbers.</p>
+      <h2>The Fraction Bar</h2>
+      <p>A fraction is just a visual code that tells us about a set of blocks.</p>
       
       <div class="manipulative-container">
-        <div class="dot-container">
-            <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-            <div style="width:20px;"></div>
-            <div class="dot dot-red"></div><div class="dot dot-red"></div>
+        <div class="frac-bar">
+            <div class="frac-piece frac-shaded"></div>
+            <div class="frac-piece frac-shaded"></div>
+            <div class="frac-piece frac-shaded"></div>
+            <div class="frac-piece frac-empty"></div>
+            <div class="frac-piece frac-empty"></div>
         </div>
-        <div class="math-row" style="font-size: 1.5rem; color:#333; margin-top:5px;">
-            <div style="color:var(--primary);">Blue</div>
-            <div>to</div>
-            <div style="color:var(--danger);">Red</div>
-        </div>
-        <div class="math-row" style="font-size: 3rem; margin:0;">
-            <div style="color:var(--primary);">4</div>
-            <div>:</div>
-            <div style="color:var(--danger);">2</div>
+        
+        <div class="math-row" style="font-size: 2rem; color:#333; margin-top:15px; width:100%;">
+            <div class="v-frac">
+                <div class="v-num" style="color:var(--primary); font-size:3rem;">3</div>
+                <div class="v-den" style="color:var(--danger); font-size:3rem;">5</div>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-start; font-size:1rem; margin-left:15px; color:#5f6368; gap:10px;">
+                <div><b style="color:var(--primary);">Numerator:</b> The pieces that are shaded.</div>
+                <div><b style="color:var(--danger);">Denominator:</b> The total equal pieces.</div>
+            </div>
         </div>
       </div>
-      <p style="text-align:left;">We use a colon ( <b>:</b> ) to write a ratio. We read it as "4 to 2".</p>
+      <p style="text-align:left;">The bar is cut into exactly <b>5 total pieces</b>. We have shaded <b>3 pieces</b>. That is the fraction 3/5.</p>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Order is Everything</h2>
-      <p>In a ratio, the numbers must follow the exact order of the words.</p>
+      <h2>Building a Fraction</h2>
+      <p>Let's turn this blank bar into the fraction <b>2 / 4</b>.</p>
       
       <div class="manipulative-container">
-        <div class="dot-container">
-            <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-            <div style="width:20px;"></div>
-            <div class="dot dot-red"></div><div class="dot dot-red"></div>
-        </div>
-        <div class="math-row" style="font-size: 1.5rem; color:#333; margin-top:5px;">
-            <div style="color:var(--danger);">Red</div>
-            <div>to</div>
-            <div style="color:var(--primary);">Blue</div>
-        </div>
-        <div class="math-row" style="font-size: 3rem; margin:0;">
-            <div style="color:var(--danger);">2</div>
-            <div>:</div>
-            <div style="color:var(--primary);">4</div>
-        </div>
-      </div>
-      <p style="text-align:left;">If the words swap, the numbers MUST swap.</p>
-    </div>
-
-    <!-- Slide 3 -->
-    <div id="slide-3" class="hidden">
-      <h2>Simplifying Ratios</h2>
-      <p>Just like fractions, ratios can be grouped into smaller, cleaner numbers.</p>
-      
-      <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="simp-text">Look at <b>4 : 2</b>. Both numbers divide perfectly by 2. Let's group them.</p>
-        
-        <div class="dot-container" id="dot-display">
-            <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-            <div style="width:20px;"></div>
-            <div class="dot dot-red"></div><div class="dot dot-red"></div>
+        <div class="frac-bar" id="learn-bar">
+            <div class="frac-piece frac-empty"></div>
+            <div class="frac-piece frac-empty"></div>
+            <div class="frac-piece frac-empty"></div>
+            <div class="frac-piece frac-empty"></div>
         </div>
         
-        <div class="math-row" style="font-size: 2.5rem; margin:10px 0;" id="simp-math">
-            <div style="color:var(--primary);">4</div><div>:</div><div style="color:var(--danger);">2</div>
+        <div class="math-row" style="font-size: 3rem; margin:10px 0;">
+            <div class="v-frac">
+                <div class="v-num" style="color:var(--primary);" id="l-num">?</div>
+                <div class="v-den" style="color:var(--danger);">4</div>
+            </div>
         </div>
 
         <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-simp" onclick="manSimp()">Divide both sides by 2 ➔</button>
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-shade" onclick="manShade()">Shade 2 pieces ➔</button>
         </div>
       </div>
-      <p style="text-align:left;"><b>The Balance Rule:</b> Whatever you do to one side, you must do to the other.</p>
+      <p style="text-align:left;">The bottom number is 4, so we drew 4 equal blocks. The top number is 2, so we shaded 2 of them.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -196,35 +180,36 @@
   <div class="content-zone hidden" id="zone-guided">
     <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
     
-    <div class="math-row" style="margin-bottom:15px;" id="g-q-container">
+    <div id="g-q-container" style="width:100%; max-width:400px;">
       <!-- Populated dynamically -->
     </div>
 
-    <div id="g-dynamic-steps" style="width:100%;">
+    <div id="g-dynamic-steps" style="width:100%; margin-top:20px;">
         <!-- Steps injected by JS -->
     </div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Write the ratio in its simplest form:</div>
+    <div class="instruction">Write the fraction for this bar:</div>
 
-    <div class="math-row" style="margin: 20px 0; font-size:1.5rem; color:#5f6368;" id="p-q-display">
+    <div id="p-q-display" style="width:100%; max-width:400px; margin: 20px 0;">
       <!-- Populated by JS -->
     </div>
 
     <div class="math-row" style="margin-top:10px;">
-      <div class="input-col">
-        <div class="f-box active" id="p-ans-1" onclick="setActive('p-ans-1')"></div>
-      </div>
-      <div style="font-size:3rem; font-weight:bold; color:#333; margin-bottom: 8px;">:</div>
-      <div class="input-col">
-        <div class="f-box" id="p-ans-2" onclick="setActive('p-ans-2')"></div>
+      <div class="v-frac" style="font-size:3rem;">
+        <div class="v-num" style="padding-bottom:10px;">
+            <div class="f-box active" id="p-ans-1" onclick="setActive('p-ans-1')"></div>
+        </div>
+        <div class="v-den" style="padding-top:10px;">
+            <div class="f-box" id="p-ans-2" onclick="setActive('p-ans-2')"></div>
+        </div>
       </div>
     </div>
     
-    <p style="font-size:0.85rem; color:var(--danger); margin-top:15px; padding-bottom:40px; text-align:left;">
-      <b>Strict Mode Active:</b> You must get 5 fully simplified ratios correct in a row. A single mistake resets your mastery to zero.
+    <p style="font-size:0.85rem; color:var(--danger); margin-top:20px; padding-bottom:40px; text-align:left;">
+      <b>Strict Mode Active:</b> You must correctly write 5 fractions in a row. A single mistake resets your mastery to zero.
     </p>
   </div>
 
@@ -271,7 +256,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 3; 
+  const totalSlides = 2; 
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -281,13 +266,6 @@
   let guidedLevel = 1;
   let guidedSubStep = 1;
   let gData = {};
-
-  // GCD Helper
-  function getGCD(x, y) {
-      x = Math.abs(x); y = Math.abs(y);
-      while(y) { var t = y; y = x % y; x = t; }
-      return x;
-  }
 
   // --- INITIALIZATION ---
   let savedProf = localStorage.getItem('harvest_maths_profile');
@@ -333,7 +311,7 @@
     if(appState === 'LOCKED') return;
     let box = document.getElementById(activeBoxId);
     if(!box) return;
-    if(box.innerText.length < 4) box.innerText += char;
+    if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
@@ -350,26 +328,18 @@
   }
 
   // --- LEARN ZONE MANIPULATIVES ---
-  let simpStep = 0;
-  function manSimp() {
-      let d = document.getElementById('dot-display');
-      let m = document.getElementById('simp-math');
-      let t = document.getElementById('simp-text');
-      let b = document.getElementById('btn-man-simp');
-      
-      if (simpStep === 0) {
-          d.innerHTML = `
-            <div class="dot-group"><div class="dot dot-blue"></div><div class="dot dot-blue"></div></div>
-            <div class="dot-group"><div class="dot dot-blue"></div><div class="dot dot-blue"></div></div>
-            <div style="width:10px;"></div>
-            <div class="dot-group"><div class="dot dot-red"></div><div class="dot dot-red"></div></div>
-          `;
-          t.innerHTML = "We split them into groups of 2. There are 2 groups of Blue, and 1 group of Red.";
-          m.innerHTML = `<div style="color:var(--primary);">2</div><div>:</div><div style="color:var(--danger);">1</div>`;
-          b.innerText = "Simplify Complete";
-          b.disabled = true;
-          b.style.opacity = '0.5';
-      }
+  function manShade() {
+      document.getElementById('learn-bar').innerHTML = `
+        <div class="frac-piece frac-shaded"></div>
+        <div class="frac-piece frac-shaded"></div>
+        <div class="frac-piece frac-empty"></div>
+        <div class="frac-piece frac-empty"></div>
+      `;
+      document.getElementById('l-num').innerText = "2";
+      let b = document.getElementById('btn-man-shade');
+      b.innerText = "Fraction Built!";
+      b.disabled = true;
+      b.style.opacity = '0.5';
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -382,9 +352,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: ÷ 2 to 5";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: ÷ 6 to 9";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: ÷ 10 to 12";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
 
     document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
@@ -415,19 +385,22 @@
   }
 
   function generateGateQuestion(level) {
-    let qText, ans, n1, n2;
+    let n1, n2;
     if (level === 1) { 
-      n2 = Math.floor(Math.random() * 4) + 2; 
-      ans = Math.floor(Math.random() * 12) + 2; 
+      n1 = Math.floor(Math.random() * 4) + 2; 
+      n2 = Math.floor(Math.random() * 11) + 2; 
     } else if (level === 2) { 
-      n2 = Math.floor(Math.random() * 4) + 6; 
-      ans = Math.floor(Math.random() * 11) + 2;
+      n1 = Math.floor(Math.random() * 4) + 6; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     } else { 
-      n2 = Math.floor(Math.random() * 3) + 10; 
-      ans = Math.floor(Math.random() * 11) + 2;
+      n1 = Math.floor(Math.random() * 3) + 10; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     }
-    n1 = n2 * ans;
-    qText = `${n1} ÷ ${n2} =`;
+    // Randomize order for variety
+    if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
+    
+    let ans = n1 * n2;
+    let qText = `${n1} × ${n2} =`;
     let logText = qText.replace('=', ' =').trim();
     return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
@@ -488,7 +461,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your division facts are automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your multiplication facts are automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -641,6 +614,17 @@
     }
   }
 
+  // --- HTML GENERATOR FOR FRACTION BARS ---
+  function drawBar(num, den) {
+      let html = `<div class="frac-bar">`;
+      for (let i = 0; i < den; i++) {
+          let shadeClass = (i < num) ? 'frac-shaded' : 'frac-empty';
+          html += `<div class="frac-piece ${shadeClass}"></div>`;
+      }
+      html += `</div>`;
+      return html;
+  }
+
   // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
@@ -658,29 +642,19 @@
 
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Write the starting ratio based on the visual:</div>
+          <div class="guided-text" id="g-t1">1. Count the TOTAL equal blocks. This is your bottom number (Denominator):</div>
           <div class="guided-row">
-            <div class="f-box active" id="g-ans-1a" onclick="setActive('g-ans-1a')"></div>
-            <div style="font-size:2rem; font-weight:bold; color:#333; margin-bottom:5px;">:</div>
-            <div class="f-box" id="g-ans-1b" onclick="setActive('g-ans-1b')"></div>
+            <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
           </div>
         </div>
         <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. What is the biggest times table both numbers share?</div>
+          <div class="guided-text" id="g-t2">2. Count the SHADED blocks. This is your top number (Numerator):</div>
           <div class="guided-row">
             <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
           </div>
         </div>
-        <div class="guided-step locked" id="g-box-3">
-          <div class="guided-text" id="g-t3">3. Balance the scale! Divide both sides by your factor to write the simplest ratio:</div>
-          <div class="guided-row">
-            <div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div>
-            <div style="font-size:2rem; font-weight:bold; color:#333; margin-bottom:5px;">:</div>
-            <div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div>
-          </div>
-        </div>
       `;
-      setActive('g-ans-1a');
+      setActive('g-ans-1');
   }
 
   function loadGuidedQuestion() {
@@ -688,43 +662,22 @@
       
       if (guidedLevel === 1) {
           gData = { 
-              q: `
-                <div class="dot-container">
-                    <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-                    <div style="width:20px;"></div>
-                    <div class="dot dot-red"></div><div class="dot dot-red"></div><div class="dot dot-red"></div>
-                </div>
-                <div style="font-size:1.5rem; font-weight:bold; margin-top:10px;">Blue to Red</div>
-              `,
-              a1a: "6", a1b: "3",
-              a2: "3",
-              a3a: "2", a3b: "1",
-              err1: "Count carefully! The order matters. Write the Blue total first, then the Red total.",
-              err2: "What times table do both 6 and 3 belong to? The biggest one is 3.",
-              err3: "Divide both 6 and 3 by 3 to get your simplified ratio."
+              barHtml: drawBar(3, 8),
+              num: "3", den: "8",
+              err1: "Count EVERY block in the entire bar, even the empty ones. The total is 8.",
+              err2: "Count only the blue shaded blocks. There are 3."
           };
       } else {
           gData = { 
-              q: `
-                <div class="dot-container">
-                    <div class="dot dot-red"></div><div class="dot dot-red"></div><div class="dot dot-red"></div><div class="dot dot-red"></div><div class="dot dot-red"></div>
-                    <div style="width:20px;"></div>
-                    <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-                    <div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div><div class="dot dot-blue"></div>
-                </div>
-                <div style="font-size:1.5rem; font-weight:bold; margin-top:10px;">Red to Blue</div>
-              `,
-              a1a: "5", a1b: "10",
-              a2: "5",
-              a3a: "1", a3b: "2",
-              err1: "Count carefully! Write the Red total first, then the Blue total.",
-              err2: "What is the biggest factor 5 and 10 share? They are both in the 5 times table.",
-              err3: "Divide both 5 and 10 by 5 to get your simplified ratio."
+              barHtml: drawBar(5, 6),
+              num: "5", den: "6",
+              err1: "Count every single block in the bar. The total is 6.",
+              err2: "Count only the blue shaded blocks. There are 5."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q-container').innerHTML = gData.q;
+      document.getElementById('g-q-container').innerHTML = gData.barHtml;
       
       buildGuidedSteps();
   }
@@ -736,23 +689,9 @@
 
       let isCorrect = false;
       if (guidedSubStep === 1) {
-          let bA = document.getElementById('g-ans-1a').innerText;
-          let bB = document.getElementById('g-ans-1b').innerText;
-          if (activeBoxId === 'g-ans-1a' && val === gData.a1a) {
-              box.classList.add('flash-green'); setActive('g-ans-1b'); return; 
-          } else if (activeBoxId === 'g-ans-1b' && val === gData.a1b) {
-              isCorrect = (bA === gData.a1a && bB === gData.a1b);
-          }
+          isCorrect = (val === gData.den);
       } else if (guidedSubStep === 2) {
-          isCorrect = (val === gData.a2);
-      } else if (guidedSubStep === 3) {
-          let bA = document.getElementById('g-ans-3a').innerText;
-          let bB = document.getElementById('g-ans-3b').innerText;
-          if (activeBoxId === 'g-ans-3a' && val === gData.a3a) {
-              box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
-          } else if (activeBoxId === 'g-ans-3b' && val === gData.a3b) {
-              isCorrect = (bA === gData.a3a && bB === gData.a3b);
-          }
+          isCorrect = (val === gData.num);
       }
 
       if (isCorrect) {
@@ -767,28 +706,20 @@
                   document.getElementById('g-box-2').classList.remove('locked');
                   setActive('g-ans-2');
               }, 400);
-          } else if (guidedSubStep === 2) {
-              guidedSubStep = 3;
-              setTimeout(() => {
-                  box.classList.remove('active');
-                  document.getElementById('g-box-3').classList.remove('locked');
-                  setActive('g-ans-3a');
-              }, 400);
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You counted, factored, and balanced the scale perfectly. Let\'s try one more.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You found the total pieces and the shaded pieces. Let\'s do one more.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
-                  showModal('🟢', 'Training Complete', 'You know exactly how to simplify ratios! Now, prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You know exactly how to read and build a fraction! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Counting Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Factor Error', gData.err2);
-          else showModal('🔴', 'Division Error', gData.err3);
+          if (guidedSubStep === 1) showModal('🔴', 'Denominator Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Numerator Error', gData.err2);
       }
   }
 
@@ -805,23 +736,13 @@
   }
 
   function generatePracticeQuestion() {
-    // Generate clean underlying ratio where HCF is 1
-    let a, b;
-    do {
-        a = Math.floor(Math.random() * 9) + 1;
-        b = Math.floor(Math.random() * 9) + 1;
-        if (a === b) b++;
-    } while (getGCD(a, b) !== 1);
-
-    // Scale it up
-    let multiplier = Math.floor(Math.random() * 10) + 2; // x2 to x11
+    let d = Math.floor(Math.random() * 9) + 2; // 2 to 10 total pieces
+    let n = Math.floor(Math.random() * (d - 1)) + 1; // 1 to d-1 shaded pieces
     
     return { 
-        qA: a * multiplier, 
-        qB: b * multiplier, 
-        ansA: a.toString(), 
-        ansB: b.toString(),
-        mult: multiplier
+        html: drawBar(n, d),
+        ansN: n.toString(),
+        ansD: d.toString()
     };
   }
 
@@ -832,7 +753,7 @@
     document.getElementById('p-ans-2').classList.remove('flash-green', 'flash-red');
     
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-q-display').innerHTML = `Simplify: <b>${currentQ.qA} : ${currentQ.qB}</b>`;
+    document.getElementById('p-q-display').innerHTML = currentQ.html;
     
     setActive('p-ans-1');
   }
@@ -854,13 +775,12 @@
         return;
     } 
 
-    // Validate both boxes
-    let val1 = document.getElementById('p-ans-1').innerText;
-    let val2 = document.getElementById('p-ans-2').innerText;
+    let valN = document.getElementById('p-ans-1').innerText;
+    let valD = document.getElementById('p-ans-2').innerText;
     
-    if (val2 === '') return;
+    if (valD === '') return;
 
-    let isCorrect = (val1 === currentQ.ansA && val2 === currentQ.ansB);
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
 
     if(isCorrect) {
         document.getElementById('p-ans-2').classList.add('flash-green');
@@ -872,21 +792,13 @@
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // Check if technically correct but unsimplified
-        let ratioCorrect = (parseFloat(val1) / parseFloat(val2) === parseFloat(currentQ.ansA) / parseFloat(currentQ.ansB));
-        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review ${currentQ.qA} : ${currentQ.qB}.\nThe biggest shared factor is ${currentQ.mult}. Divide both sides by ${currentQ.mult} to get ${currentQ.ansA} : ${currentQ.ansB}.`;
-        
-        if (ratioCorrect && val1 !== currentQ.ansA) {
-            errorMsg = `Your ratio (${val1} : ${val2}) is technically true, but it is NOT FULLY SIMPLIFIED!\n\nYou can still divide both sides further! You must simplify to the absolute lowest numbers.\n\nYour streak has been reset to 0.`;
-        }
-
         masteryPoints = 0;
         streak = 0;
         updateProgressBar();
         document.getElementById('p-ans-1').classList.add('flash-red');
         document.getElementById('p-ans-2').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', errorMsg);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the rules of fractions:\n1. The TOP number is the pieces you have (shaded).\n2. The BOTTOM number is the TOTAL pieces in the bar.\nThis fraction was ${currentQ.ansN} / ${currentQ.ansD}.`);
     }
   }
 
@@ -922,6 +834,9 @@
       }
       if (event.key >= '0' && event.key <= '9') {
         typeNum(event.key);
+      } else if (event.key === ',' || event.key === '.') {
+        event.preventDefault();
+        typeNum(',');
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
         deleteNum();
       } else if (event.key === 'Enter') {
@@ -932,7 +847,7 @@
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
