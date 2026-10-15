@@ -323,28 +323,32 @@
   let guidedSubStep = 1;
   let gData = {};
 
-  // --- INITIALIZATION ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
-
+  // --- INITIALIZATION (ROBUST SUPERUSER PATCH) ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+                  document.getElementById('modal-btn').innerText = "Resume Drill";
+                  document.getElementById('modal-btn').onclick = startRemediation;
+              }
           }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
       }
+
+      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
@@ -766,4 +770,303 @@
           };
       }
 
-      document.getElementById('g
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-q-container').innerHTML = gData.q;
+      
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      let isCorrect = false;
+      if (guidedSubStep === 1) {
+          isCorrect = (val === gData.sumN);
+      } else if (guidedSubStep === 2) {
+          isCorrect = (val === gData.sumD);
+      } else if (guidedSubStep === 3) {
+          let bA = document.getElementById('g-ans-3a').innerText;
+          let bB = document.getElementById('g-ans-3b').innerText;
+          if (activeBoxId === 'g-ans-3a' && val === gData.simpN) {
+              box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+          } else if (activeBoxId === 'g-ans-3b' && val === gData.simpD) {
+              isCorrect = (bA === gData.simpN && bB === gData.simpD);
+          }
+      }
+
+      if (isCorrect) {
+          box.classList.add('flash-green');
+          xp += 10;
+          document.getElementById('xp-counter').innerText = xp;
+          
+          if (guidedSubStep === 1) {
+              guidedSubStep = 2;
+              setTimeout(() => {
+                  box.classList.remove('active');
+                  document.getElementById('g-box-2').classList.remove('locked');
+                  setActive('g-ans-2');
+              }, 400);
+          } else if (guidedSubStep === 2) {
+              guidedSubStep = 3;
+              setTimeout(() => {
+                  box.classList.remove('active');
+                  document.getElementById('g-box-3').classList.remove('locked');
+                  setActive('g-ans-3a');
+              }, 400);
+          } else {
+              if (guidedLevel === 1) {
+                  guidedLevel = 2;
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You added the tops, kept the bottom, and simplified. Let\'s do one more.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
+              } else {
+                  showModal('🟢', 'Training Complete', 'You know exactly how to add and simplify fractions! Now, prove it in the Strict Practice zone.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
+              }
+          }
+      } else {
+          box.classList.add('flash-red');
+          if (guidedSubStep === 1) showModal('🔴', 'Addition Error', gData.err1);
+          else if (guidedSubStep === 2) showModal('🔴', 'Denominator Error', gData.err2);
+          else showModal('🔴', 'Simplification Error', gData.err3);
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
+  function startPractice() {
+    appState = 'PRACTICE';
+    document.getElementById('zone-guided').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+    document.getElementById('keypad').classList.remove('hidden');
+
+    masteryPoints = 0; 
+    updateProgressBar();
+    loadPracticeQuestion();
+  }
+
+  function getGCD(x, y) {
+      x = Math.abs(x); y = Math.abs(y);
+      while(y) { var t = y; y = x % y; x = t; }
+      return x;
+  }
+
+  function generatePracticeQuestion() {
+    let denominators = [4, 6, 8, 9, 10, 12, 14, 15, 16, 20];
+    let d = denominators[Math.floor(Math.random() * denominators.length)];
+    
+    let n1, n2, finalN;
+    let valid = false;
+    while (!valid) {
+        n1 = Math.floor(Math.random() * (d - 2)) + 1;
+        n2 = Math.floor(Math.random() * (d - 1 - n1)) + 1;
+        finalN = n1 + n2;
+        if (getGCD(finalN, d) > 1) {
+            valid = true;
+        }
+    }
+
+    let simpScale = getGCD(finalN, d);
+    let ansN = (finalN / simpScale).toString();
+    let ansD = (d / simpScale).toString();
+
+    let qStr = `
+        <div class="v-frac"><div class="v-num" style="color:var(--primary);">${n1}</div><div class="v-den">${d}</div></div>
+        <div style="font-size:2.5rem; color:#999; margin: 0 15px;">+</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--danger);">${n2}</div><div class="v-den">${d}</div></div>
+    `;
+    
+    return { 
+        qHtml: qStr, 
+        ansN: ansN,
+        ansD: ansD,
+        rawN: finalN.toString(),
+        rawD: d.toString()
+    };
+  }
+
+  function loadPracticeQuestion() {
+    document.getElementById('p-ans-1').innerText = '';
+    document.getElementById('p-ans-1').classList.remove('flash-green', 'flash-red');
+    document.getElementById('p-ans-2').innerText = '';
+    document.getElementById('p-ans-2').classList.remove('flash-green', 'flash-red');
+    
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    
+    setActive('p-ans-1');
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let box = document.getElementById(activeBoxId);
+    let val = box.innerText;
+    if (val === '') return;
+
+    if (activeBoxId === 'p-ans-1') {
+        box.classList.add('flash-green');
+        setActive('p-ans-2');
+        return;
+    } 
+
+    let valN = document.getElementById('p-ans-1').innerText;
+    let valD = document.getElementById('p-ans-2').innerText;
+    
+    if (valD === '') return;
+
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+
+    if(isCorrect) {
+        document.getElementById('p-ans-2').classList.add('flash-green');
+        masteryPoints++;
+        streak++;
+        xp += 50; 
+        updateProgressBar();
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+    } else {
+        let userVal = parseFloat(valN) / parseFloat(valD);
+        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
+        
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Add the tops to get ${currentQ.rawN}.\n2. The bottom stays ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get your final answer: ${currentQ.ansN}/${currentQ.ansD}.`;
+
+        if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
+            errorMsg = `Your addition is technically correct (${currentQ.rawN}/${currentQ.rawD}), but it is NOT SIMPLIFIED!\n\nYou must divide the top and bottom by their common factor.\n\nYour streak has been reset to 0.`;
+        }
+
+        masteryPoints = 0;
+        streak = 0;
+        updateProgressBar();
+        document.getElementById('p-ans-1').classList.add('flash-red');
+        document.getElementById('p-ans-2').classList.add('flash-red');
+        
+        showModal('🔴', 'Streak Broken', errorMsg);
+    }
+  }
+
+  // --- MODAL & END LOGIC ---
+  function showModal(icon, title, text) {
+    document.getElementById('modal-icon').innerText = icon;
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
+    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
+    document.getElementById('hint-modal').classList.add('show');
+    if(appState === 'PRACTICE' || appState === 'GUIDED') {
+      document.getElementById('modal-btn').innerText = "I Understand";
+      document.getElementById('modal-btn').onclick = closeModal;
+    }
+  }
+
+  function closeModal() { 
+    document.getElementById('hint-modal').classList.remove('show'); 
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.remove('flash-red');
+  }
+
+</script>
+
+  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <script>
+    document.addEventListener('keydown', function(event) {
+      if(appState === 'LOCKED') return; 
+      let hintModal = document.getElementById('hint-modal');
+      if (hintModal && hintModal.classList.contains('show')) {
+        if (event.key === 'Enter') document.getElementById('modal-btn').click();
+        return;
+      }
+      if (event.key >= '0' && event.key <= '9') {
+        typeNum(event.key);
+      } else if (event.key === ',' || event.key === '.') {
+        event.preventDefault();
+        typeNum(',');
+      } else if (event.key === 'Backspace' || event.key === 'Delete') {
+        deleteNum();
+      } else if (event.key === 'Enter') {
+        submitAnswer();
+      }
+    });
+  </script>
+
+  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
+  <script>
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+
+    function logTelemetryEvent(action, accuracyVal) {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      let student = p.studentId || "Unknown";
+      let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+      
+      let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+      queue.push({
+        studentId: student,
+        moduleId: currentModuleId,
+        xp: xp,
+        accuracy: accuracyVal,
+        fails: fails,
+        action: action
+      });
+      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+    }
+
+    endModule = function() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        profile.xp += xp; 
+        
+        if(!profile.completedNodes.includes(currentModuleId)) {
+          profile.completedNodes.push(currentModuleId);
+          
+          let currentIndex = curriculumOrder.indexOf(currentModuleId);
+          if (profile.unlockedNodeIndex === currentIndex) {
+            profile.unlockedNodeIndex = currentIndex + 1; 
+          }
+        }
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+
+      logTelemetryEvent("Mastered Module", 100);
+
+      closeModal();
+      document.getElementById('zone-practice').classList.add('hidden');
+      document.getElementById('keypad').classList.add('hidden');
+      document.getElementById('zone-learn').classList.remove('hidden');
+      document.getElementById('zone-learn').innerHTML = `
+        <h1 style="font-size:4rem; margin:0;">🏆</h1>
+        <h2 style="color:var(--success);">Module Mastered!</h2>
+        <h3 style="color:var(--primary);">Total: ${xp} XP</h3>
+        <p>Your progress has been saved securely to your device.</p>
+        <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+      `;
+    };
+
+    const originalEvaluateSprint = evaluateSprint;
+    evaluateSprint = function() {
+      originalEvaluateSprint(); 
+      
+      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+          let profile = JSON.parse(saved);
+          if(!profile.failedAttempts) profile.failedAttempts = {};
+          if(!profile.failedAttempts[currentModuleId]) {
+            profile.failedAttempts[currentModuleId] = 0;
+          }
+          profile.failedAttempts[currentModuleId]++;
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+        }
+        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      } else {
+        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      }
+    };
+  </script>
+</body>
+</html>
