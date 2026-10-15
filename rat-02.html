@@ -34,6 +34,10 @@
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
     .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 10px;}
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; box-sizing: border-box; min-height: 1.2em;}
+    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; box-sizing: border-box; min-height: 1.2em;}
+
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
     .f-box { min-width: 60px; height: 50px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
@@ -47,14 +51,13 @@
     .ctrl-btn:active { transform: scale(0.95); }
     .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
 
-    /* Ratio Bridge Map */
-    .ratio-map { display: grid; grid-template-columns: 1fr 20px 1fr; gap: 10px; align-items: center; text-align: center; margin: 20px 0; }
-    .ratio-col { display: flex; flex-direction: column; gap: 5px; }
-    .r-val { font-size: 2.5rem; font-weight: bold; color: #333; }
-    .r-bridge { height: 40px; border-right: 3px dashed var(--primary); width: 50%; margin: 0 auto; position: relative; }
-    .r-bridge::after { content: '▼'; position: absolute; bottom: -10px; right: -9px; color: var(--primary); font-size: 1rem; }
-    .r-scale { background: #e8f0fe; color: var(--primary); font-weight: bold; padding: 4px 10px; border-radius: 8px; font-size: 1.1rem; border: 2px solid var(--primary); z-index: 2; position: relative;}
-    
+    /* Visual Fraction Bridge */
+    .eq-grid { display: grid; grid-template-columns: auto auto auto; gap: 15px; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; }
+    .bridge-container { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    .bridge-badge { background: #e8f0fe; border: 2px solid var(--primary); color: var(--primary); font-size: 1.2rem; padding: 5px 15px; border-radius: 20px; position: relative; }
+    .bridge-badge::before { content: "➔"; position: absolute; right: -25px; top: 50%; transform: translateY(-50%); font-size: 1.5rem; color: #999; }
+    .bridge-badge::after { content: "➔"; position: absolute; left: -25px; top: 50%; transform: translateY(-50%) rotate(180deg); font-size: 1.5rem; color: #999; }
+
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
@@ -90,7 +93,7 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>To scale ratios up, you must be able to multiply whole numbers instantly. Prove your fluency.</p>
+    <p>To build equivalent fractions, you must be able to multiply instantly. Prove your fluency.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
@@ -117,113 +120,83 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>Scaling Up</h2>
-      <p>Sometimes we need to make a ratio bigger. We do this by multiplying.</p>
+      <h2>The Balance Rule</h2>
+      <p>We can make a fraction look different without changing its actual value.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;">The Balance Rule still applies: Whatever you do to one side, you must do to the other.</p>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Rule:</b> Whatever you multiply the bottom by, you MUST multiply the top by.</p>
         
-        <div class="ratio-map" style="grid-template-columns: 1fr 20px 1fr;">
-            <div class="ratio-col">
-                <div class="r-val">3</div>
-                <div class="r-bridge" style="height:30px;"><div class="r-scale" style="left: -40px;">× 4</div></div>
-                <div class="r-val" style="color:var(--success);">12</div>
+        <div class="eq-grid">
+            <div class="v-frac">
+                <div class="v-num">3</div>
+                <div class="v-den">4</div>
             </div>
-            <div class="ratio-col" style="justify-content:space-between; height:100%;">
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
+            <div class="bridge-container">
+                <div class="bridge-badge">× 3</div>
+                <div class="bridge-badge" style="border-color:var(--danger); color:var(--danger);">× 3</div>
             </div>
-            <div class="ratio-col">
-                <div class="r-val">5</div>
-                <div class="r-bridge" style="height:30px;"><div class="r-scale" style="left: 10px;">× 4</div></div>
-                <div class="r-val" style="color:var(--success);">20</div>
+            <div class="v-frac">
+                <div class="v-num" style="color:var(--primary);">9</div>
+                <div class="v-den" style="color:var(--danger);">12</div>
             </div>
         </div>
       </div>
-      <p style="text-align:left;"><b>3 : 5</b> has the exact same value as <b>12 : 20</b>. They are Equivalent Ratios.</p>
+      <p style="text-align:left;"><b>3/4</b> and <b>9/12</b> are exactly the same size. They are <b>Equivalent Fractions</b>.</p>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>The Missing Piece</h2>
-      <p>How do we find a missing number? Look at: <b>2 : 7 = ? : 21</b></p>
+      <h2>Finding the Missing Piece</h2>
+      <p>If we know two fractions are equivalent, we can find missing numbers.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="find-text"><b>Step 1:</b> Find the side that has BOTH numbers. In this case, the right side.</p>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;" id="scale-text"><b>Step 1: Find the Scale.</b> Look at the bottom. What do we multiply 5 by to reach 20?</p>
         
-        <div class="ratio-map" style="grid-template-columns: 1fr 20px 1fr 40px 1fr 20px 1fr;">
-            <div class="ratio-col">
-                <div class="r-val">2</div>
-                <div class="r-bridge" style="opacity:0;" id="b-left"><div class="r-scale" style="left: -40px;">× 3</div></div>
-                <div class="r-val" style="color:var(--primary); opacity:0;" id="ans-left">6</div>
+        <div class="eq-grid">
+            <div class="v-frac">
+                <div class="v-num">2</div>
+                <div class="v-den">5</div>
             </div>
-            <div class="ratio-col" style="justify-content:space-between; height:100%;">
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
-                <div style="font-size:2.5rem; font-weight:bold; color:#333; opacity:0;" id="colon-left">:</div>
+            <div class="bridge-container">
+                <div class="bridge-badge" style="opacity:0;" id="b-top">× ?</div>
+                <div class="bridge-badge" style="border-color:var(--danger); color:var(--danger);" id="b-bot">× ?</div>
             </div>
-            <div class="ratio-col">
-                <div class="r-val">7</div>
-                <div class="r-bridge" style="opacity:0;" id="b-right"><div class="r-scale" style="left: 10px;">× 3</div></div>
-                <div class="r-val" style="color:var(--success); opacity:0;" id="ans-right">21</div>
-            </div>
-            
-            <div style="font-size:2rem; font-weight:bold; color:#999;">=</div>
-            
-            <div class="ratio-col">
-                <div class="r-val" style="color:var(--primary);">?</div>
-            </div>
-            <div class="ratio-col">
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
-            </div>
-            <div class="ratio-col">
-                <div class="r-val" style="color:var(--success);">21</div>
+            <div class="v-frac">
+                <div class="v-num" style="color:var(--primary); opacity:0;" id="m-ans">?</div>
+                <div class="v-den" style="color:var(--danger);">20</div>
             </div>
         </div>
 
         <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-find" onclick="manFind()">Find the Scale ➔</button>
+          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-scale" onclick="manScale()">Find the Scale ➔</button>
         </div>
       </div>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <h2>The Missing Piece</h2>
-      <p>Sometimes the missing piece is on the other side. <b>15 : ? = 3 : 8</b></p>
+      <h2>Finding the Missing Piece</h2>
+      <p>Sometimes the missing number is on the bottom.</p>
       
       <div class="manipulative-container" style="align-items:flex-start;">
-        <p style="margin:0 0 10px 0; font-size:0.95rem; color:#5f6368;"><b>Rule:</b> ALWAYS build your bridge starting from the complete side. In this case, start from 3 : 8 and move backwards to the big side.</p>
+        <p style="margin:0 0 10px 0; font-size:0.95rem; color:#5f6368;"><b>Rule:</b> Always find the scale on the complete side first (Top or Bottom).</p>
         
-        <div class="ratio-map" style="grid-template-columns: 1fr 20px 1fr 40px 1fr 20px 1fr; margin-bottom:0;">
-            <div class="ratio-col">
-                <div class="r-val">15</div>
+        <div class="eq-grid" style="width:100%;">
+            <div class="v-frac">
+                <div class="v-num">3</div>
+                <div class="v-den">7</div>
             </div>
-            <div class="ratio-col">
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
+            <div class="bridge-container">
+                <div class="bridge-badge">× 4</div>
+                <div class="bridge-badge" style="border-color:var(--danger); color:var(--danger);">× 4</div>
             </div>
-            <div class="ratio-col">
-                <div class="r-val" style="color:var(--primary);">?</div>
-            </div>
-            
-            <div style="font-size:2rem; font-weight:bold; color:#999;">=</div>
-            
-            <div class="ratio-col">
-                <div class="r-val">3</div>
-                <div class="r-bridge"><div class="r-scale" style="left: -40px;">× 5</div></div>
-                <div class="r-val" style="color:var(--success);">15</div>
-            </div>
-            <div class="ratio-col" style="justify-content:space-between; height:100%;">
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
-                <div style="font-size:2.5rem; font-weight:bold; color:#333;">:</div>
-            </div>
-            <div class="ratio-col">
-                <div class="r-val">8</div>
-                <div class="r-bridge"><div class="r-scale" style="left: 10px;">× 5</div></div>
-                <div class="r-val" style="color:var(--primary);">40</div>
+            <div class="v-frac">
+                <div class="v-num" style="color:var(--primary);">12</div>
+                <div class="v-den" style="color:var(--danger);">28</div>
             </div>
         </div>
       </div>
-      <p style="text-align:left;">The scale is × 5. We multiply 8 by 5 to get the missing <b>40</b>.</p>
+      <p style="text-align:left;">The top scaled by <b>× 4</b> (3 to 12). So we multiply the bottom (7) by 4 to find the missing <b>28</b>.</p>
     </div>
 
     <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
@@ -244,12 +217,12 @@
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Find the missing number in the ratio:</div>
+    <div class="instruction">Find the missing number to make the fractions equivalent:</div>
 
     <div class="math-row" style="margin: 30px 0; font-size:3.5rem; color:#333;" id="p-q-display">
       <!-- Populated by JS -->
     </div>
-    
+
     <p style="font-size:0.85rem; color:var(--danger); margin-top:20px; padding-bottom:40px; text-align:left;">
       <b>Strict Mode Active:</b> You must get 5 correct in a row. A single mistake resets your mastery to zero.
     </p>
@@ -370,30 +343,28 @@
   }
 
   // --- LEARN ZONE MANIPULATIVES ---
-  let findStep = 0;
-  function manFind() {
-      let bL = document.getElementById('b-left');
-      let bR = document.getElementById('b-right');
-      let aL = document.getElementById('ans-left');
-      let aR = document.getElementById('ans-right');
-      let cL = document.getElementById('colon-left');
-      let t = document.getElementById('find-text');
-      let b = document.getElementById('btn-man-find');
-      
-      if (findStep === 0) {
-          bR.style.opacity = '1';
-          aR.style.opacity = '1';
-          t.innerHTML = "<b>Step 2:</b> Find the scale. What do we multiply 7 by to get 21? We multiply by <b>3</b>.";
-          b.innerText = "Apply the Scale ➔";
-          findStep++;
-      } else if (findStep === 1) {
-          bL.style.opacity = '1';
-          aL.style.opacity = '1';
-          cL.style.opacity = '1';
-          t.innerHTML = "<b>Step 3:</b> Balance the scale. Multiply the left side by that exact same 3. 2 × 3 = <b>6</b>.";
-          b.innerText = "Missing Piece Found!";
-          b.disabled = true;
-          b.style.opacity = '0.5';
+  let scaleStep = 0;
+  function manScale() {
+      let bTop = document.getElementById('b-top');
+      let bBot = document.getElementById('b-bot');
+      let mAns = document.getElementById('m-ans');
+      let text = document.getElementById('scale-text');
+      let btn = document.getElementById('btn-man-scale');
+
+      if (scaleStep === 0) {
+          bBot.innerText = "× 4";
+          text.innerHTML = "<b>Step 2: Balance.</b> The bottom multiplied by 4. So we MUST multiply the top by 4.";
+          bTop.style.opacity = '1';
+          bTop.innerText = "× 4";
+          btn.innerText = "Calculate ➔";
+          scaleStep++;
+      } else if (scaleStep === 1) {
+          mAns.style.opacity = '1';
+          mAns.innerText = "8";
+          text.innerHTML = "<b>2 × 4 = 8.</b> Our missing number is 8!";
+          btn.innerText = "Fraction Equivalent!";
+          btn.disabled = true;
+          btn.style.opacity = '0.5';
       }
   }
 
@@ -451,7 +422,6 @@
       n1 = Math.floor(Math.random() * 3) + 10; 
       n2 = Math.floor(Math.random() * 11) + 2;
     }
-    // Randomize order for variety
     if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
     
     let ans = n1 * n2;
@@ -686,14 +656,14 @@
 
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Identify the side with both numbers. What is the multiplier?</div>
+          <div class="guided-text" id="g-t1">1. Look at the side with two numbers. What is the multiplier (scale)?</div>
           <div class="guided-row">
             <div style="font-size:1.5rem; font-weight:bold;">×</div>
             <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
           </div>
         </div>
         <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. Apply the same multiplier to the other side to find the missing number:</div>
+          <div class="guided-text" id="g-t2">2. Apply the SAME multiplier to the other number to find the missing piece:</div>
           <div class="guided-row">
             <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
           </div>
@@ -707,19 +677,27 @@
       
       if (guidedLevel === 1) {
           gData = { 
-              q: `3 : 8 = 12 : <span style="color:var(--primary);">?</span>`,
-              a1: "4",
-              a2: "32",
-              err1: "Look at the left side of the ratios (3 and 12). What do you multiply 3 by to get 12?",
-              err2: "Multiply the right side (8) by your scale factor (4)."
+              q: `
+                <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
+                <div style="margin:0 15px;">=</div>
+                <div class="v-frac"><div class="v-num" style="color:var(--primary);">?</div><div class="v-den">20</div></div>
+              `,
+              a1: "5",
+              a2: "15",
+              err1: "Look at the bottom row (4 and 20). What do you multiply 4 by to reach 20?",
+              err2: "Because you multiplied the bottom by 5, you MUST multiply the top (3) by 5."
           };
       } else {
           gData = { 
-              q: `<span style="color:var(--primary);">?</span> : 11 = 45 : 55`,
-              a1: "5",
-              a2: "9",
-              err1: "Look at the right side of the ratios (11 and 55). What do you multiply 11 by to get 55?",
-              err2: "What number multiplied by 5 gives you 45? (You have to work backwards on the left side!)."
+              q: `
+                <div class="v-frac"><div class="v-num">5</div><div class="v-den">6</div></div>
+                <div style="margin:0 15px;">=</div>
+                <div class="v-frac"><div class="v-num">35</div><div class="v-den" style="color:var(--primary);">?</div></div>
+              `,
+              a1: "7",
+              a2: "42",
+              err1: "Look at the top row (5 and 35). What do you multiply 5 by to reach 35?",
+              err2: "Because you multiplied the top by 7, you MUST multiply the bottom (6) by 7."
           };
       }
 
@@ -756,17 +734,17 @@
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You found the multiplier and balanced the ratio perfectly. Let\'s try a backwards one.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You found the scale and balanced the fraction perfectly. Let\'s try finding a missing bottom number.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
-                  showModal('🟢', 'Training Complete', 'You know exactly how to scale ratios in any direction! Now, prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You know exactly how to scale fractions! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
           if (guidedSubStep === 1) showModal('🔴', 'Scale Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Calculation Error', gData.err2);
+          else if (guidedSubStep === 2) showModal('🔴', 'Balance Error', gData.err2);
       }
   }
 
@@ -783,45 +761,52 @@
   }
 
   function generatePracticeQuestion() {
-    // Generate base ratio
-    let a = Math.floor(Math.random() * 8) + 2;
-    let b = Math.floor(Math.random() * 8) + 2;
-    if (a === b) b++;
-    
+    // Generate clean base fraction
+    let a, b;
+    do {
+        a = Math.floor(Math.random() * 8) + 1; // 1 to 8
+        b = Math.floor(Math.random() * 8) + 2; // 2 to 9
+    } while (a >= b); // Ensure proper fraction
+
     // Scale it up
-    let multiplier = Math.floor(Math.random() * 10) + 3; 
+    let multiplier = Math.floor(Math.random() * 8) + 2; // x2 to x9
     
     let a2 = a * multiplier;
     let b2 = b * multiplier;
     
-    // Randomize the missing piece (1: left-first, 2: left-second, 3: right-first, 4: right-second)
-    let missingPos = Math.floor(Math.random() * 4) + 1;
-    let qStr = "";
-    let ansStr = "";
-
-    if (missingPos === 1) {
-        qStr = `? : ${b} = ${a2} : ${b2}`; ansStr = a.toString();
-    } else if (missingPos === 2) {
-        qStr = `${a} : ? = ${a2} : ${b2}`; ansStr = b.toString();
-    } else if (missingPos === 3) {
-        qStr = `${a} : ${b} = ? : ${b2}`; ansStr = a2.toString();
-    } else {
-        qStr = `${a} : ${b} = ${a2} : ?`; ansStr = b2.toString();
-    }
+    // Randomize missing piece (1: numerator, 2: denominator)
+    let missingPos = Math.random() > 0.5 ? 1 : 2;
     
-    return { qHtml: qStr, ans: ansStr, mult: multiplier };
+    let ansStr = missingPos === 1 ? a2.toString() : b2.toString();
+    
+    return { 
+        a: a.toString(),
+        b: b.toString(),
+        a2: a2.toString(),
+        b2: b2.toString(),
+        ans: ansStr, 
+        mult: multiplier.toString(),
+        pos: missingPos
+    };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans').innerText = '';
-    document.getElementById('p-ans').classList.remove('flash-green', 'flash-red');
-    
     currentQ = generatePracticeQuestion();
     
-    // Replace the '?' with the input box dynamically
-    let formattedQ = currentQ.qHtml.replace('?', `<div class="f-box active" style="display:inline-flex; width:80px; margin: 0 10px;" id="p-ans" onclick="setActive('p-ans')"></div>`);
-    document.getElementById('p-q-display').innerHTML = formattedQ;
+    let html = `
+        <div class="v-frac"><div class="v-num">${currentQ.a}</div><div class="v-den">${currentQ.b}</div></div>
+        <div style="margin:0 15px;">=</div>
+        <div class="v-frac">
+    `;
     
+    if (currentQ.pos === 1) {
+        html += `<div class="v-num"><div class="f-box active" id="p-ans" onclick="setActive('p-ans')"></div></div><div class="v-den">${currentQ.b2}</div>`;
+    } else {
+        html += `<div class="v-num">${currentQ.a2}</div><div class="v-den"><div class="f-box active" id="p-ans" onclick="setActive('p-ans')"></div></div>`;
+    }
+    html += `</div>`;
+    
+    document.getElementById('p-q-display').innerHTML = html;
     setActive('p-ans');
   }
 
@@ -832,7 +817,8 @@
   }
 
   function checkPracticeAnswer() {
-    let box = document.getElementById(activeBoxId);
+    let box = document.getElementById('p-ans');
+    if(!box) return;
     let val = box.innerText;
     if (val === '') return;
 
@@ -853,7 +839,7 @@
         updateProgressBar();
         box.classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Look at the completed side. The multiplier (scale factor) is ${currentQ.mult}.\n2. Apply this multiplier to the other side to find the missing number.\n3. The answer is ${currentQ.ans}.`);
+        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the Balance Rule:\n1. The completed row was multiplied by ${currentQ.mult}.\n2. You MUST multiply the other row by ${currentQ.mult}.\n3. The correct answer was ${currentQ.ans}.`);
     }
   }
 
@@ -889,6 +875,9 @@
       }
       if (event.key >= '0' && event.key <= '9') {
         typeNum(event.key);
+      } else if (event.key === ',' || event.key === '.') {
+        event.preventDefault();
+        typeNum(',');
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
         deleteNum();
       } else if (event.key === 'Enter') {
