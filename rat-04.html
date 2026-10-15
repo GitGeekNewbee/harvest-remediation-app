@@ -319,27 +319,31 @@
   let gData = {};
 
   // --- INITIALIZATION ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
-
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+                  document.getElementById('modal-btn').innerText = "Resume Drill";
+                  document.getElementById('modal-btn').onclick = startRemediation;
+              }
           }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
       }
+
+      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
@@ -683,7 +687,7 @@
 
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Find the Common Denominator. What times table do both bottoms belong to?</div>
+          <div class="guided-text" id="g-t1">1. Find the Lowest Common Denominator (LCD). What is the smallest number that both bottoms can multiply into?</div>
           <div class="guided-row">
             <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
           </div>
@@ -732,7 +736,7 @@
               lcd: "6",
               newT1: "2", newT2: "1",
               simpN: "1", simpD: "2",
-              err1: "Look at 3 and 6. They both fit perfectly into 6!",
+              err1: "Think of your multiples of 3 and 6. What is the smallest number they can both multiply into? It's 6!",
               err2: "The left fraction was multiplied by 2. (1 × 2 = 2). The right fraction didn't change.",
               err3: "Add the tops (2 + 1 = 3). Your fraction is 3/6. Now divide top and bottom by 3 to simplify!"
           };
@@ -750,7 +754,7 @@
               lcd: "12",
               newT1: "3", newT2: "4",
               simpN: "7", simpD: "12",
-              err1: "Multiply 4 and 3 together to find their common multiple.",
+              err1: "Think of your multiples of 4 and 3. The smallest number they can both multiply into is 12.",
               err2: "Left fraction: 4×3=12, so 1×3=3. Right fraction: 3×4=12, so 1×4=4.",
               err3: "Add the tops (3 + 4 = 7). The denominator stays 12. (7/12 cannot be simplified further)."
           };
@@ -843,8 +847,13 @@
       return x;
   }
 
+  // LCM helper for the generator
+  function getLCM(x, y) {
+      return (!x || !y) ? 0 : Math.abs((x * y) / getGCD(x, y));
+  }
+
   function generatePracticeQuestion() {
-    let denoms = [2, 3, 4, 5, 6];
+    let denoms = [2, 3, 4, 5, 6, 8];
     let d1, d2, n1, n2;
     do {
         d1 = denoms[Math.floor(Math.random() * denoms.length)];
@@ -854,8 +863,9 @@
     n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
     n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
 
-    let finalN = (n1 * d2) + (n2 * d1);
-    let finalD = d1 * d2;
+    // Use LCD instead of raw multiplying denominators to handle cases like 1/4 + 1/6 correctly
+    let finalD = getLCM(d1, d2);
+    let finalN = (n1 * (finalD / d1)) + (n2 * (finalD / d2));
 
     let simpScale = getGCD(finalN, finalD);
     let ansN = (finalN / simpScale).toString();
