@@ -542,7 +542,7 @@
     if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
     
     let ans = n1 * n2;
-    let qText = `${n1} × ${n2} =`;
+    let qText = `${n1} ×${n2} =`;
     let logText = qText.replace('=', ' =').trim();
     return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
@@ -603,7 +603,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your multiplication facts are automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy:${Math.round(accuracy)}%\n\nExcellent. Your multiplication facts are automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -620,7 +620,7 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy:${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
           document.getElementById('modal-btn').innerText = "Try Again";
           document.getElementById('modal-btn').onclick = resetSprint;
       }
@@ -771,7 +771,7 @@
       
       // Bar 1 (Blue)
       if (gData.m1 > 1) {
-          html += `<div class="frac-bar slice-ready" id="g-bar-1" onclick="sliceBar(this, ${gData.n1}, ${gData.d1}, ${gData.m1}, 'blue', 'guided')">`;
+          html += `<div class="frac-bar slice-ready" id="g-bar-1" onclick="sliceBar(this, ${gData.n1}, ${gData.d1},${gData.m1}, 'blue', 'guided')">`;
           for(let i=0; i<gData.d1; i++) {
               html += `<div class="frac-piece ${i < gData.n1 ? 'bg-blue' : 'bg-empty'}"></div>`;
           }
@@ -790,7 +790,7 @@
       
       // Bar 2 (Red)
       if (gData.m2 > 1) {
-          html += `<div class="frac-bar slice-ready" id="g-bar-2" onclick="sliceBar(this, ${gData.n2}, ${gData.d2}, ${gData.m2}, 'red', 'guided')">`;
+          html += `<div class="frac-bar slice-ready" id="g-bar-2" onclick="sliceBar(this, ${gData.n2}, ${gData.d2},${gData.m2}, 'red', 'guided')">`;
           for(let i=0; i<gData.d2; i++) {
               html += `<div class="frac-piece ${i < gData.n2 ? 'bg-red' : 'bg-empty'}"></div>`;
           }
@@ -1037,11 +1037,14 @@
         let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
         
         let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Add the tops to get ${currentQ.rawN}.\n2. The bottom stays ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get your final answer: ${currentQ.ansN}/${currentQ.ansD}.`;
+        let errorTag = null;
 
         if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
             errorMsg = `Your addition is technically correct (${currentQ.rawN}/${currentQ.rawD}), but it is NOT SIMPLIFIED!\n\nYou must divide the top and bottom by their common factor.\n\nYour streak has been reset to 0.`;
+            errorTag = "Unsimplified_Answer";
         } else if (valD !== currentQ.ansD && valD !== currentQ.rawD) {
             errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou added the bottoms! Remember the blocks? The pieces don't magically shrink.\n\nYour streak has been reset to 0.`;
+            errorTag = "Added_Denominators";
         }
 
         masteryPoints = 0;
@@ -1051,6 +1054,7 @@
         document.getElementById('p-ans-2').classList.add('flash-red');
         
         showModal('🔴', 'Streak Broken', errorMsg);
+        if (errorTag) logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
     }
   }
 
@@ -1101,7 +1105,7 @@
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-    function logTelemetryEvent(action, accuracyVal) {
+    function logTelemetryEvent(action, accuracyVal, errorTag = null) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
       let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -1113,7 +1117,9 @@
         xp: xp,
         accuracy: accuracyVal,
         fails: fails,
-        action: action
+        action: action,
+        errorType: errorTag,         
+        timestamp: new Date().toISOString() 
       });
       localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
     }
