@@ -21,36 +21,49 @@
     .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-    /* Content */
+    /* Content Zones */
     .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;}
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; position: relative; }
-    .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
-    .v-den { padding: 0 8px; }
-    .sprint-math { font-size: 3.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
+    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 10px; transition: all 0.4s ease;}
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; transition: all 0.4s ease;}
+    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; transition: all 0.4s ease;}
+
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { width: 70px; height: 55px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
+    .f-box { min-width: 60px; height: 50px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
     
     /* Interactive Manipulative */
-    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .svg-wrapper { position: relative; width: 180px; height: 180px; }
-    .svg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; }
-    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
-    .ctrl-btn:active { transform: scale(0.95); }
-    .ctrl-btn-yellow { border-color: #e1b12c; color: #e1b12c; background: #fdf5e6; }
+    .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+    /* Tap-to-Flip Classes */
+    .interactive-sign { font-size: 3.5rem; color: #999; cursor: pointer; width: 50px; text-align: center; transition: all 0.3s; user-select: none; }
+    .interactive-sign.pulse { animation: glowSign 1.5s infinite alternate; color: var(--danger); }
+    .interactive-sign.changed { color: var(--primary); transform: rotate(360deg); }
+    
+    .interactive-frac { cursor: pointer; padding: 5px; border-radius: 8px; transition: all 0.3s; }
+    .interactive-frac.pulse { animation: glowFrac 1.5s infinite alternate; }
+    .interactive-frac.flipped { background: rgba(52, 168, 83, 0.1); border: 2px dashed var(--success); }
+    
+    @keyframes glowSign { from { text-shadow: 0 0 5px var(--danger); transform: scale(1); } to { text-shadow: 0 0 15px var(--danger); transform: scale(1.2); } }
+    @keyframes glowFrac { from { box-shadow: 0 0 5px var(--danger); } to { box-shadow: 0 0 15px var(--danger); } }
+
+    /* Guided Zone Specifics */
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
+    .guided-step.locked { opacity: 0.4; pointer-events: none; }
+    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -81,13 +94,13 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Division is simply multiplication backwards. Pass 3 rapid levels to prove you can quickly reverse your times tables.</p>
+    <p>Dividing fractions is actually just multiplying in disguise. Prove your times-table fluency.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Division Facts</li>
-        <li><b>Level 2:</b> Missing Divisors</li>
-        <li><b>Level 3:</b> Inverse Operations</li>
+        <li><b>Level 1:</b> Multiplication Facts (× 2 to 5)</li>
+        <li><b>Level 2:</b> Multiplication Facts (× 6 to 9)</li>
+        <li><b>Level 3:</b> Multiplication Facts (× 10 to 12)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -96,101 +109,95 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Division Facts</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
     </div>
   </div>
 
-  <!-- ZONE 1: GUIDED LEARNING (WITH MANIPULATIVE) -->
+  <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-zone hidden" id="zone-learn">
+    
+    <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>Visualizing Division</h2>
-      <p>Division simply asks: <b>"How many times does the second number fit into the first number?"</b></p>
+      <h2>The Division Illusion</h2>
+      <p>Dividing fractions looks terrifying, but it is actually a trick.</p>
       
       <div class="manipulative-container">
-        <div class="math-row" style="font-size:1.8rem; margin: 0 0 10px 0;">
-          <div class="v-frac"><div class="v-num" style="color:var(--primary);">1</div><div class="v-den">2</div></div>
-          <div>÷</div>
-          <div class="v-frac"><div class="v-num" style="color:#e1b12c;">1</div><div class="v-den">6</div></div>
-          <div id="man-ans" style="opacity:0; display:flex; gap:10px; align-items:center;">
-            <div>=</div>
-            <div style="color:var(--success); font-size:2.5rem;">3</div>
-          </div>
-        </div>
-
-        <div class="svg-wrapper">
-          <div class="svg-layer" id="svg-base"></div>
-          <div class="svg-layer" id="svg-fill"></div>
-        </div>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;">You never actually divide fractions. We use a method called <b>K.C.F.</b></p>
         
-        <p id="man-text" style="margin:5px 0; font-size:0.95rem; min-height:40px; color:#5f6368;">How many 1/6 slices can you fit perfectly into 1/2 of a pie?</p>
-        
-        <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-yellow" id="btn-man-add" onclick="manAdd()">+ Drop 1/6 Slice</button>
-          <button class="ctrl-btn" onclick="manReset()" style="max-width:50px;">↻</button>
+        <div style="display:flex; flex-direction:column; gap:10px; width:100%; text-align:left; margin-top:15px;">
+            <div style="padding:10px; border-left:4px solid var(--primary); background:#e8f0fe;"><b>K - KEEP</b> the first fraction exactly the same.</div>
+            <div style="padding:10px; border-left:4px solid var(--warning); background:#fef7e0;"><b>C - CHANGE</b> the division sign to multiplication.</div>
+            <div style="padding:10px; border-left:4px solid var(--success); background:#e6f4ea;"><b>F - FLIP</b> the second fraction upside down.</div>
         </div>
       </div>
-      <p style="text-align:left;">Because division counts the number of pieces that fit, dividing by a fraction often gives you a <b>larger whole number</b> as an answer.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">See it in Action ➔</button>
     </div>
 
+    <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>The Keep-Change-Flip Rule</h2>
-      <p>Drawing pies takes too long. Mathematics uses a shortcut algorithm called <b>Keep-Change-Flip (KCF)</b>.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0; text-align:left;">
-        <p style="font-size:1.1rem; margin:0; line-height:1.6;">
-          <b>Keep</b> the first fraction exactly the same.<br>
-          <b>Change</b> the division sign to multiplication.<br>
-          <b>Flip</b> the second fraction upside down (its reciprocal).
-        </p>
-      </div>
-      <div class="math-row">
-        <div class="v-frac"><div class="v-num">2</div><div class="v-den">5</div></div>
-        <div style="color:var(--danger);">÷</div>
-        <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
-        <div>➔</div>
-        <div class="v-frac"><div class="v-num">2</div><div class="v-den">5</div></div>
-        <div style="color:var(--success);">×</div>
-        <div class="v-frac"><div class="v-num" style="color:var(--primary);">4</div><div class="v-den" style="color:var(--primary);">3</div></div>
-      </div>
-      <p style="text-align:left;">Once you Keep-Change-Flip, simply multiply straight across like normal: $2 \times 4 = 8$, and $5 \times 3 = 15$. Answer = $8/15$.</p>
-    </div>
+      <h2>Keep, Change, Flip</h2>
+      <p>Let's unlock this division problem.</p>
+      
+      <div class="manipulative-container">
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Action 1:</b> Tap the glowing Division sign to <b>CHANGE</b> it to Multiplication.</p>
+        
+        <div class="math-row" style="font-size: 2.5rem; margin:15px 0; width:100%;">
+            <div class="v-frac">
+                <div class="v-num">2</div><div class="v-den">3</div>
+            </div>
+            
+            <div class="interactive-sign pulse" id="learn-sign" onclick="changeSign('learn')">÷</div>
+            
+            <div class="v-frac interactive-frac" id="learn-frac" onclick="flipFrac('learn')">
+                <div class="v-num" id="l-num-2">4</div><div class="v-den" id="l-den-2">5</div>
+            </div>
+        </div>
 
-    <div id="slide-3" class="hidden">
-      <h2>Always Simplify</h2>
-      <p>Just like multiplication, you must always check if your final answer can be simplified.</p>
-      <div class="math-row" style="font-size:1.8rem;">
-        <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
-        <div>÷</div>
-        <div class="v-frac"><div class="v-num">1</div><div class="v-den">2</div></div>
-        <div>➔</div>
-        <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
-        <div>×</div>
-        <div class="v-frac"><div class="v-num">2</div><div class="v-den">1</div></div>
-        <div>=</div>
-        <div class="v-frac"><div class="v-num">6</div><div class="v-den">4</div></div>
+        <p style="text-align:left; width:100%; font-size:0.95rem; color:#5f6368; display:none;" id="slide-2-hint2"><b>Action 2:</b> Now tap the second fraction to <b>FLIP</b> it upside down!</p>
       </div>
-      <p style="text-align:left;">$6/4$ is correct, but it must be simplified. Both numbers can be divided by 2, leaving you with $3/2$.</p>
+      <button class="btn btn-primary" id="btn-next-2" onclick="startGuidedPractice()" style="opacity:0.5;" disabled>Start Guided Practice ➔</button>
     </div>
-
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
   </div>
 
-  <!-- ZONE 2: PRACTICE -->
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-zone hidden" id="zone-guided">
+    <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
+    
+    <div class="math-row" style="margin-bottom:15px; font-size:3rem;" id="g-q-container">
+      <!-- Populated dynamically -->
+    </div>
+
+    <div id="g-dynamic-steps" style="width:100%;">
+        <!-- Steps injected by JS -->
+    </div>
+  </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Divide and simplify to the lowest terms:</div>
-    <div class="math-row" style="margin-top:20px;">
-      <div class="v-frac"><div class="v-num" id="p-n1"></div><div class="v-den" id="p-d1"></div></div>
-      <div>÷</div>
-      <div class="v-frac"><div class="v-num" id="p-n2"></div><div class="v-den" id="p-d2"></div></div>
-      <div>=</div>
-      <div class="input-col">
-        <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
-        <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
-        <div class="f-box" id="p-den" onclick="setActive('p-den')"></div>
+    <div class="instruction">Divide and simplify:</div>
+
+    <div class="math-row" style="margin: 20px 0; font-size:3rem; color:#333;" id="p-q-display">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="math-row" style="margin-top:10px;">
+      <div style="font-size:2.5rem; margin-right:15px; color:#999;">=</div>
+      <div class="v-frac" style="font-size:2.5rem;">
+        <div class="v-num" style="padding-bottom:10px;">
+            <div class="f-box active" id="p-ans-1" onclick="setActive('p-ans-1')"></div>
+        </div>
+        <div class="v-den" style="padding-top:10px;">
+            <div class="f-box" id="p-ans-2" onclick="setActive('p-ans-2')"></div>
+        </div>
       </div>
     </div>
+    
+    <p style="font-size:0.85rem; color:var(--danger); margin-top:20px; padding-bottom:20px; text-align:left;">
+      <b>Strict Mode Active:</b> You must get 5 correct in a row. A mistake resets your streak to zero.<br><br><i>*Your answer MUST be fully simplified. If the answer is a whole number like 2, type 2 / 1.</i>
+    </p>
   </div>
 
   <!-- KEYPAD -->
@@ -198,7 +205,7 @@
     <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
     <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
     <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
-    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" id="key-next" onclick="nextBox()">↓ Next</div>
+    <div class="key" style="background:#e8eaed;"></div><div class="key" onclick="typeNum('0')">0</div><div class="key" onclick="deleteNum()">⌫</div>
     <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
   </div>
 
@@ -220,10 +227,7 @@
   let xp = 0;
   const currentModuleId = 'RAT-07'; 
 
-  // Math Utils
-  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
-
-  // CASCADING GATEKEEPER VARIABLES
+  // Gatekeeper Variables
   let gateLevel = 1; 
   let sprintTimer;
   let timeLeft = 60; 
@@ -232,46 +236,51 @@
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
 
-  // REMEDIATION VARIABLES
+  // Remediation Variables
   let sessionMissed = [];
   let currentRemediationQ = null;
   let remediationIndex = -1;
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 3;
+  const totalSlides = 2; 
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
   let currentQ = {}; 
 
-  // --- INITIALIZATION & ANTI-AMNESIA ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
+  // Guided Practice Variables
+  let guidedLevel = 1;
+  let guidedSubStep = 1;
+  let gData = {};
 
+  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
+      let isSuperUser = false;
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+                  document.getElementById('modal-btn').innerText = "Resume Drill";
+                  document.getElementById('modal-btn').onclick = startRemediation;
+              }
+          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
+      }
+
       if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
-      let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
-          }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
-
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
-      }
-      
-      manReset(); // Init Interactive SVG
-
-      // --- GOD MODE BYPASS ---
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
           unlockLesson();
@@ -287,13 +296,13 @@
     activeBoxId = id;
     let box = document.getElementById(activeBoxId);
     if(box) box.classList.add('active');
-    if(box && appState === 'PRACTICE') box.innerText = ''; 
   }
 
-  function typeNum(num) {
+  function typeNum(char) {
     if(appState === 'LOCKED') return;
     let box = document.getElementById(activeBoxId);
-    if(box && box.innerText.length < 3) box.innerText += num;
+    if(!box) return;
+    if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
@@ -302,76 +311,99 @@
     if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
-  function nextBox() {
-    if(appState === 'PRACTICE') {
-      if(activeBoxId === 'p-num') setActive('p-den');
-      else setActive('p-num');
-    }
-  }
-
   function submitAnswer() {
     if(appState === 'GATEKEEPER') checkSprintAnswer();
     else if (appState === 'REMEDIATION') checkRemediationAnswer();
+    else if (appState === 'GUIDED') checkGuidedAnswer();
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- INTERACTIVE MANIPULATIVE LOGIC (Fitting 1/6 into 1/2) ---
-  let manSlices = 0;
+  // --- VISUOSPATIAL FLIP MECHANICS ---
   
-  function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-    let angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-    return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
+  function changeSign(context) {
+      if(appState === 'LOCKED') return;
+      if(context === 'guided' && guidedSubStep !== 1) return;
+
+      let signEl = document.getElementById(context === 'learn' ? 'learn-sign' : 'g-sign');
+      if (signEl.classList.contains('changed')) return;
+
+      signEl.classList.remove('pulse');
+      signEl.innerText = '×';
+      signEl.classList.add('changed');
+
+      if (context === 'learn') {
+          document.getElementById('slide-2-hint2').style.display = 'block';
+          document.getElementById('learn-frac').classList.add('pulse');
+      } else if (context === 'guided') {
+          appState = 'LOCKED';
+          setTimeout(() => {
+              document.getElementById('g-box-1').style.borderColor = 'var(--success)';
+              guidedSubStep = 2;
+              document.getElementById('g-box-2').classList.remove('locked');
+              document.getElementById('g-frac').classList.add('pulse');
+              appState = 'GUIDED';
+          }, 400);
+      }
   }
 
-  function describeArc(x, y, radius, startAngle, endAngle) {
-    let start = polarToCartesian(x, y, radius, endAngle);
-    let end = polarToCartesian(x, y, radius, startAngle);
-    let largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-    return [ "M", x, y, "L", start.x, start.y, "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y, "Z" ].join(" ");
+  function flipFrac(context) {
+      if(appState === 'LOCKED') return;
+      if(context === 'guided' && guidedSubStep !== 2) return;
+      
+      let signEl = document.getElementById(context === 'learn' ? 'learn-sign' : 'g-sign');
+      if (!signEl.classList.contains('changed')) {
+          // Force them to change the sign first
+          return;
+      }
+
+      let fracEl = document.getElementById(context === 'learn' ? 'learn-frac' : 'g-frac');
+      if (fracEl.classList.contains('flipped')) return;
+
+      fracEl.classList.remove('pulse');
+      
+      let numEl = document.getElementById(context === 'learn' ? 'l-num-2' : 'g-num-2');
+      let denEl = document.getElementById(context === 'learn' ? 'l-den-2' : 'g-den-2');
+      
+      // Visual swap
+      let temp = numEl.innerText;
+      numEl.style.transform = 'translateY(15px)';
+      numEl.style.opacity = '0';
+      denEl.style.transform = 'translateY(-15px)';
+      denEl.style.opacity = '0';
+
+      setTimeout(() => {
+          numEl.innerText = denEl.innerText;
+          denEl.innerText = temp;
+          
+          numEl.style.transform = 'translateY(0)';
+          numEl.style.opacity = '1';
+          numEl.style.color = 'var(--success)';
+          
+          denEl.style.transform = 'translateY(0)';
+          denEl.style.opacity = '1';
+          denEl.style.color = 'var(--success)';
+          
+          fracEl.classList.add('flipped');
+
+          if(context === 'learn') {
+              let btn = document.getElementById('btn-next-2');
+              btn.disabled = false;
+              btn.style.opacity = '1';
+              btn.style.background = 'var(--success)';
+          } else if (context === 'guided') {
+              appState = 'LOCKED';
+              setTimeout(() => {
+                  document.getElementById('g-box-2').style.borderColor = 'var(--success)';
+                  guidedSubStep = 3;
+                  document.getElementById('g-box-3').classList.remove('locked');
+                  setActive('g-ans-3a');
+                  appState = 'GUIDED';
+                  document.getElementById('keypad').classList.remove('hidden');
+              }, 600);
+          }
+      }, 300);
   }
 
-  function manReset() {
-    manSlices = 0;
-    document.getElementById('man-ans').style.opacity = '0';
-    document.getElementById('man-text').innerText = "How many 1/6 slices can you fit perfectly into 1/2 of a pie?";
-    document.getElementById('btn-man-add').disabled = false;
-    document.getElementById('btn-man-add').style.opacity = '1';
-    
-    // Draw Base (1/2 shaded in light blue)
-    let baseSVG = `<svg width="180" height="180" viewBox="0 0 190 190">
-                    <circle cx="95" cy="95" r="85" fill="#f1f3f4" stroke="#dadce0" stroke-width="2"/>
-                    <path d="${describeArc(95, 95, 85, 0, 180)}" fill="rgba(26,115,232,0.2)" stroke="#1a73e8" stroke-width="2"/>
-                   </svg>`;
-    document.getElementById('svg-base').innerHTML = baseSVG;
-    
-    renderManFill();
-  }
-
-  function manAdd() {
-    if (manSlices < 3) manSlices++;
-    renderManFill();
-    
-    let txt = document.getElementById('man-text');
-    if (manSlices === 1) txt.innerText = "1 piece of 1/6 fits...";
-    if (manSlices === 2) txt.innerText = "2 pieces of 1/6 fit...";
-    if (manSlices === 3) {
-      txt.innerHTML = "<b>3 pieces fit perfectly!</b> Therefore, 1/2 ÷ 1/6 = 3.";
-      document.getElementById('man-ans').style.opacity = '1';
-      document.getElementById('btn-man-add').disabled = true;
-      document.getElementById('btn-man-add').style.opacity = '0.5';
-    }
-  }
-
-  function renderManFill() {
-    let fillSVG = `<svg width="180" height="180" viewBox="0 0 190 190">`;
-    let sliceAngle = 360 / 6;
-    for(let i=0; i<manSlices; i++) {
-        fillSVG += `<path d="${describeArc(95, 95, 85, i*sliceAngle, (i+1)*sliceAngle)}" 
-                          fill="rgba(253,203,110,0.8)" stroke="#e1b12c" stroke-width="2"/>`;
-    }
-    fillSVG += `</svg>`;
-    document.getElementById('svg-fill').innerHTML = fillSVG;
-  }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
@@ -383,12 +415,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    let nextBtn = document.getElementById('key-next');
-    if(nextBtn) nextBtn.style.display = 'none';
-    
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Division Facts";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Missing Divisors";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Inverse Ops";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
 
     document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
@@ -419,39 +448,41 @@
   }
 
   function generateGateQuestion(level) {
-    let qText, ans;
-    let n1 = Math.floor(Math.random() * 8) + 2; // 2 to 9
-    let n2 = Math.floor(Math.random() * 8) + 2; 
-    let prod = n1 * n2;
-
+    let n1, n2;
     if (level === 1) { 
-      ans = n1;
-      qText = `${prod} ÷ ${n2} =`;
+      n1 = Math.floor(Math.random() * 4) + 2; 
+      n2 = Math.floor(Math.random() * 11) + 2; 
     } else if (level === 2) { 
-      ans = n2;
-      qText = `${prod} ÷ ? = ${n1}`;
+      n1 = Math.floor(Math.random() * 4) + 6; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     } else { 
-      ans = n2;
-      qText = `? × ${n1} = ${prod}`;
+      n1 = Math.floor(Math.random() * 3) + 10; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     }
-    return { qText: qText, ans: ans };
+    // Randomize order for variety
+    if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
+    
+    let ans = n1 * n2;
+    let qText = `${n1} × ${n2} =`;
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
-    document.getElementById('sprint-q').innerText = currentSprintQ.qText;
+    document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
   }
 
   function checkSprintAnswer() {
-    let userAns = parseInt(document.getElementById('sprint-ans').innerText);
-    if(isNaN(userAns)) return;
+    let boxText = document.getElementById('sprint-ans').innerText;
+    if(boxText === '') return;
 
     sprintAttempts++;
     let box = document.getElementById('sprint-ans');
     
-    if(userAns === currentSprintQ.ans) {
+    if(boxText === currentSprintQ.ans) {
       sprintCorrect++;
       xp += 5;
       document.getElementById('xp-counter').innerText = xp;
@@ -493,7 +524,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your division facts are fully automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your multiplication facts are automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -510,7 +541,7 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour division facts are not yet automatic. Keep practicing.`);
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
           document.getElementById('modal-btn').innerText = "Try Again";
           document.getElementById('modal-btn').onclick = resetSprint;
       }
@@ -552,7 +583,7 @@
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
           
           document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
-          document.getElementById('sprint-q').innerText = currentRemediationQ.qText;
+          document.getElementById('sprint-q').innerHTML = `<div style="font-size:3rem; font-weight:bold;">${currentRemediationQ.qText}</div>`;
           document.getElementById('sprint-ans').innerText = '';
           document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
           document.getElementById('sprint-ans').style.color = 'var(--primary)';
@@ -561,8 +592,8 @@
   }
 
   function checkRemediationAnswer() {
-      let userAns = parseInt(document.getElementById('sprint-ans').innerText);
-      if(isNaN(userAns)) return;
+      let boxText = document.getElementById('sprint-ans').innerText;
+      if(boxText === '') return;
 
       let box = document.getElementById('sprint-ans');
       let saved = localStorage.getItem('harvest_maths_profile');
@@ -571,7 +602,7 @@
       
       let queue = p.remediation[currentModuleId];
 
-      if(userAns === currentRemediationQ.ans) {
+      if(boxText === currentRemediationQ.ans) {
           box.classList.add('flash-green');
           xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
@@ -607,7 +638,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showModal('🟢', 'Drill Complete!', 'Excellent. You have built fluency in your blind spots. Let\'s try the Gatekeeper again.');
+      showModal('🟢', 'Drill Complete!', 'Excellent. Let\'s try the Gatekeeper again.');
       document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
       document.getElementById('modal-btn').onclick = resetSprint; 
   }
@@ -641,54 +672,206 @@
     slideIndex++;
     if(slideIndex <= totalSlides) {
       document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-      if(slideIndex === totalSlides) document.getElementById('btn-next-slide').innerText = "Start Practice";
     } else {
-      startPractice();
+      startGuidedPractice();
     }
   }
 
-  // --- ZONE 2: PRACTICE LOGIC ---
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      document.getElementById('keypad').classList.add('hidden'); // Hide until they flip
+      
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = ''; 
+
+      container.innerHTML += `
+        <div class="guided-step" id="g-box-1">
+          <div class="guided-text" id="g-t1">1. CHANGE: Tap the glowing division sign to turn it into a multiplication sign.</div>
+        </div>
+        <div class="guided-step locked" id="g-box-2">
+          <div class="guided-text" id="g-t2">2. FLIP: Tap the second fraction to turn it upside down.</div>
+        </div>
+        <div class="guided-step locked" id="g-box-3">
+          <div class="guided-text" id="g-t3">3. MULTIPLY: Now just multiply Top × Top and Bottom × Bottom:</div>
+          <div class="guided-row">
+            <div class="v-frac">
+              <div class="v-num"><div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
+              <div class="v-den"><div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="guided-step locked" id="g-box-4">
+          <div class="guided-text" id="g-t4">4. SIMPLIFY: Write your final simplified fraction:</div>
+          <div class="guided-row">
+            <div class="v-frac">
+              <div class="v-num"><div class="f-box" id="g-ans-4a" onclick="setActive('g-ans-4a')"></div></div>
+              <div class="v-den"><div class="f-box" id="g-ans-4b" onclick="setActive('g-ans-4b')"></div></div>
+            </div>
+          </div>
+        </div>
+      `;
+  }
+
+  function loadGuidedQuestion() {
+      guidedSubStep = 1;
+      
+      if (guidedLevel === 1) {
+          gData = { 
+              q: `
+                <div class="v-frac"><div class="v-num" style="color:var(--primary);">3</div><div class="v-den">4</div></div>
+                <div class="interactive-sign pulse" id="g-sign" onclick="changeSign('guided')">÷</div>
+                <div class="v-frac interactive-frac" id="g-frac" onclick="flipFrac('guided')"><div class="v-num" id="g-num-2">9</div><div class="v-den" id="g-den-2">10</div></div>
+              `,
+              n1: "3", d1: "4", n2: "9", d2: "10",
+              multN: "30", multD: "36",
+              simpN: "5", simpD: "6",
+              err3: "You flipped it! The new problem is 3/4 × 10/9. Multiply Top × Top (3×10) and Bottom × Bottom (4×9).",
+              err4: "Both 30 and 36 divide perfectly by 6. The final simplified fraction is 5/6."
+          };
+      } else {
+          gData = { 
+              q: `
+                <div class="v-frac"><div class="v-num" style="color:var(--primary);">2</div><div class="v-den">5</div></div>
+                <div class="interactive-sign pulse" id="g-sign" onclick="changeSign('guided')">÷</div>
+                <div class="v-frac interactive-frac" id="g-frac" onclick="flipFrac('guided')"><div class="v-num" id="g-num-2">8</div><div class="v-den" id="g-den-2">15</div></div>
+              `,
+              n1: "2", d1: "5", n2: "8", d2: "15",
+              multN: "30", multD: "40",
+              simpN: "3", simpD: "4",
+              err3: "You flipped it! The new problem is 2/5 × 15/8. Multiply Top × Top (2×15) and Bottom × Bottom (5×8).",
+              err4: "Both 30 and 40 divide perfectly by 10 (just cross off the zeros!). The final simplified fraction is 3/4."
+          };
+      }
+
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-q-container').innerHTML = gData.q;
+      
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      let isCorrect = false;
+      if (guidedSubStep === 3) {
+          let bA = document.getElementById('g-ans-3a').innerText;
+          let bB = document.getElementById('g-ans-3b').innerText;
+          if (activeBoxId === 'g-ans-3a' && val === gData.multN) {
+              box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+          } else if (activeBoxId === 'g-ans-3b' && val === gData.multD) {
+              isCorrect = (bA === gData.multN && bB === gData.multD);
+          }
+      } else if (guidedSubStep === 4) {
+          let bA = document.getElementById('g-ans-4a').innerText;
+          let bB = document.getElementById('g-ans-4b').innerText;
+          if (activeBoxId === 'g-ans-4a' && val === gData.simpN) {
+              box.classList.add('flash-green'); setActive('g-ans-4b'); return; 
+          } else if (activeBoxId === 'g-ans-4b' && val === gData.simpD) {
+              isCorrect = (bA === gData.simpN && bB === gData.simpD);
+          }
+      }
+
+      if (isCorrect) {
+          box.classList.add('flash-green');
+          xp += 10;
+          document.getElementById('xp-counter').innerText = xp;
+          
+          if (guidedSubStep === 3) {
+              guidedSubStep = 4;
+              setTimeout(() => {
+                  box.classList.remove('active');
+                  document.getElementById('g-box-3').style.borderColor = 'var(--success)';
+                  document.getElementById('g-box-4').classList.remove('locked');
+                  setActive('g-ans-4a');
+              }, 400);
+          } else {
+              if (guidedLevel === 1) {
+                  guidedLevel = 2;
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You Changed the sign, Flipped the fraction, and Multiplied. Let\'s do one more.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); document.getElementById('keypad').classList.add('hidden');};
+              } else {
+                  showModal('🟢', 'Training Complete', 'You know exactly how to divide fractions! Now, prove it in the Strict Practice zone.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
+              }
+          }
+      } else {
+          box.classList.add('flash-red');
+          if (guidedSubStep === 3) showModal('🔴', 'Multiplication Error', gData.err3);
+          else showModal('🔴', 'Simplification Error', gData.err4);
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
   function startPractice() {
     appState = 'PRACTICE';
-    document.getElementById('zone-learn').classList.add('hidden');
+    document.getElementById('zone-guided').classList.add('hidden');
     document.getElementById('zone-practice').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
-    
-    let nextBtn = document.getElementById('key-next');
-    if(nextBtn) nextBtn.style.display = 'flex';
 
+    masteryPoints = 0; 
     updateProgressBar();
-    setActive('p-num');
     loadPracticeQuestion();
   }
 
+  function getGCD(x, y) {
+      x = Math.abs(x); y = Math.abs(y);
+      while(y) { var t = y; y = x % y; x = t; }
+      return x;
+  }
+
   function generatePracticeQuestion() {
-    let d1 = Math.floor(Math.random() * 6) + 2; 
-    let d2 = Math.floor(Math.random() * 6) + 2; 
-    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+    let d1 = Math.floor(Math.random() * 4) + 3; // 3 to 6
+    let d2 = Math.floor(Math.random() * 4) + 3; // 3 to 6
+    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; // < d1
+    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1; // < d2
 
-    // Keep Change Flip logic
-    let rawN = n1 * d2;
-    let rawD = d1 * n2;
-    let g = hcf(rawN, rawD);
+    // Division is n1/d1 * d2/n2
+    let finalN = n1 * d2;
+    let finalD = d1 * n2;
 
-    return { n1: n1, d1: d1, n2: n2, d2: d2, rawN: rawN, rawD: rawD, ansN: rawN/g, ansD: rawD/g };
+    let simpScale = getGCD(finalN, finalD);
+    let ansN = (finalN / simpScale).toString();
+    let ansD = (finalD / simpScale).toString();
+
+    let qStr = `
+        <div class="v-frac"><div class="v-num" style="color:var(--primary);">${n1}</div><div class="v-den">${d1}</div></div>
+        <div style="font-size:2.5rem; color:#999; margin: 0 15px;">÷</div>
+        <div class="v-frac"><div class="v-num" style="color:var(--danger);">${n2}</div><div class="v-den">${d2}</div></div>
+    `;
+    
+    return { 
+        qHtml: qStr, 
+        ansN: ansN,
+        ansD: ansD,
+        rawN: finalN.toString(),
+        rawD: finalD.toString(),
+        n1: n1.toString(),
+        d1: d1.toString(),
+        n2: n2.toString(),
+        d2: d2.toString()
+    };
   }
 
   function loadPracticeQuestion() {
-    mistakesOnCurrent = 0;
-    document.getElementById('p-num').innerText = '';
-    document.getElementById('p-den').innerText = '';
-    document.getElementById('p-num').classList.remove('flash-green', 'flash-red');
-    document.getElementById('p-den').classList.remove('flash-green', 'flash-red');
-    setActive('p-num');
+    document.getElementById('p-ans-1').innerText = '';
+    document.getElementById('p-ans-1').classList.remove('flash-green', 'flash-red');
+    document.getElementById('p-ans-2').innerText = '';
+    document.getElementById('p-ans-2').classList.remove('flash-green', 'flash-red');
     
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-n1').innerText = currentQ.n1;
-    document.getElementById('p-d1').innerText = currentQ.d1;
-    document.getElementById('p-n2').innerText = currentQ.n2;
-    document.getElementById('p-d2').innerText = currentQ.d2;
+    document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    
+    setActive('p-ans-1');
   }
 
   function updateProgressBar() {
@@ -698,46 +881,65 @@
   }
 
   function checkPracticeAnswer() {
-    let userN = parseInt(document.getElementById('p-num').innerText);
-    let userD = parseInt(document.getElementById('p-den').innerText);
-    if(isNaN(userN) || isNaN(userD)) return;
+    let box = document.getElementById(activeBoxId);
+    let val = box.innerText;
+    if (val === '') return;
 
-    if(userN === currentQ.ansN && userD === currentQ.ansD) {
-      if (mistakesOnCurrent === 0) {
+    if (activeBoxId === 'p-ans-1') {
+        box.classList.add('flash-green');
+        setActive('p-ans-2');
+        return;
+    } 
+
+    let valN = document.getElementById('p-ans-1').innerText;
+    let valD = document.getElementById('p-ans-2').innerText;
+    
+    if (valD === '') return;
+
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+
+    if(isCorrect) {
+        document.getElementById('p-ans-2').classList.add('flash-green');
         masteryPoints++;
         streak++;
-        xp += (streak >= 3) ? 150 : 100;
+        xp += 50; 
         updateProgressBar();
-        document.getElementById(activeBoxId).classList.add('flash-green');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
-      } else {
-        streak = 0;
-        xp += 10;
-        document.getElementById('xp-counter').innerText = xp;
-        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
-        setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 2500);
-      }
     } else {
-      streak = 0;
-      if (mistakesOnCurrent === 0) {
-        masteryPoints = Math.max(0, masteryPoints - 1);
-        updateProgressBar();
-      }
-      mistakesOnCurrent++;
-      
-      document.getElementById(activeBoxId).classList.add('flash-red');
+        
+        // TRAPDOOR 1: Forgot to flip completely (multiplied straight across)
+        let forgotN = parseInt(currentQ.n1) * parseInt(currentQ.n2);
+        let forgotD = parseInt(currentQ.d1) * parseInt(currentQ.d2);
+        let forgotSimpScale = getGCD(forgotN, forgotD);
+        
+        // TRAPDOOR 2: Flipped the wrong one (first fraction flipped)
+        let flipWrongN = parseInt(currentQ.d1) * parseInt(currentQ.n2);
+        let flipWrongD = parseInt(currentQ.n1) * parseInt(currentQ.d2);
+        let flipWrongScale = getGCD(flipWrongN, flipWrongD);
+        
+        // TRAPDOOR 3: Unsimplified or Whole Number form
+        let mathUser = parseFloat(valN) / parseFloat(valD);
+        let mathAns = parseFloat(currentQ.ansN) / parseFloat(currentQ.ansD);
 
-      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.ansN !== currentQ.rawN) {
-        showModal('🟡', 'Simplify Your Answer', `Your calculation is correct, but ${currentQ.rawN}/${currentQ.rawD} is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
-      } else if (userN === currentQ.n1 * currentQ.n2 && userD === currentQ.d1 * currentQ.d2) {
-        showModal('🔴', 'Forgot to Flip', `You multiplied straight across without flipping!\n\nAlways use Keep-Change-Flip: ${currentQ.n1}/${currentQ.d1} × ${currentQ.d2}/${currentQ.n2}.`);
-      } else if (userN === currentQ.d1 * currentQ.n2 && userD === currentQ.n1 * currentQ.d2) {
-        showModal('🔴', 'Flipped the Wrong Fraction', `You flipped the first fraction instead of the second.\n\nKeep the first fraction exactly the same. Only flip the second fraction.`);
-      } else {
-        showModal('🔴', 'Check Your Math', `Use Keep-Change-Flip:\n\n1. Keep: ${currentQ.n1}/${currentQ.d1}\n2. Change: ÷ becomes ×\n3. Flip: ${currentQ.d2}/${currentQ.n2}\n\nThen multiply top × top, bottom × bottom.`);
-      }
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nRemember K.C.F:\n1. Keep ${currentQ.n1}/${currentQ.d1}\n2. Change ÷ to ×\n3. Flip ${currentQ.n2}/${currentQ.d2} to ${currentQ.d2}/${currentQ.n2}\n4. Multiply: ${currentQ.n1}×${currentQ.d2} / ${currentQ.d1}×${currentQ.n2} = ${currentQ.rawN}/${currentQ.rawD}\n5. Simplify to ${currentQ.ansN}/${currentQ.ansD}.`;
+
+        if (valN === (forgotN/forgotSimpScale).toString() && valD === (forgotD/forgotSimpScale).toString()) {
+            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou multiplied straight across! You forgot to flip the second fraction.\n\nKeep. Change. Flip. Then multiply.\n\nYour streak has been reset.`;
+        } else if (valN === (flipWrongN/flipWrongScale).toString() && valD === (flipWrongD/flipWrongScale).toString()) {
+            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou flipped the WRONG fraction! You flipped the first one.\n\nYou must always KEEP the first fraction the same, and only FLIP the SECOND fraction.\n\nYour streak has been reset.`;
+        } else if (!isNaN(mathUser) && mathUser === mathAns && (valN !== currentQ.ansN)) {
+            errorMsg = `Your division is technically correct (${currentQ.rawN}/${currentQ.rawD}), but it is NOT FULLY SIMPLIFIED!\n\nYou must divide the top and bottom by their common factor. (If it is a whole number like 2, type 2 / 1).\n\nYour streak has been reset.`;
+        }
+
+        masteryPoints = 0;
+        streak = 0;
+        updateProgressBar();
+        document.getElementById('p-ans-1').classList.add('flash-red');
+        document.getElementById('p-ans-2').classList.add('flash-red');
+        
+        showModal('🔴', 'Streak Broken', errorMsg);
     }
   }
 
@@ -748,7 +950,7 @@
     document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
     document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
     document.getElementById('hint-modal').classList.add('show');
-    if(appState === 'PRACTICE') {
+    if(appState === 'PRACTICE' || appState === 'GUIDED') {
       document.getElementById('modal-btn').innerText = "I Understand";
       document.getElementById('modal-btn').onclick = closeModal;
     }
@@ -762,7 +964,7 @@
 
 </script>
 
-  <!-- ⌨ PHYSICAL KEYBOARD SUPPORT PATCH -->
+  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
   <script>
     document.addEventListener('keydown', function(event) {
       if(appState === 'LOCKED') return; 
@@ -773,20 +975,20 @@
       }
       if (event.key >= '0' && event.key <= '9') {
         typeNum(event.key);
+      } else if (event.key === ',' || event.key === '.') {
+        event.preventDefault();
+        typeNum(',');
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
         deleteNum();
       } else if (event.key === 'Enter') {
         submitAnswer();
-      } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
-        event.preventDefault(); 
-        nextBox();
       }
     });
   </script>
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
