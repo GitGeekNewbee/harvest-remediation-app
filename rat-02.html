@@ -47,17 +47,15 @@
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
 
-    /* Visuospatial Fraction Bars */
-    .frac-bar { display: flex; width: 100%; height: 60px; border: 3px solid #333; border-radius: 8px; overflow: hidden; margin: 10px 0; cursor: pointer; position: relative; }
-    .frac-bar.slice-ready { animation: glow 1.5s infinite alternate; }
-    @keyframes glow { from { box-shadow: 0 0 5px var(--primary); border-color: var(--primary); } to { box-shadow: 0 0 15px var(--primary); border-color: var(--primary); } }
+    /* Visuospatial Fraction Bars (Cleaned) */
+    .frac-bar { display: flex; width: 100%; height: 60px; border: 3px solid #333; border-radius: 8px; overflow: hidden; margin: 10px 0; position: relative; }
     .frac-piece { flex: 1; border-right: 2px solid #333; display: flex; transition: all 0.4s ease; }
     .frac-piece:last-child { border-right: none; }
     .bg-blue { background-color: var(--primary); }
     .bg-empty { background-color: #f8f9fa; }
     
     /* Inner Slices */
-    .inner-slice { flex: 1; border-right: 1px dashed rgba(0,0,0,0.4); opacity: 0; transition: opacity 0.5s; height: 100%; }
+    .inner-slice { flex: 1; border-right: 2px solid #333; opacity: 0; transition: opacity 0.5s; height: 100%; }
     .inner-slice:last-child { border-right: none; }
     .sliced .inner-slice { opacity: 1; }
 
@@ -72,7 +70,7 @@
     /* Guided Zone Specifics */
     .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-text { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
     .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* Keypad */
@@ -131,15 +129,15 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Slicer Tool</h2>
-      <p>An equivalent fraction is just the exact same amount of block, cut into smaller pieces.</p>
+      <h2>The Slicer</h2>
+      <p>An equivalent fraction is the exact same amount of block, just cut into smaller pieces.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Action:</b> Tap the fraction bar to slice every block perfectly in half (× 2).</p>
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;">Watch what happens when we multiply the top and bottom by 2.</p>
         
-        <div class="frac-bar slice-ready" id="learn-bar-1" onclick="triggerSlice(this, 2, 'slide-1')">
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-empty"></div>
+        <div class="frac-bar sliced" id="learn-bar-1">
+            <div class="frac-piece bg-blue"><div class="inner-slice"></div><div class="inner-slice"></div></div>
+            <div class="frac-piece bg-empty"><div class="inner-slice"></div><div class="inner-slice"></div></div>
         </div>
         
         <div class="math-row" style="font-size: 2rem; color:#333; margin-top:15px; width:100%;">
@@ -149,12 +147,13 @@
             </div>
             <div style="margin: 0 10px;">➔</div>
             <div class="v-frac">
-                <div class="v-num" style="color:var(--primary);" id="l-num-1">?</div>
-                <div class="v-den" id="l-den-1">?</div>
+                <div class="v-num" style="color:var(--primary);">2</div>
+                <div class="v-den">4</div>
             </div>
         </div>
       </div>
-      <button class="btn btn-primary" id="btn-next-1" onclick="nextSlide()" style="opacity:0.5;" disabled>Continue ➔</button>
+      <p style="text-align:left;">Every single block was sliced into 2 pieces. 1/2 is exactly the same as 2/4.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue ➔</button>
     </div>
 
     <!-- Slide 2 -->
@@ -163,7 +162,6 @@
       <p>We balance the scale by making sure the Top multiplier exactly matches the Bottom multiplier.</p>
       
       <div class="manipulative-container">
-        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;">Look at the bridge. We multiply by 3. <b>Action:</b> Tap the bar to slice the pieces by 3!</p>
         
         <div class="bridge-container" style="margin-top:40px;">
             <div class="bridge-arrow-top"><div class="scale-label" style="top:-15px; left:25px;">× 3</div></div>
@@ -173,21 +171,22 @@
             </div>
             <div style="font-size:2.5rem; color:#999;">=</div>
             <div class="v-frac" style="font-size:2.5rem;">
-                <div class="v-num" style="color:var(--primary);" id="l-num-2">?</div>
-                <div class="v-den" style="color:var(--primary);" id="l-den-2">?</div>
+                <div class="v-num" style="color:var(--primary);">6</div>
+                <div class="v-den" style="color:var(--primary);">15</div>
             </div>
             <div class="bridge-arrow-bot"><div class="scale-label" style="bottom:-15px; left:25px;">× 3</div></div>
         </div>
 
-        <div class="frac-bar slice-ready" id="learn-bar-2" onclick="triggerSlice(this, 3, 'slide-2')">
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
+        <div class="frac-bar sliced">
+            <div class="frac-piece bg-blue"><div class="inner-slice"></div><div class="inner-slice"></div><div class="inner-slice"></div></div>
+            <div class="frac-piece bg-blue"><div class="inner-slice"></div><div class="inner-slice"></div><div class="inner-slice"></div></div>
+            <div class="frac-piece bg-empty"><div class="inner-slice"></div><div class="inner-slice"></div><div class="inner-slice"></div></div>
+            <div class="frac-piece bg-empty"><div class="inner-slice"></div><div class="inner-slice"></div><div class="inner-slice"></div></div>
+            <div class="frac-piece bg-empty"><div class="inner-slice"></div><div class="inner-slice"></div><div class="inner-slice"></div></div>
         </div>
       </div>
-      <button class="btn btn-primary" id="btn-next-2" onclick="startGuidedPractice()" style="opacity:0.5;" disabled>Start Guided Practice ➔</button>
+      <p style="text-align:left;">If you multiply the bottom by 3, you MUST multiply the top by 3 to keep it balanced.</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice ➔</button>
     </div>
   </div>
 
@@ -355,9 +354,9 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- VISUOSPATIAL SLICER MECHANIC ---
-  function drawInteractiveBar(num, den) {
-      let html = `<div class="frac-bar slice-ready" id="g-slicer-bar" onclick="triggerSlice(this, ${gData.scale}, 'guided')">`;
+  // --- VISUOSPATIAL ANIMATION CONTROLLER ---
+  function drawBaseBar(num, den) {
+      let html = `<div class="frac-bar" id="g-slicer-bar">`;
       for (let i = 0; i < den; i++) {
           let shadeClass = (i < num) ? 'bg-blue' : 'bg-empty';
           html += `<div class="frac-piece ${shadeClass}"></div>`;
@@ -366,11 +365,8 @@
       return html;
   }
 
-  function triggerSlice(barEl, pieces, context) {
-      if(appState === 'LOCKED') return;
-      if(barEl.classList.contains('sliced')) return; // Already sliced
-
-      // Create the inner slices
+  function triggerSliceAnimation(barEl, pieces) {
+      // Create the inner slices dynamically based on user input
       let blocks = barEl.querySelectorAll('.frac-piece');
       blocks.forEach(block => {
           let innerHtml = '';
@@ -381,31 +377,9 @@
       });
 
       // Animate
-      barEl.classList.remove('slice-ready');
-      barEl.classList.add('sliced');
-
-      if(context === 'slide-1') {
-          document.getElementById('l-num-1').innerText = "2";
-          document.getElementById('l-den-1').innerText = "4";
-          let btn = document.getElementById('btn-next-1');
-          btn.disabled = false; btn.style.opacity = '1'; btn.style.background = "var(--success)";
-      } else if (context === 'slide-2') {
-          document.getElementById('l-num-2').innerText = "6";
-          document.getElementById('l-den-2').innerText = "15";
-          let btn = document.getElementById('btn-next-2');
-          btn.disabled = false; btn.style.opacity = '1'; btn.style.background = "var(--success)";
-      } else if (context === 'guided') {
-          appState = 'LOCKED';
-          setTimeout(() => {
-              document.getElementById('g-box-2').style.borderColor = 'var(--success)';
-              document.getElementById('g-slicer-bar').classList.add('no-click');
-              guidedSubStep = 3;
-              document.getElementById('g-box-3').classList.remove('locked');
-              setActive('g-ans-3');
-              appState = 'GUIDED';
-              document.getElementById('keypad').classList.remove('hidden');
-          }, 600);
-      }
+      setTimeout(() => {
+          barEl.classList.add('sliced');
+      }, 50);
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -703,19 +677,16 @@
           </div>
         </div>
         <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. Apply the scale! Physically TAP the fraction bar below to cut the pieces into ${gData.scale}:</div>
+          <div class="guided-text" id="g-t2">2. Watch the bar slice to match your scale! Then write the missing number:</div>
           <div class="guided-row" style="width:100%;">
-            ${drawInteractiveBar(parseInt(gData.n), parseInt(gData.d))}
+            ${drawBaseBar(parseInt(gData.n), parseInt(gData.d))}
           </div>
-        </div>
-        <div class="guided-step locked" id="g-box-3">
-          <div class="guided-text" id="g-t3">3. Count the new shaded pieces and type the missing numerator:</div>
-          <div class="guided-row">
+          <div class="guided-row" style="margin-top:15px;">
             <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
           </div>
         </div>
       `;
-      setActive('g-scale-top'); // Set to the bridge map input first!
+      setActive('g-scale-top'); // Set to the bridge map input first
   }
 
   function loadGuidedQuestion() {
@@ -728,7 +699,7 @@
               scale: "4",
               ansN: "4",
               err1: "Look at the bottom row (Denominators). What do you multiply 3 by to get 12? (It's 4).",
-              err3: "You just sliced the bar! How many blue shaded slices are there now? There are 4."
+              err3: "Count the new shaded slices. 1 × 4 is 4. There are 4 blue pieces."
           };
       } else {
           gData = { 
@@ -737,7 +708,7 @@
               scale: "3",
               ansN: "6",
               err1: "Look at the bottom row. What do you multiply 5 by to get 15? (It's 3).",
-              err3: "You just sliced the bar! How many blue shaded slices are there now? There are 6."
+              err3: "Count the new shaded slices. 2 × 3 is 6. There are 6 blue pieces."
           };
       }
 
@@ -763,7 +734,6 @@
 
       let isCorrect = false;
 
-      // Special handling for the Bridge Map inputs in Step 1
       if (guidedSubStep === 1) {
           if (activeBoxId === 'g-scale-top' && val === gData.scale) {
               box.classList.add('flash-green');
@@ -781,7 +751,7 @@
               let bVal = document.getElementById('g-scale-bot').innerText;
               isCorrect = (tVal === gData.scale && bVal === gData.scale);
           }
-      } else if (guidedSubStep === 3) {
+      } else if (guidedSubStep === 2) {
           isCorrect = (val === gData.ansN);
       }
 
@@ -792,18 +762,21 @@
           
           if (guidedSubStep === 1) {
               guidedSubStep = 2;
+              
+              // Trigger the animation
+              let bar = document.getElementById('g-slicer-bar');
+              triggerSliceAnimation(bar, parseInt(gData.scale));
+              
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-2').classList.remove('locked');
-                  // We do NOT set active box here. The user must tap the bar.
-                  appState = 'GUIDED';
-                  document.getElementById('keypad').classList.add('hidden'); // Hide keypad while they tap
+                  setActive('g-ans-3');
               }, 400);
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You mapped the scale factor, physically sliced the pieces, and found the numerator. Let\'s do one more.');
-                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); document.getElementById('keypad').classList.remove('hidden');};
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You mapped the scale factor, the pieces proved it visually, and you found the answer. Let\'s do one more.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
                   showModal('🟢', 'Training Complete', 'You know exactly how to scale fractions! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
@@ -812,7 +785,7 @@
       } else {
           box.classList.add('flash-red');
           if (guidedSubStep === 1) showModal('🔴', 'Scale Error', gData.err1);
-          else if (guidedSubStep === 3) showModal('🔴', 'Numerator Error', gData.err3);
+          else if (guidedSubStep === 2) showModal('🔴', 'Numerator Error', gData.err3);
       }
   }
 
@@ -846,7 +819,7 @@
     let a2 = a * multiplier;
     let b2 = b * multiplier;
     
-    // We strictly want forward scaling for RAT-04 prep (finding a2 or b2)
+    // Strictly forward scaling
     let isMissingNum = Math.random() > 0.5;
     
     return { 
@@ -856,7 +829,8 @@
         targetN: isMissingNum ? "?" : a2.toString(),
         targetD: isMissingNum ? b2.toString() : "?",
         ansValue: isMissingNum ? a2.toString() : b2.toString(),
-        mult: multiplier.toString()
+        mult: multiplier.toString(),
+        rawAddErrorTarget: isMissingNum ? (parseInt(a) + (parseInt(b2) - parseInt(b))).toString() : (parseInt(b) + (parseInt(a2) - parseInt(a))).toString()
     };
   }
 
@@ -866,10 +840,6 @@
     document.getElementById('p-scale-top').classList.remove('flash-green', 'flash-red');
     document.getElementById('p-scale-bot').classList.remove('flash-green', 'flash-red');
 
-    let activeInputId = currentQ && currentQ.isMissingNum ? 'p-target-n' : 'p-target-d';
-    let inactiveInputId = currentQ && currentQ.isMissingNum ? 'p-target-d' : 'p-target-n';
-
-    // Reset target fraction inputs dynamically based on which is missing
     let targetHtml = `
       <div class="v-num" ${currentQ && currentQ.isMissingNum ? 'style="color:var(--primary); padding-bottom:5px;"' : ''}>
          ${currentQ && currentQ.isMissingNum ? `<div class="f-box" style="height:40px; min-width:50px; font-size:1.8rem;" id="p-target-n" onclick="setActive('p-target-n')"></div>` : `<span id="p-target-n-static"></span>`}
@@ -933,6 +903,18 @@
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
+        // TRAPDOORS
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the Balance Rule:\n1. Find what the completed row was multiplied by (× ${currentQ.mult}).\n2. Multiply the other row by the EXACT SAME number to keep the scale balanced.`;
+        let errorTag = "General_Error";
+
+        if (valT !== valB) {
+            errorMsg = `🚨 SCALE MISMATCH 🚨\n\nThe Top multiplier (${valT}) does not match the Bottom multiplier (${valB}).\n\nIf you multiply the bottom by a number, you MUST multiply the top by the exact same number to keep the fraction equivalent.`;
+            errorTag = "Scale_Mismatch";
+        } else if (valT !== currentQ.mult && valFinal === currentQ.rawAddErrorTarget) {
+            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou added instead of multiplied!\n\nEquivalent fractions are built by MULTIPLYING (scaling) the numbers, not adding. Find what the bottom was multiplied by to get the new bottom.`;
+            errorTag = "Added_Instead_Of_Multiplied";
+        }
+
         masteryPoints = 0;
         streak = 0;
         updateProgressBar();
@@ -940,8 +922,8 @@
         document.getElementById('p-scale-bot').classList.add('flash-red');
         document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the Balance Rule:\n1. The multiplier for BOTH top and bottom was ${currentQ.mult}.\n2. Applying that scale factor makes the missing number ${currentQ.ansValue}.`);
-        logTelemetryEvent("Trapdoor Triggered", 0, "Multiplier_Mismatch");
+        showModal('🔴', 'Streak Broken', errorMsg);
+        logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
     }
   }
 
