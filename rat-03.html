@@ -26,7 +26,7 @@
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;}
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
@@ -46,21 +46,22 @@
     
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; }
-    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
-    .ctrl-btn:active { transform: scale(0.95); }
-    .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
 
-    /* Fraction Bars */
+    /* Visuospatial Fraction Bars */
     .frac-bar { display: flex; width: 100%; height: 35px; border: 3px solid #333; border-radius: 6px; overflow: hidden; margin: 5px 0;}
-    .frac-piece { flex: 1; border-right: 2px solid #333; transition: background 0.3s; }
+    .frac-piece { flex: 1; border-right: 2px solid #333; transition: background 0.3s, transform 0.2s; }
     .frac-piece:last-child { border-right: none; }
     .bg-blue { background-color: var(--primary); }
     .bg-red { background-color: var(--danger); }
     .bg-empty { background-color: #f8f9fa; }
+    
+    /* Tap-and-Fill Interaction Classes */
+    .source-slot { cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+    .source-slot.selected { transform: scale(1.1); box-shadow: inset 0 0 0 3px #000; z-index: 10; position: relative;}
+    .target-slot { cursor: pointer; }
 
     /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
     .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
     .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -122,10 +123,9 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <h2>Combining the Pieces</h2>
-      <p>Adding fractions is simply putting pieces of the same size together.</p>
+      <p>Adding fractions is simply putting pieces of the same size into the same tray.</p>
       
       <div class="manipulative-container">
-        
         <div class="math-row" style="font-size: 1.5rem; margin:5px 0; width:100%;">
             <div class="v-frac">
                 <div class="v-num" style="color:var(--primary);">1</div>
@@ -143,7 +143,7 @@
             </div>
         </div>
 
-        <div class="frac-bar">
+        <div class="frac-bar" style="height:45px;">
             <div class="frac-piece bg-blue"></div>
             <div class="frac-piece bg-red"></div>
             <div class="frac-piece bg-red"></div>
@@ -151,7 +151,8 @@
             <div class="frac-piece bg-empty"></div>
         </div>
       </div>
-      <p style="text-align:left;">We had 1 Blue piece. We added 2 Red pieces. Now we have <b>3 shaded pieces</b>.</p>
+      <p style="text-align:left;">We had 1 Blue piece. We slid 2 Red pieces into the same tray. Now we have <b>3 shaded pieces</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue ➔</button>
     </div>
 
     <!-- Slide 2 -->
@@ -160,37 +161,42 @@
       <p>What happens to the bottom number when we add?</p>
       
       <div class="manipulative-container">
-        
-        <div class="frac-bar" style="margin-bottom:10px;">
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
+        <div class="math-row" style="font-size: 1.5rem; margin:0 0 10px 0; width:100%;">
+            <div class="v-frac"><div class="v-num" style="color:var(--primary);">3</div><div class="v-den">8</div></div>
+            <div style="margin: 0 10px;">+</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--danger);">1</div><div class="v-den">8</div></div>
         </div>
-        <div class="math-row" style="font-size: 1.5rem; margin:0;"><b style="color:var(--primary);">3 / 8</b></div>
-        
-        <div style="font-size:2rem; font-weight:bold; margin:5px 0;">+</div>
 
-        <div class="frac-bar" style="margin-top:10px;">
-            <div class="frac-piece bg-red"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-        </div>
-        <div class="math-row" style="font-size: 1.5rem; margin:0;"><b style="color:var(--danger);">1 / 8</b></div>
+        <p style="text-align:left; width:100%; margin:0 0 10px 0; font-size:0.95rem; color:#5f6368;"><b>Action:</b> Tap the Red piece below to pick it up, then tap an empty slot in the Blue tray to drop it in.</p>
 
-        <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-add" onclick="manAdd()">Combine the Slices ➔</button>
+        <div id="l-interactive-container" style="width:100%;">
+          <div class="frac-bar" id="slide2-bar-1" style="height:45px;">
+              <div class="frac-piece bg-blue"></div>
+              <div class="frac-piece bg-blue"></div>
+              <div class="frac-piece bg-blue"></div>
+              <div class="frac-piece bg-empty target-slot" onclick="placeRed(this, 'slide2')"></div>
+              <div class="frac-piece bg-empty target-slot" onclick="placeRed(this, 'slide2')"></div>
+              <div class="frac-piece bg-empty target-slot" onclick="placeRed(this, 'slide2')"></div>
+              <div class="frac-piece bg-empty target-slot" onclick="placeRed(this, 'slide2')"></div>
+              <div class="frac-piece bg-empty target-slot" onclick="placeRed(this, 'slide2')"></div>
+          </div>
+          
+          <div style="font-size:2rem; font-weight:bold; margin:5px 0;">+</div>
+
+          <div class="frac-bar" id="slide2-bar-2" style="height:45px;">
+              <div class="frac-piece bg-red source-slot" onclick="selectRed(this)"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+              <div class="frac-piece bg-empty"></div>
+          </div>
         </div>
       </div>
+      <p style="text-align:left;" id="slide-2-msg">Notice the pieces don't shrink into 16ths! The denominator stays exactly the same.</p>
+      <button class="btn btn-primary" id="btn-next-slide-2" onclick="nextSlide()" style="opacity:0.5;" disabled>Continue ➔</button>
     </div>
 
     <!-- Slide 3 -->
@@ -223,12 +229,10 @@
             <div class="frac-piece bg-empty"></div>
             <div class="frac-piece bg-empty"></div>
         </div>
-        
       </div>
-      <p style="text-align:left;">Both numbers divide by 4. <b>4/8</b> simplifies perfectly down to <b>1/2</b>.</p>
+      <p style="text-align:left;">Both numbers divide perfectly by 4. <b>4/8</b> simplifies down to <b>1/2</b>.</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice ➔</button>
     </div>
-
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
   </div>
 
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
@@ -387,27 +391,88 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- LEARN ZONE MANIPULATIVES ---
-  function manAdd() {
-      let b = document.getElementById('btn-man-add');
-      let parent = b.parentElement.parentElement;
+  // --- VISUOSPATIAL TAP-AND-FILL MECHANIC ---
+  let hasSelectedRed = false;
+  let selectedRedEl = null;
+
+  function selectRed(el) {
+      if(appState === 'LOCKED') return;
+      if (el.classList.contains('bg-empty')) return;
       
-      parent.innerHTML = `
-        <div class="frac-bar" style="height:60px;">
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-blue"></div>
-            <div class="frac-piece bg-red"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-            <div class="frac-piece bg-empty"></div>
-        </div>
-        <div class="math-row" style="font-size: 2.5rem; margin:15px 0;">
-            <b style="color:var(--primary);">3</b> <span style="margin:0 10px;">+</span> <b style="color:var(--danger);">1</b> <span style="margin:0 10px;">=</span> <b style="color:#333;">4 / 8</b>
-        </div>
-        <p style="text-align:left; width:100%; margin-top:0; font-size:1.1rem; color:var(--danger); font-weight:bold;">Notice the bottom number stays exactly the same! The pieces didn't magically shrink into 16ths.</p>
-      `;
+      // Deselect previous
+      if (selectedRedEl) {
+          selectedRedEl.classList.remove('selected');
+      }
+
+      hasSelectedRed = true;
+      selectedRedEl = el;
+      el.classList.add('selected');
+  }
+
+  function placeRed(el, context) {
+      if(appState === 'LOCKED') return;
+      if (!hasSelectedRed || !el.classList.contains('bg-empty')) return;
+      
+      // Fill target
+      el.classList.remove('bg-empty');
+      el.classList.add('bg-red');
+      
+      // Empty source
+      selectedRedEl.classList.remove('selected', 'bg-red', 'source-slot');
+      selectedRedEl.classList.add('bg-empty');
+      selectedRedEl.onclick = null; // Prevent re-clicking empty source
+      
+      hasSelectedRed = false;
+      selectedRedEl = null;
+
+      // Check win condition
+      if (context === 'slide2') {
+          let remainingRed = document.querySelectorAll('#slide2-bar-2 .bg-red').length;
+          if (remainingRed === 0) {
+              document.getElementById('btn-next-slide-2').disabled = false;
+              document.getElementById('btn-next-slide-2').style.opacity = '1';
+              document.getElementById('btn-next-slide-2').style.background = 'var(--success)';
+              document.getElementById('slide-2-msg').style.color = 'var(--success)';
+              document.getElementById('slide-2-msg').style.fontWeight = 'bold';
+          }
+      } else if (context === 'guided') {
+          let remainingRed = document.querySelectorAll('#guided-bar-2 .bg-red').length;
+          if (remainingRed === 0) {
+              appState = 'LOCKED';
+              setTimeout(() => {
+                  document.getElementById('g-box-1').style.borderColor = 'var(--success)';
+                  
+                  // Clean up click handlers so they don't break UI
+                  document.querySelectorAll('#guided-bar-1 .target-slot').forEach(e => e.onclick = null);
+
+                  guidedSubStep = 2;
+                  document.getElementById('g-box-2').classList.remove('locked');
+                  setActive('g-ans-2a');
+                  appState = 'GUIDED';
+                  document.getElementById('keypad').classList.remove('hidden');
+              }, 400);
+          }
+      }
+  }
+
+  function generateInteractiveBars(n1, n2, den, contextId) {
+      // Bar 1 (Blue + Empties)
+      let b1 = `<div class="frac-bar" id="${contextId}-bar-1" style="height:40px;">`;
+      for(let i=0; i<den; i++) {
+          if(i < n1) b1 += `<div class="frac-piece bg-blue"></div>`;
+          else b1 += `<div class="frac-piece bg-empty target-slot" onclick="placeRed(this, '${contextId}')"></div>`;
+      }
+      b1 += `</div>`;
+
+      // Bar 2 (Red + Empties)
+      let b2 = `<div class="frac-bar" id="${contextId}-bar-2" style="height:40px;">`;
+      for(let i=0; i<den; i++) {
+          if(i < n2) b2 += `<div class="frac-piece bg-red source-slot" onclick="selectRed(this)"></div>`;
+          else b2 += `<div class="frac-piece bg-empty"></div>`;
+      }
+      b2 += `</div>`;
+
+      return `<div style="width:100%;">` + b1 + `<div style="font-size:2rem; font-weight:bold; margin:5px 0;">+</div>` + b2 + `</div>`;
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -689,7 +754,9 @@
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
-      document.getElementById('keypad').classList.remove('hidden');
+      
+      // Hide keypad initially so they focus on the visual movement
+      document.getElementById('keypad').classList.add('hidden');
       
       guidedLevel = 1;
       loadGuidedQuestion();
@@ -701,19 +768,18 @@
 
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Add the tops (Numerators):</div>
+          <div class="guided-text" id="g-t1">1. Move the pieces! Tap a Red piece to pick it up, then tap an empty slot to place it in the Blue tray.</div>
           <div class="guided-row">
-            <div style="font-size:1.5rem; font-weight:bold; color:var(--primary);">${gData.n1}</div>
-            <div style="font-size:1.5rem; font-weight:bold;">+</div>
-            <div style="font-size:1.5rem; font-weight:bold; color:var(--danger);">${gData.n2}</div>
-            <div style="font-size:1.5rem; font-weight:bold;">=</div>
-            <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
+            ${generateInteractiveBars(parseInt(gData.n1), parseInt(gData.n2), parseInt(gData.den), 'guided')}
           </div>
         </div>
         <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. Keep the bottom exactly the same (Denominator):</div>
+          <div class="guided-text" id="g-t2">2. Write the new top number (Numerators added) and the bottom number (Denominator stays the same):</div>
           <div class="guided-row">
-            <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
+            <div class="v-frac">
+              <div class="v-num"><div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div></div>
+              <div class="v-den"><div class="f-box" id="g-ans-2b" onclick="setActive('g-ans-2b')"></div></div>
+            </div>
           </div>
         </div>
         <div class="guided-step locked" id="g-box-3">
@@ -726,7 +792,6 @@
           </div>
         </div>
       `;
-      setActive('g-ans-1');
   }
 
   function loadGuidedQuestion() {
@@ -746,9 +811,8 @@
               n1: "1", n2: "3", den: "8",
               sumN: "4", sumD: "8",
               simpN: "1", simpD: "2",
-              err1: "1 + 3 is 4.",
-              err2: "The pieces don't shrink! The denominator stays 8.",
-              err3: "Both 4 and 8 divide by 4. The final answer is 1/2."
+              err2: "Look at your bar. There are 4 shaded pieces, and 8 total pieces. Type 4, then 8.",
+              err3: "Both 4 and 8 divide perfectly by 4. The final answer is 1/2."
           };
       } else {
           gData = { 
@@ -764,9 +828,8 @@
               n1: "2", n2: "3", den: "15",
               sumN: "5", sumD: "15",
               simpN: "1", simpD: "3",
-              err1: "2 + 3 is 5.",
-              err2: "The pieces don't shrink! The denominator stays 15.",
-              err3: "Both 5 and 15 divide by 5. The final answer is 1/3."
+              err2: "Look at your bar. There are 5 shaded pieces, and 15 total pieces. Type 5, then 15.",
+              err3: "Both 5 and 15 divide perfectly by 5. The final answer is 1/3."
           };
       }
 
@@ -782,10 +845,14 @@
       if (val === '') return;
 
       let isCorrect = false;
-      if (guidedSubStep === 1) {
-          isCorrect = (val === gData.sumN);
-      } else if (guidedSubStep === 2) {
-          isCorrect = (val === gData.sumD);
+      if (guidedSubStep === 2) {
+          let bA = document.getElementById('g-ans-2a').innerText;
+          let bB = document.getElementById('g-ans-2b').innerText;
+          if (activeBoxId === 'g-ans-2a' && val === gData.sumN) {
+              box.classList.add('flash-green'); setActive('g-ans-2b'); return; 
+          } else if (activeBoxId === 'g-ans-2b' && val === gData.sumD) {
+              isCorrect = (bA === gData.sumN && bB === gData.sumD);
+          }
       } else if (guidedSubStep === 3) {
           let bA = document.getElementById('g-ans-3a').innerText;
           let bB = document.getElementById('g-ans-3b').innerText;
@@ -801,14 +868,7 @@
           xp += 10;
           document.getElementById('xp-counter').innerText = xp;
           
-          if (guidedSubStep === 1) {
-              guidedSubStep = 2;
-              setTimeout(() => {
-                  box.classList.remove('active');
-                  document.getElementById('g-box-2').classList.remove('locked');
-                  setActive('g-ans-2');
-              }, 400);
-          } else if (guidedSubStep === 2) {
+          if (guidedSubStep === 2) {
               guidedSubStep = 3;
               setTimeout(() => {
                   box.classList.remove('active');
@@ -818,7 +878,7 @@
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You added the tops, kept the bottom, and simplified. Let\'s do one more.');
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You moved the pieces to prove the math, and simplified the final fraction. Let\'s do one more.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
               } else {
                   showModal('🟢', 'Training Complete', 'You know exactly how to add and simplify fractions! Now, prove it in the Strict Practice zone.');
@@ -827,8 +887,7 @@
           }
       } else {
           box.classList.add('flash-red');
-          if (guidedSubStep === 1) showModal('🔴', 'Addition Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Denominator Error', gData.err2);
+          if (guidedSubStep === 2) showModal('🔴', 'Fraction Error', gData.err2);
           else showModal('🔴', 'Simplification Error', gData.err3);
       }
   }
@@ -938,6 +997,8 @@
 
         if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
             errorMsg = `Your addition is technically correct (${currentQ.rawN}/${currentQ.rawD}), but it is NOT SIMPLIFIED!\n\nYou must divide the top and bottom by their common factor.\n\nYour streak has been reset to 0.`;
+        } else if (valD !== currentQ.ansD && valD !== currentQ.rawD) {
+            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou added the bottoms! Remember the blocks? The pieces don't magically shrink.\n\nYour streak has been reset to 0.`;
         }
 
         masteryPoints = 0;
