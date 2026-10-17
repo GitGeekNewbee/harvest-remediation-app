@@ -26,7 +26,7 @@
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
     p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;}
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
@@ -46,20 +46,18 @@
     
     /* Interactive Manipulative */
     .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; }
-    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
-    .ctrl-btn:active { transform: scale(0.95); }
-    .ctrl-btn-blue { border-color: var(--primary); color: var(--primary); background: #e8f0fe; }
 
-    /* Fraction Bars */
+    /* Visuospatial Fraction Bars */
     .frac-bar { display: flex; width: 100%; height: 60px; border: 3px solid #333; border-radius: 8px; overflow: hidden; margin: 10px 0;}
-    .frac-piece { flex: 1; border-right: 2px solid #333; transition: background 0.3s; }
+    .frac-piece { flex: 1; border-right: 2px solid #333; transition: background 0.2s, transform 0.1s; cursor: pointer; }
     .frac-piece:last-child { border-right: none; }
-    .frac-shaded { background-color: var(--primary); }
-    .frac-empty { background-color: #fff; }
+    .frac-piece:active { transform: scale(0.95); }
+    .bg-blue { background-color: var(--primary); }
+    .bg-empty { background-color: #f8f9fa; }
+    .no-click { pointer-events: none; }
 
     /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s; }
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
     .guided-step.locked { opacity: 0.4; pointer-events: none; }
     .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
     .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -121,15 +119,15 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <h2>The Fraction Bar</h2>
-      <p>A fraction is just a visual code that tells us about a set of blocks.</p>
+      <p>A fraction is a code that tells us to physically build pieces of a block.</p>
       
       <div class="manipulative-container">
-        <div class="frac-bar">
-            <div class="frac-piece frac-shaded"></div>
-            <div class="frac-piece frac-shaded"></div>
-            <div class="frac-piece frac-shaded"></div>
-            <div class="frac-piece frac-empty"></div>
-            <div class="frac-piece frac-empty"></div>
+        <div class="frac-bar no-click">
+            <div class="frac-piece bg-blue"></div>
+            <div class="frac-piece bg-blue"></div>
+            <div class="frac-piece bg-blue"></div>
+            <div class="frac-piece bg-empty"></div>
+            <div class="frac-piece bg-empty"></div>
         </div>
         
         <div class="math-row" style="font-size: 2rem; color:#333; margin-top:15px; width:100%;">
@@ -138,67 +136,75 @@
                 <div class="v-den" style="color:var(--danger); font-size:3rem;">5</div>
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-start; font-size:1rem; margin-left:15px; color:#5f6368; gap:10px;">
-                <div><b style="color:var(--primary);">Numerator:</b> The pieces that are shaded.</div>
-                <div><b style="color:var(--danger);">Denominator:</b> The total equal pieces.</div>
+                <div><b style="color:var(--primary);">Numerator:</b> The pieces we shade.</div>
+                <div><b style="color:var(--danger);">Denominator:</b> The total blocks.</div>
             </div>
         </div>
       </div>
-      <p style="text-align:left;">The bar is cut into exactly <b>5 total pieces</b>. We have shaded <b>3 pieces</b>. That is the fraction 3/5.</p>
+      <p style="text-align:left;">The bar has <b>5 total blocks</b>. We have shaded <b>3 blocks</b>. That is the fraction 3/5.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue ➔</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Building a Fraction</h2>
+      <h2>Build a Fraction</h2>
       <p>Let's turn this blank bar into the fraction <b>2 / 4</b>.</p>
       
       <div class="manipulative-container">
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Action:</b> Tap exactly 2 empty blocks to shade them blue.</p>
+        
         <div class="frac-bar" id="learn-bar">
-            <div class="frac-piece frac-empty"></div>
-            <div class="frac-piece frac-empty"></div>
-            <div class="frac-piece frac-empty"></div>
-            <div class="frac-piece frac-empty"></div>
+            <div class="frac-piece bg-empty" onclick="toggleShade(this)"></div>
+            <div class="frac-piece bg-empty" onclick="toggleShade(this)"></div>
+            <div class="frac-piece bg-empty" onclick="toggleShade(this)"></div>
+            <div class="frac-piece bg-empty" onclick="toggleShade(this)"></div>
         </div>
         
         <div class="math-row" style="font-size: 3rem; margin:10px 0;">
             <div class="v-frac">
-                <div class="v-num" style="color:var(--primary);" id="l-num">?</div>
+                <div class="v-num" style="color:var(--primary);">2</div>
                 <div class="v-den" style="color:var(--danger);">4</div>
             </div>
         </div>
-
-        <div class="controls-row">
-          <button class="ctrl-btn ctrl-btn-blue" id="btn-man-shade" onclick="manShade()">Shade 2 pieces ➔</button>
-        </div>
       </div>
-      <p style="text-align:left;">The bottom number is 4, so we drew 4 equal blocks. The top number is 2, so we shaded 2 of them.</p>
+      <button class="btn btn-primary" id="btn-next-slide" onclick="startGuidedPractice()" style="opacity:0.5;" disabled>Start Guided Practice ➔</button>
     </div>
-
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
   </div>
 
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
   <div class="content-zone hidden" id="zone-guided">
     <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
     
-    <div id="g-q-container" style="width:100%; max-width:400px;">
-      <!-- Populated dynamically -->
+    <div class="math-row" style="font-size:3rem; margin-bottom:10px;">
+        <div class="v-frac">
+            <div class="v-num" style="color:var(--primary);" id="g-target-n"></div>
+            <div class="v-den" style="color:var(--danger);" id="g-target-d"></div>
+        </div>
     </div>
 
-    <div id="g-dynamic-steps" style="width:100%; margin-top:20px;">
+    <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Write the fraction for this bar:</div>
+    <div class="instruction">Build and write the fraction:</div>
 
-    <div id="p-q-display" style="width:100%; max-width:400px; margin: 20px 0;">
+    <div class="math-row" style="font-size:3.5rem; color:#333; margin: 10px 0;">
+        <div class="v-frac">
+            <div class="v-num" style="color:var(--primary);" id="p-target-n"></div>
+            <div class="v-den" style="color:var(--danger);" id="p-target-d"></div>
+        </div>
+    </div>
+
+    <div id="p-bar-container" style="width:100%; max-width:400px; margin-bottom: 20px;">
       <!-- Populated by JS -->
     </div>
 
-    <div class="math-row" style="margin-top:10px;">
-      <div class="v-frac" style="font-size:3rem;">
+    <div class="math-row" style="margin-top:0;">
+      <div style="font-size:2.5rem; margin-right:15px; color:#999;">=</div>
+      <div class="v-frac" style="font-size:2.5rem;">
         <div class="v-num" style="padding-bottom:10px;">
             <div class="f-box active" id="p-ans-1" onclick="setActive('p-ans-1')"></div>
         </div>
@@ -209,7 +215,7 @@
     </div>
     
     <p style="font-size:0.85rem; color:var(--danger); margin-top:20px; padding-bottom:40px; text-align:left;">
-      <b>Strict Mode Active:</b> You must correctly write 5 fractions in a row. A single mistake resets your mastery to zero.
+      <b>Strict Mode Active:</b> You must correctly shade the blocks AND type the numbers 5 times in a row. A mistake resets your streak.
     </p>
   </div>
 
@@ -267,28 +273,32 @@
   let guidedSubStep = 1;
   let gData = {};
 
-  // --- INITIALIZATION ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
-
+  // --- INITIALIZATION (ROBUST SUPERUSER PATCH) ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+                  document.getElementById('modal-btn').innerText = "Resume Drill";
+                  document.getElementById('modal-btn').onclick = startRemediation;
+              }
           }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
       }
+
+      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
 
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
@@ -327,19 +337,61 @@
     else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- LEARN ZONE MANIPULATIVES ---
-  function manShade() {
-      document.getElementById('learn-bar').innerHTML = `
-        <div class="frac-piece frac-shaded"></div>
-        <div class="frac-piece frac-shaded"></div>
-        <div class="frac-piece frac-empty"></div>
-        <div class="frac-piece frac-empty"></div>
-      `;
-      document.getElementById('l-num').innerText = "2";
-      let b = document.getElementById('btn-man-shade');
-      b.innerText = "Fraction Built!";
-      b.disabled = true;
-      b.style.opacity = '0.5';
+  // --- VISUOSPATIAL TOGGLE MECHANIC ---
+  function toggleShade(el) {
+      if(appState === 'LOCKED') return;
+      
+      if(el.classList.contains('bg-blue')) {
+          el.classList.remove('bg-blue');
+          el.classList.add('bg-empty');
+      } else {
+          el.classList.remove('bg-empty');
+          el.classList.add('bg-blue');
+      }
+
+      // Check Slide 2 Logic
+      if(appState === 'LEARN') {
+          let shaded = document.querySelectorAll('#learn-bar .bg-blue').length;
+          let btn = document.getElementById('btn-next-slide');
+          if(shaded === 2) {
+              btn.disabled = false;
+              btn.style.opacity = '1';
+              btn.innerText = "Perfect! Start Guided Practice ➔";
+              btn.style.background = "var(--success)";
+          } else {
+              btn.disabled = true;
+              btn.style.opacity = '0.5';
+              btn.innerText = "Start Guided Practice ➔";
+              btn.style.background = "var(--primary)";
+          }
+      }
+
+      // Check Guided Practice Step 2 Logic
+      if(appState === 'GUIDED' && guidedSubStep === 2) {
+          let shaded = document.querySelectorAll('#g-bar-container .bg-blue').length;
+          if(shaded === parseInt(gData.n)) {
+              // Auto-advance
+              appState = 'LOCKED';
+              setTimeout(() => {
+                  document.getElementById('g-box-2').style.borderColor = 'var(--success)';
+                  document.getElementById('g-bar-container').classList.add('no-click');
+                  guidedSubStep = 3;
+                  document.getElementById('g-box-3').classList.remove('locked');
+                  setActive('g-ans-3');
+                  appState = 'GUIDED';
+              }, 400);
+          }
+      }
+  }
+
+  // --- HTML GENERATOR FOR FRACTION BARS ---
+  function drawInteractiveBar(den) {
+      let html = `<div class="frac-bar">`;
+      for (let i = 0; i < den; i++) {
+          html += `<div class="frac-piece bg-empty" onclick="toggleShade(this)"></div>`;
+      }
+      html += `</div>`;
+      return html;
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -614,17 +666,6 @@
     }
   }
 
-  // --- HTML GENERATOR FOR FRACTION BARS ---
-  function drawBar(num, den) {
-      let html = `<div class="frac-bar">`;
-      for (let i = 0; i < den; i++) {
-          let shadeClass = (i < num) ? 'frac-shaded' : 'frac-empty';
-          html += `<div class="frac-piece ${shadeClass}"></div>`;
-      }
-      html += `</div>`;
-      return html;
-  }
-
   // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
@@ -642,15 +683,21 @@
 
       container.innerHTML += `
         <div class="guided-step" id="g-box-1">
-          <div class="guided-text" id="g-t1">1. Count the TOTAL equal blocks. This is your bottom number (Denominator):</div>
+          <div class="guided-text" id="g-t1">1. Count the TOTAL blank blocks. This is your bottom number (Denominator):</div>
           <div class="guided-row">
             <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
           </div>
         </div>
         <div class="guided-step locked" id="g-box-2">
-          <div class="guided-text" id="g-t2">2. Count the SHADED blocks. This is your top number (Numerator):</div>
+          <div class="guided-text" id="g-t2">2. Look at the fraction above. Physically tap and shade exactly ${gData.n} blocks.</div>
+          <div class="guided-row" id="g-bar-container" style="width:100%;">
+            ${drawInteractiveBar(parseInt(gData.d))}
+          </div>
+        </div>
+        <div class="guided-step locked" id="g-box-3">
+          <div class="guided-text" id="g-t3">3. How many blocks did you shade? Type the top number (Numerator):</div>
           <div class="guided-row">
-            <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
+            <div class="f-box" id="g-ans-3" onclick="setActive('g-ans-3')"></div>
           </div>
         </div>
       `;
@@ -661,23 +708,14 @@
       guidedSubStep = 1;
       
       if (guidedLevel === 1) {
-          gData = { 
-              barHtml: drawBar(3, 8),
-              num: "3", den: "8",
-              err1: "Count EVERY block in the entire bar, even the empty ones. The total is 8.",
-              err2: "Count only the blue shaded blocks. There are 3."
-          };
+          gData = { n: "3", d: "8", err1: "Count EVERY block in the entire bar. The total is 8.", err3: "You just shaded 3 blocks. Type 3." };
       } else {
-          gData = { 
-              barHtml: drawBar(5, 6),
-              num: "5", den: "6",
-              err1: "Count every single block in the bar. The total is 6.",
-              err2: "Count only the blue shaded blocks. There are 5."
-          };
+          gData = { n: "5", d: "6", err1: "Count every block in the bar. The total is 6.", err3: "You just shaded 5 blocks. Type 5." };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q-container').innerHTML = gData.barHtml;
+      document.getElementById('g-target-n').innerText = gData.n;
+      document.getElementById('g-target-d').innerText = gData.d;
       
       buildGuidedSteps();
   }
@@ -689,9 +727,9 @@
 
       let isCorrect = false;
       if (guidedSubStep === 1) {
-          isCorrect = (val === gData.den);
-      } else if (guidedSubStep === 2) {
-          isCorrect = (val === gData.num);
+          isCorrect = (val === gData.d);
+      } else if (guidedSubStep === 3) {
+          isCorrect = (val === gData.n);
       }
 
       if (isCorrect) {
@@ -704,22 +742,24 @@
               setTimeout(() => {
                   box.classList.remove('active');
                   document.getElementById('g-box-2').classList.remove('locked');
-                  setActive('g-ans-2');
+                  // We do NOT set active box here. The user must tap blocks.
+                  appState = 'GUIDED';
+                  document.getElementById('keypad').classList.add('hidden'); // Hide keypad while they tap
               }, 400);
           } else {
               if (guidedLevel === 1) {
                   guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You found the total pieces and the shaded pieces. Let\'s do one more.');
-                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You counted the total blocks, physically built the fraction, and wrote the numbers. Let\'s do one more.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); document.getElementById('keypad').classList.remove('hidden');};
               } else {
-                  showModal('🟢', 'Training Complete', 'You know exactly how to read and build a fraction! Now, prove it in the Strict Practice zone.');
+                  showModal('🟢', 'Training Complete', 'You know exactly how to build and write a fraction! Now, prove it in the Strict Practice zone.');
                   document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
               }
           }
       } else {
           box.classList.add('flash-red');
           if (guidedSubStep === 1) showModal('🔴', 'Denominator Error', gData.err1);
-          else if (guidedSubStep === 2) showModal('🔴', 'Numerator Error', gData.err2);
+          else if (guidedSubStep === 3) showModal('🔴', 'Numerator Error', gData.err3);
       }
   }
 
@@ -740,7 +780,7 @@
     let n = Math.floor(Math.random() * (d - 1)) + 1; // 1 to d-1 shaded pieces
     
     return { 
-        html: drawBar(n, d),
+        html: drawInteractiveBar(d),
         ansN: n.toString(),
         ansD: d.toString()
     };
@@ -753,7 +793,10 @@
     document.getElementById('p-ans-2').classList.remove('flash-green', 'flash-red');
     
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-q-display').innerHTML = currentQ.html;
+    
+    document.getElementById('p-target-n').innerText = currentQ.ansN;
+    document.getElementById('p-target-d').innerText = currentQ.ansD;
+    document.getElementById('p-bar-container').innerHTML = currentQ.html;
     
     setActive('p-ans-1');
   }
@@ -780,10 +823,13 @@
     
     if (valD === '') return;
 
-    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+    let shadedBlocks = document.querySelectorAll('#p-bar-container .bg-blue').length;
+
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD && shadedBlocks === parseInt(currentQ.ansN));
 
     if(isCorrect) {
         document.getElementById('p-ans-2').classList.add('flash-green');
+        document.getElementById('p-bar-container').classList.add('no-click');
         masteryPoints++;
         streak++;
         xp += 50; 
@@ -798,7 +844,9 @@
         document.getElementById('p-ans-1').classList.add('flash-red');
         document.getElementById('p-ans-2').classList.add('flash-red');
         
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the rules of fractions:\n1. The TOP number is the pieces you have (shaded).\n2. The BOTTOM number is the TOTAL pieces in the bar.\nThis fraction was ${currentQ.ansN} / ${currentQ.ansD}.`);
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the rules:\n1. Top Box = The pieces you shade (${currentQ.ansN}).\n2. Bottom Box = The TOTAL pieces in the bar (${currentQ.ansD}).\n\nDid you forget to physically tap and shade the blocks?`;
+        
+        showModal('🔴', 'Streak Broken', errorMsg);
     }
   }
 
