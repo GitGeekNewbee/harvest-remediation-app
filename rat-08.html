@@ -5,141 +5,1056 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - RAT-08</title>
   <style>
-    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
-    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
-    /* HUD */
-    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
-    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
-    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
-    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
-    .stats { font-weight: 800; font-size: 1.1rem; }
-    .stats-xp { color: var(--warning); }
-    .stats-mastery { color: var(--primary); }
-    .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
+    
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    
+    /* V2 MICRO-HUD */
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; }
+    .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
+    .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
+    .stat-xp { color: var(--amber); }
 
-    /* Content Zones */
-    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    /* SCROLLABLE CONTENT AREA */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
     .hidden { display: none !important; }
-    h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;}
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-warning { background: var(--warning); color: #fff; }
+    
+    /* V2 TYPOGRAPHY & LAYOUT */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: sticky; top: 0; z-index: 10;}
+    
+    /* BUTTONS */
+    .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:active { background: #4338ca; }
+    .btn-warning { background: var(--amber); color: white; }
 
-    /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
-    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    /* STRICT MATH FORMATTING */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
+    .mixed-number { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .whole-num { font-size: 3.5rem; color: var(--indigo); line-height: 1; margin-bottom: 5px; }
+    .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; }
+    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: opacity 0.3s, color 0.3s;}
+    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: opacity 0.3s, color 0.3s;}
+    .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; transition: color 0.3s; }
     
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 10px;}
-    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; }
-    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; }
-    .v-whole { font-size: 3rem; margin-right: 5px; color: #333; }
+    /* ALGEBRAIC MAPPING VISUALS */
+    .bridge-group { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 15px; border-radius: var(--radius); background: var(--slate-50); border: 2px dashed var(--slate-300); }
+    .bridge-group.top { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); border-bottom: none; border-radius: 8px 8px 0 0; }
+    .bridge-group.bot { border-color: var(--rose); background: var(--rose-light); color: var(--rose); border-top: none; border-radius: 0 0 8px 8px; }
 
-    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 50px; height: 45px; padding: 0 10px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
-    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
-    .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
-    .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
-    .f-box.whole-box { height: 60px; min-width: 60px; font-size: 2.5rem; border-color: #333; color: #333;}
-    .f-box.whole-box.active { border-color: var(--primary); }
-    
-    /* Interactive Manipulative */
-    .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    /* CLEAN FRACTION BARS */
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 30px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 3px 0; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; }
+    .frac-piece:last-child { border-right: none; }
+    .fill-indigo { background-color: var(--indigo); }
+    .fill-rose { background-color: var(--rose); }
+    .fill-emerald { background-color: var(--emerald); }
+    .fill-empty { background-color: transparent; }
 
-    /* Shatter & Fuse Visuals */
-    .blocks-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; margin: 10px 0;}
+    /* FADING STEP ARCHITECTURE */
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container.locked { opacity: 0.2; pointer-events: none; }
+    .step-container.completed { opacity: 0.5; border-color: var(--emerald); }
+    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); margin-bottom: 12px; line-height: 1.4; }
     
-    .whole-block { width: 60px; height: 60px; background: var(--primary); border-radius: 8px; border: 3px solid #1557b0; cursor: pointer; transition: all 0.3s; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-    .whole-block.shatter-ready { animation: glowBlock 1.5s infinite alternate; }
-    
-    .frac-bar { display: flex; width: 60px; height: 60px; border: 3px solid #333; border-radius: 6px; overflow: hidden; flex-direction: column;}
-    .frac-bar.horizontal { flex-direction: row; width: 100%; height: 35px; margin: 5px 0;}
-    
-    .frac-piece { flex: 1; border-bottom: 2px solid #333; display: flex; transition: all 0.3s; background: var(--primary); }
-    .frac-bar.horizontal .frac-piece { border-bottom: none; border-right: 2px solid #333; }
-    .frac-piece:last-child { border-bottom: none; border-right: none;}
-    .bg-empty { background-color: #f8f9fa; }
-    
-    .fuse-group { display: flex; gap: 2px; padding: 5px; border: 2px dashed var(--danger); border-radius: 8px; cursor: pointer; transition: all 0.3s; align-items: center; justify-content: center; flex-wrap: wrap; width: fit-content; background: rgba(234,67,53,0.05);}
-    .fuse-group.fuse-ready { animation: glowFuse 1.5s infinite alternate; }
-    
-    @keyframes glowBlock { from { box-shadow: 0 0 5px var(--primary); transform: scale(1); } to { box-shadow: 0 0 15px var(--primary); transform: scale(1.05); } }
-    @keyframes glowFuse { from { box-shadow: 0 0 5px var(--danger); border-color: var(--danger); } to { box-shadow: 0 0 15px var(--danger); border-color: var(--danger); } }
+    /* SLEEK INPUT BOXES */
+    .input-box { width: 60px; height: 50px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
+    .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
+    .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
-    /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
-    .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
-    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* Keypad */
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
-    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .key:active { background: #e8eaed; transform: translateY(2px); }
-    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+    /* V2 KEYPAD DRAWER */
+    .keypad-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--slate-100); padding: 15px 15px 25px 15px; border-top: 1px solid var(--slate-300); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; display: flex; justify-content: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);}
+    .keypad-drawer.open { bottom: 0; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    
+    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-action { background: var(--slate-300); font-size: 1.2rem;}
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
+    .key-enter:active { background: #4338ca; }
 
-    /* Modals */
-    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
-    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+    /* V2 ERROR TOAST & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
+    .toast-container.show { opacity: 1; top: 65px; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .completion-overlay.show { opacity: 1; pointer-events: all; }
+    .completion-icon { font-size: 4rem; margin-bottom: 20px; }
+    .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <div class="hud">
-    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
-    <div class="progress-wrapper">
-      <div class="mastery-label" id="hud-label">MASTERY METER</div>
-      <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+  <!-- MICRO HUD -->
+  <div class="micro-hud">
+    <div class="stat-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="hud-center">
+        <span style="color:var(--slate-400); font-size:0.7rem;" id="hud-label">MASTERY</span>
+        <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
     </div>
-    <div class="stats stats-mastery" id="hud-stats"><span id="mastery-text">0/5</span></div>
+    <div style="color:var(--indigo);" id="mastery-text">0/5</div>
   </div>
 
   <!-- ZONE 0: GATEKEEPER INTRO -->
-  <div class="content-zone" id="zone-gate-intro">
-    <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
-    <h2>Fluency Gatekeeper</h2>
-    <p>Converting fraction formats requires you to multiply whole numbers rapidly. Prove your fluency.</p>
-    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
-      <b>The 3-Level Pathway:</b>
-      <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Multiplication Facts (× 2 to 5)</li>
-        <li><b>Level 2:</b> Multiplication Facts (× 6 to 9)</li>
-        <li><b>Level 3:</b> Multiplication Facts (× 10 to 12)</li>
+  <div class="content-area" id="zone-gate-intro">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To work with improper fractions, your division facts must be automatic. Prove your fluency.</p>
+    </div>
+    
+    <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
+      <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
+      <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
+        <li><b>Level 1:</b> Division (÷ 2 to 5)</li>
+        <li><b>Level 2:</b> Division (÷ 6 to 9)</li>
+        <li><b>Level 3:</b> Division (÷ 10 to 12)</li>
       </ul>
-      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
     </div>
     <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
   </div>
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
-  <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
-    <div class="sprint-math" id="sprint-q"></div>
-    <div class="input-col">
-      <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
+  <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Division</div>
+    <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
+    <div class="math-row" style="margin-top:20px;">
+        <div class="input-box active" style="width:100px; height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
     </div>
   </div>
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
-  <div class="content-zone hidden" id="zone-learn">
+  <div class="content-area hidden" id="zone-learn">
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>Two Codes, Same Amount</h2>
-      <p>A Mixed Number and an Improper Fraction are just two different ways to write the exact same amount of blocks.</p>
+      <div class="section-title">Mixed vs Improper</div>
+      <p class="instruction-text">A Mixed Number tells you how many whole blocks you have. An Improper Fraction just counts every single piece.</p>
       
-      <div class="manipulative-container">
+      <div class="pinned-visual">
         
-        <div class="blocks-container" style="justify-content:space-around;">
-            <div style="display:flex; flex-direction:column; align-items:center;">
-                <div style="font-weight:bold; color:#5f6368; margin-bottom:5px;">Mixed Number</div>
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <div class="whole-block"></div>
-                    <div class="frac-bar horizontal" style
+        <!-- VISUAL 2 1/4 -->
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%; margin-bottom:15px;">
+            <div class="frac-bar"><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div></div>
+            <div class="frac-bar"><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-indigo"></div></div>
+            <div class="frac-bar"><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-empty"></div><div class="frac-piece fill-empty"></div><div class="frac-piece fill-empty"></div></div>
+        </div>
+        
+        <div class="math-row" style="font-size: 2rem; margin-top:10px;">
+            <div class="mixed-number">
+                <div class="whole-num">2</div>
+                <div class="fraction">
+                    <div class="frac-num">1</div>
+                    <div class="frac-den">4</div>
+                </div>
+            </div>
+            <div class="operator">➔</div>
+            <div class="fraction">
+                <div class="frac-num" style="color:var(--rose);">9</div>
+                <div class="frac-den">4</div>
+            </div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We have <b>2 Whole</b> blocks and <b>1 extra quarter</b>. If we count up all the small pieces, we have <b>9 quarters</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 2 -->
+    <div id="slide-2" class="hidden">
+      <div class="section-title">The "Multiply & Add" Rule</div>
+      <p class="instruction-text">To convert mathematically, multiply the Whole Number by the Bottom (to find the pieces in the wholes), then Add the Top.</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 2.2rem; margin-bottom:15px;">
+            <div class="mixed-number">
+                <div class="whole-num">2</div>
+                <div class="fraction">
+                    <div class="frac-num">1</div>
+                    <div class="frac-den">4</div>
+                </div>
+            </div>
+            <div class="operator">=</div>
+            <div class="fraction">
+                <div class="frac-num" style="padding:0; border:none;">
+                    <div class="bridge-group top" style="font-size:1.2rem; font-weight:800;">
+                        (2 × 4) + 1
+                    </div>
+                </div>
+                <div style="width:100%; border-bottom:3px solid var(--slate-900);"></div>
+                <div class="frac-den">4</div>
+            </div>
+        </div>
+        
+        <div class="math-row" style="font-size: 2.2rem; margin-top:15px;">
+            <div class="operator" style="opacity:0;">=</div>
+            <div class="operator">➔</div>
+            <div class="fraction">
+                <div class="frac-num" style="color:var(--rose);">9</div>
+                <div class="frac-den">4</div>
+            </div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>Rule:</b> Multiply the Whole by the Bottom. Add the Top. The denominator NEVER changes.</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
+    </div>
+  </div>
+
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-area hidden" id="zone-guided">
+    <div class="section-title" id="g-title">Guided Practice 1/2</div>
+    
+    <!-- Pinned Visuals -->
+    <div class="pinned-visual">
+        <div class="math-row" style="font-size: 2.5rem; margin-bottom:10px;" id="g-q-container">
+            <!-- Injected by JS -->
+        </div>
+    </div>
+
+    <!-- Stepped Instructions -->
+    <div id="g-dynamic-steps" style="width:100%;">
+        <!-- Steps injected by JS -->
+    </div>
+    
+    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
+  </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
+  <div class="content-area hidden" id="zone-practice">
+    <div class="section-title">Strict Practice</div>
+    <p class="instruction-text">Convert the Mixed Number into an Improper Fraction.</p>
+
+    <div class="pinned-visual">
+        <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
+            <!-- Populated by JS -->
+        </div>
+        
+        <div class="math-row" style="margin-top:10px;">
+          <div class="operator" style="margin-right:15px;">=</div>
+          <div class="fraction" style="font-size:2.5rem;">
+            <div class="frac-num">
+                <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+            </div>
+            <div class="frac-den">
+                <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+            </div>
+          </div>
+        </div>
+    </div>
+    
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct conversions in a row.</p>
+    </div>
+    
+    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
+  </div>
+
+  <!-- V2 KEYPAD DRAWER -->
+  <div class="keypad-drawer" id="keypad">
+    <div class="keypad-grid">
+      <div class="key-btn" onclick="typeNum('1')">1</div>
+      <div class="key-btn" onclick="typeNum('2')">2</div>
+      <div class="key-btn" onclick="typeNum('3')">3</div>
+      <div class="key-btn" onclick="typeNum('4')">4</div>
+      <div class="key-btn" onclick="typeNum('5')">5</div>
+      <div class="key-btn" onclick="typeNum('6')">6</div>
+      <div class="key-btn" onclick="typeNum('7')">7</div>
+      <div class="key-btn" onclick="typeNum('8')">8</div>
+      <div class="key-btn" onclick="typeNum('9')">9</div>
+      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-enter" onclick="submitAnswer()">⏎</div>
+    </div>
+  </div>
+
+  <!-- TOAST ERROR MESSAGE -->
+  <div class="toast-container" id="toast">
+      <div class="toast-icon">⚠️</div>
+      <div id="toast-msg">Error message goes here.</div>
+      <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- COMPLETION OVERLAY -->
+  <div class="completion-overlay" id="completion-screen">
+      <div class="completion-icon">🏆</div>
+      <div class="completion-title">Module Mastered!</div>
+      <p style="font-size:1.2rem; color:var(--slate-500); font-weight:600; margin-bottom:30px;">Total XP: <span id="final-xp" style="color:var(--amber);">0</span></p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+  </div>
+
+</div>
+
+<script>
+  // Global State
+  let appState = 'GATEKEEPER'; 
+  let activeBoxId = 'sprint-ans';
+  let activeStepId = 'sprint';
+  let xp = 0;
+  const currentModuleId = 'RAT-08'; 
+
+  // Gatekeeper Variables
+  let gateLevel = 1; 
+  let sprintTimer;
+  let timeLeft = 60; 
+  let sprintAttempts = 0;
+  let sprintCorrect = 0;
+  let currentSprintQ = {};
+  const sprintTargetAttempts = 15;
+
+  // Remediation Variables
+  let sessionMissed = [];
+  let currentRemediationQ = null;
+  let remediationIndex = -1;
+
+  // Mastery Variables
+  let slideIndex = 1;
+  const totalSlides = 2; 
+  let streak = 0;
+  let masteryPoints = 0;
+  const masteryTarget = 5;
+  let currentQ = {}; 
+
+  // Guided Practice Variables
+  let guidedLevel = 1;
+  let gData = {};
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+      let startBtn = document.getElementById('btn-start-sprint');
+      let isSuperUser = false;
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showError("Focus Drill Active: You must clear missed facts to unlock the Gatekeeper.");
+                  document.getElementById('btn-start-sprint').innerText = "Resume Drill";
+                  document.getElementById('btn-start-sprint').onclick = startRemediation;
+              }
+          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
+      }
+
+      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel;
+
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
+  });
+
+  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  function openKeypad(boxId, stepId) {
+      if(appState === 'LOCKED') return;
+
+      if(activeBoxId) document.getElementById(activeBoxId).classList.remove('active');
+      activeBoxId = boxId;
+      activeStepId = stepId;
+      document.getElementById(activeBoxId).classList.add('active');
+
+      document.getElementById('keypad').classList.add('open');
+      
+      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
+      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+
+      if (appState === 'GUIDED' && stepId) {
+          setTimeout(() => {
+              let stepEl = document.getElementById(stepId);
+              if(stepEl) {
+                  let viewportHeight = window.innerHeight - 260; 
+                  let elementOffset = stepEl.getBoundingClientRect().top;
+                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
+                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
+              }
+          }, 300); 
+      }
+  }
+
+  function typeNum(char) {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      if(box.innerText.length < 3) box.innerText += char;
+  }
+  
+  function deleteNum() {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      box.innerText = box.innerText.slice(0, -1);
+  }
+
+  function submitAnswer() {
+      if(appState === 'LOCKED') return;
+      if(appState === 'GATEKEEPER') checkSprintAnswer();
+      else if (appState === 'REMEDIATION') checkRemediationAnswer();
+      else if (appState === 'GUIDED') checkGuidedAnswer();
+      else if (appState === 'PRACTICE') checkPracticeAnswer();
+  }
+
+  function flashError(box) {
+      box.classList.add('flash-error');
+      setTimeout(() => box.classList.remove('flash-error'), 400);
+  }
+
+  function showError(msg) {
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast').classList.add('show');
+      setTimeout(closeToast, 4000);
+  }
+
+  function closeToast() {
+      document.getElementById('toast').classList.remove('show');
+  }
+
+  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
+  function startSprint() {
+    closeToast(); 
+    appState = 'GATEKEEPER';
+    sessionMissed = [];
+    
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    document.getElementById('zone-gate-active').classList.remove('hidden');
+    document.getElementById('zone-gate-active').style.display = 'flex';
+    
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Division (÷)";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Division (÷)";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Division (÷)";
+
+    document.getElementById('hud-label').innerText = "TIME REMAINING";
+    document.getElementById('hud-track').classList.add('hidden');
+    document.getElementById('mastery-text').innerText = "01:00";
+    
+    sprintAttempts = 0;
+    sprintCorrect = 0;
+    timeLeft = 60;
+    
+    openKeypad('sprint-ans', 'sprint');
+    loadSprintQuestion();
+    
+    if(sprintTimer) clearInterval(sprintTimer); 
+    
+    sprintTimer = setInterval(() => {
+      timeLeft--;
+      let m = Math.floor(timeLeft / 60);
+      let s = timeLeft % 60;
+      document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+      
+      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      
+      if(timeLeft <= 0) {
+        clearInterval(sprintTimer);
+        evaluateSprint();
+      }
+    }, 1000);
+  }
+
+  function generateGateQuestion(level) {
+    // Generate multiplication fact, then ask as division
+    let n1, n2, prod;
+    if (level === 1) { 
+      n1 = Math.floor(Math.random() * 4) + 2; // Divisor 2-5
+      n2 = Math.floor(Math.random() * 11) + 2; // Answer 2-12
+    } else if (level === 2) { 
+      n1 = Math.floor(Math.random() * 4) + 6; // Divisor 6-9
+      n2 = Math.floor(Math.random() * 11) + 2; 
+    } else { 
+      n1 = Math.floor(Math.random() * 3) + 10; // Divisor 10-12
+      n2 = Math.floor(Math.random() * 11) + 2; 
+    }
+    
+    prod = n1 * n2;
+    let qText = `${prod} ÷ ${n1} =`;
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: n2.toString() };
+  }
+
+  function loadSprintQuestion() {
+    currentSprintQ = generateGateQuestion(gateLevel);
+    document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
+    document.getElementById('sprint-ans').innerText = '';
+    document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+  }
+
+  function checkSprintAnswer() {
+    let boxText = document.getElementById('sprint-ans').innerText;
+    if(boxText === '') return;
+
+    sprintAttempts++;
+    let box = document.getElementById('sprint-ans');
+    
+    if(boxText === currentSprintQ.ans) {
+      sprintCorrect++;
+      xp += 5;
+      document.getElementById('xp-counter').innerText = xp;
+      box.classList.add('flash-success');
+    } else {
+      box.classList.add('flash-error');
+      let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
+      if(!exists) {
+          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
+      }
+    }
+    setTimeout(loadSprintQuestion, 150);
+  }
+
+  function evaluateSprint() {
+    document.getElementById('keypad').classList.remove('open');
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    
+    if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      sessionMissed = []; 
+      if (gateLevel < 3) {
+        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        gateLevel++;
+        
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            p.gateLevels[currentModuleId] = gateLevel;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+
+        resetSprintUI();
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
+      } else {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            p.gateLevels[currentModuleId] = 1;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+        unlockLesson();
+      }
+    } else {
+      if(sessionMissed.length > 0) {
+          let saved = localStorage.getItem('harvest_maths_profile');
+          if(saved) {
+              let p = JSON.parse(saved);
+              if(!p.remediation) p.remediation = {};
+              p.remediation[currentModuleId] = sessionMissed;
+              localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          }
+          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          resetSprintUI();
+          document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
+          document.getElementById('btn-start-sprint').onclick = startRemediation;
+      } else {
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          resetSprintUI();
+      }
+    }
+  }
+
+  function resetSprintUI() {
+      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('zone-gate-active').classList.add('hidden');
+      document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
+  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
+  function startRemediation() {
+      closeToast();
+      appState = 'REMEDIATION';
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      document.getElementById('zone-gate-active').classList.remove('hidden');
+      document.getElementById('zone-gate-active').style.display = 'flex';
+      
+      document.getElementById('sprint-title').innerText = "Focus Drill";
+      document.getElementById('sprint-title').style.color = "var(--rose)";
+      document.getElementById('hud-label').innerText = "FACTS REMAINING";
+      document.getElementById('hud-track').classList.add('hidden');
+      document.getElementById('hud-stats').classList.remove('timer-alert');
+      
+      openKeypad('sprint-ans', 'sprint');
+      loadRemediationQuestion();
+  }
+
+  function loadRemediationQuestion() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+          let p = JSON.parse(saved);
+          let queue = p.remediation[currentModuleId] || [];
+          if(queue.length === 0) {
+              endRemediation();
+              return;
+          }
+          document.getElementById('mastery-text').innerText = queue.length;
+          remediationIndex = Math.floor(Math.random() * queue.length);
+          currentRemediationQ = queue[remediationIndex];
+          
+          let dots = "⚪⚪⚪";
+          if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
+          if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
+          
+          document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
+          document.getElementById('sprint-q').innerHTML = currentRemediationQ.qText;
+          document.getElementById('sprint-ans').innerText = '';
+          document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+      }
+  }
+
+  function checkRemediationAnswer() {
+      let boxText = document.getElementById('sprint-ans').innerText;
+      if(boxText === '') return;
+
+      let box = document.getElementById('sprint-ans');
+      let saved = localStorage.getItem('harvest_maths_profile');
+      let p = saved ? JSON.parse(saved) : null;
+      if(!p || !p.remediation || !p.remediation[currentModuleId]) return;
+      
+      let queue = p.remediation[currentModuleId];
+
+      if(boxText === currentRemediationQ.ans) {
+          box.classList.add('flash-success');
+          xp += 2; 
+          document.getElementById('xp-counter').innerText = xp;
+          
+          queue[remediationIndex].streak++;
+          if(queue[remediationIndex].streak >= 3) {
+              queue.splice(remediationIndex, 1); 
+          }
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          setTimeout(loadRemediationQuestion, 250);
+      } else {
+          flashError(box);
+          queue[remediationIndex].streak = 0; 
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          
+          appState = 'LOCKED'; 
+          document.getElementById('keypad').style.opacity = '0.5';
+          document.getElementById('keypad').style.pointerEvents = 'none';
+          
+          setTimeout(() => {
+              box.innerText = currentRemediationQ.ans; 
+              box.style.color = 'var(--rose)';
+          }, 300);
+
+          setTimeout(() => {
+              appState = 'REMEDIATION';
+              document.getElementById('keypad').style.opacity = '1';
+              document.getElementById('keypad').style.pointerEvents = 'all';
+              box.style.color = 'var(--slate-900)';
+              loadRemediationQuestion();
+          }, 2000);
+      }
+  }
+
+  function endRemediation() {
+      sessionMissed = [];
+      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      resetSprintUI();
+      document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
+      document.getElementById('btn-start-sprint').onclick = startSprint; 
+  }
+
+  function unlockLesson() {
+    closeToast();
+    appState = 'LEARN';
+    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('hud-label').innerText = "MASTERY";
+    document.getElementById('hud-track').classList.remove('hidden');
+    document.getElementById('mastery-text').innerText = "0/5";
+    document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    document.getElementById('keypad').classList.remove('open');
+    document.getElementById('zone-learn').classList.remove('hidden');
+  }
+
+  // --- ZONE 1: GUIDED LEARNING ---
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+    } else {
+      startGuidedPractice();
+    }
+  }
+
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = `
+        <div class="step-container" id="g-step-1">
+          <div class="step-text">1. Multiply the Whole Number by the Bottom Number. (Find the pieces in the wholes).</div>
+          <div class="math-row" style="justify-content: flex-start;">
+            <div class="bridge-group top" style="font-size:1.5rem;">
+               <span id="g-w-label"></span><span class="operator" style="color:var(--indigo);">×</span><span id="g-d-label"></span> <span style="margin:0 10px; color:var(--slate-400);">=</span>
+               <div class="input-box" style="height:40px; min-width:50px; font-size:1.5rem;" id="g-mult-ans" onclick="openKeypad('g-mult-ans', 'g-step-1')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-container locked" id="g-step-2">
+          <div class="step-text">2. Add the leftover Top pieces.</div>
+          <div class="math-row" style="justify-content: flex-start;">
+            <div class="bridge-group bot" style="font-size:1.5rem;">
+               <span id="g-mult-res-label"></span><span class="operator" style="color:var(--rose);">+</span><span id="g-n-label"></span> <span style="margin:0 10px; color:var(--slate-400);">=</span>
+               <div class="input-box" style="height:40px; min-width:50px; font-size:1.5rem;" id="g-add-ans" onclick="openKeypad('g-add-ans', 'g-step-2')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="step-container locked" id="g-step-3">
+          <div class="step-text">3. Construct the Improper Fraction. The denominator stays exactly the same.</div>
+          <div class="math-row" style="justify-content: flex-start;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" style="border-color:var(--rose); color:var(--rose);" id="g-final-n" onclick="openKeypad('g-final-n', 'g-step-3')"></div></div>
+              <div class="frac-den"><div class="input-box" id="g-final-d" onclick="openKeypad('g-final-d', 'g-step-3')"></div></div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('g-w-label').innerText = gData.w;
+      document.getElementById('g-d-label').innerText = gData.d;
+      document.getElementById('g-n-label').innerText = gData.n;
+
+      openKeypad('g-mult-ans', 'g-step-1');
+  }
+
+  function loadGuidedQuestion() {
+      guidedSubStep = 1;
+      
+      if (guidedLevel === 1) {
+          gData = { 
+              q: `
+                <div class="mixed-number">
+                    <div class="whole-num">3</div>
+                    <div class="fraction"><div class="frac-num">1</div><div class="frac-den">2</div></div>
+                </div>
+              `,
+              w: 3, n: 1, d: 2,
+              multAns: "6",
+              addAns: "7",
+              finalN: "7", finalD: "2"
+          };
+      } else {
+          gData = { 
+              q: `
+                <div class="mixed-number">
+                    <div class="whole-num">4</div>
+                    <div class="fraction"><div class="frac-num">2</div><div class="frac-den">3</div></div>
+                </div>
+              `,
+              w: 4, n: 2, d: 3,
+              multAns: "12",
+              addAns: "14",
+              finalN: "14", finalD: "3"
+          };
+      }
+
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-q-container').innerHTML = gData.q;
+      
+      buildGuidedSteps();
+  }
+
+  function advanceGuidedStep(currentStepId, nextStepId, nextBoxId) {
+      let box = document.getElementById(activeBoxId);
+      box.classList.add('flash-success');
+      box.classList.remove('active');
+      
+      if (currentStepId) document.getElementById(currentStepId).classList.add('completed');
+      if (nextStepId) document.getElementById(nextStepId).classList.remove('locked');
+      
+      openKeypad(nextBoxId, nextStepId);
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      if (activeStepId === 'g-step-1') {
+          if (val === gData.multAns) {
+              xp += 5;
+              document.getElementById('xp-counter').innerText = xp;
+              document.getElementById('g-mult-res-label').innerText = gData.multAns; // Update step 2 label dynamically
+              advanceGuidedStep('g-step-1', 'g-step-2', 'g-add-ans');
+          } else {
+              showError("Multiply the Whole Number by the Bottom: " + gData.w + " × " + gData.d);
+              flashError(box);
+          }
+      } 
+      else if (activeStepId === 'g-step-2') {
+          if (val === gData.addAns) {
+              xp += 5;
+              document.getElementById('xp-counter').innerText = xp;
+              advanceGuidedStep('g-step-2', 'g-step-3', 'g-final-n');
+          } else {
+              showError("Add the leftover top pieces: " + gData.multAns + " + " + gData.n);
+              flashError(box);
+          }
+      }
+      else if (activeStepId === 'g-step-3') {
+          if (activeBoxId === 'g-final-n') {
+              if (val === gData.finalN) {
+                  advanceGuidedStep(null, null, 'g-final-d');
+              } else {
+                  showError("The numerator is the total pieces you just calculated (" + gData.finalN + ").");
+                  flashError(box);
+              }
+          } else if (activeBoxId === 'g-final-d') {
+              if (val === gData.finalD) {
+                  box.classList.add('flash-success');
+                  box.classList.remove('active');
+                  document.getElementById('g-step-3').classList.add('completed');
+                  document.getElementById('keypad').classList.remove('open');
+                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Excellent! Let's do one more."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError("The denominator NEVER changes! It stays as " + gData.d + ".");
+                  flashError(box);
+              }
+          }
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
+  function startPractice() {
+    appState = 'PRACTICE';
+    document.getElementById('zone-guided').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+
+    masteryPoints = 0; 
+    updateProgressBar();
+    loadPracticeQuestion();
+  }
+
+  function generatePracticeQuestion() {
+    let w = Math.floor(Math.random() * 8) + 1; // Whole 1-8
+    let d = Math.floor(Math.random() * 7) + 3; // Denom 3-9
+    let n = Math.floor(Math.random() * (d - 1)) + 1; // Num < Denom
+        
+    let ansN = (w * d) + n;
+    let ansD = d;
+
+    let qStr = `
+        <div class="mixed-number">
+            <div class="whole-num">${w}</div>
+            <div class="fraction"><div class="frac-num">${n}</div><div class="frac-den">${d}</div></div>
+        </div>
+    `;
+    
+    return { 
+        qHtml: qStr, 
+        ansN: ansN.toString(),
+        ansD: ansD.toString(),
+        w: w, n: n, d: d
+    };
+  }
+
+  function loadPracticeQuestion() {
+    document.getElementById('p-ans-n').innerText = '';
+    document.getElementById('p-ans-n').classList.remove('flash-success', 'flash-error');
+    document.getElementById('p-ans-d').innerText = '';
+    document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
+    
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    
+    openKeypad('p-ans-n', 'practice');
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let box = document.getElementById(activeBoxId);
+    let val = box.innerText;
+    if (val === '') return;
+
+    if (activeBoxId === 'p-ans-n') {
+        box.classList.add('flash-success'); 
+        box.classList.remove('active');
+        openKeypad('p-ans-d', 'practice'); 
+        return;
+    } 
+
+    let valN = document.getElementById('p-ans-n').innerText;
+    let valD = document.getElementById('p-ans-d').innerText;
+    
+    if (valD === '') return;
+
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+
+    if(isCorrect) {
+        document.getElementById('p-ans-d').classList.add('flash-success');
+        document.getElementById('keypad').classList.remove('open');
+        document.getElementById('scroll-padding-practice').style.height = '10px';
+        masteryPoints++;
+        streak++;
+        xp += 50; 
+        updateProgressBar();
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+    } else {
+        let errorMsg = `Streak Broken!\n\n1. Multiply Whole by Bottom (${currentQ.w} × ${currentQ.d} = ${currentQ.w * currentQ.d}).\n2. Add the Top (+ ${currentQ.n}) to get ${currentQ.ansN}.\n3. The bottom stays ${currentQ.d}.`;
+        let errorTag = "General_Error";
+
+        if (valD !== currentQ.ansD) {
+            errorMsg = `CRITICAL ERROR!\n\nYou changed the bottom number! The denominator NEVER changes when converting. It must stay as ${currentQ.ansD}.`;
+            errorTag = "Changed_Denominator";
+        } else if (valN === (currentQ.w * currentQ.d).toString()) {
+            errorMsg = `CRITICAL ERROR!\n\nYou multiplied, but you forgot to ADD the extra pieces on top! (+ ${currentQ.n}).`;
+            errorTag = "Forgot_To_Add";
+        } else if (valN === (currentQ.w * currentQ.n + currentQ.d).toString()) {
+            errorMsg = `CRITICAL ERROR!\n\nYou multiplied the whole number by the WRONG number. Always multiply by the bottom number, then add the top.`;
+            errorTag = "Multiplied_Wrong_Numbers";
+        }
+
+        masteryPoints = 0;
+        streak = 0;
+        updateProgressBar();
+        document.getElementById('p-ans-n').classList.add('flash-error');
+        document.getElementById('p-ans-d').classList.add('flash-error');
+        
+        showError(errorMsg);
+        logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
+        
+        setTimeout(() => {
+            document.getElementById('p-ans-n').innerText = '';
+            document.getElementById('p-ans-d').innerText = '';
+            document.getElementById('p-ans-n').classList.remove('flash-error');
+            document.getElementById('p-ans-d').classList.remove('flash-error');
+            openKeypad('p-ans-n', 'practice');
+        }, 3500);
+    }
+  }
+
+  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
+  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+
+  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      errorType: errorTag,         
+      timestamp: new Date().toISOString() 
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
+
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp += xp; 
+      
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+    }
+
+    logTelemetryEvent("Mastered Module", 100);
+
+    document.getElementById('keypad').classList.remove('open');
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  };
+
+  const originalEvaluateSprint = evaluateSprint;
+  evaluateSprint = function() {
+    originalEvaluateSprint(); 
+    
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) {
+          profile.failedAttempts[currentModuleId] = 0;
+        }
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+    } else {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+    }
+  };
+
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  document.addEventListener('keydown', function(event) {
+    if(appState === 'LOCKED') return; 
+    
+    if (event.key >= '0' && event.key <= '9') {
+      typeNum(event.key);
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
+</body>
+</html>
