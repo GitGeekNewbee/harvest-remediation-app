@@ -338,7 +338,7 @@
   
   function togglePurple(el) {
       if(appState === 'LOCKED') return;
-      if(guidedSubStep !== 2) return; // Only allow painting during step 2
+      if(guidedSubStep !== 2) return;
 
       if(el.classList.contains('bg-purple')) {
           el.classList.remove('bg-purple');
@@ -352,7 +352,6 @@
       if(appState === 'GUIDED' && guidedSubStep === 2) {
           let painted = document.querySelectorAll('#g-grid-container .bg-purple').length;
           if(painted === parseInt(gData.targetN)) {
-              // Auto-advance
               appState = 'LOCKED';
               setTimeout(() => {
                   document.getElementById('g-box-2').style.borderColor = 'var(--success)';
@@ -430,7 +429,6 @@
       n1 = Math.floor(Math.random() * 3) + 10; 
       n2 = Math.floor(Math.random() * 11) + 2;
     }
-    // Randomize order for variety
     if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
     
     let ans = n1 * n2;
@@ -794,6 +792,10 @@
       return x;
   }
 
+  function getLCM(x, y) {
+      return (!x || !y) ? 0 : Math.abs((x * y) / getGCD(x, y));
+  }
+
   function generatePracticeQuestion() {
     let d1 = Math.floor(Math.random() * 4) + 2; // 2 to 5
     let d2 = Math.floor(Math.random() * 4) + 2; // 2 to 5
@@ -844,11 +846,6 @@
     document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
   }
 
-  // Common Multiple helper for trapdoor
-  function getLCM(x, y) {
-      return (!x || !y) ? 0 : Math.abs((x * y) / getGCD(x, y));
-  }
-
   function checkPracticeAnswer() {
     let box = document.getElementById(activeBoxId);
     let val = box.innerText;
@@ -883,16 +880,20 @@
         let badAddD = lcd;
         let simpScaleAdd = getGCD(badAddN, badAddD);
         
-        // TRAPDOOR 2: Unsimplified
-        let mathUser = parseFloat(valN) / parseFloat(valD);
+        let valUserFloat = parseFloat(valN) / parseFloat(valD);
+        let badAddFloat = badAddN / badAddD;
         let mathAns = parseFloat(currentQ.ansN) / parseFloat(currentQ.ansD);
 
         let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review:\n1. Top × Top = ${currentQ.rawN}.\n2. Bottom × Bottom = ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get your final answer: ${currentQ.ansN}/${currentQ.ansD}.`;
 
-        if (valN === (badAddN/simpScaleAdd).toString() && valD === (badAddD/simpScaleAdd).toString()) {
-            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou tried to find a common denominator and ADD! This is MULTIPLICATION.\n\nYou never need a common denominator to multiply. Just multiply Top × Top and Bottom × Bottom.\n\nYour streak has been reset.`;
-        } else if (!isNaN(mathUser) && mathUser === mathAns && (valN !== currentQ.ansN)) {
+        if (valUserFloat === badAddFloat || (valN === badAddN.toString() && valD === badAddD.toString()) || (valN === (badAddN/simpScaleAdd).toString() && valD === (badAddD/simpScaleAdd).toString())) {
+            errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou tried to ADD! This is MULTIPLICATION.\n\nYou never need a common denominator to multiply. Just multiply Top × Top and Bottom × Bottom.\n\nYour streak has been reset.`;
+            logTelemetryEvent("Trapdoor Triggered", 0, "Confused_Multiply_With_Add");
+        } else if (!isNaN(valUserFloat) && valUserFloat === mathAns && (valN !== currentQ.ansN)) {
             errorMsg = `Your multiplication is technically correct (${currentQ.rawN}/${currentQ.rawD}), but it is NOT FULLY SIMPLIFIED!\n\nYou must divide the top and bottom by their common factor.\n\nYour streak has been reset to 0.`;
+            logTelemetryEvent("Trapdoor Triggered", 0, "Unsimplified_Fraction");
+        } else {
+            logTelemetryEvent("Incorrect Answer", 0, "Calculation_Error");
         }
 
         masteryPoints = 0;
@@ -952,7 +953,7 @@
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-    function logTelemetryEvent(action, accuracyVal) {
+    function logTelemetryEvent(action, accuracyVal, errorTag = null) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
       let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -964,7 +965,9 @@
         xp: xp,
         accuracy: accuracyVal,
         fails: fails,
-        action: action
+        action: action,
+        errorType: errorTag,         // 🎯 NEW: Diagnostic tagging
+        timestamp: new Date().toISOString() // 🎯 NEW: Time tracking
       });
       localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
     }
@@ -986,7 +989,7 @@
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
 
-      logTelemetryEvent("Mastered Module", 100);
+      logTelemetryEvent("Mastered Module", 100, "Module_Mastered");
 
       closeModal();
       document.getElementById('zone-practice').classList.add('hidden');
@@ -1017,9 +1020,9 @@
           profile.failedAttempts[currentModuleId]++;
           localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
         }
-        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Failed");
       } else {
-        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "None");
       }
     };
   </script>
