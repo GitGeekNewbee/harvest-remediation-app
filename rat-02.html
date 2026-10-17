@@ -941,6 +941,7 @@
         document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').classList.add('flash-red');
         
         showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the Balance Rule:\n1. The multiplier for BOTH top and bottom was ${currentQ.mult}.\n2. Applying that scale factor makes the missing number ${currentQ.ansValue}.`);
+        logTelemetryEvent("Trapdoor Triggered", 0, "Multiplier_Mismatch");
     }
   }
 
@@ -991,7 +992,7 @@
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-    function logTelemetryEvent(action, accuracyVal) {
+    function logTelemetryEvent(action, accuracyVal, errorTag = null) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
       let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -1003,7 +1004,9 @@
         xp: xp,
         accuracy: accuracyVal,
         fails: fails,
-        action: action
+        action: action,
+        errorType: errorTag,         
+        timestamp: new Date().toISOString() 
       });
       localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
     }
