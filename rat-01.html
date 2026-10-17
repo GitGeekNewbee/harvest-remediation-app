@@ -847,6 +847,7 @@
         let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nLet's review the rules:\n1. Top Box = The pieces you shade (${currentQ.ansN}).\n2. Bottom Box = The TOTAL pieces in the bar (${currentQ.ansD}).\n\nDid you forget to physically tap and shade the blocks?`;
         
         showModal('🔴', 'Streak Broken', errorMsg);
+        logTelemetryEvent("Trapdoor Triggered", 0, "Visuospatial_Mismatch");
     }
   }
 
@@ -897,7 +898,7 @@
   <script>
     const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-    function logTelemetryEvent(action, accuracyVal) {
+    function logTelemetryEvent(action, accuracyVal, errorTag = null) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       let student = p.studentId || "Unknown";
       let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -909,7 +910,9 @@
         xp: xp,
         accuracy: accuracyVal,
         fails: fails,
-        action: action
+        action: action,
+        errorType: errorTag,         
+        timestamp: new Date().toISOString() 
       });
       localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
     }
