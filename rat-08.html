@@ -21,30 +21,60 @@
     .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-    /* Content */
+    /* Content Zones */
     .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
     .hidden { display: none !important; }
     h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; }
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
+    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
+    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.3s;}
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: #fff; }
 
     /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; position: relative; }
-    .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
-    .v-den { padding: 0 8px; }
-    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 10px; flex-wrap: wrap;}
+    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
     
+    .v-frac { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; position: relative; vertical-align: middle; margin: 0 10px;}
+    .v-num { border-bottom: 4px solid #333; padding: 0 8px 4px 8px; width: 100%; text-align: center; }
+    .v-den { padding: 4px 8px 0 8px; width: 100%; text-align: center; }
+    .v-whole { font-size: 3rem; margin-right: 5px; color: #333; }
+
     .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { width: 70px; height: 55px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
+    .f-box { min-width: 50px; height: 45px; padding: 0 10px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; cursor: pointer; }
     .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
     .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
     .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
+    .f-box.whole-box { height: 60px; min-width: 60px; font-size: 2.5rem; border-color: #333; color: #333;}
+    .f-box.whole-box.active { border-color: var(--primary); }
     
-    /* Word Problem Area */
-    #wp-text { font-size: 1.2rem; margin-bottom: 20px; padding: 20px; background: #e8f0fe; border-radius: 12px; line-height: 1.5; color: #202124; text-align: left; }
+    /* Interactive Manipulative */
+    .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+    /* Shatter & Fuse Visuals */
+    .blocks-container { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; margin: 10px 0;}
+    
+    .whole-block { width: 60px; height: 60px; background: var(--primary); border-radius: 8px; border: 3px solid #1557b0; cursor: pointer; transition: all 0.3s; position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+    .whole-block.shatter-ready { animation: glowBlock 1.5s infinite alternate; }
+    
+    .frac-bar { display: flex; width: 60px; height: 60px; border: 3px solid #333; border-radius: 6px; overflow: hidden; flex-direction: column;}
+    .frac-bar.horizontal { flex-direction: row; width: 100%; height: 35px; margin: 5px 0;}
+    
+    .frac-piece { flex: 1; border-bottom: 2px solid #333; display: flex; transition: all 0.3s; background: var(--primary); }
+    .frac-bar.horizontal .frac-piece { border-bottom: none; border-right: 2px solid #333; }
+    .frac-piece:last-child { border-bottom: none; border-right: none;}
+    .bg-empty { background-color: #f8f9fa; }
+    
+    .fuse-group { display: flex; gap: 2px; padding: 5px; border: 2px dashed var(--danger); border-radius: 8px; cursor: pointer; transition: all 0.3s; align-items: center; justify-content: center; flex-wrap: wrap; width: fit-content; background: rgba(234,67,53,0.05);}
+    .fuse-group.fuse-ready { animation: glowFuse 1.5s infinite alternate; }
+    
+    @keyframes glowBlock { from { box-shadow: 0 0 5px var(--primary); transform: scale(1); } to { box-shadow: 0 0 15px var(--primary); transform: scale(1.05); } }
+    @keyframes glowFuse { from { box-shadow: 0 0 5px var(--danger); border-color: var(--danger); } to { box-shadow: 0 0 15px var(--danger); border-color: var(--danger); } }
+
+    /* Guided Zone Specifics */
+    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 10px; text-align: left; opacity: 1; transition: opacity 0.3s, border-color 0.3s; }
+    .guided-step.locked { opacity: 0.4; pointer-events: none; }
+    .guided-text { font-size: 1rem; font-weight: bold; color: #333; margin-bottom: 10px; line-height: 1.4; }
+    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; flex-wrap: wrap; }
 
     /* Keypad */
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
@@ -75,13 +105,13 @@
   <div class="content-zone" id="zone-gate-intro">
     <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
     <h2>Fluency Gatekeeper</h2>
-    <p>Before solving word problems, you must pass 3 rapid 60-second levels to prove your foundational maths is fully automated.</p>
+    <p>Converting fraction formats requires you to multiply whole numbers rapidly. Prove your fluency.</p>
     <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
       <b>The 3-Level Pathway:</b>
       <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Number Bonds</li>
-        <li><b>Level 2:</b> Bridging 10</li>
-        <li><b>Level 3:</b> Times Tables</li>
+        <li><b>Level 1:</b> Multiplication Facts (× 2 to 5)</li>
+        <li><b>Level 2:</b> Multiplication Facts (× 6 to 9)</li>
+        <li><b>Level 3:</b> Multiplication Facts (× 10 to 12)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -90,71 +120,155 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Number Bonds</h2>
+    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Multiplication</h2>
     <div class="sprint-math" id="sprint-q"></div>
     <div class="input-col">
       <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
     </div>
   </div>
 
-  <!-- ZONE 1: GUIDED LEARNING -->
+  <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-zone hidden" id="zone-learn">
+    
+    <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>Translating English to Maths</h2>
-      <p>Word problems are just secret codes. Your job is to translate the English words into the correct mathematical symbol.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="font-size:1.5rem; font-weight:bold; margin:0;">"Altogether" = Addition (+)</p>
+      <h2>Two Codes, Same Amount</h2>
+      <p>A Mixed Number and an Improper Fraction are just two different ways to write the exact same amount of blocks.</p>
+      
+      <div class="manipulative-container">
+        
+        <div class="blocks-container" style="justify-content:space-around;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="font-weight:bold; color:#5f6368; margin-bottom:5px;">Mixed Number</div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <div class="whole-block"></div>
+                    <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                        <div class="frac-piece"></div>
+                        <div class="frac-piece"></div>
+                        <div class="frac-piece"></div>
+                        <div class="frac-piece bg-empty"></div>
+                    </div>
+                </div>
+                <div class="math-row" style="margin-top:10px;">
+                    <div class="v-whole">1</div>
+                    <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
+                </div>
+            </div>
+            
+            <div style="font-size:2rem; font-weight:bold; color:#999; display:flex; align-items:center;">=</div>
+            
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="font-weight:bold; color:#5f6368; margin-bottom:5px;">Improper</div>
+                <div style="display:flex; align-items:center; gap:5px;">
+                    <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                        <div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece"></div>
+                    </div>
+                    <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                        <div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece bg-empty"></div>
+                    </div>
+                </div>
+                <div class="math-row" style="margin-top:10px;">
+                    <div class="v-frac"><div class="v-num" style="color:var(--danger);">7</div><div class="v-den">4</div></div>
+                </div>
+            </div>
+        </div>
       </div>
-      <p style="text-align:left;">If Sipho paints $1/4$ of a wall, and Thabo paints $1/4$, how much did they paint <b>altogether</b>? You add them together to get $2/4$, which simplifies to $1/2$.</p>
+      <p style="text-align:left;"><b>Mixed:</b> Count the whole blocks, then the leftover pieces.<br><b>Improper:</b> Cut EVERYTHING into pieces and count the total.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue ➔</button>
     </div>
 
+    <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>Finding the Difference</h2>
-      <p>When you need to find out what is left over, or how much more you need, you use subtraction.</p>
-      <div style="background: #fce8e6; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="font-size:1.5rem; font-weight:bold; margin:0; color:var(--danger);">"Left over" = Subtraction (-)</p>
+      <h2>The Shatter Tool</h2>
+      <p>To convert Mixed to Improper, we must cut the whole blocks into pieces.</p>
+      
+      <div class="manipulative-container">
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Action:</b> Tap the solid Whole Block to shatter it into Quarters (4 pieces).</p>
+        
+        <div class="math-row" style="font-size: 2rem; margin:5px 0; width:100%;">
+            <div class="v-whole" style="color:var(--primary);">1</div>
+            <div class="v-frac"><div class="v-num">3</div><div class="v-den">4</div></div>
+            <div style="margin: 0 15px;">➔</div>
+            <div class="v-frac"><div class="v-num" style="color:var(--danger);" id="fix-num">?</div><div class="v-den" id="fix-den">4</div></div>
+        </div>
+
+        <div class="blocks-container" id="learn-shatter-container">
+            <div class="whole-block shatter-ready" onclick="shatterBlock(this, 4, 'slide2')"></div>
+            <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                <div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece"></div><div class="frac-piece bg-empty"></div>
+            </div>
+        </div>
       </div>
-      <p style="text-align:left;">If a recipe needs $3/4$ of a cup of sugar, and you only have $1/4$, how much <b>more do you need</b>? You subtract to find the difference: $3/4 - 1/4 = 2/4$ (or $1/2$).</p>
+      <button class="btn btn-primary" id="btn-next-2" onclick="nextSlide()" style="opacity:0.5;" disabled>Continue ➔</button>
     </div>
 
+    <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <h2>The Secret Meaning of "Of"</h2>
-      <p>In mathematics, the word "of" almost always means multiply.</p>
-      <div style="background: #d4edda; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="font-size:1.5rem; font-weight:bold; margin:0; color:var(--success);">"Of" = Multiplication (×)</p>
+      <h2>The Fusion Tool</h2>
+      <p>To convert Improper to Mixed, we glue the loose pieces back together.</p>
+      
+      <div class="manipulative-container">
+        <p style="text-align:left; width:100%; margin-top:0; font-size:0.95rem; color:#5f6368;"><b>Action:</b> We have 5 halves. Tap the glowing group of 2 halves to fuse them into 1 Whole Block.</p>
+        
+        <div class="math-row" style="font-size: 2rem; margin:5px 0; width:100%;">
+            <div class="v-frac"><div class="v-num" style="color:var(--danger);">5</div><div class="v-den">2</div></div>
+            <div style="margin: 0 15px;">➔</div>
+            <div class="v-whole" style="color:var(--primary);" id="fuse-whole">?</div>
+            <div class="v-frac"><div class="v-num" id="fuse-num">?</div><div class="v-den">2</div></div>
+        </div>
+
+        <div class="blocks-container" id="learn-fuse-container">
+            <div class="fuse-group fuse-ready" onclick="fuseBlocks(this, 'slide3')">
+                <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                    <div class="frac-piece"></div><div class="frac-piece"></div>
+                </div>
+            </div>
+            <div class="fuse-group fuse-ready" onclick="fuseBlocks(this, 'slide3')">
+                <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">
+                    <div class="frac-piece"></div><div class="frac-piece"></div>
+                </div>
+            </div>
+            <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0 5px; flex-direction:column;">
+                <div class="frac-piece"></div><div class="frac-piece bg-empty"></div>
+            </div>
+        </div>
+        
       </div>
-      <p style="text-align:left;">If you have $1/2$ of a pizza left, and you eat $1/2$ <b>of</b> that leftover piece, you are multiplying: $1/2 \times 1/2 = 1/4$ of the whole pizza.</p>
+      <button class="btn btn-primary" id="btn-next-3" onclick="startGuidedPractice()" style="opacity:0.5;" disabled>Start Guided Practice ➔</button>
     </div>
-
-    <div id="slide-4" class="hidden">
-      <h2>Cutting and Sharing</h2>
-      <p>When you are breaking a large amount down into smaller, equal pieces, you are dividing.</p>
-      <div style="background: #fef7e0; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <p style="font-size:1.5rem; font-weight:bold; margin:0; color:var(--warning);">"Cut into" = Division (÷)</p>
-      </div>
-      <p style="text-align:left;">If you have $1/2$ kg of beads and you <b>cut it into</b> bags holding $1/4$ kg each, you divide: $1/2 \div 1/4$ (Keep, Change, Flip) = 2 bags.</p>
-    </div>
-
-    <div id="slide-5" class="hidden">
-      <h2>Ready to Prove Mastery?</h2>
-      <p>You must solve <b>5 word problems in a row</b> on your first attempt.</p>
-      <p>1. Find the secret code word.<br>2. Choose the correct rule (+, -, ×, ÷).<br>3. Simplify your final answer.</p>
-    </div>
-
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
   </div>
 
-  <!-- ZONE 2: PRACTICE -->
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-zone hidden" id="zone-guided">
+    <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
+    
+    <div class="math-row" style="margin-bottom:15px; font-size:3.5rem;" id="g-q-container">
+      <!-- Populated dynamically -->
+    </div>
+
+    <div id="g-dynamic-steps" style="width:100%;">
+        <!-- Steps injected by JS -->
+    </div>
+  </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-zone hidden" id="zone-practice">
-    <div id="wp-text">Loading problem...</div>
-    <div class="math-row">
-      <div style="font-size: 1.5rem; color:#5f6368; margin-right:10px;">Answer:</div>
-      <div class="input-col">
-        <div class="f-box active" id="p-num" onclick="setActive('p-num')"></div>
-        <div style="width:70px; height:4px; background:#333; margin: 5px 0;"></div>
-        <div class="f-box" id="p-den" onclick="setActive('p-den')"></div>
+    <div class="instruction" id="p-instruction">Convert:</div>
+
+    <div class="math-row" style="margin: 20px 0; font-size:3.5rem; color:#333;" id="p-q-display">
+      <!-- Populated by JS -->
+    </div>
+
+    <div class="math-row" style="margin-top:10px;">
+      <div style="font-size:2.5rem; margin-right:15px; color:#999;">=</div>
+      <div id="p-input-area" style="display:flex; align-items:center;">
+        <!-- Populated by JS -->
       </div>
     </div>
+    
+    <p style="font-size:0.85rem; color:var(--danger); margin-top:20px; padding-bottom:40px; text-align:left;">
+      <b>Strict Mode Active:</b> You must convert exactly correctly 5 times in a row. A mistake resets your streak to zero.
+    </p>
   </div>
 
   <!-- KEYPAD -->
@@ -162,7 +276,7 @@
     <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
     <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
     <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
-    <div class="key" onclick="deleteNum()">⌫</div><div class="key" onclick="typeNum('0')">0</div><div class="key" id="key-next" onclick="nextBox()">↓ Next</div>
+    <div class="key" style="background:#e8eaed;"></div><div class="key" onclick="typeNum('0')">0</div><div class="key" onclick="deleteNum()">⌫</div>
     <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
   </div>
 
@@ -182,9 +296,9 @@
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
   let xp = 0;
-  const currentModuleId = document.title.split('- ')[1]; 
+  const currentModuleId = 'RAT-08'; 
 
-  // CASCADING GATEKEEPER VARIABLES
+  // Gatekeeper Variables
   let gateLevel = 1; 
   let sprintTimer;
   let timeLeft = 60; 
@@ -193,54 +307,51 @@
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
 
-  // REMEDIATION VARIABLES
+  // Remediation Variables
   let sessionMissed = [];
   let currentRemediationQ = null;
   let remediationIndex = -1;
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 5;
+  const totalSlides = 3; 
   let streak = 0, mistakesOnCurrent = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
   let currentQ = {}; 
 
-  // --- INITIALIZATION & ANTI-AMNESIA ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
-  if(savedProf) {
-      let p = JSON.parse(savedProf);
-      if(!p.gateLevels) {
-          p.gateLevels = {};
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-      }
-      if(p.gateLevels[currentModuleId]) {
-          gateLevel = p.gateLevels[currentModuleId];
-      }
-  }
+  // Guided Practice Variables
+  let guidedLevel = 1; // 1 = Mixed to Imp, 2 = Imp to Mixed
+  let guidedSubStep = 1;
+  let gData = {};
 
+  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
-          }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
 
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
+                  document.getElementById('modal-btn').innerText = "Resume Drill";
+                  document.getElementById('modal-btn').onclick = startRemediation;
+              }
           }
+      } catch (e) {
+          console.error("Profile parsing error", e);
       }
 
-      // --- GOD MODE BYPASS ---
+      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
+
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
           unlockLesson();
@@ -256,13 +367,13 @@
     activeBoxId = id;
     let box = document.getElementById(activeBoxId);
     if(box) box.classList.add('active');
-    if(box && appState === 'PRACTICE') box.innerText = ''; 
   }
 
-  function typeNum(num) {
+  function typeNum(char) {
     if(appState === 'LOCKED') return;
     let box = document.getElementById(activeBoxId);
-    if(box && box.innerText.length < 3) box.innerText += num;
+    if(!box) return;
+    if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
@@ -271,17 +382,86 @@
     if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
-  function nextBox() {
-    if(appState === 'PRACTICE') {
-      if(activeBoxId === 'p-num') setActive('p-den');
-      else setActive('p-num');
-    }
-  }
-
   function submitAnswer() {
     if(appState === 'GATEKEEPER') checkSprintAnswer();
     else if (appState === 'REMEDIATION') checkRemediationAnswer();
+    else if (appState === 'GUIDED') checkGuidedAnswer();
     else if (appState === 'PRACTICE') checkPracticeAnswer();
+  }
+
+  // --- VISUOSPATIAL SHATTER & FUSE MECHANICS ---
+  
+  function shatterBlock(el, den, context) {
+      if(appState === 'LOCKED' || el.classList.contains('shattered')) return;
+      
+      el.classList.add('shattered');
+      el.classList.remove('shatter-ready');
+      el.style.background = 'transparent';
+      el.style.border = 'none';
+      el.style.boxShadow = 'none';
+
+      let html = `<div class="frac-bar horizontal" style="width:100%; height:100%; margin:0; flex-direction:column;">`;
+      for(let i=0; i<den; i++) {
+          html += `<div class="frac-piece"></div>`;
+      }
+      html += `</div>`;
+      
+      el.innerHTML = html;
+
+      if (context === 'slide2') {
+          document.getElementById('fix-num').innerText = "7";
+          document.getElementById('btn-next-2').disabled = false;
+          document.getElementById('btn-next-2').style.opacity = '1';
+          document.getElementById('btn-next-2').style.background = 'var(--success)';
+      } else if (context === 'guided') {
+          let readyBlocks = document.querySelectorAll('#g-shatter-area .shatter-ready').length;
+          if (readyBlocks === 0) {
+              appState = 'LOCKED';
+              setTimeout(() => {
+                  document.getElementById('g-box-1').style.borderColor = 'var(--success)';
+                  guidedSubStep = 2;
+                  document.getElementById('g-box-2').classList.remove('locked');
+                  setActive('g-ans-2a');
+                  appState = 'GUIDED';
+                  document.getElementById('keypad').classList.remove('hidden');
+              }, 400);
+          }
+      }
+  }
+
+  function fuseBlocks(el, context) {
+      if(appState === 'LOCKED' || el.classList.contains('fused')) return;
+
+      el.classList.add('fused');
+      el.classList.remove('fuse-ready');
+      el.style.border = 'none';
+      el.style.background = 'transparent';
+
+      el.innerHTML = `<div class="whole-block" style="cursor:default;"></div>`;
+
+      if (context === 'slide3') {
+          let readyFuses = document.querySelectorAll('#learn-fuse-container .fuse-ready').length;
+          if (readyFuses === 0) {
+              document.getElementById('fuse-whole').innerText = "2";
+              document.getElementById('fuse-num').innerText = "1";
+              document.getElementById('btn-next-3').disabled = false;
+              document.getElementById('btn-next-3').style.opacity = '1';
+              document.getElementById('btn-next-3').style.background = 'var(--success)';
+          }
+      } else if (context === 'guided') {
+          let readyFuses = document.querySelectorAll('#g-fuse-area .fuse-ready').length;
+          if (readyFuses === 0) {
+              appState = 'LOCKED';
+              setTimeout(() => {
+                  document.getElementById('g-box-1').style.borderColor = 'var(--success)';
+                  guidedSubStep = 2;
+                  document.getElementById('g-box-2').classList.remove('locked');
+                  setActive('g-ans-2a');
+                  appState = 'GUIDED';
+                  document.getElementById('keypad').classList.remove('hidden');
+              }, 400);
+          }
+      }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -294,12 +474,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
     
-    let nextBtn = document.getElementById('key-next');
-    if(nextBtn) nextBtn.style.display = 'none';
-    
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Number Bonds";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging 10";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Times Tables";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
 
     document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
@@ -330,66 +507,40 @@
   }
 
   function generateGateQuestion(level) {
-    let qText, ans;
+    let n1, n2;
     if (level === 1) { 
-      if (Math.random() > 0.5) { 
-         ans = Math.floor(Math.random() * 9) + 1; 
-         let bond = 10 - ans;
-         qText = `10 - ${bond} =`;
-         if(Math.random() > 0.5) { 
-             ans = Math.floor(Math.random() * 19) + 1;
-             bond = 20 - ans;
-             qText = `20 - ${bond} =`;
-         }
-      } else { 
-         ans = Math.floor(Math.random() * 8) + 2; 
-         let n1 = Math.floor(Math.random() * (ans - 1)) + 1;
-         let n2 = ans - n1;
-         qText = `${n1} + ${n2} =`;
-      }
+      n1 = Math.floor(Math.random() * 4) + 2; 
+      n2 = Math.floor(Math.random() * 11) + 2; 
     } else if (level === 2) { 
-      if (Math.random() > 0.5) { 
-         let n1 = Math.floor(Math.random() * 4) + 6; 
-         let n2 = Math.floor(Math.random() * 4) + 5; 
-         ans = n1 + n2;
-         qText = `${n1} + ${n2} =`;
-      } else { 
-         ans = Math.floor(Math.random() * 4) + 5; 
-         let n2 = Math.floor(Math.random() * 4) + 6; 
-         let n1 = ans + n2; 
-         qText = `${n1} - ${n2} =`;
-      }
+      n1 = Math.floor(Math.random() * 4) + 6; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     } else { 
-      if (Math.random() > 0.5) {
-         let n1 = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         ans = n1 * n2;
-         qText = `${n1} × ${n2} =`;
-      } else {
-         ans = Math.floor(Math.random() * 11) + 2; 
-         let n2 = Math.floor(Math.random() * 11) + 2; 
-         let n1 = ans * n2;
-         qText = `${n1} ÷ ${n2} =`;
-      }
+      n1 = Math.floor(Math.random() * 3) + 10; 
+      n2 = Math.floor(Math.random() * 11) + 2;
     }
-    return { qText: qText, ans: ans };
+    if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
+    
+    let ans = n1 * n2;
+    let qText = `${n1} × ${n2} =`;
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
-    document.getElementById('sprint-q').innerText = currentSprintQ.qText;
+    document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
   }
 
   function checkSprintAnswer() {
-    let userAns = parseInt(document.getElementById('sprint-ans').innerText);
-    if(isNaN(userAns)) return;
+    let boxText = document.getElementById('sprint-ans').innerText;
+    if(boxText === '') return;
 
     sprintAttempts++;
     let box = document.getElementById('sprint-ans');
     
-    if(userAns === currentSprintQ.ans) {
+    if(boxText === currentSprintQ.ans) {
       sprintCorrect++;
       xp += 5;
       document.getElementById('xp-counter').innerText = xp;
@@ -431,7 +582,7 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your foundational maths is fully automated. The lesson is now unlocked.`);
+        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your multiplication facts are automated. The lesson is now unlocked.`);
         document.getElementById('modal-btn').innerText = "Enter Lesson";
         document.getElementById('modal-btn').onclick = unlockLesson;
       }
@@ -448,12 +599,7 @@
           document.getElementById('modal-btn').innerText = "Start Focus Drill";
           document.getElementById('modal-btn').onclick = startRemediation;
       } else {
-          let hintText = "";
-          if (gateLevel === 1) hintText = `\n\n💡 Remember: Master your Number Bonds! Knowing instantly that 7+3=10 or 10-4=6 is the secret to fast maths. Practise your pairs to 10 and 20.`;
-          else if (gateLevel === 2) hintText = `\n\n💡 Remember: Use the "Bridging 10" strategy! For 8 + 5, borrow 2 from the 5 to make a 10. That leaves 3. So, 10 + 3 = 13.`;
-          else if (gateLevel === 3) hintText = `\n\n💡 Remember: Multiplication is fast addition! If you forget 6 × 4, think: double 6 is 12, and double 12 is 24. Find the patterns.`;
-
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nYour arithmetic facts are not yet automatic. ${hintText}`);
+          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
           document.getElementById('modal-btn').innerText = "Try Again";
           document.getElementById('modal-btn').onclick = resetSprint;
       }
@@ -495,7 +641,7 @@
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
           
           document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
-          document.getElementById('sprint-q').innerText = currentRemediationQ.qText;
+          document.getElementById('sprint-q').innerHTML = `<div style="font-size:3rem; font-weight:bold;">${currentRemediationQ.qText}</div>`;
           document.getElementById('sprint-ans').innerText = '';
           document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
           document.getElementById('sprint-ans').style.color = 'var(--primary)';
@@ -504,8 +650,8 @@
   }
 
   function checkRemediationAnswer() {
-      let userAns = parseInt(document.getElementById('sprint-ans').innerText);
-      if(isNaN(userAns)) return;
+      let boxText = document.getElementById('sprint-ans').innerText;
+      if(boxText === '') return;
 
       let box = document.getElementById('sprint-ans');
       let saved = localStorage.getItem('harvest_maths_profile');
@@ -514,7 +660,7 @@
       
       let queue = p.remediation[currentModuleId];
 
-      if(userAns === currentRemediationQ.ans) {
+      if(boxText === currentRemediationQ.ans) {
           box.classList.add('flash-green');
           xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
@@ -550,7 +696,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showModal('🟢', 'Drill Complete!', 'Excellent. You have built fluency in your blind spots. Let\'s try the Gatekeeper again.');
+      showModal('🟢', 'Drill Complete!', 'Excellent. Let\'s try the Gatekeeper again.');
       document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
       document.getElementById('modal-btn').onclick = resetSprint; 
   }
@@ -584,85 +730,261 @@
     slideIndex++;
     if(slideIndex <= totalSlides) {
       document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-      if(slideIndex === totalSlides) document.getElementById('btn-next-slide').innerText = "Start Practice";
     } else {
-      startPractice();
+      startGuidedPractice();
     }
   }
 
-  // --- ZONE 2: PRACTICE (WORD PROBLEMS) ---
-  function hcf(a, b) { return b === 0 ? a : hcf(b, a % b); }
-  function getLcd(a, b) { return (a * b) / hcf(a, b); }
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      document.getElementById('keypad').classList.add('hidden'); // Hide until manipulative complete
+      
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
 
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = ''; 
+
+      if (guidedLevel === 1) { // Mixed to Improper
+          let blocksHtml = `<div class="blocks-container" id="g-shatter-area">`;
+          for(let i=0; i<gData.w; i++) {
+              blocksHtml += `<div class="whole-block shatter-ready" onclick="shatterBlock(this, ${gData.d}, 'guided')"></div>`;
+          }
+          blocksHtml += `<div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">`;
+          for(let i=0; i<gData.d; i++) {
+              blocksHtml += `<div class="frac-piece ${i < gData.n ? '' : 'bg-empty'}"></div>`;
+          }
+          blocksHtml += `</div></div>`;
+
+          container.innerHTML += `
+            <div class="guided-step" id="g-box-1">
+              <div class="guided-text" id="g-t1">1. Tap the glowing Whole Blocks to shatter them into ${gData.d} pieces each:</div>
+              ${blocksHtml}
+            </div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. Calculate the formula: (Whole × Bottom) + Top:</div>
+              <div class="guided-row">
+                <div style="font-size:1.5rem; font-weight:bold;">( ${gData.w} × ${gData.d} ) + ${gData.n} = </div>
+                <div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. Write your final Improper Fraction:</div>
+              <div class="guided-row">
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+                </div>
+              </div>
+            </div>
+          `;
+      } else { // Improper to Mixed
+          let blocksHtml = `<div class="blocks-container" id="g-fuse-area">`;
+          let totalGroups = Math.floor(gData.totN / gData.d);
+          for(let i=0; i<totalGroups; i++) {
+              blocksHtml += `<div class="fuse-group fuse-ready" onclick="fuseBlocks(this, 'guided')">
+                  <div class="frac-bar horizontal" style="width:30px; height:60px; margin:0; flex-direction:column;">`;
+              for(let j=0; j<gData.d; j++) blocksHtml += `<div class="frac-piece"></div>`;
+              blocksHtml += `</div></div>`;
+          }
+          let leftOver = gData.totN % gData.d;
+          blocksHtml += `<div class="frac-bar horizontal" style="width:30px; height:60px; margin:0 5px; flex-direction:column;">`;
+          for(let j=0; j<gData.d; j++) {
+              blocksHtml += `<div class="frac-piece ${j < leftOver ? '' : 'bg-empty'}"></div>`;
+          }
+          blocksHtml += `</div></div>`;
+
+          container.innerHTML += `
+            <div class="guided-step" id="g-box-1">
+              <div class="guided-text" id="g-t1">1. Tap the glowing groups of ${gData.d} pieces to fuse them into Whole Blocks:</div>
+              ${blocksHtml}
+            </div>
+            <div class="guided-step locked" id="g-box-2">
+              <div class="guided-text" id="g-t2">2. How many Whole Blocks did you build?</div>
+              <div class="guided-row">
+                <div class="f-box" id="g-ans-2a" onclick="setActive('g-ans-2a')"></div>
+              </div>
+            </div>
+            <div class="guided-step locked" id="g-box-3">
+              <div class="guided-text" id="g-t3">3. How many pieces are left over? Write the final Mixed Number:</div>
+              <div class="guided-row">
+                <div class="v-whole"><div class="f-box whole-box" id="g-ans-3a" onclick="setActive('g-ans-3a')"></div></div>
+                <div class="v-frac">
+                  <div class="v-num"><div class="f-box" id="g-ans-3b" onclick="setActive('g-ans-3b')"></div></div>
+                  <div class="v-den"><div class="f-box" id="g-ans-3c" onclick="setActive('g-ans-3c')"></div></div>
+                </div>
+              </div>
+            </div>
+          `;
+      }
+  }
+
+  function loadGuidedQuestion() {
+      guidedSubStep = 1;
+      
+      if (guidedLevel === 1) { // Mixed to Imp
+          gData = { 
+              w: 2, n: 1, d: 4, 
+              calc: "9",
+              targetN: "9", targetD: "4",
+              err2: "Do the math: (2 × 4) + 1. 2 times 4 is 8, plus 1 is 9.",
+              err3: "The top is 9. The bottom stays 4. Pieces don't change size!"
+          };
+          document.getElementById('g-title').innerText = `Guided Practice 1/2: Mixed to Improper`;
+          document.getElementById('g-q-container').innerHTML = `
+              <div class="v-whole" style="color:var(--primary);">2</div>
+              <div class="v-frac"><div class="v-num" style="color:var(--primary);">1</div><div class="v-den">4</div></div>
+          `;
+      } else { // Imp to Mixed
+          gData = { 
+              totN: 7, d: 3, 
+              w: "2",
+              targetW: "2", targetN: "1", targetD: "3",
+              err2: "Look at the blocks you fused. You made exactly 2 solid Whole Blocks.",
+              err3: "You have 2 wholes. There is 1 loose piece left. The denominator is still 3. The answer is 2 1/3."
+          };
+          document.getElementById('g-title').innerText = `Guided Practice 2/2: Improper to Mixed`;
+          document.getElementById('g-q-container').innerHTML = `
+              <div class="v-frac"><div class="v-num" style="color:var(--danger);">7</div><div class="v-den">3</div></div>
+          `;
+      }
+
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      let isCorrect = false;
+      
+      if (guidedLevel === 1) {
+          if (guidedSubStep === 2) {
+              isCorrect = (val === gData.calc);
+          } else if (guidedSubStep === 3) {
+              let bA = document.getElementById('g-ans-3a').innerText;
+              let bB = document.getElementById('g-ans-3b').innerText;
+              if (activeBoxId === 'g-ans-3a' && val === gData.targetN) {
+                  box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+              } else if (activeBoxId === 'g-ans-3b' && val === gData.targetD) {
+                  isCorrect = (bA === gData.targetN && bB === gData.targetD);
+              }
+          }
+      } else {
+          if (guidedSubStep === 2) {
+              isCorrect = (val === gData.w);
+          } else if (guidedSubStep === 3) {
+              let bA = document.getElementById('g-ans-3a').innerText;
+              let bB = document.getElementById('g-ans-3b').innerText;
+              let bC = document.getElementById('g-ans-3c').innerText;
+              
+              if (activeBoxId === 'g-ans-3a' && val === gData.targetW) {
+                  box.classList.add('flash-green'); setActive('g-ans-3b'); return; 
+              } else if (activeBoxId === 'g-ans-3b' && val === gData.targetN) {
+                  box.classList.add('flash-green'); setActive('g-ans-3c'); return; 
+              } else if (activeBoxId === 'g-ans-3c' && val === gData.targetD) {
+                  isCorrect = (bA === gData.targetW && bB === gData.targetN && bC === gData.targetD);
+              }
+          }
+      }
+
+      if (isCorrect) {
+          box.classList.add('flash-green');
+          xp += 10;
+          document.getElementById('xp-counter').innerText = xp;
+          
+          if (guidedSubStep === 2) {
+              guidedSubStep = 3;
+              setTimeout(() => {
+                  box.classList.remove('active');
+                  document.getElementById('g-box-2').style.borderColor = 'var(--success)';
+                  document.getElementById('g-box-3').classList.remove('locked');
+                  setActive('g-ans-3a');
+              }, 400);
+          } else {
+              if (guidedLevel === 1) {
+                  guidedLevel = 2;
+                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You broke the wholes into pieces. Now let\'s try building wholes from pieces.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); document.getElementById('keypad').classList.add('hidden');};
+              } else {
+                  showModal('🟢', 'Training Complete', 'You know exactly how to convert both ways! Now, prove it in the Strict Practice zone.');
+                  document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
+              }
+          }
+      } else {
+          box.classList.add('flash-red');
+          if (guidedSubStep === 2) showModal('🔴', 'Calculation Error', gData.err2);
+          else showModal('🔴', 'Format Error', gData.err3);
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
   function startPractice() {
     appState = 'PRACTICE';
-    document.getElementById('zone-learn').classList.add('hidden');
+    document.getElementById('zone-guided').classList.add('hidden');
     document.getElementById('zone-practice').classList.remove('hidden');
     document.getElementById('keypad').classList.remove('hidden');
-    
-    let nextBtn = document.getElementById('key-next');
-    if(nextBtn) nextBtn.style.display = 'flex';
-    
+
+    masteryPoints = 0; 
     updateProgressBar();
-    setActive('p-num');
     loadPracticeQuestion();
   }
 
-  function generateWordProblem() {
-    let types = ['add', 'sub', 'mul', 'div'];
-    let type = types[Math.floor(Math.random() * types.length)];
-    let d1 = Math.floor(Math.random() * 6) + 3;
-    let d2 = Math.floor(Math.random() * 6) + 3;
-    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-    
-    let text = "";
-    let rawN, rawD;
-    
-    if (type === 'add') {
-        text = `Sipho paints ${n1}/${d1} of a wall. Thabo paints ${n2}/${d2} of the same wall. What fraction of the wall did they paint altogether?`;
-        let lcd = getLcd(d1, d2);
-        rawN = (n1 * (lcd/d1)) + (n2 * (lcd/d2));
-        rawD = lcd;
-    } else if (type === 'sub') {
-        let val1 = n1/d1; let val2 = n2/d2;
-        if(val2 > val1) { let t=n1; n1=n2; n2=t; t=d1; d1=d2; d2=t; }
-        if(n1/d1 === n2/d2) { n1=d1-1; d1=d1; n2=1; d2=d1; }
-        text = `A recipe needs ${n1}/${d1} cups of sugar. You only have ${n2}/${d2} of a cup. How much more sugar do you need?`;
-        let lcd = getLcd(d1, d2);
-        rawN = (n1 * (lcd/d1)) - (n2 * (lcd/d2));
-        rawD = lcd;
-    } else if (type === 'mul') {
-        text = `You have ${n1}/${d1} of a pizza left in the fridge. You eat ${n2}/${d2} OF those leftovers. What fraction of the whole pizza did you eat?`;
-        rawN = n1 * n2;
-        rawD = d1 * d2;
-    } else if (type === 'div') {
-        text = `You have a piece of wire that is ${n1}/${d1} metres long. You cut it into smaller pieces that are ${n2}/${d2} metres long. How many pieces do you get?`;
-        rawN = n1 * d2;
-        rawD = d1 * n2;
+  function generatePracticeQuestion() {
+    let mode = Math.random() > 0.5 ? 'MIXED_TO_IMP' : 'IMP_TO_MIXED';
+    let d = Math.floor(Math.random() * 6) + 3; // denom 3 to 8
+    let w = Math.floor(Math.random() * 5) + 1; // whole 1 to 5
+    let n = Math.floor(Math.random() * (d - 1)) + 1; // leftover < d
+
+    let totalN = (w * d) + n;
+
+    if (mode === 'MIXED_TO_IMP') {
+        return {
+            mode: mode,
+            qHtml: `<div class="v-whole" style="color:var(--primary);">${w}</div><div class="v-frac"><div class="v-num" style="color:var(--primary);">${n}</div><div class="v-den">${d}</div></div>`,
+            ansW: "", ansN: totalN.toString(), ansD: d.toString(),
+            rawW: w.toString(), rawN: n.toString(), rawD: d.toString()
+        };
+    } else {
+        return {
+            mode: mode,
+            qHtml: `<div class="v-frac"><div class="v-num" style="color:var(--danger);">${totalN}</div><div class="v-den">${d}</div></div>`,
+            ansW: w.toString(), ansN: n.toString(), ansD: d.toString(),
+            rawW: "", rawN: totalN.toString(), rawD: d.toString()
+        };
     }
-    let g = hcf(rawN, rawD);
-    return { text: text, type: type, rawN: rawN, rawD: rawD, ansN: rawN/g, ansD: rawD/g };
   }
 
   function loadPracticeQuestion() {
-    mistakesOnCurrent = 0;
-    document.getElementById('p-num').innerText = '';
-    document.getElementById('p-den').innerText = '';
-    setActive('p-num');
+    currentQ = generatePracticeQuestion();
+    document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     
-    currentQ = generateWordProblem();
-    document.getElementById('wp-text').innerText = currentQ.text;
-    
-    // For integer answers (like 4 pieces), adjust the UI to accept a whole number format.
-    if(currentQ.ansD === 1) {
-        document.getElementById('p-den').innerText = '1';
-        document.getElementById('p-den').style.display = 'none';
-        document.getElementById('p-num').nextElementSibling.style.display = 'none'; // hide line
-        setActive('p-num');
+    let inputArea = document.getElementById('p-input-area');
+    if (currentQ.mode === 'MIXED_TO_IMP') {
+        document.getElementById('p-instruction').innerText = "Convert to Improper Fraction:";
+        inputArea.innerHTML = `
+            <div class="v-frac" style="font-size:2.5rem;">
+                <div class="v-num" style="padding-bottom:10px;"><div class="f-box active" id="p-ans-n" onclick="setActive('p-ans-n')"></div></div>
+                <div class="v-den" style="padding-top:10px;"><div class="f-box" id="p-ans-d" onclick="setActive('p-ans-d')"></div></div>
+            </div>
+        `;
+        setActive('p-ans-n');
     } else {
-        document.getElementById('p-den').style.display = 'flex';
-        document.getElementById('p-num').nextElementSibling.style.display = 'block'; // show line
+        document.getElementById('p-instruction').innerText = "Convert to Mixed Number:";
+        inputArea.innerHTML = `
+            <div class="v-whole"><div class="f-box whole-box active" id="p-ans-w" onclick="setActive('p-ans-w')"></div></div>
+            <div class="v-frac" style="font-size:2.5rem;">
+                <div class="v-num" style="padding-bottom:10px;"><div class="f-box" id="p-ans-n" onclick="setActive('p-ans-n')"></div></div>
+                <div class="v-den" style="padding-top:10px;"><div class="f-box" id="p-ans-d" onclick="setActive('p-ans-d')"></div></div>
+            </div>
+        `;
+        setActive('p-ans-w');
     }
   }
 
@@ -673,48 +995,69 @@
   }
 
   function checkPracticeAnswer() {
-    let userN = parseInt(document.getElementById('p-num').innerText);
-    let userD = parseInt(document.getElementById('p-den').innerText);
-    
-    if(isNaN(userN) || isNaN(userD)) return;
+    let box = document.getElementById(activeBoxId);
+    let val = box.innerText;
+    if (val === '') return;
 
-    if(userN === currentQ.ansN && userD === currentQ.ansD) {
-      if (mistakesOnCurrent === 0) {
+    // Progression logic
+    if (currentQ.mode === 'MIXED_TO_IMP') {
+        if (activeBoxId === 'p-ans-n') { box.classList.add('flash-green'); setActive('p-ans-d'); return; }
+    } else {
+        if (activeBoxId === 'p-ans-w') { box.classList.add('flash-green'); setActive('p-ans-n'); return; }
+        if (activeBoxId === 'p-ans-n') { box.classList.add('flash-green'); setActive('p-ans-d'); return; }
+    }
+
+    // Final check
+    let isCorrect = false;
+    let valW = document.getElementById('p-ans-w') ? document.getElementById('p-ans-w').innerText : "";
+    let valN = document.getElementById('p-ans-n').innerText;
+    let valD = document.getElementById('p-ans-d').innerText;
+
+    if (valD === '') return;
+
+    if (currentQ.mode === 'MIXED_TO_IMP') {
+        isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+    } else {
+        isCorrect = (valW === currentQ.ansW && valN === currentQ.ansN && valD === currentQ.ansD);
+    }
+
+    if(isCorrect) {
+        document.getElementById('p-ans-d').classList.add('flash-green');
         masteryPoints++;
         streak++;
-        xp += (streak >= 3) ? 150 : 100;
+        xp += 50; 
         updateProgressBar();
-        showModal('🟢', 'Mastery +1', 'Perfect! You cracked the code and simplified the answer.');
         
-        if(masteryPoints >= masteryTarget) setTimeout(endModule, 1500);
-        else setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 1500);
-      } else {
-        streak = 0;
-        xp += 10;
-        document.getElementById('xp-counter').innerText = xp;
-        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
-        setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 2500);
-      }
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
     } else {
-      streak = 0;
-      if (mistakesOnCurrent === 0) {
-        masteryPoints = Math.max(0, masteryPoints - 1);
+        // TRAPDOORS
+        let errorMsg = `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\nKeep practicing your conversions.`;
+
+        if (currentQ.mode === 'MIXED_TO_IMP') {
+            let badNumTop = (parseInt(currentQ.rawW) * parseInt(currentQ.rawN)) + parseInt(currentQ.rawD); // Multiplying Whole by Top
+            if (valN === badNumTop.toString()) {
+                errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou multiplied the whole number by the TOP piece! (${currentQ.rawW} × ${currentQ.rawN}).\n\nYou have to cut the wholes by the BOTTOM piece (Denominator). (Whole × Bottom) + Top.\n\nYour streak has been reset.`;
+            } else if (valD !== currentQ.rawD) {
+                errorMsg = `🚨 ERROR 🚨\n\nThe denominator never changes! The pieces don't shrink when you shatter a whole block.\n\nYour streak has been reset.`;
+            }
+        } else {
+            if (valN === currentQ.ansD && valD === currentQ.ansN) {
+                errorMsg = `🚨 CRITICAL ERROR 🚨\n\nYou swapped the remainder and the denominator! You typed ${valW} and ${valN}/${valD}.\n\nThe denominator NEVER changes. It stays ${currentQ.rawD}.\n\nYour streak has been reset.`;
+            } else if (valD !== currentQ.rawD) {
+                errorMsg = `🚨 ERROR 🚨\n\nThe denominator never changes! The pieces don't grow when you fuse them.\n\nYour streak has been reset.`;
+            }
+        }
+
+        masteryPoints = 0;
+        streak = 0;
         updateProgressBar();
-      }
-      mistakesOnCurrent++;
-      
-      if (userN === currentQ.rawN && userD === currentQ.rawD && currentQ.rawN !== currentQ.ansN) {
-        showModal('🟡', 'Simplify Your Answer', `Your calculation is correct, but it is not in its simplest form. Find the Highest Common Factor (HCF) to reduce it.`);
-      }
-      else {
-        let opName = "";
-        if (currentQ.type === 'add') opName = "Addition (Altogether)";
-        if (currentQ.type === 'sub') opName = "Subtraction (How much more / Left over)";
-        if (currentQ.type === 'mul') opName = "Multiplication (Of)";
-        if (currentQ.type === 'div') opName = "Division (Cut into / Share)";
         
-        showModal('🔴', 'Incorrect Operation', `Did you crack the code word? This problem requires <b>${opName}</b>.\n\nUse the rules for that specific operation, and try again.`);
-      }
+        if(document.getElementById('p-ans-w')) document.getElementById('p-ans-w').classList.add('flash-red');
+        document.getElementById('p-ans-n').classList.add('flash-red');
+        document.getElementById('p-ans-d').classList.add('flash-red');
+        
+        showModal('🔴', 'Streak Broken', errorMsg);
     }
   }
 
@@ -723,15 +1066,19 @@
     document.getElementById('modal-icon').innerText = icon;
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
-    document.getElementById('modal-text').innerHTML = text; // Changed to innerHTML to allow bolding
+    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
     document.getElementById('hint-modal').classList.add('show');
-    if(appState === 'PRACTICE') {
+    if(appState === 'PRACTICE' || appState === 'GUIDED') {
       document.getElementById('modal-btn').innerText = "I Understand";
       document.getElementById('modal-btn').onclick = closeModal;
     }
   }
 
-  function closeModal() { document.getElementById('hint-modal').classList.remove('show'); }
+  function closeModal() { 
+    document.getElementById('hint-modal').classList.remove('show'); 
+    let box = document.getElementById(activeBoxId);
+    if(box) box.classList.remove('flash-red');
+  }
 
 </script>
 
@@ -746,20 +1093,20 @@
       }
       if (event.key >= '0' && event.key <= '9') {
         typeNum(event.key);
+      } else if (event.key === ',' || event.key === '.') {
+        event.preventDefault();
+        typeNum(',');
       } else if (event.key === 'Backspace' || event.key === 'Delete') {
         deleteNum();
       } else if (event.key === 'Enter') {
         submitAnswer();
-      } else if (event.key === 'ArrowDown' || event.key === 'ArrowRight' || event.key === 'Tab') {
-        event.preventDefault(); 
-        nextBox();
       }
     });
   </script>
 
   <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
   <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08'];
+    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
     function logTelemetryEvent(action, accuracyVal) {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
