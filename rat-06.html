@@ -28,7 +28,7 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
+    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
@@ -136,6 +136,7 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
+    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Multiply Rule</div>
@@ -150,6 +151,7 @@
 
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:15px;">⬇</div>
 
+        <!-- Merged Fraction Visual -->
         <div class="merged-fraction">
             <div class="merged-num">
                 <span style="color:var(--indigo);">2</span> <span style="color:var(--slate-400);">×</span> <span style="color:var(--rose);">3</span>
@@ -198,12 +200,14 @@
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
     
     <div class="pinned-visual">
+        <!-- Original Equation -->
         <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
         
+        <!-- Raw Merged Answer (Step 1) -->
         <div class="math-row">
             <div class="fraction">
               <div class="frac-num"><div class="input-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
@@ -227,26 +231,40 @@
     <p class="instruction-text">Multiply straight across. Then simplify to your final answer.</p>
 
     <div class="pinned-visual">
+        <!-- Original Equation -->
         <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
             <!-- Populated by JS -->
         </div>
         
         <div class="math-row" style="margin-top:10px;">
           <div class="operator" style="margin-right:15px;">=</div>
+          
+          <!-- Raw Answer -->
           <div class="fraction" style="font-size:2.5rem;">
-            <div class="frac-num"><div class="input-box active" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div></div>
-            <div class="frac-den"><div class="input-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div></div>
+            <div class="frac-num">
+                <div class="input-box active" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div>
+            </div>
+            <div class="frac-den">
+                <div class="input-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div>
+            </div>
           </div>
+
           <div class="operator" style="margin: 0 15px;">➔</div>
+          
+          <!-- Simplified Answer -->
           <div class="fraction" style="font-size:2.5rem;">
-            <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div></div>
-            <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div></div>
+            <div class="frac-num">
+                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+            </div>
+            <div class="frac-den">
+                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+            </div>
           </div>
         </div>
     </div>
     
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified fraction.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
     </div>
   </div>
 
@@ -360,7 +378,6 @@
   });
 
   // --- VIEWPORT-AWARE UNIVERSAL SCROLL FIX ---
-  // Note: This exact function can be pasted into RAT-01 through RAT-05
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -385,31 +402,30 @@
       let container = document.querySelector('.content-area');
       if (container) {
           // Add massive padding so the screen can always scroll up
-          container.style.paddingBottom = '380px';
+          container.style.paddingBottom = '450px';
 
           setTimeout(() => {
-              // Find the entire visual block to ensure both numerator & denominator stay in view
-              let visualBlock = targetBox.closest('.pinned-visual');
-              let targetEl = visualBlock || targetBox;
+              // Target the specific math row containing the fractions
+              let targetRow = targetBox.closest('.math-row');
+              let targetEl = targetRow || targetBox;
 
               let keypadHeight = keypad.offsetHeight || 300;
               let containerRect = container.getBoundingClientRect();
               let targetRect = targetEl.getBoundingClientRect();
 
-              // Calculate visible area above the keypad
+              // Calculate visible area strictly above the keypad
               let visibleViewHeight = containerRect.height - keypadHeight;
               
-              // Calculate target center relative to the current viewport
+              // Calculate target center relative to viewport
               let targetCenterY = targetRect.top + (targetRect.height / 2);
               
-              // Desired center is exactly in the middle of the available viewing area
-              let desiredCenterY = containerRect.top + (visibleViewHeight / 2);
+              // Bias the center to 40% from the top so the original question above it remains visible
+              let desiredCenterY = containerRect.top + (visibleViewHeight * 0.4);
               
-              // Delta is how many pixels we need to push the container
               let scrollDelta = targetCenterY - desiredCenterY;
 
               container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
-          }, 150); 
+          }, 300); // 300ms ensures the CSS keypad slide animation finishes first
       }
   }
 
