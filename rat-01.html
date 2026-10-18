@@ -19,23 +19,29 @@
     }
     
     body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* CRITICAL FIX: The app container is a strict flex column */
     .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* V2 MICRO-HUD */
-    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; }
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
     .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
+    /* CRITICAL FIX: Content area natively shrinks when keypad expands */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
     .hidden { display: none !important; }
     
+    /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .content-area { padding-top: 10px; }
+
     /* V2 TYPOGRAPHY & LAYOUT */
-    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
-    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
-    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: sticky; top: 0; z-index: 10;}
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
     .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
@@ -56,11 +62,11 @@
     .frac-num { padding: 0 10px 8px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; }
     .frac-den { padding: 8px 10px 0 10px; width: 100%; text-align: center; }
 
-    /* FADING STEP ARCHITECTURE */
+    /* FADING STEP ARCHITECTURE (DOM REVERSED TO SIT AT TOP) */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
-    .step-container.locked { opacity: 0.2; pointer-events: none; }
-    .step-container.completed { opacity: 0.5; border-color: var(--emerald); }
-    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); margin-bottom: 12px; line-height: 1.4; }
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 60px; height: 50px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
@@ -70,9 +76,26 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* V2 KEYPAD DRAWER */
-    .keypad-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--slate-100); padding: 15px 15px 25px 15px; border-top: 1px solid var(--slate-300); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; display: flex; justify-content: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);}
-    .keypad-drawer.open { bottom: 0; }
+    /* CRITICAL FIX: KEYPAD STRUCTURAL FLOW (No longer position: fixed) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; 
+    }
+    .keypad-drawer.open { 
+        max-height: 350px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
     .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
     .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -168,14 +191,22 @@
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
   <div class="content-area hidden" id="zone-guided">
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
-    <p class="instruction-text">Write the math code for the visual block below.</p>
     
-    <div class="pinned-visual" id="g-visual-container">
-        <!-- Visual injected by JS -->
-    </div>
-
-    <div id="g-dynamic-steps" style="width:100%;">
+    <!-- DOM REVERSAL: Instructions moved to the top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 15px;">
         <!-- Steps injected by JS -->
+    </div>
+    
+    <div class="pinned-visual">
+        <!-- Visual Bar -->
+        <div id="g-visual-container" style="width:100%; display:flex; justify-content:center; margin-bottom:20px;">
+            <!-- Visual injected by JS -->
+        </div>
+
+        <!-- HORIZONTAL WORKFLOW: Input boxes compactly injected side-by-side -->
+        <div id="g-dynamic-answer-area" class="math-row" style="flex-wrap: wrap;">
+            <!-- Steps injected by JS -->
+        </div>
     </div>
     
   </div>
@@ -183,31 +214,35 @@
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-area hidden" id="zone-practice">
     <div class="section-title">Strict Practice</div>
-    <p class="instruction-text">Write the fraction for the block below.</p>
-
-    <div class="pinned-visual" id="p-bar-container">
-      <!-- Populated by JS -->
-    </div>
-
-    <div class="math-row" style="margin-top:20px;">
-      <div style="font-size:2.5rem; margin-right:15px; color:var(--slate-400);">➔</div>
-      <div class="fraction" style="font-size:2.5rem;">
-        <div class="frac-num">
-            <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
-        </div>
-        <div class="frac-den">
-            <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
-        </div>
-      </div>
-    </div>
     
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:40px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row.</p>
+    <!-- DOM REVERSAL: Warning box moved to the top -->
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Type the fraction for the block below.</p>
+    </div>
+
+    <div class="pinned-visual">
+        <!-- Visual Bar -->
+        <div id="p-bar-container" style="width:100%; display:flex; justify-content:center; margin-bottom:15px;">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Math Answer Workflow -->
+        <div class="math-row" style="margin-top:10px;">
+          <div style="font-size:2.5rem; margin-right:15px; color:var(--slate-400);">➔</div>
+          <div class="fraction" style="font-size:2.5rem;">
+            <div class="frac-num">
+                <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+            </div>
+            <div class="frac-den">
+                <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+            </div>
+          </div>
+        </div>
     </div>
     
   </div>
 
-  <!-- V2 KEYPAD DRAWER -->
+  <!-- CRITICAL FIX: KEYPAD STRUCTURAL FLOW -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
       <div class="key-btn" onclick="typeNum('1')">1</div>
@@ -307,40 +342,59 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
+  // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
-      if(activeBoxId) document.getElementById(activeBoxId).classList.remove('active');
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) return;
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
       activeBoxId = boxId;
       activeStepId = stepId;
-      document.getElementById(activeBoxId).classList.add('active');
+      targetBox.classList.add('active');
 
-      document.getElementById('keypad').classList.add('open');
-      
-      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
-      
-      if (containerId) {
-          let container = document.getElementById(containerId);
-          
-          // CRITICAL FIX: Expand the scrollable area of the active container directly
-          // This forces the track to extend well past the top of the keypad.
-          container.style.paddingBottom = '350px';
+      // Focus mode
+      document.body.classList.add('focus-active');
 
-          if (stepId) {
-              setTimeout(() => {
-                  let stepEl = document.getElementById(stepId);
-                  if(stepEl) {
-                      let visual = container.querySelector('.pinned-visual');
-                      let visualHeight = visual ? visual.offsetHeight : 0;
-                      
-                      // Docks the active step exactly 15 pixels below the sticky visual
-                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
-                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                  }
-              }, 150); 
-          }
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
+      
+      let container = document.querySelector('.content-area');
+      if (container) {
+          // Dynamically inject a massive bottom padding so we can always scroll anything to the middle
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let fractionWrapper = targetBox.closest('.fraction') || targetBox.closest('.math-row');
+              let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
       }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); 
+      let container = document.querySelector('.content-area');
+      if (container) container.style.paddingBottom = '60px'; // Reset padding
   }
 
   function typeNum(char) {
@@ -399,9 +453,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Multiplication (× 2 to 5)";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Multiplication (× 6 to 9)";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Multiplication (× 10 to 12)";
 
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
@@ -481,7 +535,7 @@
   }
 
   function evaluateSprint() {
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad(); // Sync Transition
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
@@ -639,7 +693,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad(); // Sync Transition
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -657,32 +711,46 @@
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
           <div class="step-text">1. Find the Denominator (Bottom). Count ALL the blocks in the entire bar.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="input-box" id="g-box-d" onclick="openKeypad('g-box-d', 'g-step-1')"></div>
-          </div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Find the Numerator (Top). Count ONLY the shaded blocks.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="input-box" id="g-box-n" onclick="openKeypad('g-box-n', 'g-step-2')"></div>
-          </div>
         </div>
         <div class="step-container locked" id="g-step-3">
           <div class="step-text">3. Write your final fraction below:</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="g-box-f1" onclick="openKeypad('g-box-f1', 'g-step-3')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-box-f2" onclick="openKeypad('g-box-f2', 'g-step-3')"></div></div>
-            </div>
+        </div>
+      `;
+
+      let answerArea = document.getElementById('g-dynamic-answer-area');
+      answerArea.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:center; gap:15px; width: 100%;">
+          
+          <div style="display:flex; flex-direction:column; align-items:center;">
+              <span style="font-size:0.8rem; color:var(--slate-500); font-weight:700; margin-bottom:5px;">TOTAL</span>
+              <div class="input-box" id="g-box-d" onclick="openKeypad('g-box-d', 'g-step-1')"></div>
           </div>
+          
+          <div id="g-step-2-area" style="display:none; align-items:center; gap:15px;">
+              <div style="font-size:2rem; color:var(--slate-300);">,</div>
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                  <span style="font-size:0.8rem; color:var(--indigo); font-weight:700; margin-bottom:5px;">SHADED</span>
+                  <div class="input-box" id="g-box-n" onclick="openKeypad('g-box-n', 'g-step-2')"></div>
+              </div>
+          </div>
+          
+          <div id="g-step-3-area" style="display:none; align-items:center; gap:15px;">
+              <div class="operator" style="margin-left:10px;">➔</div>
+              <div class="fraction">
+                <div class="frac-num"><div class="input-box" id="g-box-f1" onclick="openKeypad('g-box-f1', 'g-step-3')"></div></div>
+                <div class="frac-den"><div class="input-box" id="g-box-f2" onclick="openKeypad('g-box-f2', 'g-step-3')"></div></div>
+              </div>
+          </div>
+
         </div>
       `;
       openKeypad('g-box-d', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
-      guidedSubStep = 1;
-      
       if (guidedLevel === 1) {
           gData = { n: "3", d: "8", err1: "Count EVERY block in the entire bar. The total is 8.", err2: "Count only the colored blocks. There are 3." };
       } else {
@@ -702,6 +770,14 @@
       
       document.getElementById(currentStepId).classList.add('completed');
       document.getElementById(nextStepId).classList.remove('locked');
+
+      if(nextStepId === 'g-step-2') {
+          let area = document.getElementById('g-step-2-area');
+          if(area) { area.style.display = 'flex'; }
+      } else if(nextStepId === 'g-step-3') {
+          let area = document.getElementById('g-step-3-area');
+          if(area) { area.style.display = 'flex'; }
+      }
       
       openKeypad(nextBoxId, nextStepId);
   }
@@ -744,10 +820,7 @@
                   box.classList.add('flash-success');
                   box.classList.remove('active');
                   document.getElementById('g-step-3').classList.add('completed');
-                  document.getElementById('keypad').classList.remove('open');
-                  
-                  // CRITICAL FIX: Retract padding cleanly when the keypad closes
-                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  closeKeypad(); // Sync Transition
                   
                   activeBoxId = null;
                   
@@ -780,6 +853,7 @@
   }
 
   function generatePracticeQuestion() {
+    // Math logic natively restricts numerator to be less than denominator. No whole/improper possible.
     let d = Math.floor(Math.random() * 9) + 2; 
     let n = Math.floor(Math.random() * (d - 1)) + 1; 
     
@@ -828,10 +902,7 @@
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
-        document.getElementById('keypad').classList.remove('open');
-        
-        // CRITICAL FIX: Retract padding cleanly when keypad closes
-        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        closeKeypad(); // Sync Transition
         
         masteryPoints++;
         streak++;
@@ -909,7 +980,7 @@
 
     logTelemetryEvent("Mastered Module", 100);
 
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
   };
