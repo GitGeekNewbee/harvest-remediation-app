@@ -309,7 +309,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (WITH SCROLL FIX) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -323,15 +323,22 @@
       let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
       if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
 
-      // Auto-scroll logic for Guided Practice Steps
-      if (appState === 'GUIDED' && stepId) {
+      // Flawless auto-scroll logic inside the scrolling container
+      if (stepId) {
           setTimeout(() => {
               let stepEl = document.getElementById(stepId);
-              if(stepEl) {
-                  let viewportHeight = window.innerHeight - 260; 
-                  let elementOffset = stepEl.getBoundingClientRect().top;
-                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
-                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
+              let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+              
+              if(stepEl && containerId) {
+                  let container = document.getElementById(containerId);
+                  let viewportHeight = window.innerHeight - 260; // Available space above keypad
+                  
+                  // Calculate the element's position relative to the container itself
+                  let elementOffset = stepEl.getBoundingClientRect().top - container.getBoundingClientRect().top;
+                  
+                  // Scroll so the element is centered in the viewportHeight
+                  let scrollTarget = container.scrollTop + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2); 
+                  container.scrollTo({ top: scrollTarget, behavior: 'smooth' });
               }
           }, 300); 
       }
@@ -745,7 +752,7 @@
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Let's do one more."); 
+                          showError("Excellent! Let's do one more."); // Using toast for positive feedback too to save screen space
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
@@ -805,8 +812,9 @@
     if (val === '') return;
 
     if (activeBoxId === 'p-ans-n') {
-        box.classList.add('flash-success');
-        openKeypad('p-ans-d', 'practice');
+        box.classList.add('flash-success'); 
+        box.classList.remove('active');
+        openKeypad('p-ans-d', 'practice'); 
         return;
     } 
 
