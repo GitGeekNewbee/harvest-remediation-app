@@ -245,7 +245,7 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning box moved to the top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:var(--radius); margin-bottom:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Convert to a Common Denominator before you solve.</p>
     </div>
 
@@ -394,12 +394,15 @@
       }
   });
 
-  // --- CRITICAL FIX: THE FLEXBOX STRUCTURAL SCROLL ENGINE ---
+  // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) return;
+      if (!targetBox) {
+          showError("System Error: Element not found. Please restart module.");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -410,26 +413,43 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
-      // Focus mode hides the top HUD to free up viewport space
+      // Focus mode
       document.body.classList.add('focus-active');
 
-      // Opening keypad naturally shrinks the .content-area flex container
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      // Wait for the flexbox CSS transition to physically resize the container
-      setTimeout(() => {
-          let visualBlock = targetBox.closest('.pinned-visual') || targetBox.closest('.math-row');
-          if (visualBlock) {
-              // Natively center the fraction within the newly resized visible space
-              visualBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-      }, 350); 
+      let container = document.querySelector('.content-area');
+      if (container) {
+          // Dynamically inject a massive bottom padding so we can always scroll anything to the middle
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let fractionWrapper = targetBox.closest('.fraction');
+              let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
   }
 
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
+      let container = document.querySelector('.content-area');
+      if (container) container.style.paddingBottom = '60px'; // Reset padding
   }
 
   function typeNum(char) {
@@ -582,7 +602,7 @@
   }
 
   function evaluateSprint() {
-    closeKeypad();
+    closeKeypad(); // Prevent state transition squeeze
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
@@ -740,7 +760,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    closeKeypad();
+    closeKeypad(); // Free up the viewport for learning slides
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -802,7 +822,7 @@
       document.getElementById('g-q-container').innerHTML = gData.qStr;
       document.getElementById('g-op-scaled').innerText = gData.op;
       
-      // CRITICAL FIX: Reset trapdoor cache for dynamic injection
+      // Clear dynamic answer container from previous rounds
       document.getElementById('g-dynamic-answer-area').innerHTML = '';
       
       // Clear inputs
@@ -852,11 +872,11 @@
                   document.getElementById('g-step-1').classList.add('completed');
                   document.getElementById('g-step-2').classList.remove('locked');
                   
-                  // HORIZONTAL INJECTION: Build the Final Answer boxes safely inline
+                  // HORIZONTAL INJECTION: Build the Final Answer boxes inline cleanly
                   let answerArea = document.getElementById('g-dynamic-answer-area');
                   answerArea.innerHTML = `
                     <div class="operator" style="margin: 0 15px;">=</div>
-                    <div class="fraction">
+                    <div class="fraction" style="font-size:2.5rem;">
                       <div class="frac-num">
                           <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans-n" onclick="openKeypad('g-ans-n', 'g-step-2')"></div>
                       </div>
@@ -923,35 +943,43 @@
   }
 
   function generatePracticeQuestion() {
-    let d1 = Math.floor(Math.random() * 4) + 2; // 2 to 5
-    let d2 = Math.floor(Math.random() * 4) + 2; // 2 to 5
-    if (d1 === d2) d2++; // Ensure unlike denominators
+    let d1, d2, lcm, n1, n2, isAdd, scaledN1, scaledN2, rawN, rawD, gcd, ansN, ansD;
     
-    let lcm = getLCM(d1, d2);
-    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-    let isAdd = Math.random() > 0.5;
-
-    let scaledN1 = n1 * (lcm / d1);
-    let scaledN2 = n2 * (lcm / d2);
-
-    // If subtract, ensure positive result
-    if (!isAdd && (scaledN1 <= scaledN2)) {
-        let tempN = n1, tempD = d1, tempS = scaledN1;
-        n1 = n2; d1 = d2; scaledN1 = scaledN2;
-        n2 = tempN; d2 = tempD; scaledN2 = tempS;
+    // STRICT GENERATION FILTER: 
+    // Keep generating until the answer is a proper fraction (Top < Bottom) 
+    // AND it is not a whole number (Bottom !== 1)
+    do {
+        d1 = Math.floor(Math.random() * 4) + 2; // 2 to 5
+        d2 = Math.floor(Math.random() * 4) + 2; // 2 to 5
+        if (d1 === d2) d2++; // Ensure unlike denominators
         
-        // Prevent 0 answers by forcing larger N1
-        if (scaledN1 === scaledN2) {
-           n1++; scaledN1 = n1 * (lcm / d1); 
-        }
-    }
+        lcm = getLCM(d1, d2);
+        n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
+        n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
+        isAdd = Math.random() > 0.5;
 
-    let rawN = isAdd ? (scaledN1 + scaledN2) : (scaledN1 - scaledN2);
-    let rawD = lcm;
-    let gcd = getGCD(rawN, rawD);
-    let ansN = rawN / gcd;
-    let ansD = rawD / gcd;
+        scaledN1 = n1 * (lcm / d1);
+        scaledN2 = n2 * (lcm / d2);
+
+        // If subtract, ensure positive result
+        if (!isAdd && (scaledN1 <= scaledN2)) {
+            let tempN = n1, tempD = d1, tempS = scaledN1;
+            n1 = n2; d1 = d2; scaledN1 = scaledN2;
+            n2 = tempN; d2 = tempD; scaledN2 = tempS;
+            
+            // Prevent 0 answers by forcing larger N1
+            if (scaledN1 === scaledN2) {
+               n1++; scaledN1 = n1 * (lcm / d1); 
+            }
+        }
+
+        rawN = isAdd ? (scaledN1 + scaledN2) : (scaledN1 - scaledN2);
+        rawD = lcm;
+        gcd = getGCD(rawN, rawD);
+        ansN = rawN / gcd;
+        ansD = rawD / gcd;
+        
+    } while (ansD === 1 || ansN >= ansD); 
 
     let qStr = `
         <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den">${d1}</div></div>
@@ -969,16 +997,14 @@
   }
 
   function loadPracticeQuestion() {
-    // 1. Strict State-Sync Verification
     currentQ = generatePracticeQuestion();
     
-    // 2. Clear all boxes safely
+    // Clear all boxes safely
     ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
         let el = document.getElementById(id);
         if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
     });
 
-    // 3. Render HTML cleanly
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     document.getElementById('p-op-display').innerText = currentQ.isAdd ? '+' : '-';
     
@@ -1002,7 +1028,7 @@
     let box = document.getElementById(activeBoxId);
     if (!box || box.innerText === '') return;
 
-    // Fast-track navigation for active boxes
+    // Fast-track navigation
     if (activeBoxId === 'p-eq1-d') { box.classList.add('flash-success'); openKeypad('p-eq1-n', 'practice'); return; }
     if (activeBoxId === 'p-eq1-n') { box.classList.add('flash-success'); openKeypad('p-eq2-d', 'practice'); return; }
     if (activeBoxId === 'p-eq2-d') { box.classList.add('flash-success'); openKeypad('p-eq2-n', 'practice'); return; }
@@ -1034,7 +1060,7 @@
         return;
     }
 
-    // 3. Is the final answer fully correct and simplified?
+    // 3. Final answer check
     let isCorrect = (valAnsN === currentQ.ansN && valAnsD === currentQ.ansD);
 
     if(isCorrect) {
