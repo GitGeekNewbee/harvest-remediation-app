@@ -28,8 +28,8 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
+    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -265,8 +265,6 @@
     <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
-    
-    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
@@ -295,8 +293,6 @@
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your answer MUST be fully simplified.</p>
     </div>
-    
-    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -404,7 +400,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -415,19 +411,27 @@
 
       document.getElementById('keypad').classList.add('open');
       
-      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+      
+      if (containerId) {
+          let container = document.getElementById(containerId);
+          
+          // Expand the scrollable area of the active container directly
+          container.style.paddingBottom = '350px';
 
-      if (appState === 'GUIDED' && stepId) {
-          setTimeout(() => {
-              let stepEl = document.getElementById(stepId);
-              if(stepEl) {
-                  let viewportHeight = window.innerHeight - 260; 
-                  let elementOffset = stepEl.getBoundingClientRect().top;
-                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
-                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
-              }
-          }, 300); 
+          if (stepId) {
+              setTimeout(() => {
+                  let stepEl = document.getElementById(stepId);
+                  if(stepEl) {
+                      let visual = container.querySelector('.pinned-visual');
+                      let visualHeight = visual ? visual.offsetHeight : 0;
+                      
+                      // Docks the active step exactly 15 pixels below the sticky visual
+                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+              }, 250); 
+          }
       }
   }
 
@@ -521,7 +525,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -632,7 +636,7 @@
   }
 
   function resetSprintUI() {
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       document.getElementById('zone-gate-active').classList.add('hidden');
       document.getElementById('zone-gate-intro').classList.remove('hidden');
   }
@@ -649,7 +653,7 @@
       document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
       openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
@@ -736,7 +740,7 @@
   function unlockLesson() {
     closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('mastery-text').classList.remove('timer-alert');
     document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
@@ -747,17 +751,6 @@
   }
 
   // --- ZONE 1: GUIDED LEARNING ---
-  function nextSlide() {
-    document.getElementById('slide-' + slideIndex).classList.add('hidden');
-    slideIndex++;
-    if(slideIndex <= totalSlides) {
-      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-    } else {
-      startGuidedPractice();
-    }
-  }
-
-  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
@@ -889,7 +882,9 @@
                   box.classList.remove('active');
                   document.getElementById('g-step-2').classList.add('completed');
                   document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  
+                  // Retract padding cleanly
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
                   activeBoxId = null;
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
@@ -1005,7 +1000,10 @@
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
-        document.getElementById('scroll-padding-practice').style.height = '10px';
+        
+        // Retract padding cleanly
+        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
