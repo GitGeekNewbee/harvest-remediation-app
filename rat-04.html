@@ -28,8 +28,8 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
+    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -46,23 +46,22 @@
     /* STRICT MATH FORMATTING */
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
     .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 5px; }
-    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: opacity 0.3s;}
-    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: opacity 0.3s;}
+    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; }
+    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; }
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
     /* CLEAN FRACTION BARS */
-    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 35px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; position: relative; }
-    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); display: flex; transition: all 0.4s ease; }
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 35px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; }
     .frac-piece:last-child { border-right: none; }
     .fill-indigo { background-color: var(--indigo); }
     .fill-rose { background-color: var(--rose); }
     .fill-emerald { background-color: var(--emerald); }
     .fill-empty { background-color: transparent; }
     
-    /* Inner Slices */
-    .inner-slice { flex: 1; border-right: 2px solid var(--slate-900); opacity: 0; transition: opacity 0.5s ease-in-out; height: 100%; }
-    .inner-slice:last-child { border-right: none; }
-    .sliced .inner-slice { opacity: 1; }
+    /* Cross-out Subtraction Visual */
+    .fill-subtracted { background-color: var(--slate-200); position: relative; }
+    .fill-subtracted::after { content: '✕'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--slate-400); font-size: 1.2rem; font-weight: 800; }
 
     /* FADING STEP ARCHITECTURE */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
@@ -119,15 +118,15 @@
     <div style="text-align:center; padding: 20px 0;">
       <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Adding unlike fractions requires finding common multiples instantly. Prove your fluency.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Before we subtract fractions, your basic subtraction facts must be fully automated.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
       <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
       <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
-        <li><b>Level 1:</b> Multiplication (× 2 to 5)</li>
-        <li><b>Level 2:</b> Multiplication (× 6 to 9)</li>
-        <li><b>Level 3:</b> Multiplication (× 10 to 12)</li>
+        <li><b>Level 1:</b> Subtraction (up to 10)</li>
+        <li><b>Level 2:</b> Subtraction (up to 20)</li>
+        <li><b>Level 3:</b> Subtraction (up to 30)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -136,7 +135,7 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
-    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Multiplication</div>
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Subtraction</div>
     <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
     <div class="math-row" style="margin-top:20px;">
         <div class="input-box active" style="width:100px; height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
@@ -148,100 +147,106 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">The Mismatched Pieces</div>
-      <p class="instruction-text">What happens when we try to add fractions with different bottom numbers?</p>
+      <div class="section-title">Taking Away Pieces</div>
+      <p class="instruction-text">Subtracting fractions simply means removing shaded pieces from the tray.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
             <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">1</div>
-                <div class="frac-den">2</div>
+                <div class="frac-num" style="color:var(--indigo);">5</div>
+                <div class="frac-den">6</div>
             </div>
-            <div class="operator">+</div>
+            <div class="operator" style="color:var(--rose);">-</div>
             <div class="fraction">
-                <div class="frac-num" style="color:var(--rose);">1</div>
-                <div class="frac-den">4</div>
+                <div class="frac-num" style="color:var(--rose);">2</div>
+                <div class="frac-den">6</div>
+            </div>
+            <div class="operator">=</div>
+            <div class="fraction">
+                <div class="frac-num">3</div>
+                <div class="frac-den">6</div>
             </div>
         </div>
 
         <div class="frac-bar">
             <div class="frac-piece fill-indigo"></div>
-            <div class="frac-piece fill-empty"></div>
-        </div>
-        <div class="operator" style="font-size:1.5rem; margin:5px 0;">+</div>
-        <div class="frac-bar">
-            <div class="frac-piece fill-rose"></div>
-            <div class="frac-piece fill-empty"></div>
-            <div class="frac-piece fill-empty"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-subtracted"></div>
+            <div class="frac-piece fill-subtracted"></div>
             <div class="frac-piece fill-empty"></div>
         </div>
       </div>
       
-      <p style="color:var(--rose); line-height:1.5; font-size:1.05rem; font-weight:700;">We cannot add them yet! The blocks are different sizes.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We started with 5 shaded pieces. We took away 2. Now we have <b>3 shaded pieces left</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">Slice to Match</div>
-      <p class="instruction-text">We must slice the big pieces so they perfectly match the small pieces.</p>
+      <div class="section-title">The Golden Rule</div>
+      <p class="instruction-text">What happens to the bottom number when we subtract?</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">1</div>
-                <div class="frac-den">2</div>
-            </div>
-            <div class="operator">➔</div>
-            <div class="fraction" id="slide-2-target-frac" style="opacity: 0;">
-                <div class="frac-num" style="color:var(--indigo);">2</div>
-                <div class="frac-den">4</div>
-            </div>
-        </div>
-
-        <div class="frac-bar" id="learn-bar-slice">
-            <div class="frac-piece fill-indigo"></div>
-            <div class="frac-piece fill-empty"></div>
-        </div>
-        
-        <button class="btn btn-warning" id="btn-anim-2" style="margin-top:20px;" onclick="playSlide2Anim()">Slice Blocks (×2)</button>
-      </div>
-      
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; opacity:0; transition:opacity 0.5s;" id="slide-2-msg">We multiplied the top and bottom by 2. Now both fractions have a denominator of 4!</p>
-      <button class="btn btn-primary" id="btn-next-2" style="display:none;" onclick="nextSlide()">Continue</button>
-    </div>
-
-    <!-- Slide 3 -->
-    <div id="slide-3" class="hidden">
-      <div class="section-title">Add the Matching Pieces</div>
-      <p class="instruction-text">Now that the denominators match, we can combine the pieces.</p>
-      
-      <div class="pinned-visual">
-        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">2</div>
-                <div class="frac-den">4</div>
-            </div>
-            <div class="operator">+</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--rose);">1</div>
-                <div class="frac-den">4</div>
-            </div>
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">7</div><div class="frac-den">8</div></div>
+            <div class="operator" style="color:var(--rose);">-</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den">8</div></div>
             <div class="operator">=</div>
-            <div class="fraction">
-                <div class="frac-num">3</div>
-                <div class="frac-den">4</div>
-            </div>
+            <div class="fraction"><div class="frac-num">4</div><div class="frac-den">8</div></div>
         </div>
 
         <div class="frac-bar">
             <div class="frac-piece fill-indigo"></div>
             <div class="frac-piece fill-indigo"></div>
-            <div class="frac-piece fill-rose"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-subtracted"></div>
+            <div class="frac-piece fill-subtracted"></div>
+            <div class="frac-piece fill-subtracted"></div>
             <div class="frac-piece fill-empty"></div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The pieces matched, so we combined them! The final answer is <b>3/4</b>.</p>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">Taking away pieces doesn't change the size of the tray! The denominator stays exactly the same.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Final Step: Simplify</div>
+      <p class="instruction-text">Just like addition, always check if your final answer can be simplified.</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
+            <div class="fraction">
+                <div class="frac-num">4</div>
+                <div class="frac-den">8</div>
+            </div>
+            <div class="operator">➔</div>
+            <div class="fraction">
+                <div class="frac-num" style="color:var(--emerald);">1</div>
+                <div class="frac-den" style="color:var(--emerald);">2</div>
+            </div>
+        </div>
+
+        <div class="frac-bar" style="margin-bottom:10px;">
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-indigo"></div>
+            <div class="frac-piece fill-empty"></div>
+            <div class="frac-piece fill-empty"></div>
+            <div class="frac-piece fill-empty"></div>
+            <div class="frac-piece fill-empty"></div>
+        </div>
+        
+        <div class="frac-bar" style="border-color:var(--emerald);">
+            <div class="frac-piece fill-emerald" style="border-right-color:var(--emerald);"></div>
+            <div class="frac-piece fill-empty"></div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Both numbers divide perfectly by 4. <b>4/8</b> simplifies down to <b>1/2</b>.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -252,7 +257,7 @@
     
     <!-- Pinned Visuals -->
     <div class="pinned-visual">
-        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;" id="g-q-container">
+        <div class="math-row" style="font-size: 2rem; margin-bottom:15px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
         
@@ -265,14 +270,12 @@
     <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
-    
-    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-area hidden" id="zone-practice">
     <div class="section-title">Strict Practice</div>
-    <p class="instruction-text">Find the Lowest Common Multiple (LCD), scale the fractions, add, and simplify.</p>
+    <p class="instruction-text">Subtract and simplify the fractions below to their lowest terms.</p>
 
     <div class="pinned-visual">
         <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
@@ -295,8 +298,6 @@
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your answer MUST be fully simplified.</p>
     </div>
-    
-    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -393,7 +394,9 @@
           console.error("Profile parsing error", e);
       }
 
-      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel;
+      if(startBtn && startBtn.innerText !== "Resume Drill") {
+          startBtn.innerText = "Start Level " + gateLevel + " (-)";
+      }
 
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
@@ -401,7 +404,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -412,19 +415,27 @@
 
       document.getElementById('keypad').classList.add('open');
       
-      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+      
+      if (containerId) {
+          let container = document.getElementById(containerId);
+          
+          // Expand the scrollable area of the active container directly
+          container.style.paddingBottom = '350px';
 
-      if (appState === 'GUIDED' && stepId) {
-          setTimeout(() => {
-              let stepEl = document.getElementById(stepId);
-              if(stepEl) {
-                  let viewportHeight = window.innerHeight - 260; 
-                  let elementOffset = stepEl.getBoundingClientRect().top;
-                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
-                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
-              }
-          }, 300); 
+          if (stepId) {
+              setTimeout(() => {
+                  let stepEl = document.getElementById(stepId);
+                  if(stepEl) {
+                      let visual = container.querySelector('.pinned-visual');
+                      let visualHeight = visual ? visual.offsetHeight : 0;
+                      
+                      // Docks the active step exactly 15 pixels below the sticky visual
+                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+              }, 250); 
+          }
       }
   }
 
@@ -463,41 +474,26 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  // --- VISUAL GENERATORS & ANIMATORS ---
-  function drawBaseBar(num, den, colorClass, id) {
-      let html = `<div class="frac-bar" id="${id}">`;
+  // --- VISUAL GENERATORS ---
+  function drawSubtractionVisual(n1, n2, den) {
+      let html = `<div class="frac-bar">`;
       for (let i = 0; i < den; i++) {
-          let shadeClass = (i < num) ? colorClass : 'fill-empty';
-          html += `<div class="frac-piece ${shadeClass}"></div>`;
+          if (i < n1 - n2) html += `<div class="frac-piece fill-indigo"></div>`;
+          else if (i < n1) html += `<div class="frac-piece fill-subtracted"></div>`;
+          else html += `<div class="frac-piece fill-empty"></div>`;
       }
       html += `</div>`;
       return html;
   }
-
-  function triggerSliceAnimation(barEl, pieces) {
-      let blocks = barEl.querySelectorAll('.frac-piece');
-      blocks.forEach(block => {
-          let innerHtml = '';
-          for(let i=0; i<pieces; i++) {
-              innerHtml += `<div class="inner-slice"></div>`;
-          }
-          block.innerHTML = innerHtml;
-      });
-
-      void barEl.offsetWidth; // Reflow
-      barEl.classList.add('sliced');
-  }
-
-  function playSlide2Anim() {
-      document.getElementById('btn-anim-2').style.display = 'none';
-      let bar = document.getElementById('learn-bar-slice');
-      triggerSliceAnimation(bar, 2);
-      setTimeout(() => {
-          document.getElementById('slide-2-target-frac').style.opacity = '1';
-          document.getElementById('slide-2-msg').style.opacity = '1';
-          let btn = document.getElementById('btn-next-2');
-          btn.style.display = 'block';
-      }, 600);
+  
+  function drawSimplifiedVisual(n, den) {
+      let html = `<div class="frac-bar" style="border-color:var(--emerald);">`;
+      for (let i = 0; i < den; i++) {
+          if (i < n) html += `<div class="frac-piece fill-emerald" style="border-right-color:var(--emerald);"></div>`;
+          else html += `<div class="frac-piece fill-empty" style="border-right-color:var(--emerald);"></div>`;
+      }
+      html += `</div>`;
+      return html;
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -510,9 +506,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Subtraction (-)";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Subtraction (-)";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Subtraction (-)";
 
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
@@ -533,7 +529,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -543,21 +539,24 @@
   }
 
   function generateGateQuestion(level) {
-    let n1, n2;
+    let qText, ans, n1, n2;
     if (level === 1) { 
-      n1 = Math.floor(Math.random() * 4) + 2; 
-      n2 = Math.floor(Math.random() * 11) + 2; 
+      n1 = Math.floor(Math.random() * 9) + 2; 
+      n2 = Math.floor(Math.random() * (n1 - 1)) + 1; // n2 must be less than n1
+      ans = n1 - n2;
+      qText = `${n1} - ${n2} =`;
     } else if (level === 2) { 
-      n1 = Math.floor(Math.random() * 4) + 6; 
-      n2 = Math.floor(Math.random() * 11) + 2;
+      n1 = Math.floor(Math.random() * 11) + 10; 
+      n2 = Math.floor(Math.random() * 9) + 1;
+      ans = n1 - n2;
+      qText = `${n1} - ${n2} =`;
     } else { 
-      n1 = Math.floor(Math.random() * 3) + 10; 
-      n2 = Math.floor(Math.random() * 11) + 2;
+      n1 = Math.floor(Math.random() * 11) + 20; 
+      n2 = Math.floor(Math.random() * 15) + 5;
+      ans = n1 - n2;
+      qText = `${n1} - ${n2} =`;
     }
-    if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
     
-    let ans = n1 * n2;
-    let qText = `${n1} × ${n2} =`;
     let logText = qText.replace('=', ' =').trim();
     return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
@@ -609,7 +608,7 @@
         }
 
         resetSprintUI();
-        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel} (-)`;
       } else {
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
@@ -640,7 +639,7 @@
   }
 
   function resetSprintUI() {
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       document.getElementById('zone-gate-active').classList.add('hidden');
       document.getElementById('zone-gate-intro').classList.remove('hidden');
   }
@@ -657,7 +656,7 @@
       document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
       openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
@@ -744,7 +743,7 @@
   function unlockLesson() {
     closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('mastery-text').classList.remove('timer-alert');
     document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
@@ -778,46 +777,25 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Find the Lowest Common Multiple (LCD) for the bottom numbers.</div>
+          <div class="step-text">1. Subtract the Numerators (Tops) and keep the Denominator exactly the same.</div>
           <div class="math-row" style="justify-content: flex-start;">
-            <div style="font-size:1.5rem; font-weight:700;">LCD =</div>
-            <div class="input-box" id="g-lcd" onclick="openKeypad('g-lcd', 'g-step-1')"></div>
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="g-sum-n" onclick="openKeypad('g-sum-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box" id="g-sum-d" onclick="openKeypad('g-sum-d', 'g-step-1')"></div></div>
+            </div>
           </div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Scale the fractions so both denominators match the LCD. Write the new numerators:</div>
+          <div class="step-text">2. Finally, simplify your answer to its lowest terms.</div>
           <div class="math-row" style="justify-content: flex-start;">
             <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--indigo); color:var(--indigo);" id="g-eq-n1" onclick="openKeypad('g-eq-n1', 'g-step-2')"></div></div>
-              <div class="frac-den">${gData.lcd}</div>
-            </div>
-            <div class="operator">+</div>
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--rose); color:var(--rose);" id="g-eq-n2" onclick="openKeypad('g-eq-n2', 'g-step-2')"></div></div>
-              <div class="frac-den">${gData.lcd}</div>
-            </div>
-          </div>
-        </div>
-        <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Now add the matching pieces together.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="g-sum-n" onclick="openKeypad('g-sum-n', 'g-step-3')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-sum-d" onclick="openKeypad('g-sum-d', 'g-step-3')"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="step-container locked" id="g-step-4">
-          <div class="step-text">4. Simplify your final answer to its lowest terms.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-4')"></div></div>
-              <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-4')"></div></div>
+              <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-2')"></div></div>
+              <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-2')"></div></div>
             </div>
           </div>
         </div>
       `;
-      openKeypad('g-lcd', 'g-step-1');
+      openKeypad('g-sum-n', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -826,40 +804,36 @@
       if (guidedLevel === 1) {
           gData = { 
               q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den">2</div></div>
-                <div class="operator">+</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den">6</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">7</div><div class="frac-den">10</div></div>
+                <div class="operator" style="color:var(--rose);">-</div>
+                <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den">10</div></div>
               `,
-              n1: 1, d1: 2, n2: 1, d2: 6, lcd: "6",
-              m1: 3, m2: 1, eqN1: "3", eqN2: "1",
-              sumN: "4", sumD: "6", simpN: "2", simpD: "3",
-              err1: "Think of your multiples of 2 and 6. The lowest common multiple is 6.",
-              err2: "If the bottom changes, multiply the top by the EXACT same amount to keep it balanced."
+              n1: 7, n2: 3, den: 10,
+              sumN: "4", sumD: "10",
+              simpN: "2", simpD: "5",
+              err1: "Subtract the tops (7-3). Keep the bottom the same (10).",
+              err2: "Both 4 and 10 divide perfectly by 2. The simplified fraction is 2/5."
           };
       } else {
           gData = { 
               q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den">4</div></div>
-                <div class="operator">+</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--rose);">5</div><div class="frac-den">12</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">11</div><div class="frac-den">12</div></div>
+                <div class="operator" style="color:var(--rose);">-</div>
+                <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den">12</div></div>
               `,
-              n1: 1, d1: 4, n2: 5, d2: 12, lcd: "12",
-              m1: 3, m2: 1, eqN1: "3", eqN2: "5",
-              sumN: "8", sumD: "12", simpN: "2", simpD: "3",
-              err1: "Think of your multiples of 4 and 12. The lowest common multiple is 12.",
-              err2: "If the bottom changes, multiply the top by the EXACT same amount to keep it balanced."
+              n1: 11, n2: 3, den: 12,
+              sumN: "8", sumD: "12",
+              simpN: "2", simpD: "3",
+              err1: "Subtract the tops (11-3). Keep the bottom the same (12).",
+              err2: "Both 8 and 12 divide perfectly by 4. The simplified fraction is 2/3."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       document.getElementById('g-q-container').innerHTML = gData.q;
       
-      // Inject Initial Unscaled Bars
-      let barsHtml = drawBaseBar(gData.n1, gData.d1, 'fill-indigo', 'g-bar-1');
-      barsHtml += `<div class="operator" style="font-size:1.5rem; text-align:center; margin:2px 0;">+</div>`;
-      barsHtml += drawBaseBar(gData.n2, gData.d2, 'fill-rose', 'g-bar-2');
-      document.getElementById('g-bar-container').innerHTML = barsHtml;
-
+      document.getElementById('g-bar-container').innerHTML = drawSubtractionVisual(gData.n1, gData.n2, gData.den);
+      
       buildGuidedSteps();
   }
 
@@ -880,82 +854,71 @@
       if (val === '') return;
 
       if (activeStepId === 'g-step-1') {
-          if (val === gData.lcd) {
-              xp += 5;
-              document.getElementById('xp-counter').innerText = xp;
-              advanceGuidedStep('g-step-1', 'g-step-2', 'g-eq-n1');
-          } else {
-              showError(gData.err1);
-              flashError(box);
-          }
-      } 
-      else if (activeStepId === 'g-step-2') {
-          if (activeBoxId === 'g-eq-n1') {
-              if (val === gData.eqN1) {
-                  box.classList.add('flash-success');
-                  box.classList.remove('active');
-                  openKeypad('g-eq-n2', 'g-step-2');
-              } else {
-                  showError(gData.err2);
-                  flashError(box);
-              }
-          } else if (activeBoxId === 'g-eq-n2') {
-              if (val === gData.eqN2) {
-                  xp += 5;
-                  document.getElementById('xp-counter').innerText = xp;
-                  
-                  // Trigger Visual Slicing Proof
-                  if (gData.m1 > 1) triggerSliceAnimation(document.getElementById('g-bar-1'), gData.m1);
-                  if (gData.m2 > 1) triggerSliceAnimation(document.getElementById('g-bar-2'), gData.m2);
-
-                  advanceGuidedStep('g-step-2', 'g-step-3', 'g-sum-n');
-              } else {
-                  showError(gData.err2);
-                  flashError(box);
-              }
-          }
-      }
-      else if (activeStepId === 'g-step-3') {
           if (activeBoxId === 'g-sum-n') {
               if (val === gData.sumN) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
-                  openKeypad('g-sum-d', 'g-step-3');
+                  openKeypad('g-sum-d', 'g-step-1');
               } else {
-                  showError("Add the new scaled numerators together.");
+                  showError("Subtract the numerators: " + gData.n1 + " - " + gData.n2);
                   flashError(box);
               }
           } else if (activeBoxId === 'g-sum-d') {
+              // SEQUENCE CHECK
+              if (document.getElementById('g-sum-n').innerText === '') {
+                  showError("Start with the numerator (top) first.");
+                  openKeypad('g-sum-n', 'g-step-1');
+                  return;
+              }
+
               if (val === gData.sumD) {
                   xp += 5;
                   document.getElementById('xp-counter').innerText = xp;
-                  advanceGuidedStep('g-step-3', 'g-step-4', 'g-simp-n');
+                  
+                  // Dynamically insert the sum fraction into the visual area
+                  let qCont = document.getElementById('g-q-container');
+                  if (!qCont.innerHTML.includes('=')) {
+                      qCont.innerHTML += `<div class="operator">=</div><div class="fraction"><div class="frac-num">${gData.sumN}</div><div class="frac-den">${gData.sumD}</div></div>`;
+                  }
+                  
+                  advanceGuidedStep('g-step-1', 'g-step-2', 'g-simp-n');
               } else {
-                  showError("The denominator stays the same once they match.");
+                  showError("The denominator stays exactly the same. Type " + gData.sumD);
                   flashError(box);
               }
           }
-      }
-      else if (activeStepId === 'g-step-4') {
+      } else if (activeStepId === 'g-step-2') {
           if (activeBoxId === 'g-simp-n') {
               if (val === gData.simpN) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
-                  openKeypad('g-simp-d', 'g-step-4');
+                  openKeypad('g-simp-d', 'g-step-2');
               } else {
-                  showError("Divide " + gData.sumN + " and " + gData.sumD + " by their greatest common factor.");
+                  showError("Find the common factor for " + gData.sumN + " and " + gData.sumD + ".");
                   flashError(box);
               }
           } else if (activeBoxId === 'g-simp-d') {
+              // SEQUENCE CHECK
+              if (document.getElementById('g-simp-n').innerText === '') {
+                  showError("Simplify the numerator (top) first.");
+                  openKeypad('g-simp-n', 'g-step-2');
+                  return;
+              }
+
               if (val === gData.simpD) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
-                  document.getElementById('g-step-4').classList.add('completed');
+                  document.getElementById('g-step-2').classList.add('completed');
                   document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  
+                  // Retract padding cleanly
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
                   activeBoxId = null;
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
+                  
+                  // Show the simplified visual
+                  document.getElementById('g-bar-container').innerHTML += `<div style="margin:10px 0; color:var(--slate-400); text-align:center; font-size:1.5rem;">⬇</div>` + drawSimplifiedVisual(parseInt(gData.simpN), parseInt(gData.simpD));
                   
                   setTimeout(() => {
                       if (guidedLevel === 1) {
@@ -965,9 +928,9 @@
                       } else {
                           startPractice(); 
                       }
-                  }, 1200);
+                  }, 2000);
               } else {
-                  showError("Find the common factor to simplify the denominator.");
+                  showError(gData.err2);
                   flashError(box);
               }
           }
@@ -991,32 +954,29 @@
       return x;
   }
 
-  function getLCM(x, y) {
-      return (!x || !y) ? 0 : Math.abs((x * y) / getGCD(x, y));
-  }
-
   function generatePracticeQuestion() {
-    let denoms = [2, 3, 4, 5, 6, 8, 10, 12];
-    let d1, d2, n1, n2;
-    do {
-        d1 = denoms[Math.floor(Math.random() * denoms.length)];
-        d2 = denoms[Math.floor(Math.random() * denoms.length)];
-    } while (d1 === d2); // Ensure unlike denominators
+    let denominators = [4, 6, 8, 9, 10, 12, 14, 15, 16, 20];
+    let d = denominators[Math.floor(Math.random() * denominators.length)];
+    
+    let n1, n2, finalN;
+    let valid = false;
+    while (!valid) {
+        n1 = Math.floor(Math.random() * (d - 2)) + 2; // At least 2 so we can subtract
+        n2 = Math.floor(Math.random() * (n1 - 1)) + 1; // Less than n1
+        finalN = n1 - n2;
+        if (getGCD(finalN, d) > 1) { // Ensure it can be simplified
+            valid = true;
+        }
+    }
 
-    n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-
-    let lcd = getLCM(d1, d2);
-    let finalN = (n1 * (lcd / d1)) + (n2 * (lcd / d2));
-
-    let simpScale = getGCD(finalN, lcd);
+    let simpScale = getGCD(finalN, d);
     let ansN = (finalN / simpScale).toString();
-    let ansD = (lcd / simpScale).toString();
+    let ansD = (d / simpScale).toString();
 
     let qStr = `
-        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den">${d1}</div></div>
-        <div class="operator">+</div>
-        <div class="fraction"><div class="frac-num" style="color:var(--rose);">${n2}</div><div class="frac-den">${d2}</div></div>
+        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den">${d}</div></div>
+        <div class="operator" style="color:var(--rose);">-</div>
+        <div class="fraction"><div class="frac-num" style="color:var(--rose);">${n2}</div><div class="frac-den">${d}</div></div>
     `;
     
     return { 
@@ -1024,9 +984,9 @@
         ansN: ansN,
         ansD: ansD,
         rawN: finalN.toString(),
-        rawD: lcd.toString(),
-        d1: d1,
-        d2: d2
+        rawD: d.toString(),
+        startN1: n1,
+        startN2: n2
     };
   }
 
@@ -1036,7 +996,10 @@
     document.getElementById('p-ans-d').innerText = '';
     document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
     
+    // 1. Strict State-Sync Verification (Generation Before Rendering)
     currentQ = generatePracticeQuestion();
+    
+    // 2. Render HTML
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     
     openKeypad('p-ans-n', 'practice');
@@ -1063,14 +1026,23 @@
     let valN = document.getElementById('p-ans-n').innerText;
     let valD = document.getElementById('p-ans-d').innerText;
     
-    if (valD === '') return;
+    // --- TRAPDOOR SEQUENCE INTERCEPT ---
+    if (valN === '' || valD === '') {
+        showError("Show your work! You must fill in both numbers.");
+        let emptyBox = (valN === '') ? 'p-ans-n' : 'p-ans-d';
+        openKeypad(emptyBox, 'practice');
+        return; 
+    }
 
     let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
-        document.getElementById('scroll-padding-practice').style.height = '10px';
+        
+        // Retract padding cleanly
+        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
@@ -1082,15 +1054,18 @@
         let userVal = parseFloat(valN) / parseFloat(valD);
         let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
         
-        let errorMsg = `Streak Broken!\n\n1. Find the LCD (${currentQ.rawD}).\n2. Scale the fractions.\n3. Add tops to get ${currentQ.rawN}.\n4. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
+        let errorMsg = `Streak Broken!\n\n1. Subtract the tops to get ${currentQ.rawN}.\n2. The bottom stays ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
         let errorTag = "General_Error";
 
         if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
-            errorMsg = `NOT SIMPLIFIED!\n\nYour math is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms.`;
+            errorMsg = `NOT SIMPLIFIED!\n\nYour subtraction is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST divide the top and bottom by their common factor.`;
             errorTag = "Unsimplified_Answer";
-        } else if (valD === (currentQ.d1 + currentQ.d2).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou added the bottoms! You CANNOT add fractions until you scale them to have matching denominators (the LCD).`;
-            errorTag = "Added_Denominators";
+        } else if (valD !== currentQ.ansD && valD !== currentQ.rawD) {
+            errorMsg = `CRITICAL ERROR!\n\nYou subtracted the bottoms! Taking away pieces does not change the size of the tray. The denominator stays the same.`;
+            errorTag = "Subtracted_Denominators";
+        } else if (valN === (currentQ.startN1 + currentQ.startN2).toString()) {
+            errorMsg = `CRITICAL ERROR!\n\nYou added instead of subtracted! Look at the sign (-).`;
+            errorTag = "Added_Instead_Of_Subtracted";
         }
 
         masteryPoints = 0;
