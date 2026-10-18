@@ -751,6 +751,17 @@
   }
 
   // --- ZONE 1: GUIDED LEARNING ---
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+    } else {
+      startGuidedPractice();
+    }
+  }
+
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
@@ -850,6 +861,13 @@
                   flashError(box);
               }
           } else if (activeBoxId === 'g-sum-d') {
+              // SEQUENCE CHECK
+              if (document.getElementById('g-sum-n').innerText === '') {
+                  showError("Start with the numerator (top) first.");
+                  openKeypad('g-sum-n', 'g-step-1');
+                  return;
+              }
+
               if (val === gData.sumD) {
                   xp += 5;
                   document.getElementById('xp-counter').innerText = xp;
@@ -877,6 +895,13 @@
                   flashError(box);
               }
           } else if (activeBoxId === 'g-simp-d') {
+              // SEQUENCE CHECK
+              if (document.getElementById('g-simp-n').innerText === '') {
+                  showError("Simplify the numerator (top) first.");
+                  openKeypad('g-simp-n', 'g-step-2');
+                  return;
+              }
+
               if (val === gData.simpD) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
@@ -966,7 +991,10 @@
     document.getElementById('p-ans-d').innerText = '';
     document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
     
+    // 1. Strict State-Sync Verification (Generation Before Rendering)
     currentQ = generatePracticeQuestion();
+    
+    // 2. Render HTML
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     
     openKeypad('p-ans-n', 'practice');
@@ -993,7 +1021,13 @@
     let valN = document.getElementById('p-ans-n').innerText;
     let valD = document.getElementById('p-ans-d').innerText;
     
-    if (valD === '') return;
+    // --- TRAPDOOR SEQUENCE INTERCEPT ---
+    if (valN === '' || valD === '') {
+        showError("Show your work! You must fill in both numbers.");
+        let emptyBox = (valN === '') ? 'p-ans-n' : 'p-ans-d';
+        openKeypad(emptyBox, 'practice');
+        return; // Intercept without breaking streak
+    }
 
     let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
 
