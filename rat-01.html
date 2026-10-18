@@ -29,7 +29,7 @@
     .stat-xp { color: var(--amber); }
 
     /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; position: relative; }
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -321,9 +321,12 @@
       document.getElementById('keypad').classList.add('open');
       
       let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+      if (paddingEl) {
+          // Expanded padding from 260px to 400px to guarantee the scroll track never runs out
+          document.getElementById(paddingEl).style.height = '400px'; 
+      }
 
-      // Flawless auto-scroll logic inside the scrolling container
+      // Flawless container-relative auto-scroll
       if (stepId) {
           setTimeout(() => {
               let stepEl = document.getElementById(stepId);
@@ -331,16 +334,14 @@
               
               if(stepEl && containerId) {
                   let container = document.getElementById(containerId);
-                  let viewportHeight = window.innerHeight - 260; // Available space above keypad
+                  let visual = container.querySelector('.pinned-visual');
+                  let visualHeight = visual ? visual.offsetHeight : 0;
                   
-                  // Calculate the element's position relative to the container itself
-                  let elementOffset = stepEl.getBoundingClientRect().top - container.getBoundingClientRect().top;
-                  
-                  // Scroll so the element is centered in the viewportHeight
-                  let scrollTarget = container.scrollTop + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2); 
-                  container.scrollTo({ top: scrollTarget, behavior: 'smooth' });
+                  // Scroll the container so the active step docks perfectly beneath the pinned visual
+                  let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
               }
-          }, 300); 
+          }, 250); 
       }
   }
 
@@ -701,8 +702,8 @@
       box.classList.add('flash-success');
       box.classList.remove('active');
       
-      document.getElementById(currentStepId).classList.add('completed');
-      document.getElementById(nextStepId).classList.remove('locked');
+      if (currentStepId) document.getElementById(currentStepId).classList.add('completed');
+      if (nextStepId) document.getElementById(nextStepId).classList.remove('locked');
       
       openKeypad(nextBoxId, nextStepId);
   }
@@ -812,9 +813,8 @@
     if (val === '') return;
 
     if (activeBoxId === 'p-ans-n') {
-        box.classList.add('flash-success'); 
-        box.classList.remove('active');
-        openKeypad('p-ans-d', 'practice'); 
+        box.classList.add('flash-success');
+        openKeypad('p-ans-d', 'practice');
         return;
     } 
 
