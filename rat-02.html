@@ -227,17 +227,21 @@
     <!-- Pinned Visuals -->
     <div class="pinned-visual">
         <div class="bridge-container" style="margin-top:10px; margin-bottom:10px;">
-            <div class="bridge-arrow-top"><div class="scale-label" style="top:-15px; left:25px;">× <div class="input-box active" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="g-scale-top" onclick="openKeypad('g-scale-top', 'g-step-1')"></div></div></div>
+            <div class="bridge-arrow-top">
+                <div class="scale-label" style="top:-15px; left:25px;">× <span id="g-scale-top-container"></span></div>
+            </div>
             <div class="fraction">
                 <div class="frac-num" id="g-start-n"></div>
                 <div class="frac-den" id="g-start-d"></div>
             </div>
             <div style="color:var(--slate-400);">=</div>
             <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);" id="g-target-n">?</div>
+                <div class="frac-num" style="color:var(--indigo);" id="g-target-n-container"></div>
                 <div class="frac-den" id="g-target-d"></div>
             </div>
-            <div class="bridge-arrow-bot"><div class="scale-label" style="bottom:-15px; left:25px;">× <div class="input-box" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="g-scale-bot" onclick="openKeypad('g-scale-bot', 'g-step-1')"></div></div></div>
+            <div class="bridge-arrow-bot">
+                <div class="scale-label" style="bottom:-15px; left:25px;">× <span id="g-scale-bot-container"></span></div>
+            </div>
         </div>
         
         <div id="g-bar-container" style="width:100%; margin-top: 15px;">
@@ -264,9 +268,8 @@
                 <div class="frac-den" id="p-start-d"></div>
             </div>
             <div style="color:var(--slate-400);">=</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);" id="p-target-n"></div>
-                <div class="frac-den" id="p-target-d"></div>
+            <div class="fraction" id="p-target-frac-container">
+                <!-- Injected by JS -->
             </div>
             <div class="bridge-arrow-bot"><div class="scale-label" style="bottom:-15px; left:25px;">× <div class="input-box" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="p-scale-bot" onclick="openKeypad('p-scale-bot', 'practice')"></div></div></div>
         </div>
@@ -753,17 +756,6 @@
   }
 
   // --- ZONE 1: GUIDED LEARNING ---
-  function nextSlide() {
-    document.getElementById('slide-' + slideIndex).classList.add('hidden');
-    slideIndex++;
-    if(slideIndex <= totalSlides) {
-      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-    } else {
-      startGuidedPractice();
-    }
-  }
-
-  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
@@ -777,17 +769,10 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Find the multiplier. Look at the completed row to find the scale factor:</div>
-          <div class="math-row" style="justify-content: flex-start;">
-             <div style="font-size:1.5rem; font-weight:700;">Scale = ×</div>
-            <div class="input-box" id="g-ans-1" onclick="openKeypad('g-ans-1', 'g-step-1')"></div>
-          </div>
+          <div class="step-text">1. Find the multiplier. Look at the completed bottom row to find the scale factor, and type it into the green (×) boxes above.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Watch the bar slice to match your scale! Then count the new shaded pieces and type the missing numerator:</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="input-box" id="g-ans-3" onclick="openKeypad('g-ans-3', 'g-step-2')"></div>
-          </div>
+          <div class="step-text">2. Watch the bar slice to match your scale! Then apply that same scale to find the missing numerator.</div>
         </div>
       `;
       openKeypad('g-scale-top', 'g-step-1');
@@ -799,14 +784,14 @@
       if (guidedLevel === 1) {
           gData = { 
               n: "1", d: "3", t_d: "12", scale: "4", ansN: "4",
-              err1: "Look at the bottom row. What do you multiply 3 by to get 12? (It's 4).",
-              err3: "Count the new shaded slices. 1 × 4 is 4."
+              err1: "Look at the completed bottom row. What do you multiply 3 by to get 12? (It's 4).",
+              err3: "Multiply the top: 1 × 4."
           };
       } else {
           gData = { 
               n: "2", d: "5", t_d: "15", scale: "3", ansN: "6",
-              err1: "Look at the bottom row. What do you multiply 5 by to get 15? (It's 3).",
-              err3: "Count the new shaded slices. 2 × 3 is 6."
+              err1: "Look at the completed bottom row. What do you multiply 5 by to get 15? (It's 3).",
+              err3: "Multiply the top: 2 × 3."
           };
       }
 
@@ -814,27 +799,15 @@
       document.getElementById('g-start-n').innerText = gData.n;
       document.getElementById('g-start-d').innerText = gData.d;
       document.getElementById('g-target-d').innerText = gData.t_d;
-      document.getElementById('g-target-n').innerText = "?";
       
-      document.getElementById('g-scale-top').innerText = '';
-      document.getElementById('g-scale-bot').innerText = '';
-      document.getElementById('g-scale-top').classList.remove('flash-success', 'flash-error');
-      document.getElementById('g-scale-bot').classList.remove('flash-success', 'flash-error');
+      // Inject inputs into the visual cleanly
+      document.getElementById('g-target-n-container').innerHTML = `<div class="input-box" style="min-width:40px; height:40px; font-size:1.6rem;" id="g-target-n" onclick="openKeypad('g-target-n', 'g-step-2')"></div>`;
+      document.getElementById('g-scale-top-container').innerHTML = `<div class="input-box active" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="g-scale-top" onclick="openKeypad('g-scale-top', 'g-step-1')"></div>`;
+      document.getElementById('g-scale-bot-container').innerHTML = `<div class="input-box" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="g-scale-bot" onclick="openKeypad('g-scale-bot', 'g-step-1')"></div>`;
       
       document.getElementById('g-bar-container').innerHTML = drawBaseBar(parseInt(gData.n), parseInt(gData.d));
 
       buildGuidedSteps();
-  }
-
-  function advanceGuidedStep(currentStepId, nextStepId, nextBoxId) {
-      let box = document.getElementById(activeBoxId);
-      box.classList.add('flash-success');
-      box.classList.remove('active');
-      
-      document.getElementById(currentStepId).classList.add('completed');
-      document.getElementById(nextStepId).classList.remove('locked');
-      
-      openKeypad(nextBoxId, nextStepId);
   }
 
   function checkGuidedAnswer() {
@@ -842,41 +815,49 @@
       let val = box.innerText;
       if (val === '') return;
 
-      if (activeStepId === 'g-step-1') {
-          if (activeBoxId === 'g-scale-top') {
-              if (val === gData.scale) {
-                  box.classList.add('flash-success');
-                  box.classList.remove('active');
-                  openKeypad('g-scale-bot', 'g-step-1');
-              } else {
-                  showError("Find the scale for the top by looking at the bottom.");
-                  flashError(box);
-              }
-          } else if (activeBoxId === 'g-scale-bot') {
-              if (val === gData.scale) {
-                  box.classList.add('flash-success');
-                  box.classList.remove('active');
-                  openKeypad('g-ans-1', 'g-step-1');
-              } else {
-                  showError(gData.err1);
-                  flashError(box);
-              }
-          } else if (activeBoxId === 'g-ans-1') {
-              if (val === gData.scale) {
-                  xp += 5;
-                  document.getElementById('xp-counter').innerText = xp;
-                  
-                  // Trigger animation!
-                  let bar = document.getElementById('g-slicer-bar');
-                  triggerSliceAnimation(bar, parseInt(gData.scale));
-                  
-                  advanceGuidedStep('g-step-1', 'g-step-2', 'g-ans-3');
-              } else {
-                  showError(gData.err1);
-                  flashError(box);
-              }
+      if (activeBoxId === 'g-scale-top') {
+          if (val === gData.scale) {
+              box.classList.add('flash-success');
+              box.classList.remove('active');
+              openKeypad('g-scale-bot', 'g-step-1');
+          } else {
+              showError(gData.err1);
+              flashError(box);
           }
-      } else if (activeStepId === 'g-step-2') {
+      } else if (activeBoxId === 'g-scale-bot') {
+          // --- STRICT SEQUENCE INTERCEPT ---
+          if (document.getElementById('g-scale-top').innerText === '') {
+              showError("Start with the top multiplier first.");
+              openKeypad('g-scale-top', 'g-step-1');
+              return;
+          }
+
+          if (val === gData.scale) {
+              box.classList.add('flash-success');
+              box.classList.remove('active');
+              xp += 5;
+              document.getElementById('xp-counter').innerText = xp;
+              
+              document.getElementById('g-step-1').classList.add('completed');
+              document.getElementById('g-step-2').classList.remove('locked');
+
+              // Trigger animation!
+              let bar = document.getElementById('g-slicer-bar');
+              triggerSliceAnimation(bar, parseInt(gData.scale));
+              
+              openKeypad('g-target-n', 'g-step-2');
+          } else {
+              showError(gData.err1);
+              flashError(box);
+          }
+      } else if (activeBoxId === 'g-target-n') {
+          // --- STRICT SEQUENCE INTERCEPT ---
+          if (document.getElementById('g-scale-top').innerText === '' || document.getElementById('g-scale-bot').innerText === '') {
+              showError("You must find the scale multipliers (×) first!");
+              openKeypad('g-scale-top', 'g-step-1');
+              return;
+          }
+
           if (val === gData.ansN) {
               box.classList.add('flash-success');
               box.classList.remove('active');
@@ -964,7 +945,7 @@
       </div>
     `;
 
-    document.querySelector('#zone-practice .fraction:nth-child(4)').innerHTML = targetHtml;
+    document.getElementById('p-target-frac-container').innerHTML = targetHtml;
 
     currentQ = generatePracticeQuestion();
     
@@ -1010,8 +991,7 @@
 
     if (valFinal === '') return;
 
-    // --- THE NEW DIAGNOSTIC INTERCEPT ---
-    // If the student skips the scale boxes and types the final answer, intercept it
+    // --- STRICT SEQUENCE INTERCEPT ---
     if (valT === '' || valB === '') {
         showError("Show your work! You must fill in the scale multipliers (×) first.");
         let emptyBox = (valT === '') ? 'p-scale-top' : 'p-scale-bot';
