@@ -35,8 +35,6 @@
     /* V2 TYPOGRAPHY & LAYOUT */
     .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
     .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
-    
-    /* UNPINNED VISUAL (FIXED FOR MOBILE SCROLLING) */
     .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
@@ -152,7 +150,6 @@
 
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:15px;">⬇</div>
 
-        <!-- Merged Fraction Visual -->
         <div class="merged-fraction">
             <div class="merged-num">
                 <span style="color:var(--indigo);">2</span> <span style="color:var(--slate-400);">×</span> <span style="color:var(--rose);">3</span>
@@ -201,14 +198,12 @@
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
     
     <div class="pinned-visual">
-        <!-- Original Equation -->
         <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
         
-        <!-- Raw Merged Answer (Step 1) -->
         <div class="math-row">
             <div class="fraction">
               <div class="frac-num"><div class="input-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
@@ -216,7 +211,7 @@
             </div>
         </div>
 
-        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 (CRASH-PROOF) -->
+        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
         <div id="g-dynamic-answer-area" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
     </div>
 
@@ -232,40 +227,26 @@
     <p class="instruction-text">Multiply straight across. Then simplify to your final answer.</p>
 
     <div class="pinned-visual">
-        <!-- Original Equation -->
         <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
             <!-- Populated by JS -->
         </div>
         
         <div class="math-row" style="margin-top:10px;">
           <div class="operator" style="margin-right:15px;">=</div>
-          
-          <!-- Raw Answer -->
           <div class="fraction" style="font-size:2.5rem;">
-            <div class="frac-num">
-                <div class="input-box active" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div>
-            </div>
-            <div class="frac-den">
-                <div class="input-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div>
-            </div>
+            <div class="frac-num"><div class="input-box active" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div></div>
+            <div class="frac-den"><div class="input-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div></div>
           </div>
-
           <div class="operator" style="margin: 0 15px;">➔</div>
-          
-          <!-- Simplified Answer -->
           <div class="fraction" style="font-size:2.5rem;">
-            <div class="frac-num">
-                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
-            </div>
-            <div class="frac-den">
-                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
-            </div>
+            <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div></div>
+            <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div></div>
           </div>
         </div>
     </div>
     
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified fraction.</p>
     </div>
   </div>
 
@@ -378,14 +359,14 @@
       }
   });
 
-  // --- V2 VIEWPORT-AWARE NAVIGATION (CRASH-PROOF SCROLL) ---
+  // --- VIEWPORT-AWARE UNIVERSAL SCROLL FIX ---
+  // Note: This exact function can be pasted into RAT-01 through RAT-05
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) {
-          showError("System Error: Cannot locate input box. Please reset the module.");
-          console.error("openKeypad Error: Cannot find '" + boxId + "'");
+          showError("System Error: Element not found. Please restart module.");
           return;
       }
 
@@ -403,23 +384,32 @@
       
       let container = document.querySelector('.content-area');
       if (container) {
-          container.style.paddingBottom = '350px';
+          // Add massive padding so the screen can always scroll up
+          container.style.paddingBottom = '380px';
 
-          // Wait for keypad to finish sliding up (0.3s CSS transition)
           setTimeout(() => {
-              let boxRect = targetBox.getBoundingClientRect();
+              // Find the entire visual block to ensure both numerator & denominator stay in view
+              let visualBlock = targetBox.closest('.pinned-visual');
+              let targetEl = visualBlock || targetBox;
+
+              let keypadHeight = keypad.offsetHeight || 300;
               let containerRect = container.getBoundingClientRect();
-              let keypadHeight = keypad.offsetHeight || 300; 
+              let targetRect = targetEl.getBoundingClientRect();
+
+              // Calculate visible area above the keypad
+              let visibleViewHeight = containerRect.height - keypadHeight;
               
-              // Calculate the visible space above the keypad
-              let visibleHeight = containerRect.height - keypadHeight;
+              // Calculate target center relative to the current viewport
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
               
-              // Calculate target scroll to perfectly vertically center the active box
-              let absoluteBoxTop = container.scrollTop + (boxRect.top - containerRect.top);
-              let targetScroll = absoluteBoxTop - (visibleHeight / 2) + (boxRect.height / 2);
+              // Desired center is exactly in the middle of the available viewing area
+              let desiredCenterY = containerRect.top + (visibleViewHeight / 2);
               
-              container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-          }, 300); 
+              // Delta is how many pixels we need to push the container
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 150); 
       }
   }
 
@@ -772,15 +762,15 @@
       if (guidedLevel === 1) {
           gData = { 
               q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den">2</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den">4</div></div>
                 <div class="operator">×</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den">5</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--rose);">2</div><div class="frac-den">5</div></div>
               `,
-              n1: 1, d1: 2, n2: 1, d2: 5,
-              rawN: "1", rawD: "10",
-              simpN: "1", simpD: "10",
-              err1: "Multiply straight across: (1×1) over (2×5).",
-              err2: "1/10 cannot be divided down any smaller. Just re-type it as your final answer."
+              n1: 3, d1: 4, n2: 2, d2: 5,
+              rawN: "6", rawD: "20",
+              simpN: "3", simpD: "10",
+              err1: "Multiply straight across: (3×2) over (4×5).",
+              err2: "Both 6 and 20 divide perfectly by 2. The simplified fraction is 3/10."
           };
       } else {
           gData = { 
@@ -911,14 +901,19 @@
   }
 
   function generatePracticeQuestion() {
-    let d1 = Math.floor(Math.random() * 8) + 2; 
-    let d2 = Math.floor(Math.random() * 8) + 2; 
-    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
-    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1; 
+    let n1, d1, n2, d2, rawN, rawD, gcd;
     
-    let rawN = n1 * n2;
-    let rawD = d1 * d2;
-    let gcd = getGCD(rawN, rawD);
+    // FORCE ALGORITHM: Keep generating until we find a fraction that requires simplification
+    do {
+        d1 = Math.floor(Math.random() * 8) + 2; 
+        d2 = Math.floor(Math.random() * 8) + 2; 
+        n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
+        n2 = Math.floor(Math.random() * (d2 - 1)) + 1; 
+        
+        rawN = n1 * n2;
+        rawD = d1 * d2;
+        gcd = getGCD(rawN, rawD);
+    } while (gcd === 1); 
     
     let ansN = rawN / gcd;
     let ansD = rawD / gcd;
