@@ -28,13 +28,15 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
+    /* SCROLLABLE CONTENT AREA - Padding bottom gives space for the keypad */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s ease; scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
     .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
     .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
+    
+    /* CRITICAL: Position must be relative so it can scroll naturally away from the keypad */
     .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
@@ -215,7 +217,7 @@
             </div>
         </div>
 
-        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
+        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 (CRASH-PROOF) -->
         <div id="g-dynamic-answer-area" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
     </div>
 
@@ -377,7 +379,9 @@
       }
   });
 
-  // --- VIEWPORT-AWARE UNIVERSAL SCROLL FIX ---
+  // --- BULLETPROOF ABSOLUTE SCROLL FIX ---
+  // This explicitly pushes the top of the white box to the top of the screen,
+  // guaranteeing the bottom of the box (denominators) clears the keypad.
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -401,31 +405,21 @@
       
       let container = document.querySelector('.content-area');
       if (container) {
-          // Add massive padding so the screen can always scroll up
-          container.style.paddingBottom = '450px';
+          // Ensure enough padding exists so scrolling is always physically possible
+          container.style.paddingBottom = '350px';
 
           setTimeout(() => {
-              // Target the specific math row containing the fractions
-              let targetRow = targetBox.closest('.math-row');
-              let targetEl = targetRow || targetBox;
-
-              let keypadHeight = keypad.offsetHeight || 300;
-              let containerRect = container.getBoundingClientRect();
-              let targetRect = targetEl.getBoundingClientRect();
-
-              // Calculate visible area strictly above the keypad
-              let visibleViewHeight = containerRect.height - keypadHeight;
+              // Find the master container that holds BOTH the question and the inputs
+              let visualBlock = targetBox.closest('.pinned-visual');
               
-              // Calculate target center relative to viewport
-              let targetCenterY = targetRect.top + (targetRect.height / 2);
-              
-              // Bias the center to 40% from the top so the original question above it remains visible
-              let desiredCenterY = containerRect.top + (visibleViewHeight * 0.4);
-              
-              let scrollDelta = targetCenterY - desiredCenterY;
-
-              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
-          }, 300); // 300ms ensures the CSS keypad slide animation finishes first
+              if (visualBlock) {
+                  // ABSOLUTE POSITIONING: Calculate distance from the top of the scrolling area 
+                  // to the top of the white box, and scroll to that exact point (minus a 20px gap).
+                  // This pins the top of the box to the top of the screen, forcing everything below it to be visible.
+                  let targetScroll = visualBlock.offsetTop - 20;
+                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+              }
+          }, 100); 
       }
   }
 
@@ -768,7 +762,7 @@
           <div class="step-text">1. Multiply straight across. (Tops × Tops) and (Bottoms × Bottoms).</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Finally, check if your answer can be simplified. If not, type it again.</div>
+          <div class="step-text">2. Finally, simplify your answer to lowest terms.</div>
         </div>
       `;
       openKeypad('g-raw-n', 'g-step-1');
@@ -776,6 +770,7 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
+          // FIXED: Mathematically sound guided practice that actually requires simplification
           gData = { 
               q: `
                 <div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den">4</div></div>
