@@ -131,7 +131,6 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
-    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Matching Rule</div>
@@ -209,6 +208,9 @@
               <div class="frac-den"><div class="input-box" id="g-eq2-d" onclick="openKeypad('g-eq2-d', 'g-step-1')"></div></div>
             </div>
         </div>
+        
+        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 (CRASH-PROOF) -->
+        <div id="g-dynamic-answer-area" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
     </div>
 
     <!-- Stepped Instructions -->
@@ -380,10 +382,21 @@
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
-      if(activeBoxId) document.getElementById(activeBoxId).classList.remove('active');
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) {
+          showError("System Error: Cannot find input box. Please reset the module.");
+          console.error("openKeypad Error: Element with ID '" + boxId + "' not found.");
+          return;
+      }
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
       activeBoxId = boxId;
       activeStepId = stepId;
-      document.getElementById(activeBoxId).classList.add('active');
+      targetBox.classList.add('active');
 
       document.getElementById('keypad').classList.add('open');
       
@@ -391,8 +404,6 @@
       
       if (containerId) {
           let container = document.getElementById(containerId);
-          
-          // Expand the scrollable area of the active container directly
           container.style.paddingBottom = '350px';
 
           if (stepId) {
@@ -401,8 +412,6 @@
                   if(stepEl) {
                       let visual = container.querySelector('.pinned-visual');
                       let visualHeight = visual ? visual.offsetHeight : 0;
-                      
-                      // Docks the active step exactly 15 pixels below the sticky visual
                       let targetScroll = stepEl.offsetTop - visualHeight - 15; 
                       container.scrollTo({ top: targetScroll, behavior: 'smooth' });
                   }
@@ -414,13 +423,13 @@
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box.innerText.length < 3) box.innerText += char;
+      if(box && box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -457,9 +466,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Multiplication (× 2 to 5)";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Multiplication (× 6 to 9)";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Multiplication (× 10 to 12)";
 
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
@@ -717,7 +726,6 @@
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
-      
       guidedLevel = 1;
       loadGuidedQuestion();
   }
@@ -760,8 +768,11 @@
       document.getElementById('g-q-container').innerHTML = gData.qStr;
       document.getElementById('g-op-scaled').innerText = gData.op;
       
-      // Clear inputs
-      ['g-eq1-n', 'g-eq1-d', 'g-eq2-n', 'g-eq2-d', 'g-ans-n', 'g-ans-d'].forEach(id => {
+      // Clear dynamic answer container from previous rounds to avoid duplicates
+      document.getElementById('g-dynamic-answer-area').innerHTML = '';
+      
+      // Clear inputs for step 1
+      ['g-eq1-n', 'g-eq1-d', 'g-eq2-n', 'g-eq2-d'].forEach(id => {
           let el = document.getElementById(id);
           if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
       });
@@ -771,56 +782,95 @@
 
   function checkGuidedAnswer() {
       let box = document.getElementById(activeBoxId);
+      if (!box) return;
       let val = box.innerText;
       if (val === '') return;
 
-      if (activeBoxId === 'g-eq1-d') {
-          if (val === gData.cd) { box.classList.add('flash-success'); openKeypad('g-eq1-n', 'g-step-1'); }
-          else { showError(gData.err1); flashError(box); }
-      } else if (activeBoxId === 'g-eq1-n') {
-          if (val === gData.e1n) { box.classList.add('flash-success'); openKeypad('g-eq2-d', 'g-step-1'); }
-          else { showError(gData.err2); flashError(box); }
-      } else if (activeBoxId === 'g-eq2-d') {
-          if (val === gData.cd) { box.classList.add('flash-success'); openKeypad('g-eq2-n', 'g-step-1'); }
-          else { showError("The denominators MUST be exactly the same."); flashError(box); }
-      } else if (activeBoxId === 'g-eq2-n') {
-          if (val === gData.e2n) {
-              box.classList.add('flash-success');
-              xp += 5;
-              document.getElementById('xp-counter').innerText = xp;
-              document.getElementById('g-step-1').classList.add('completed');
-              document.getElementById('g-step-2').classList.remove('locked');
-              openKeypad('g-ans-n', 'g-step-2');
-          } else {
-              showError("Multiply the top by the same number you multiplied the bottom by.");
-              flashError(box);
-          }
-      } else if (activeBoxId === 'g-ans-n') {
-          if (val === gData.ansN) { box.classList.add('flash-success'); openKeypad('g-ans-d', 'g-step-2'); }
-          else { showError("Check your math! " + gData.e1n + " " + gData.op + " " + gData.e2n); flashError(box); }
-      } else if (activeBoxId === 'g-ans-d') {
-          if (val === gData.ansD) {
-              box.classList.add('flash-success');
-              document.getElementById('g-step-2').classList.add('completed');
-              document.getElementById('keypad').classList.remove('open');
-              document.getElementById('zone-guided').style.paddingBottom = '60px'; 
-              
-              activeBoxId = null;
-              xp += 10;
-              document.getElementById('xp-counter').innerText = xp;
-              
-              setTimeout(() => {
-                  if (guidedLevel === 1) {
-                      guidedLevel = 2;
-                      showError("Excellent! Let's do one more."); 
-                      loadGuidedQuestion(); 
-                  } else {
-                      startPractice(); 
+      if (activeStepId === 'g-step-1') {
+          if (activeBoxId === 'g-eq1-d') {
+              if (val === gData.cd) { box.classList.add('flash-success'); openKeypad('g-eq1-n', 'g-step-1'); }
+              else { showError(gData.err1); flashError(box); }
+          } else if (activeBoxId === 'g-eq1-n') {
+              if (val === gData.e1n) { box.classList.add('flash-success'); openKeypad('g-eq2-d', 'g-step-1'); }
+              else { showError(gData.err2); flashError(box); }
+          } else if (activeBoxId === 'g-eq2-d') {
+              if (val === gData.cd) { box.classList.add('flash-success'); openKeypad('g-eq2-n', 'g-step-1'); }
+              else { showError("The denominators MUST be exactly the same."); flashError(box); }
+          } else if (activeBoxId === 'g-eq2-n') {
+              if (val === gData.e2n) {
+                  box.classList.add('flash-success');
+                  
+                  // STRICT SEQUENCE VERIFICATION: Verify all 4 boxes before unlocking Step 2
+                  let v1n = document.getElementById('g-eq1-n').innerText;
+                  let v1d = document.getElementById('g-eq1-d').innerText;
+                  let v2d = document.getElementById('g-eq2-d').innerText;
+                  
+                  if (v1n !== gData.e1n || v1d !== gData.cd || v2d !== gData.cd) {
+                      showError("Please complete all equivalent fraction boxes correctly first.");
+                      let emptyBox = (v1d !== gData.cd) ? 'g-eq1-d' : ((v1n !== gData.e1n) ? 'g-eq1-n' : 'g-eq2-d');
+                      openKeypad(emptyBox, 'g-step-1');
+                      return;
                   }
-              }, 1000);
-          } else {
-              showError("The denominator stays exactly the same. Or, simplify if possible.");
-              flashError(box);
+
+                  // Successfully verified. Unlock Step 2.
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  
+                  // DYNAMIC INJECTION: Build the Final Answer boxes safely into the DOM
+                  let answerArea = document.getElementById('g-dynamic-answer-area');
+                  answerArea.innerHTML = `
+                    <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
+                    <div class="math-row" style="margin-top:10px;">
+                      <div class="operator" style="margin-right:15px;">=</div>
+                      <div class="fraction">
+                        <div class="frac-num">
+                            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans-n" onclick="openKeypad('g-ans-n', 'g-step-2')"></div>
+                        </div>
+                        <div class="frac-den">
+                            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans-d" onclick="openKeypad('g-ans-d', 'g-step-2')"></div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                  
+                  // Safe timeout to ensure DOM paints before targeting the new element
+                  setTimeout(() => { openKeypad('g-ans-n', 'g-step-2'); }, 50);
+                  
+              } else {
+                  showError("Multiply the top by the same number you multiplied the bottom by.");
+                  flashError(box);
+              }
+          }
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-ans-n') {
+              if (val === gData.ansN) { box.classList.add('flash-success'); openKeypad('g-ans-d', 'g-step-2'); }
+              else { showError("Check your math! " + gData.e1n + " " + gData.op + " " + gData.e2n); flashError(box); }
+          } else if (activeBoxId === 'g-ans-d') {
+              if (val === gData.ansD) {
+                  box.classList.add('flash-success');
+                  document.getElementById('g-step-2').classList.add('completed');
+                  document.getElementById('keypad').classList.remove('open');
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Excellent! Let's do one more."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError("The denominator stays exactly the same. Or, simplify if possible.");
+                  flashError(box);
+              }
           }
       }
   }
@@ -883,7 +933,7 @@
   }
 
   function loadPracticeQuestion() {
-    // 1. Strict State-Sync Verification (Generation Before Rendering)
+    // 1. Strict State-Sync Verification
     currentQ = generatePracticeQuestion();
     
     // 2. Clear all boxes safely
@@ -911,7 +961,8 @@
       updateProgressBar();
       
       ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
-          document.getElementById(id).classList.add('flash-error');
+          let el = document.getElementById(id);
+          if (el) el.classList.add('flash-error');
       });
       
       showError(msg);
@@ -919,8 +970,8 @@
       
       setTimeout(() => {
           ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
-              document.getElementById(id).innerText = '';
-              document.getElementById(id).classList.remove('flash-error');
+              let el = document.getElementById(id);
+              if (el) { el.innerText = ''; el.classList.remove('flash-error'); }
           });
           openKeypad('p-eq1-d', 'practice');
       }, 4000);
@@ -935,7 +986,7 @@
     let valAnsD = document.getElementById('p-ans-d').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     // Fast-track navigation for active boxes
     if (activeBoxId === 'p-eq1-d') { box.classList.add('flash-success'); openKeypad('p-eq1-n', 'practice'); return; }
