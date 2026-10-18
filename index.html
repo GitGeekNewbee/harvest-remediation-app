@@ -6,7 +6,7 @@
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
     /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root { 
       --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
@@ -35,30 +35,36 @@
     /* SCROLLABLE CONTENT AREA */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 25px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; background: var(--slate-50); }
     
-    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 15px; margin-top: 10px; }
+    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 12px; margin-top: 15px; }
+    .section-title:first-child { margin-top: 0; }
 
-    /* V2 MODULE GRID */
-    .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
+    /* V3 UNIFIED LIST ARCHITECTURE */
+    .module-group { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-bottom: 25px; }
     
-    .module-card { background: #ffffff; border: 2px solid var(--slate-200); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; justify-content: space-between; min-height: 110px; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+    .module-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--slate-100); text-decoration: none; transition: background 0.2s ease; position: relative; }
+    .module-row:last-child { border-bottom: none; }
+    .module-row:hover { background: var(--slate-50); }
     
-    .module-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); margin-bottom: 8px; letter-spacing: 0.5px; }
-    .module-title { font-size: 0.95rem; font-weight: 700; color: var(--slate-900); line-height: 1.3; }
-    .module-icon { align-self: flex-end; font-size: 1.2rem; margin-top: 10px; }
+    .mod-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); background: var(--slate-100); padding: 4px 8px; border-radius: 4px; margin-right: 15px; width: 45px; text-align: center; letter-spacing: 0.5px;}
+    .mod-title { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); flex-grow: 1; }
+    .mod-icon { font-size: 1rem; color: var(--slate-300); }
 
-    /* Card States */
-    .card-mastered { border-color: var(--emerald); background: var(--emerald-light); }
-    .card-mastered .module-badge { color: var(--emerald); }
+    /* ROW STATES */
+    .row-mastered .mod-badge { background: var(--emerald-light); color: var(--emerald); }
+    .row-mastered .mod-icon { color: var(--emerald); }
     
-    .card-unlocked { border-color: var(--indigo); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15); transform: translateY(-2px); }
-    .card-unlocked .module-badge { color: var(--indigo); }
-    .card-unlocked::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--indigo); }
-    
-    .card-locked { border-color: var(--slate-200); background: var(--slate-100); opacity: 0.6; pointer-events: none; }
-    .card-locked .module-title { color: var(--slate-500); }
+    .row-unlocked { border-left: 3px solid var(--indigo); padding-left: 13px; background: #ffffff; }
+    .row-unlocked .mod-badge { background: var(--indigo-light); color: var(--indigo); }
+    .row-unlocked .mod-title { font-weight: 700; }
+    .row-unlocked .mod-icon { color: var(--indigo); }
+
+    .row-locked { background: #fafafa; pointer-events: none; }
+    .row-locked .mod-title { color: var(--slate-400); }
+    .row-locked .mod-badge { opacity: 0.5; }
     
     /* UTILITIES */
-    .btn-reset { padding: 10px; background: none; border: 1px solid var(--slate-300); color: var(--slate-500); border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 20px; text-align: center; }
+    .btn-reset { padding: 12px; background: transparent; border: 1px dashed var(--slate-300); color: var(--slate-400); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-top: 10px; text-align: center; transition: 0.2s; }
+    .btn-reset:hover { border-color: var(--slate-400); color: var(--slate-600); }
   </style>
 </head>
 <body>
@@ -80,41 +86,52 @@
   </header>
 
   <!-- CONTENT -->
-  <div class="content-area">
-    
-    <div class="section-title">Rational Numbers</div>
-    
-    <!-- DYNAMIC GRID -->
-    <div class="module-grid" id="rat-grid">
-        <!-- JS will populate the module cards here -->
-    </div>
+  <div class="content-area" id="curriculum-container">
+      <!-- JS will populate sections here -->
+  </div>
 
-    <!-- UTILITY BUTTON FOR TESTING -->
-    <button class="btn-reset" onclick="resetProfile()">Reset Test Profile</button>
-    
+  <div style="padding: 0 20px 25px 20px; background: var(--slate-50);">
+      <button class="btn-reset" style="width: 100%;" onclick="resetProfile()">Reset Test Profile</button>
   </div>
 
 </div>
 
 <script>
-  // --- V2 SYNCHRONIZED CURRICULUM DATA ---
-  const curriculum = [
-      { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
-      { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
-      { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
-      { id: 'RAT-04', title: 'Subtracting Like Fractions', file: 'rat-04.html' },
-      { id: 'RAT-05', title: 'Unlike Fractions (+/-)', file: 'rat-05.html' },
-      { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
-      { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' },
-      { id: 'RAT-08', title: 'Mixed & Improper', file: 'rat-08.html' }
+  // --- V3 SCALABLE CURRICULUM DATA ---
+  const curriculumSections = [
+      {
+          title: "Rational Numbers",
+          modules: [
+              { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
+              { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
+              { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
+              { id: 'RAT-04', title: 'Subtracting Like Fractions', file: 'rat-04.html' },
+              { id: 'RAT-05', title: 'Unlike Fractions (+/-)', file: 'rat-05.html' },
+              { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
+              { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' },
+              { id: 'RAT-08', title: 'Mixed & Improper', file: 'rat-08.html' }
+          ]
+      },
+      {
+          title: "Decimals",
+          modules: [
+              { id: 'DEC-01', title: 'Place Value', file: '#' },
+              { id: 'DEC-02', title: 'Converting to Fractions', file: '#' },
+              { id: 'DEC-03', title: 'Adding Decimals', file: '#' },
+              { id: 'DEC-04', title: 'Subtracting Decimals', file: '#' }
+          ]
+      }
   ];
+
+  // Flatten array to manage global unlock index easily
+  const flatCurriculum = curriculumSections.flatMap(section => section.modules.map(mod => mod.id));
 
   let userProfile = {};
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       loadProfile();
-      renderGrid();
+      renderCurriculum();
   });
 
   function loadProfile() {
@@ -122,13 +139,12 @@
       if (saved) {
           userProfile = JSON.parse(saved);
       } else {
-          // Create new default profile. Diagnostic removed. RAT-01 unlocked by default.
           userProfile = {
               studentId: 'Student_' + Math.floor(Math.random() * 10000),
               xp: 0,
               streak: 1,
               completedNodes: [],
-              unlockedNodeIndex: 0, // Starts at 0 (RAT-01)
+              unlockedNodeIndex: 0, 
               gateLevels: {},
               failedAttempts: {},
               remediation: {}
@@ -141,42 +157,45 @@
       document.getElementById('display-streak').innerText = userProfile.streak || 1;
   }
 
-  function renderGrid() {
-      const grid = document.getElementById('rat-grid');
-      grid.innerHTML = '';
+  function renderCurriculum() {
+      const container = document.getElementById('curriculum-container');
+      container.innerHTML = '';
       
       const isSuperUser = String(userProfile.studentId).toLowerCase().includes('superuser');
 
-      curriculum.forEach((mod, index) => {
-          let stateClass = '';
-          let icon = '';
-          let href = `href="${mod.file}"`;
-
-          // Determine State
-          if (userProfile.completedNodes.includes(mod.id)) {
-              stateClass = 'card-mastered';
-              icon = '✅';
-          } else if (index === userProfile.unlockedNodeIndex || isSuperUser) {
-              stateClass = 'card-unlocked';
-              icon = '▶️';
-          } else {
-              stateClass = 'card-locked';
-              icon = '🔒';
-              href = ''; // Disable link for locked items
-          }
-
-          // Build Card HTML
-          const cardHtml = `
-              <a ${href} class="module-card ${stateClass}">
-                  <div>
-                      <div class="module-badge">${mod.id}</div>
-                      <div class="module-title">${mod.title}</div>
-                  </div>
-                  <div class="module-icon">${icon}</div>
-              </a>
-          `;
+      curriculumSections.forEach(section => {
+          let sectionHtml = `<div class="section-title">${section.title}</div><div class="module-group">`;
           
-          grid.innerHTML += cardHtml;
+          section.modules.forEach(mod => {
+              let globalIndex = flatCurriculum.indexOf(mod.id);
+              let stateClass = '';
+              let icon = '';
+              let href = `href="${mod.file}"`;
+
+              // Determine State
+              if (userProfile.completedNodes.includes(mod.id)) {
+                  stateClass = 'row-mastered';
+                  icon = '✓';
+              } else if (globalIndex === userProfile.unlockedNodeIndex || isSuperUser) {
+                  stateClass = 'row-unlocked';
+                  icon = '▶';
+              } else {
+                  stateClass = 'row-locked';
+                  icon = '🔒';
+                  href = ''; 
+              }
+
+              sectionHtml += `
+                  <a ${href} class="module-row ${stateClass}">
+                      <div class="mod-badge">${mod.id.split('-')[1]}</div>
+                      <div class="mod-title">${mod.title}</div>
+                      <div class="mod-icon">${icon}</div>
+                  </a>
+              `;
+          });
+          
+          sectionHtml += `</div>`;
+          container.innerHTML += sectionHtml;
       });
   }
 
