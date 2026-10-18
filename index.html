@@ -25,7 +25,11 @@
     .dash-header { background: var(--slate-900); color: white; padding: 25px 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); z-index: 10;}
     .header-top { display: flex; justify-content: space-between; align-items: center; }
     .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;}
-    .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px;}
+    
+    /* EDITABLE STUDENT ID */
+    .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s;}
+    .student-id:active, .student-id:hover { color: var(--indigo-light); }
+    .student-id::after { content: '✎'; font-size: 0.8rem; opacity: 0.8;}
     
     .stats-row { display: flex; gap: 10px; }
     .stat-pill { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
@@ -97,7 +101,8 @@
     <div class="header-top">
         <div>
             <h1 class="app-title">Concept Lab</h1>
-            <div class="student-id" id="display-id">Loading Profile...</div>
+            <!-- NEW: Added onclick handler to change user ID -->
+            <div class="student-id" id="display-id" onclick="changeUserId()">Loading Profile...</div>
         </div>
     </div>
     <div class="stats-row">
@@ -211,6 +216,18 @@
           remediation: {}
       };
       localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
+  }
+
+  // --- CHANGE USER ID FUNCTION ---
+  function changeUserId() {
+      let currentId = userProfile.studentId || "";
+      let newId = prompt("Enter Student ID:\n(Tip: Include 'SuperUser' in the name to unlock all modules for testing)", currentId);
+      
+      if (newId !== null && newId.trim() !== "") {
+          userProfile.studentId = newId.trim();
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
+          location.reload(); // Reload immediately to apply locked/unlocked state changes
+      }
   }
 
   function renderHero() {
