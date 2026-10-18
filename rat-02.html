@@ -527,7 +527,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -634,7 +634,7 @@
   }
 
   function resetSprintUI() {
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       document.getElementById('zone-gate-active').classList.add('hidden');
       document.getElementById('zone-gate-intro').classList.remove('hidden');
   }
@@ -651,7 +651,7 @@
       document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
       openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
@@ -738,7 +738,7 @@
   function unlockLesson() {
     closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('mastery-text').classList.remove('timer-alert');
     document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
@@ -749,22 +749,10 @@
   }
 
   // --- ZONE 1: GUIDED LEARNING ---
-  function nextSlide() {
-    document.getElementById('slide-' + slideIndex).classList.add('hidden');
-    slideIndex++;
-    if(slideIndex <= totalSlides) {
-      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-    } else {
-      startGuidedPractice();
-    }
-  }
-
-  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
   function startGuidedPractice() {
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
-      
       guidedLevel = 1;
       loadGuidedQuestion();
   }
