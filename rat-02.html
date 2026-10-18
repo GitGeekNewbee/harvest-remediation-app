@@ -249,7 +249,6 @@
     <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
-    
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
@@ -276,7 +275,6 @@
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: Find the multiplier AND the missing number 5 times in a row.</p>
     </div>
-    
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -397,7 +395,7 @@
       if (containerId) {
           let container = document.getElementById(containerId);
           
-          // CRITICAL FIX: Expand the scrollable area of the active container directly
+          // Expand the scrollable area of the active container directly
           container.style.paddingBottom = '350px';
 
           if (stepId) {
@@ -885,7 +883,7 @@
               document.getElementById('g-step-2').classList.add('completed');
               document.getElementById('keypad').classList.remove('open');
               
-              // CRITICAL FIX: Retract padding cleanly when the keypad closes
+              // Retract padding cleanly
               document.getElementById('zone-guided').style.paddingBottom = '60px'; 
               
               activeBoxId = null;
@@ -989,36 +987,45 @@
   }
 
   function checkPracticeAnswer() {
-    let box = document.getElementById(activeBoxId);
-    let val = box.innerText;
-    if (val === '') return;
+    let valT = document.getElementById('p-scale-top').innerText;
+    let valB = document.getElementById('p-scale-bot').innerText;
+    let targetBoxId = currentQ.isMissingNum ? 'p-target-n' : 'p-target-d';
+    let valFinal = document.getElementById(targetBoxId).innerText;
 
     if (activeBoxId === 'p-scale-top') {
-        box.classList.add('flash-success'); 
-        box.classList.remove('active');
-        openKeypad('p-scale-bot', 'practice'); 
+        if (valT !== '') {
+            document.getElementById('p-scale-top').classList.add('flash-success'); 
+            document.getElementById('p-scale-top').classList.remove('active');
+            openKeypad('p-scale-bot', 'practice'); 
+        }
         return;
     } else if (activeBoxId === 'p-scale-bot') {
-        box.classList.add('flash-success'); 
-        box.classList.remove('active');
-        let nextBox = currentQ.isMissingNum ? 'p-target-n' : 'p-target-d';
-        openKeypad(nextBox, 'practice');
+        if (valB !== '') {
+            document.getElementById('p-scale-bot').classList.add('flash-success'); 
+            document.getElementById('p-scale-bot').classList.remove('active');
+            openKeypad(targetBoxId, 'practice');
+        }
         return;
     }
 
-    let valT = document.getElementById('p-scale-top').innerText;
-    let valB = document.getElementById('p-scale-bot').innerText;
-    let valFinal = document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').innerText;
-    
     if (valFinal === '') return;
+
+    // --- THE NEW DIAGNOSTIC INTERCEPT ---
+    // If the student skips the scale boxes and types the final answer, intercept it
+    if (valT === '' || valB === '') {
+        showError("Show your work! You must fill in the scale multipliers (×) first.");
+        let emptyBox = (valT === '') ? 'p-scale-top' : 'p-scale-bot';
+        openKeypad(emptyBox, 'practice');
+        return; // Stops evaluation so it doesn't break their streak
+    }
 
     let isCorrect = (valT === currentQ.mult && valB === currentQ.mult && valFinal === currentQ.ansValue);
 
     if(isCorrect) {
-        document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').classList.add('flash-success');
+        document.getElementById(targetBoxId).classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
         
-        // CRITICAL FIX: Retract padding cleanly when keypad closes
+        // Retract padding cleanly
         document.getElementById('zone-practice').style.paddingBottom = '60px'; 
 
         masteryPoints++;
@@ -1034,7 +1041,7 @@
         updateProgressBar();
         document.getElementById('p-scale-top').classList.add('flash-error');
         document.getElementById('p-scale-bot').classList.add('flash-error');
-        document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').classList.add('flash-error');
+        document.getElementById(targetBoxId).classList.add('flash-error');
         
         let errorMsg = `Streak Broken!\n\n1. Find what the completed row was multiplied by (× ${currentQ.mult}).\n2. Multiply the other row by the EXACT SAME number.`;
         let errorTag = "General_Error";
@@ -1053,10 +1060,10 @@
         setTimeout(() => {
             document.getElementById('p-scale-top').innerText = '';
             document.getElementById('p-scale-bot').innerText = '';
-            document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').innerText = '';
+            document.getElementById(targetBoxId).innerText = '';
             document.getElementById('p-scale-top').classList.remove('flash-error');
             document.getElementById('p-scale-bot').classList.remove('flash-error');
-            document.getElementById(currentQ.isMissingNum ? 'p-target-n' : 'p-target-d').classList.remove('flash-error');
+            document.getElementById(targetBoxId).classList.remove('flash-error');
             openKeypad('p-scale-top', 'practice');
         }, 3000);
     }
