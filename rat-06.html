@@ -28,15 +28,13 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA - Padding bottom gives space for the keypad */
+    /* SCROLLABLE CONTENT AREA */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s ease; scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
     .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
     .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
-    
-    /* CRITICAL: Position must be relative so it can scroll naturally away from the keypad */
     .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
@@ -217,7 +215,7 @@
             </div>
         </div>
 
-        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 (CRASH-PROOF) -->
+        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
         <div id="g-dynamic-answer-area" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
     </div>
 
@@ -379,9 +377,7 @@
       }
   });
 
-  // --- BULLETPROOF ABSOLUTE SCROLL FIX ---
-  // This explicitly pushes the top of the white box to the top of the screen,
-  // guaranteeing the bottom of the box (denominators) clears the keypad.
+  // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -405,21 +401,32 @@
       
       let container = document.querySelector('.content-area');
       if (container) {
-          // Ensure enough padding exists so scrolling is always physically possible
-          container.style.paddingBottom = '350px';
+          // Dynamically inject a massive bottom padding (50vh) so we can always scroll anything to the middle
+          container.style.paddingBottom = '50vh';
 
           setTimeout(() => {
-              // Find the master container that holds BOTH the question and the inputs
-              let visualBlock = targetBox.closest('.pinned-visual');
+              // 1. Get raw coordinates
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
               
-              if (visualBlock) {
-                  // ABSOLUTE POSITIONING: Calculate distance from the top of the scrolling area 
-                  // to the top of the white box, and scroll to that exact point (minus a 20px gap).
-                  // This pins the top of the box to the top of the screen, forcing everything below it to be visible.
-                  let targetScroll = visualBlock.offsetTop - 20;
-                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              }
-          }, 100); 
+              // 2. Find the exact `.fraction` wrapper holding both num and den
+              let fractionWrapper = targetBox.closest('.fraction');
+              let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
+
+              // 3. Calculate the usable visual space between the header and the keypad
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              // 4. Find where the fraction currently sits, and where we want it to sit (dead center of usable space)
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              // 5. Scroll the exact difference
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); // Wait 350ms to ensure keypad CSS slide animation is 100% finished
       }
   }
 
@@ -770,7 +777,6 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
-          // FIXED: Mathematically sound guided practice that actually requires simplification
           gData = { 
               q: `
                 <div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den">4</div></div>
