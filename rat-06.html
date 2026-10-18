@@ -28,14 +28,16 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    /* SCROLLABLE CONTENT AREA */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
     .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
     .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
-    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: sticky; top: 0; z-index: 10;}
+    
+    /* UNPINNED VISUAL (FIXED FOR MOBILE SCROLLING) */
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
     .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
@@ -50,7 +52,7 @@
     .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; }
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 10px; }
 
-    /* MERGED FRACTION VISUAL (REPLACES GRID) */
+    /* MERGED FRACTION VISUAL */
     .merged-fraction { display: inline-flex; flex-direction: column; align-items: center; background: var(--slate-50); border: 2px dashed var(--slate-300); border-radius: var(--radius); padding: 10px 15px;}
     .merged-num { border-bottom: 3px solid var(--slate-900); padding-bottom: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
     .merged-den { padding-top: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
@@ -136,7 +138,6 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
-    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Multiply Rule</div>
@@ -199,7 +200,6 @@
   <div class="content-area hidden" id="zone-guided">
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
     
-    <!-- Pinned Visuals -->
     <div class="pinned-visual">
         <!-- Original Equation -->
         <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
@@ -265,7 +265,7 @@
     </div>
     
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. You must show the raw multiplied fraction AND the fully simplified final fraction.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
     </div>
   </div>
 
@@ -378,13 +378,13 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
+  // --- V2 VIEWPORT-AWARE NAVIGATION (CRASH-PROOF SCROLL) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) {
-          showError("System Error: Element not found. Please restart module.");
+          showError("System Error: Cannot locate input box. Please reset the module.");
           console.error("openKeypad Error: Cannot find '" + boxId + "'");
           return;
       }
@@ -398,25 +398,28 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
-      document.getElementById('keypad').classList.add('open');
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
       
-      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
-      
-      if (containerId) {
-          let container = document.getElementById(containerId);
+      let container = document.querySelector('.content-area');
+      if (container) {
           container.style.paddingBottom = '350px';
 
-          if (stepId) {
-              setTimeout(() => {
-                  let stepEl = document.getElementById(stepId);
-                  if(stepEl) {
-                      let visual = container.querySelector('.pinned-visual');
-                      let visualHeight = visual ? visual.offsetHeight : 0;
-                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
-                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-                  }
-              }, 250); 
-          }
+          // Wait for keypad to finish sliding up (0.3s CSS transition)
+          setTimeout(() => {
+              let boxRect = targetBox.getBoundingClientRect();
+              let containerRect = container.getBoundingClientRect();
+              let keypadHeight = keypad.offsetHeight || 300; 
+              
+              // Calculate the visible space above the keypad
+              let visibleHeight = containerRect.height - keypadHeight;
+              
+              // Calculate target scroll to perfectly vertically center the active box
+              let absoluteBoxTop = container.scrollTop + (boxRect.top - containerRect.top);
+              let targetScroll = absoluteBoxTop - (visibleHeight / 2) + (boxRect.height / 2);
+              
+              container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+          }, 300); 
       }
   }
 
