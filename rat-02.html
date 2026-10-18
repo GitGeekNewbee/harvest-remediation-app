@@ -61,8 +61,8 @@
     .inner-slice:last-child { border-right: none; }
     .sliced .inner-slice { opacity: 1; }
 
-    /* Bridge Map for Scaling */
-    .bridge-container { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; position: relative; margin: 25px 0 40px 0; }
+    /* Bridge Map for Scaling - MARGIN FIX APPLIED HERE */
+    .bridge-container { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; position: relative; margin: 55px 0 65px 0; }
     .bridge-arrow-top { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; border-top: 3px dashed var(--emerald); border-radius: 50% 50% 0 0; }
     .bridge-arrow-top::after { content: '▶'; position: absolute; right: -8px; top: -11px; color: var(--emerald); font-size: 1.2rem; }
     .bridge-arrow-bot { position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); width: 80px; height: 20px; border-bottom: 3px dashed var(--emerald); border-radius: 0 0 50% 50%; }
@@ -226,7 +226,7 @@
     
     <!-- Pinned Visuals -->
     <div class="pinned-visual">
-        <div class="bridge-container" style="margin-top:10px; margin-bottom:10px;">
+        <div class="bridge-container">
             <div class="bridge-arrow-top">
                 <div class="scale-label" style="top:-15px; left:25px;">× <span id="g-scale-top-container"></span></div>
             </div>
@@ -261,7 +261,7 @@
     <p class="instruction-text">Find the scale factor, then find the missing piece:</p>
 
     <div class="pinned-visual">
-        <div class="bridge-container" style="margin-top:15px; margin-bottom:15px;">
+        <div class="bridge-container">
             <div class="bridge-arrow-top"><div class="scale-label" style="top:-15px; left:25px;">× <div class="input-box active" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="p-scale-top" onclick="openKeypad('p-scale-top', 'practice')"></div></div></div>
             <div class="fraction">
                 <div class="frac-num" id="p-start-n"></div>
@@ -769,6 +769,7 @@
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
+      
       guidedLevel = 1;
       loadGuidedQuestion();
   }
@@ -1018,7 +1019,7 @@
         showError("Show your work! You must fill in the scale multipliers (×) first.");
         let emptyBox = (valT === '') ? 'p-scale-top' : 'p-scale-bot';
         openKeypad(emptyBox, 'practice');
-        return; 
+        return; // Stops evaluation so it doesn't break their streak
     }
 
     let isCorrect = (valT === currentQ.mult && valB === currentQ.mult && valFinal === currentQ.ansValue);
