@@ -28,7 +28,7 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    /* SCROLLABLE CONTENT AREA */
     .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
@@ -269,7 +269,7 @@
             </div>
             <div style="color:var(--slate-400);">=</div>
             <div class="fraction" id="p-target-frac-container">
-                <!-- Injected by JS -->
+                <!-- Injected strictly AFTER state generation -->
             </div>
             <div class="bridge-arrow-bot"><div class="scale-label" style="bottom:-15px; left:25px;">× <div class="input-box" style="min-width:40px; height:35px; font-size:1.4rem; border-color:var(--emerald); color:var(--emerald);" id="p-scale-bot" onclick="openKeypad('p-scale-bot', 'practice')"></div></div></div>
         </div>
@@ -398,7 +398,6 @@
       if (containerId) {
           let container = document.getElementById(containerId);
           
-          // Expand the scrollable area of the active container directly
           container.style.paddingBottom = '350px';
 
           if (stepId) {
@@ -408,7 +407,6 @@
                       let visual = container.querySelector('.pinned-visual');
                       let visualHeight = visual ? visual.offsetHeight : 0;
                       
-                      // Docks the active step exactly 15 pixels below the sticky visual
                       let targetScroll = stepEl.offsetTop - visualHeight - 15; 
                       container.scrollTo({ top: targetScroll, behavior: 'smooth' });
                   }
@@ -771,7 +769,6 @@
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
-      
       guidedLevel = 1;
       loadGuidedQuestion();
   }
@@ -819,6 +816,17 @@
       document.getElementById('g-bar-container').innerHTML = drawBaseBar(parseInt(gData.n), parseInt(gData.d));
 
       buildGuidedSteps();
+  }
+
+  function advanceGuidedStep(currentStepId, nextStepId, nextBoxId) {
+      let box = document.getElementById(activeBoxId);
+      box.classList.add('flash-success');
+      box.classList.remove('active');
+      
+      document.getElementById(currentStepId).classList.add('completed');
+      document.getElementById(nextStepId).classList.remove('locked');
+      
+      openKeypad(nextBoxId, nextStepId);
   }
 
   function checkGuidedAnswer() {
@@ -947,19 +955,22 @@
     document.getElementById('p-scale-top').classList.remove('flash-success', 'flash-error');
     document.getElementById('p-scale-bot').classList.remove('flash-success', 'flash-error');
 
+    // 1. Generate new state FIRST
+    currentQ = generatePracticeQuestion();
+    
+    // 2. Build HTML strictly mapping to the new state
     let targetHtml = `
-      <div class="frac-num" ${currentQ && currentQ.isMissingNum ? 'style="color:var(--indigo); padding-bottom:3px;"' : ''}>
-         ${currentQ && currentQ.isMissingNum ? `<div class="input-box" style="height:45px; min-width:55px; font-size:1.8rem;" id="p-target-n" onclick="openKeypad('p-target-n', 'practice')"></div>` : `<span id="p-target-n-static"></span>`}
+      <div class="frac-num" ${currentQ.isMissingNum ? 'style="color:var(--indigo); padding-bottom:3px;"' : ''}>
+         ${currentQ.isMissingNum ? `<div class="input-box" style="height:45px; min-width:55px; font-size:1.8rem;" id="p-target-n" onclick="openKeypad('p-target-n', 'practice')"></div>` : `<span id="p-target-n-static"></span>`}
       </div>
-      <div class="frac-den" ${currentQ && !currentQ.isMissingNum ? 'style="color:var(--indigo); padding-top:3px;"' : ''}>
-         ${currentQ && !currentQ.isMissingNum ? `<div class="input-box" style="height:45px; min-width:55px; font-size:1.8rem;" id="p-target-d" onclick="openKeypad('p-target-d', 'practice')"></div>` : `<span id="p-target-d-static"></span>`}
+      <div class="frac-den" ${!currentQ.isMissingNum ? 'style="color:var(--indigo); padding-top:3px;"' : ''}>
+         ${!currentQ.isMissingNum ? `<div class="input-box" style="height:45px; min-width:55px; font-size:1.8rem;" id="p-target-d" onclick="openKeypad('p-target-d', 'practice')"></div>` : `<span id="p-target-d-static"></span>`}
       </div>
     `;
 
     document.getElementById('p-target-frac-container').innerHTML = targetHtml;
-
-    currentQ = generatePracticeQuestion();
     
+    // 3. Populate static values safely
     document.getElementById('p-start-n').innerText = currentQ.startN;
     document.getElementById('p-start-d').innerText = currentQ.startD;
     
@@ -1007,7 +1018,7 @@
         showError("Show your work! You must fill in the scale multipliers (×) first.");
         let emptyBox = (valT === '') ? 'p-scale-top' : 'p-scale-bot';
         openKeypad(emptyBox, 'practice');
-        return; // Stops evaluation so it doesn't break their streak
+        return; 
     }
 
     let isCorrect = (valT === currentQ.mult && valB === currentQ.mult && valFinal === currentQ.ansValue);
