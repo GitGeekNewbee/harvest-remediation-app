@@ -19,6 +19,8 @@
     }
     
     body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* CRITICAL FIX: The app container is a strict flex column */
     .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* V2 MICRO-HUD */
@@ -28,8 +30,8 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
+    /* CRITICAL FIX: The content area natively shrinks when the keypad expands */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
@@ -73,11 +75,28 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* V2 KEYPAD DRAWER */
-    .keypad-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--slate-100); padding: 15px 15px 25px 15px; border-top: 1px solid var(--slate-300); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; display: flex; justify-content: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);}
-    .keypad-drawer.open { bottom: 0; }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    /* CRITICAL FIX: KEYPAD STRUCTURAL FLOW (No longer position: fixed) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; /* Protect keypad from being squeezed */
+    }
+    .keypad-drawer.open { 
+        max-height: 350px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
     
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
@@ -140,7 +159,6 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
-    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Multiply Rule</div>
@@ -271,7 +289,7 @@
     </div>
   </div>
 
-  <!-- V2 KEYPAD DRAWER -->
+  <!-- CRITICAL FIX: KEYPAD STRUCTURAL FLOW (Keypad is now a flex item, not an overlay) -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
       <div class="key-btn" onclick="typeNum('1')">1</div>
@@ -380,7 +398,7 @@
       }
   });
 
-  // --- SOLUTION 1 (DOM REVERSAL) + SOLUTION A (FOCUS MODE) ---
+  // --- CRITICAL FIX: THE FLEXBOX STRUCTURAL SCROLL ENGINE ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -396,41 +414,27 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
-      // Focus mode hides the top HUD, saving space
+      // Focus mode hides the top HUD, expanding the content-area at the top
       document.body.classList.add('focus-active');
 
+      // Opening the keypad natively SHRINKS the content-area at the bottom
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
-      if (container) {
-          let keypadHeight = keypad.offsetHeight || 300;
-          // Add padding so there's room to scroll
-          container.style.paddingBottom = (keypadHeight + 40) + 'px';
-
-          setTimeout(() => {
-              // Now that the instructions are permanently at the top of the block,
-              // we scroll to the instructions container or the math container.
-              // Because of the DOM Reversal, the text is guaranteed to be above the math!
-              let scrollTarget = null;
-              
-              if (appState === 'GUIDED') scrollTarget = document.getElementById('g-dynamic-steps');
-              else if (appState === 'PRACTICE') scrollTarget = targetBox.closest('.pinned-visual');
-
-              if (scrollTarget) {
-                  // Pin the top of the target to the top of the viewport
-                  let targetScroll = scrollTarget.offsetTop - 10;
-                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              }
-          }, 350); 
-      }
+      // Wait for the CSS flexbox transitions to finish squishing the content-area
+      setTimeout(() => {
+          let visualBlock = targetBox.closest('.pinned-visual') || targetBox.closest('.math-row');
+          if (visualBlock) {
+              // Because the content-area is now physically bounded above the keypad,
+              // the browser's native scrollIntoView can perfectly center the fraction safely.
+              visualBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+      }, 350); 
   }
 
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; 
   }
 
   function typeNum(char) {
