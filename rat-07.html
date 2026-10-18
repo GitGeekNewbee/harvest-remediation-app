@@ -28,8 +28,8 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
+    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -46,17 +46,17 @@
     /* STRICT MATH FORMATTING */
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
     .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 5px; }
-    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: opacity 0.3s, color 0.3s;}
-    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: opacity 0.3s, color 0.3s;}
-    .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; transition: color 0.3s; }
-    
-    /* KCF BADGES */
-    .kcf-group { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .kcf-badge { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; padding: 4px 8px; border-radius: 4px; text-transform: uppercase; transition: 0.3s; opacity: 0; transform: translateY(10px); }
-    .kcf-badge.show { opacity: 1; transform: translateY(0); }
-    .badge-keep { background: var(--indigo-light); color: var(--indigo); }
-    .badge-change { background: var(--emerald-light); color: var(--emerald); }
-    .badge-flip { background: var(--rose-light); color: var(--rose); }
+    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: color 0.3s;}
+    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: color 0.3s;}
+    .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
+
+    /* CLEAN FRACTION BARS */
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 35px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; }
+    .frac-piece:last-child { border-right: none; }
+    .fill-indigo { background-color: var(--indigo); }
+    .fill-emerald { background-color: var(--emerald); }
+    .fill-empty { background-color: transparent; }
 
     /* FADING STEP ARCHITECTURE */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
@@ -65,13 +65,12 @@
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); margin-bottom: 12px; line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
-    .input-box { width: 60px; height: 50px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
-    @keyframes flipPulse { 0% {transform: scale(1);} 50% {transform: scale(1.1); color: var(--rose);} 100% {transform: scale(1);} }
 
     /* V2 KEYPAD DRAWER */
     .keypad-drawer { position: fixed; bottom: -100%; left: 0; width: 100%; background: var(--slate-100); padding: 15px 15px 25px 15px; border-top: 1px solid var(--slate-300); transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; display: flex; justify-content: center; box-shadow: 0 -4px 15px rgba(0,0,0,0.05);}
@@ -114,15 +113,15 @@
     <div style="text-align:center; padding: 20px 0;">
       <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Dividing fractions turns into multiplication. Prove your multiplication fluency before we begin.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Dividing fractions requires you to run your times-tables backwards. Prove your fluency.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
       <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
       <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
-        <li><b>Level 1:</b> Multiplication (× 2 to 5)</li>
-        <li><b>Level 2:</b> Multiplication (× 6 to 9)</li>
-        <li><b>Level 3:</b> Multiplication (× 10 to 12)</li>
+        <li><b>Level 1:</b> Division (÷ 2 to 5)</li>
+        <li><b>Level 2:</b> Division (÷ 6 to 9)</li>
+        <li><b>Level 3:</b> Division (÷ 10 to 12)</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
     </div>
@@ -131,7 +130,7 @@
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
-    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Multiplication</div>
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Division</div>
     <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
     <div class="math-row" style="margin-top:20px;">
         <div class="input-box active" style="width:100px; height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
@@ -143,79 +142,84 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">The K.C.F. Rule</div>
-      <p class="instruction-text">We never actually divide fractions. We rewrite the equation as a multiplication problem using <b>Keep, Change, Flip</b>.</p>
+      <div class="section-title">Fitting Pieces Inside</div>
+      <p class="instruction-text">Division simply asks: "How many of the second number fit inside the first number?"</p>
       
       <div class="pinned-visual">
-        <div class="math-row" style="font-size: 2.5rem; margin-bottom:10px; gap:20px;">
-            
-            <div class="kcf-group">
-                <div class="kcf-badge badge-keep" id="b-keep">Keep</div>
-                <div class="fraction">
-                    <div class="frac-num" style="color:var(--indigo);">2</div>
-                    <div class="frac-den">3</div>
-                </div>
-            </div>
-
-            <div class="kcf-group">
-                <div class="kcf-badge badge-change" id="b-change">Change</div>
-                <div class="operator" id="l-op" style="padding-top:10px;">÷</div>
-            </div>
-
-            <div class="kcf-group">
-                <div class="kcf-badge badge-flip" id="b-flip">Flip</div>
-                <div class="fraction">
-                    <div class="frac-num" id="l-f2-n" style="color:var(--rose);">4</div>
-                    <div class="frac-den" id="l-f2-d" style="color:var(--rose);">5</div>
-                </div>
-            </div>
-
+        <div class="math-row" style="font-size: 2rem; margin-bottom:15px;">
+            <div class="fraction"><div class="frac-num">1</div><div class="frac-den">1</div></div>
+            <div class="operator">÷</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den" style="color:var(--rose);">4</div></div>
+            <div class="operator">=</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--emerald);">4</div><div class="frac-den">1</div></div>
         </div>
 
-        <button class="btn btn-warning" id="btn-anim-1" style="margin-top:20px;" onclick="playKCFAnim()">Apply K.C.F.</button>
+        <p style="margin-top:0; font-size:0.95rem; color:var(--slate-500); font-weight:700; text-transform:uppercase;">1 Whole Block</p>
+        <div class="frac-bar">
+            <div class="frac-piece fill-indigo"></div>
+        </div>
+        
+        <p style="margin-top:15px; margin-bottom:5px; font-size:0.95rem; color:var(--slate-500); font-weight:700; text-transform:uppercase;">Sliced into Quarters</p>
+        <div class="frac-bar">
+            <div class="frac-piece fill-emerald"></div>
+            <div class="frac-piece fill-emerald"></div>
+            <div class="frac-piece fill-emerald"></div>
+            <div class="frac-piece fill-emerald"></div>
+        </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; opacity:0; transition:opacity 0.5s;" id="slide-1-msg">We <b>Kept</b> the first fraction, <b>Changed</b> ÷ to ×, and <b>Flipped</b> the second fraction upside down.</p>
-      <button class="btn btn-primary" id="btn-next-1" onclick="nextSlide()" style="display:none;">Continue</button>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">How many quarter pieces fit into one whole block? Exactly <b>4</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">Multiply & Simplify</div>
-      <p class="instruction-text">Now that it is a multiplication problem, simply follow the "Top × Top, Bottom × Bottom" rule.</p>
+      <div class="section-title">The K.C.F. Rule</div>
+      <p class="instruction-text">Because division is just inverse multiplication, we can solve any division problem by flipping the second fraction.</p>
+      
+      <div class="pinned-visual">
+        
+        <div style="display:flex; justify-content:space-around; width:100%; margin-bottom:10px; font-weight:800; font-size:1.2rem;">
+            <div style="color:var(--indigo);">KEEP</div>
+            <div style="color:var(--amber);">CHANGE</div>
+            <div style="color:var(--rose);">FLIP</div>
+        </div>
+
+        <div class="math-row" style="font-size: 2rem; margin-bottom:15px;">
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">2</div><div class="frac-den" style="color:var(--indigo);">5</div></div>
+            <div class="operator">÷</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--slate-400);">3</div><div class="frac-den" style="color:var(--slate-400);">4</div></div>
+        </div>
+
+        <div style="width: 100%; border-top: 2px dashed var(--slate-200); margin: 10px 0;"></div>
+
+        <div class="math-row" style="font-size: 2rem; margin-top:15px;">
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">2</div><div class="frac-den" style="color:var(--indigo);">5</div></div>
+            <div class="operator" style="color:var(--amber);">×</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">4</div><div class="frac-den" style="color:var(--rose);">3</div></div>
+        </div>
+
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>KEEP</b> the first fraction exactly the same. <b>CHANGE</b> division to multiplication. <b>FLIP</b> the second fraction upside down (Reciprocal).</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Final Step: Solve & Simplify</div>
+      <p class="instruction-text">Once you have successfully written your K.C.F. equation, just multiply straight across like normal.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2.2rem; margin-bottom:15px;">
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">2</div>
-                <div class="frac-den">3</div>
-            </div>
-            <div class="operator" style="color:var(--emerald);">×</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--rose);">5</div>
-                <div class="frac-den" style="color:var(--rose);">4</div>
-            </div>
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">2</div><div class="frac-den" style="color:var(--indigo);">5</div></div>
+            <div class="operator" style="color:var(--amber);">×</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">4</div><div class="frac-den" style="color:var(--rose);">3</div></div>
             <div class="operator">=</div>
-            <div class="fraction">
-                <div class="frac-num">10</div>
-                <div class="frac-den">12</div>
-            </div>
-        </div>
-        
-        <div class="math-row" style="font-size: 2.2rem; margin-top:15px;">
-            <div class="fraction">
-                <div class="frac-num">10</div>
-                <div class="frac-den">12</div>
-            </div>
-            <div class="operator">➔</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--emerald);">5</div>
-                <div class="frac-den" style="color:var(--emerald);">6</div>
-            </div>
+            <div class="fraction"><div class="frac-num" style="color:var(--emerald);">8</div><div class="frac-den" style="color:var(--emerald);">15</div></div>
         </div>
       </div>
-      
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We solved the multiplication and simplified 10/12 to <b>5/6</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>2 × 4 = 8</b>, and <b>5 × 3 = 15</b>. Since 8/15 cannot be divided down any smaller, we are done.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -226,8 +230,24 @@
     
     <!-- Pinned Visuals -->
     <div class="pinned-visual">
-        <div class="math-row" style="font-size: 2rem; margin-bottom:10px;" id="g-q-container">
+        <!-- Original Equation -->
+        <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
             <!-- Injected by JS -->
+        </div>
+        
+        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
+        
+        <!-- KCF Equation -->
+        <div class="math-row" style="margin-top:10px; margin-bottom:10px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="g-k-n" onclick="openKeypad('g-k-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box" id="g-k-d" onclick="openKeypad('g-k-d', 'g-step-1')"></div></div>
+            </div>
+            <div class="operator" style="color:var(--amber);">×</div>
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="g-f-n" onclick="openKeypad('g-f-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box" id="g-f-d" onclick="openKeypad('g-f-d', 'g-step-1')"></div></div>
+            </div>
         </div>
     </div>
 
@@ -235,38 +255,53 @@
     <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
-    
-    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-area hidden" id="zone-practice">
     <div class="section-title">Strict Practice</div>
-    <p class="instruction-text">Apply K.C.F., multiply, and simplify your final answer.</p>
+    <p class="instruction-text">Show your work. Rewrite the problem using Keep-Change-Flip before you solve.</p>
 
     <div class="pinned-visual">
-        <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
+        <!-- Original Equation -->
+        <div class="math-row" id="p-q-display" style="margin-bottom:10px;">
             <!-- Populated by JS -->
         </div>
         
+        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
+        
+        <!-- KCF Equation -->
+        <div class="math-row" style="margin-top:10px; margin-bottom:10px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="p-k-n" onclick="openKeypad('p-k-n', 'practice')"></div></div>
+              <div class="frac-den"><div class="input-box" id="p-k-d" onclick="openKeypad('p-k-d', 'practice')"></div></div>
+            </div>
+            <div class="operator" style="color:var(--amber);">×</div>
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="p-f-n" onclick="openKeypad('p-f-n', 'practice')"></div></div>
+              <div class="frac-den"><div class="input-box" id="p-f-d" onclick="openKeypad('p-f-d', 'practice')"></div></div>
+            </div>
+        </div>
+        
+        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
+        
+        <!-- Final Answer -->
         <div class="math-row" style="margin-top:10px;">
           <div class="operator" style="margin-right:15px;">=</div>
-          <div class="fraction" style="font-size:2.5rem;">
+          <div class="fraction">
             <div class="frac-num">
-                <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
             </div>
             <div class="frac-den">
-                <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
             </div>
           </div>
         </div>
     </div>
     
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your answer MUST be fully simplified.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your final answer MUST be fully simplified.</p>
     </div>
-    
-    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -328,7 +363,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2; 
+  const totalSlides = 3; 
   let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -337,6 +372,13 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // MATH HELPER FUNCTIONS
+  function getGCD(x, y) {
+      x = Math.abs(x); y = Math.abs(y);
+      while(y) { var t = y; y = x % y; x = t; }
+      return x;
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -363,7 +405,7 @@
           console.error("Profile parsing error", e);
       }
 
-      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel;
+      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel + " (÷)";
 
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
@@ -371,7 +413,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -382,19 +424,25 @@
 
       document.getElementById('keypad').classList.add('open');
       
-      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+      
+      if (containerId) {
+          let container = document.getElementById(containerId);
+          
+          container.style.paddingBottom = '350px';
 
-      if (appState === 'GUIDED' && stepId) {
-          setTimeout(() => {
-              let stepEl = document.getElementById(stepId);
-              if(stepEl) {
-                  let viewportHeight = window.innerHeight - 260; 
-                  let elementOffset = stepEl.getBoundingClientRect().top;
-                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
-                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
-              }
-          }, 300); 
+          if (stepId) {
+              setTimeout(() => {
+                  let stepEl = document.getElementById(stepId);
+                  if(stepEl) {
+                      let visual = container.querySelector('.pinned-visual');
+                      let visualHeight = visual ? visual.offsetHeight : 0;
+                      
+                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+              }, 250); 
+          }
       }
   }
 
@@ -419,6 +467,7 @@
   }
 
   function flashError(box) {
+      if (!box) return;
       box.classList.add('flash-error');
       setTimeout(() => box.classList.remove('flash-error'), 400);
   }
@@ -433,43 +482,26 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  // --- K.C.F. ANIMATION ---
-  function playKCFAnim() {
-      document.getElementById('btn-anim-1').style.display = 'none';
+  function triggerStreakBreak(msg, tag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
       
-      // 1. Show KEEP badge
-      document.getElementById('b-keep').classList.add('show');
+      ['p-k-n', 'p-k-d', 'p-f-n', 'p-f-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
       
-      // 2. Change Sign
+      showError(msg);
+      logTelemetryEvent("Trapdoor Triggered", 0, tag);
+      
       setTimeout(() => {
-          document.getElementById('b-change').classList.add('show');
-          let op = document.getElementById('l-op');
-          op.innerText = '×';
-          op.style.color = 'var(--emerald)';
-          op.style.transform = 'scale(1.3)';
-          setTimeout(() => op.style.transform = 'scale(1)', 200);
-      }, 800);
-
-      // 3. Flip Fraction
-      setTimeout(() => {
-          document.getElementById('b-flip').classList.add('show');
-          let n = document.getElementById('l-f2-n');
-          let d = document.getElementById('l-f2-d');
-          
-          n.style.animation = 'flipPulse 0.5s ease-in-out';
-          d.style.animation = 'flipPulse 0.5s ease-in-out';
-          
-          setTimeout(() => {
-              n.innerText = '5'; // Was 4
-              d.innerText = '4'; // Was 5
-          }, 250); // Swap exactly halfway through the pulse
-          
-          setTimeout(() => {
-              document.getElementById('slide-1-msg').style.opacity = '1';
-              let btn = document.getElementById('btn-next-1');
-              btn.style.display = 'block';
-          }, 1000);
-      }, 1800);
+          ['p-k-n', 'p-k-d', 'p-f-n', 'p-f-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
+              let el = document.getElementById(id);
+              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
+          });
+          openKeypad('p-k-n', 'practice');
+      }, 4500);
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -482,9 +514,9 @@
     document.getElementById('zone-gate-active').classList.remove('hidden');
     document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: × 2 to 5";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: × 6 to 9";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: × 10 to 12";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Division (÷)";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Division (÷)";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Division (÷)";
 
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
@@ -505,7 +537,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -515,23 +547,22 @@
   }
 
   function generateGateQuestion(level) {
-    let n1, n2;
+    let b, c;
     if (level === 1) { 
-      n1 = Math.floor(Math.random() * 4) + 2; 
-      n2 = Math.floor(Math.random() * 11) + 2; 
+      b = Math.floor(Math.random() * 4) + 2; 
+      c = Math.floor(Math.random() * 11) + 2; 
     } else if (level === 2) { 
-      n1 = Math.floor(Math.random() * 4) + 6; 
-      n2 = Math.floor(Math.random() * 11) + 2;
+      b = Math.floor(Math.random() * 4) + 6; 
+      c = Math.floor(Math.random() * 11) + 2;
     } else { 
-      n1 = Math.floor(Math.random() * 3) + 10; 
-      n2 = Math.floor(Math.random() * 11) + 2;
+      b = Math.floor(Math.random() * 3) + 10; 
+      c = Math.floor(Math.random() * 11) + 2;
     }
-    if (Math.random() > 0.5) { let t = n1; n1 = n2; n2 = t; }
     
-    let ans = n1 * n2;
-    let qText = `${n1} × ${n2} =`;
+    let a = b * c;
+    let qText = `${a} ÷ ${b} =`;
     let logText = qText.replace('=', ' =').trim();
-    return { qHtml: qText, qText: logText, ans: ans.toString() };
+    return { qHtml: qText, qText: logText, ans: c.toString() };
   }
 
   function loadSprintQuestion() {
@@ -581,7 +612,7 @@
         }
 
         resetSprintUI();
-        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel} (÷)`;
       } else {
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
@@ -612,7 +643,7 @@
   }
 
   function resetSprintUI() {
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       document.getElementById('zone-gate-active').classList.add('hidden');
       document.getElementById('zone-gate-intro').classList.remove('hidden');
   }
@@ -629,7 +660,7 @@
       document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
       openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
@@ -716,7 +747,7 @@
   function unlockLesson() {
     closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('mastery-text').classList.remove('timer-alert');
     document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
@@ -750,39 +781,12 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Keep, Change, Flip. Rewrite the division problem as a multiplication problem below:</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--indigo); color:var(--indigo);" id="g-k-n" onclick="openKeypad('g-k-n', 'g-step-1')"></div></div>
-              <div class="frac-den"><div class="input-box" style="border-color:var(--indigo); color:var(--indigo);" id="g-k-d" onclick="openKeypad('g-k-d', 'g-step-1')"></div></div>
-            </div>
-            <div class="operator" style="color:var(--emerald);">×</div>
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--rose); color:var(--rose);" id="g-f-n" onclick="openKeypad('g-f-n', 'g-step-1')"></div></div>
-              <div class="frac-den"><div class="input-box" style="border-color:var(--rose); color:var(--rose);" id="g-f-d" onclick="openKeypad('g-f-d', 'g-step-1')"></div></div>
-            </div>
-          </div>
+          <div class="step-text">1. Keep the first fraction exactly the same. Then flip the second fraction upside down.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Now multiply straight across (Top × Top, Bottom × Bottom):</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="g-m-n" onclick="openKeypad('g-m-n', 'g-step-2')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-m-d" onclick="openKeypad('g-m-d', 'g-step-2')"></div></div>
-            </div>
-          </div>
-        </div>
-        <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Simplify your final answer to its lowest terms.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-3')"></div></div>
-              <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-3')"></div></div>
-            </div>
-          </div>
+          <div class="step-text">2. Multiply straight across. Finally, simplify your answer to lowest terms.</div>
         </div>
       `;
-
       openKeypad('g-k-n', 'g-step-1');
   }
 
@@ -791,92 +795,87 @@
       
       if (guidedLevel === 1) {
           gData = { 
-              q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den" style="color:var(--indigo);">4</div></div>
-                <div class="operator">÷</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den" style="color:var(--rose);">2</div></div>
-              `,
-              n1: "3", d1: "4", n2: "1", d2: "2",
-              prodN: "6", prodD: "4",
-              simpN: "3", simpD: "2"
+              qStr: `<div class="fraction"><div class="frac-num">4</div><div class="frac-den">5</div></div> <div class="operator">÷</div> <div class="fraction"><div class="frac-num">2</div><div class="frac-den">3</div></div>`,
+              k_n: "4", k_d: "5",
+              f_n: "3", f_d: "2",
+              ansN: "6", ansD: "5",
+              err1: "KEEP the first fraction exactly the same (4/5). FLIP the second fraction upside down (3/2).",
+              err2: "Multiply straight across to get 12/10. Then divide both by 2 to get 6/5."
           };
       } else {
           gData = { 
-              q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">5</div><div class="frac-den" style="color:var(--indigo);">8</div></div>
-                <div class="operator">÷</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den" style="color:var(--rose);">4</div></div>
-              `,
-              n1: "5", d1: "8", n2: "3", d2: "4",
-              prodN: "20", prodD: "24",
-              simpN: "5", simpD: "6"
+              qStr: `<div class="fraction"><div class="frac-num">3</div><div class="frac-den">8</div></div> <div class="operator">÷</div> <div class="fraction"><div class="frac-num">3</div><div class="frac-den">4</div></div>`,
+              k_n: "3", k_d: "8",
+              f_n: "4", f_d: "3",
+              ansN: "1", ansD: "2",
+              err1: "KEEP the first fraction exactly the same (3/8). FLIP the second fraction upside down (4/3).",
+              err2: "Multiply straight across to get 12/24. Then simplify it down to 1/2."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q-container').innerHTML = gData.q;
+      document.getElementById('g-q-container').innerHTML = gData.qStr;
       
+      // Clear inputs
+      ['g-k-n', 'g-k-d', 'g-f-n', 'g-f-d', 'g-ans-n', 'g-ans-d'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+      });
+
       buildGuidedSteps();
   }
 
-  function advanceGuidedStep(currentStepId, nextStepId, nextBoxId) {
-      let box = document.getElementById(activeBoxId);
-      box.classList.add('flash-success');
-      box.classList.remove('active');
-      
-      if (currentStepId) document.getElementById(currentStepId).classList.add('completed');
-      if (nextStepId) document.getElementById(nextStepId).classList.remove('locked');
-      
-      openKeypad(nextBoxId, nextStepId);
-  }
-
   function checkGuidedAnswer() {
+      let valKN = document.getElementById('g-k-n').innerText;
+      let valKD = document.getElementById('g-k-d').innerText;
+      let valFN = document.getElementById('g-f-n').innerText;
+      let valFD = document.getElementById('g-f-d').innerText;
+      
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
       if (val === '') return;
 
       if (activeStepId === 'g-step-1') {
           if (activeBoxId === 'g-k-n') {
-              if (val === gData.n1) advanceGuidedStep(null, null, 'g-k-d');
-              else { showError("KEEP: The first numerator stays exactly the same."); flashError(box); }
+              if (val === gData.k_n) { box.classList.add('flash-success'); openKeypad('g-k-d', 'g-step-1'); }
+              else { showError("KEEP the first fraction exactly the same."); flashError(box); }
           } else if (activeBoxId === 'g-k-d') {
-              if (val === gData.d1) advanceGuidedStep(null, null, 'g-f-n');
-              else { showError("KEEP: The first denominator stays exactly the same."); flashError(box); }
+              if (val === gData.k_d) { box.classList.add('flash-success'); openKeypad('g-f-n', 'g-step-1'); }
+              else { showError("KEEP the first fraction exactly the same."); flashError(box); }
           } else if (activeBoxId === 'g-f-n') {
-              if (val === gData.d2) advanceGuidedStep(null, null, 'g-f-d');
-              else { showError("FLIP: The old bottom number becomes the new top number."); flashError(box); }
+              if (val === gData.f_n) { box.classList.add('flash-success'); openKeypad('g-f-d', 'g-step-1'); }
+              else { showError("FLIP the second fraction upside down."); flashError(box); }
           } else if (activeBoxId === 'g-f-d') {
-              if (val === gData.n2) {
-                  xp += 5;
-                  document.getElementById('xp-counter').innerText = xp;
-                  advanceGuidedStep('g-step-1', 'g-step-2', 'g-m-n');
+              // SEQUENCE CHECK
+              if (valKN === '' || valKD === '' || valFN === '') {
+                  showError("Start from the left. Keep the first fraction, then flip the second.");
+                  openKeypad('g-k-n', 'g-step-1');
+                  return;
               }
-              else { showError("FLIP: The old top number becomes the new bottom number."); flashError(box); }
-          }
-      } 
-      else if (activeStepId === 'g-step-2') {
-          if (activeBoxId === 'g-m-n') {
-              if (val === gData.prodN) advanceGuidedStep(null, null, 'g-m-d');
-              else { showError("Multiply the tops straight across: " + gData.n1 + " × " + gData.d2); flashError(box); }
-          } else if (activeBoxId === 'g-m-d') {
-              if (val === gData.prodD) {
+
+              if (val === gData.f_d) {
+                  box.classList.add('flash-success');
                   xp += 5;
                   document.getElementById('xp-counter').innerText = xp;
-                  advanceGuidedStep('g-step-2', 'g-step-3', 'g-simp-n');
-              } else { showError("Multiply the bottoms straight across: " + gData.d1 + " × " + gData.n2); flashError(box); }
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  openKeypad('g-ans-n', 'g-step-2');
+              } else {
+                  showError("FLIP the second fraction upside down.");
+                  flashError(box);
+              }
           }
-      }
-      else if (activeStepId === 'g-step-3') {
-          if (activeBoxId === 'g-simp-n') {
-              if (val === gData.simpN) advanceGuidedStep(null, null, 'g-simp-d');
-              else { showError("Find the common factor for " + gData.prodN + " and " + gData.prodD + "."); flashError(box); }
-          } else if (activeBoxId === 'g-simp-d') {
-              if (val === gData.simpD) {
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-ans-n') {
+              if (val === gData.ansN) { box.classList.add('flash-success'); openKeypad('g-ans-d', 'g-step-2'); }
+              else { showError(gData.err2); flashError(box); }
+          } else if (activeBoxId === 'g-ans-d') {
+              if (val === gData.ansD) {
                   box.classList.add('flash-success');
-                  box.classList.remove('active');
-                  document.getElementById('g-step-3').classList.add('completed');
+                  document.getElementById('g-step-2').classList.add('completed');
                   document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  
                   activeBoxId = null;
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
@@ -889,8 +888,11 @@
                       } else {
                           startPractice(); 
                       }
-                  }, 1200);
-              } else { showError("Find the common factor to simplify the denominator."); flashError(box); }
+                  }, 1000);
+              } else {
+                  showError(gData.err2);
+                  flashError(box);
+              }
           }
       }
   }
@@ -906,57 +908,50 @@
     loadPracticeQuestion();
   }
 
-  function getGCD(x, y) {
-      x = Math.abs(x); y = Math.abs(y);
-      while(y) { var t = y; y = x % y; x = t; }
-      return x;
-  }
-
   function generatePracticeQuestion() {
-    let d1, d2, n1, n2;
-    d1 = Math.floor(Math.random() * 7) + 2; 
-    d2 = Math.floor(Math.random() * 7) + 2; 
-    n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-        
-    let prodN = n1 * d2; // Due to flip
-    let prodD = d1 * n2; // Due to flip
+    let n1 = Math.floor(Math.random() * 8) + 1; 
+    let d1 = Math.floor(Math.random() * 8) + 2; 
+    let n2 = Math.floor(Math.random() * 8) + 1; 
+    let d2 = Math.floor(Math.random() * 8) + 2; 
 
-    let simpScale = getGCD(prodN, prodD);
-    let ansN = (prodN / simpScale).toString();
-    let ansD = (prodD / simpScale).toString();
+    // KCF transforms this to (n1/d1) * (d2/n2)
+    let rawN = n1 * d2;
+    let rawD = d1 * n2;
+    let gcd = getGCD(rawN, rawD);
+    
+    let ansN = rawN / gcd;
+    let ansD = rawD / gcd;
 
     let qStr = `
-        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den" style="color:var(--indigo);">${d1}</div></div>
+        <div class="fraction"><div class="frac-num">${n1}</div><div class="frac-den">${d1}</div></div>
         <div class="operator">÷</div>
-        <div class="fraction"><div class="frac-num" style="color:var(--rose);">${n2}</div><div class="frac-den" style="color:var(--rose);">${d2}</div></div>
+        <div class="fraction"><div class="frac-num">${n2}</div><div class="frac-den">${d2}</div></div>
     `;
     
-    // Diagnostic trapdoors
-    let noFlipN = n1 * n2;
-    let noFlipD = d1 * d2;
-    let flipFirstN = d1 * n2;
-    let flipFirstD = n1 * d2;
-
     return { 
         qHtml: qStr, 
-        ansN: ansN, ansD: ansD,
-        rawN: prodN.toString(), rawD: prodD.toString(),
-        noFlipN: noFlipN, noFlipD: noFlipD,
-        flipFirstN: flipFirstN, flipFirstD: flipFirstD
+        n1, d1, n2, d2,
+        rawN: rawN.toString(),
+        rawD: rawD.toString(),
+        ansN: ansN.toString(),
+        ansD: ansD.toString()
     };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans-n').innerText = '';
-    document.getElementById('p-ans-n').classList.remove('flash-success', 'flash-error');
-    document.getElementById('p-ans-d').innerText = '';
-    document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
-    
+    // 1. Strict State-Sync Verification (Generation Before Rendering)
     currentQ = generatePracticeQuestion();
+    
+    // 2. Clear all boxes safely
+    ['p-k-n', 'p-k-d', 'p-f-n', 'p-f-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+    });
+
+    // 3. Render HTML cleanly
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     
-    openKeypad('p-ans-n', 'practice');
+    openKeypad('p-k-n', 'practice');
   }
 
   function updateProgressBar() {
@@ -966,28 +961,42 @@
   }
 
   function checkPracticeAnswer() {
+    let valKN = document.getElementById('p-k-n').innerText;
+    let valKD = document.getElementById('p-k-d').innerText;
+    let valFN = document.getElementById('p-f-n').innerText;
+    let valFD = document.getElementById('p-f-d').innerText;
+    let valAnsN = document.getElementById('p-ans-n').innerText;
+    let valAnsD = document.getElementById('p-ans-d').innerText;
+
     let box = document.getElementById(activeBoxId);
-    let val = box.innerText;
-    if (val === '') return;
+    if (box.innerText === '') return;
 
-    if (activeBoxId === 'p-ans-n') {
-        box.classList.add('flash-success'); 
-        box.classList.remove('active');
-        openKeypad('p-ans-d', 'practice'); 
-        return;
-    } 
+    // Fast-track navigation for active boxes
+    if (activeBoxId === 'p-k-n') { box.classList.add('flash-success'); openKeypad('p-k-d', 'practice'); return; }
+    if (activeBoxId === 'p-k-d') { box.classList.add('flash-success'); openKeypad('p-f-n', 'practice'); return; }
+    if (activeBoxId === 'p-f-n') { box.classList.add('flash-success'); openKeypad('p-f-d', 'practice'); return; }
+    if (activeBoxId === 'p-f-d') { box.classList.add('flash-success'); openKeypad('p-ans-n', 'practice'); return; }
+    if (activeBoxId === 'p-ans-n') { box.classList.add('flash-success'); openKeypad('p-ans-d', 'practice'); return; }
 
-    let valN = document.getElementById('p-ans-n').innerText;
-    let valD = document.getElementById('p-ans-d').innerText;
-    
-    if (valD === '') return;
+    if (valAnsD === '') return;
 
-    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+    // --- STRICT SEQUENCE INTERCEPT ---
+    if (valKN === '' || valKD === '' || valFN === '' || valFD === '') {
+        showError("Show your work! You must rewrite the equation using Keep-Change-Flip first.");
+        let emptyBox = (valKN === '') ? 'p-k-n' : ((valKD === '') ? 'p-k-d' : ((valFN === '') ? 'p-f-n' : 'p-f-d'));
+        openKeypad(emptyBox, 'practice');
+        return; 
+    }
 
-    if(isCorrect) {
+    // --- TRAPDOOR EVALUATION ENGINE ---
+    let isKcfCorrect = (parseInt(valKN) === currentQ.n1 && parseInt(valKD) === currentQ.d1 && parseInt(valFN) === currentQ.d2 && parseInt(valFD) === currentQ.n2);
+    let isCorrect = (valAnsN === currentQ.ansN && valAnsD === currentQ.ansD);
+
+    if (isKcfCorrect && isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
-        document.getElementById('scroll-padding-practice').style.height = '10px';
+        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
@@ -996,41 +1005,30 @@
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        let userVal = parseFloat(valN) / parseFloat(valD);
-        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
-        let noFlipVal = parseFloat(currentQ.noFlipN) / parseFloat(currentQ.noFlipD);
-        let flipFirstVal = parseFloat(currentQ.flipFirstN) / parseFloat(currentQ.flipFirstD);
-        
-        let errorMsg = `Streak Broken!\n\n1. Keep, Change, Flip.\n2. Multiply Top × Top and Bottom × Bottom.\n3. Simplify to lowest terms.`;
+        // TRAPDOORS
+        let errorMsg = `Streak Broken!\n\n1. KEEP: ${currentQ.n1}/${currentQ.d1}.\n2. FLIP: ${currentQ.d2}/${currentQ.n2}.\n3. Multiply across to get ${currentQ.rawN}/${currentQ.rawD}, then simplify to ${currentQ.ansN}/${currentQ.ansD}.`;
         let errorTag = "General_Error";
 
-        if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
-            errorMsg = `NOT SIMPLIFIED!\n\nYour math is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms.`;
-            errorTag = "Unsimplified_Answer";
-        } else if (!isNaN(userVal) && userVal === noFlipVal) {
-            errorMsg = `CRITICAL ERROR!\n\nYou forgot to flip! You cannot multiply straight across a division problem. Remember: Keep, Change, FLIP.`;
-            errorTag = "Did_Not_Flip";
-        } else if (!isNaN(userVal) && userVal === flipFirstVal) {
-            errorMsg = `CRITICAL ERROR!\n\nYou flipped the WRONG fraction! The FIRST fraction always stays exactly the same. You only flip the second one.`;
+        if (parseInt(valKN) === currentQ.d1 && parseInt(valKD) === currentQ.n1) {
+            errorMsg = `CRITICAL ERROR!\n\nYou flipped the WRONG fraction! Keep the first fraction exactly the same. Only flip the second one.`;
             errorTag = "Flipped_First_Fraction";
+        } else if (parseInt(valFN) === currentQ.n2 && parseInt(valFD) === currentQ.d2) {
+            errorMsg = `CRITICAL ERROR!\n\nYou forgot to FLIP! To divide, you must multiply by the reciprocal (flipped) fraction.`;
+            errorTag = "Forgot_To_Flip";
+        } else if (!isKcfCorrect) {
+            errorMsg = `K.C.F. SETUP ERROR!\n\nYour intermediate step is mathematically incorrect. Keep the first fraction exactly the same, and flip the second one upside down.`;
+            errorTag = "KCF_Setup_Error";
+        } else {
+            let userAnsVal = parseFloat(valAnsN) / parseFloat(valAnsD);
+            let rawAnsVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
+            
+            if (!isNaN(userAnsVal) && userAnsVal === rawAnsVal && (valAnsN !== currentQ.ansN)) {
+                errorMsg = `NOT SIMPLIFIED!\n\nYour math is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms.`;
+                errorTag = "Unsimplified_Answer";
+            }
         }
 
-        masteryPoints = 0;
-        streak = 0;
-        updateProgressBar();
-        document.getElementById('p-ans-n').classList.add('flash-error');
-        document.getElementById('p-ans-d').classList.add('flash-error');
-        
-        showError(errorMsg);
-        logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
-        
-        setTimeout(() => {
-            document.getElementById('p-ans-n').innerText = '';
-            document.getElementById('p-ans-d').innerText = '';
-            document.getElementById('p-ans-n').classList.remove('flash-error');
-            document.getElementById('p-ans-d').classList.remove('flash-error');
-            openKeypad('p-ans-n', 'practice');
-        }, 4000);
+        triggerStreakBreak(errorMsg, errorTag);
     }
   }
 
