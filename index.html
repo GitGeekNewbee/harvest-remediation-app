@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
-    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    /* V4 MATURE COLOR PALETTE & TYPOGRAPHY */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root { 
@@ -22,7 +22,7 @@
     .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* DASHBOARD HEADER */
-    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); }
+    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); z-index: 10;}
     .header-top { display: flex; justify-content: space-between; align-items: center; }
     .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;}
     .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px;}
@@ -33,19 +33,32 @@
     .stat-streak { color: #f97316; }
 
     /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 25px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; background: var(--slate-50); }
-    
-    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 12px; margin-top: 15px; }
-    .section-title:first-child { margin-top: 0; }
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; scroll-behavior: smooth; display: flex; flex-direction: column; background: var(--slate-50); }
 
-    /* V3 UNIFIED LIST ARCHITECTURE */
-    .module-group { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); margin-bottom: 25px; }
+    /* V4 ACCORDION ARCHITECTURE */
+    .section-wrapper { margin-bottom: 12px; border: 1px solid var(--slate-200); border-radius: var(--radius); background: #ffffff; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: box-shadow 0.2s ease;}
+    .section-wrapper.is-active { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); border-color: var(--slate-300); }
     
-    .module-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--slate-100); text-decoration: none; transition: background 0.2s ease; position: relative; }
+    .section-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: transparent; border: none; border-bottom: 1px solid transparent; cursor: pointer; text-align: left; transition: background 0.2s; outline: none;}
+    .section-header:hover { background: var(--slate-50); }
+    .section-wrapper.is-open .section-header { border-bottom-color: var(--slate-100); background: var(--slate-50); }
+    
+    .section-title-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .section-name { font-size: 0.9rem; font-weight: 800; color: var(--slate-800); text-transform: uppercase; letter-spacing: 1px; }
+    .section-progress { font-size: 0.8rem; font-weight: 600; color: var(--slate-500); display: flex; align-items: center; gap: 6px;}
+    
+    .chevron { color: var(--slate-400); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem; font-weight: 800;}
+    .section-wrapper.is-open .chevron { transform: rotate(180deg); color: var(--indigo);}
+
+    .module-list { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .section-wrapper.is-open .module-list { max-height: 1000px; /* Arbitrary large number for CSS transition */ }
+
+    /* MODULE ROWS */
+    .module-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--slate-100); text-decoration: none; transition: background 0.2s ease; position: relative; }
     .module-row:last-child { border-bottom: none; }
     .module-row:hover { background: var(--slate-50); }
     
-    .mod-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); background: var(--slate-100); padding: 4px 8px; border-radius: 4px; margin-right: 15px; width: 45px; text-align: center; letter-spacing: 0.5px;}
+    .mod-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); background: var(--slate-100); padding: 4px 8px; border-radius: 4px; margin-right: 15px; min-width: 45px; text-align: center; letter-spacing: 0.5px;}
     .mod-title { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); flex-grow: 1; }
     .mod-icon { font-size: 1rem; color: var(--slate-300); }
 
@@ -53,9 +66,9 @@
     .row-mastered .mod-badge { background: var(--emerald-light); color: var(--emerald); }
     .row-mastered .mod-icon { color: var(--emerald); }
     
-    .row-unlocked { border-left: 3px solid var(--indigo); padding-left: 13px; background: #ffffff; }
+    .row-unlocked { border-left: 4px solid var(--indigo); padding-left: 14px; background: #ffffff; }
     .row-unlocked .mod-badge { background: var(--indigo-light); color: var(--indigo); }
-    .row-unlocked .mod-title { font-weight: 700; }
+    .row-unlocked .mod-title { font-weight: 800; }
     .row-unlocked .mod-icon { color: var(--indigo); }
 
     .row-locked { background: #fafafa; pointer-events: none; }
@@ -63,7 +76,7 @@
     .row-locked .mod-badge { opacity: 0.5; }
     
     /* UTILITIES */
-    .btn-reset { padding: 12px; background: transparent; border: 1px dashed var(--slate-300); color: var(--slate-400); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-top: 10px; text-align: center; transition: 0.2s; }
+    .btn-reset { padding: 12px; background: transparent; border: 1px dashed var(--slate-300); color: var(--slate-400); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-top: 15px; text-align: center; transition: 0.2s; width: 100%;}
     .btn-reset:hover { border-color: var(--slate-400); color: var(--slate-600); }
   </style>
 </head>
@@ -86,18 +99,17 @@
   </header>
 
   <!-- CONTENT -->
-  <div class="content-area" id="curriculum-container">
-      <!-- JS will populate sections here -->
-  </div>
-
-  <div style="padding: 0 20px 25px 20px; background: var(--slate-50);">
-      <button class="btn-reset" style="width: 100%;" onclick="resetProfile()">Reset Test Profile</button>
+  <div class="content-area">
+      <div id="curriculum-container">
+          <!-- JS will populate accordion sections here -->
+      </div>
+      <button class="btn-reset" onclick="resetProfile()">Reset Test Profile</button>
   </div>
 
 </div>
 
 <script>
-  // --- V3 SCALABLE CURRICULUM DATA ---
+  // --- V4 SCALABLE CURRICULUM DATA ---
   const curriculumSections = [
       {
           title: "Rational Numbers",
@@ -118,12 +130,22 @@
               { id: 'DEC-01', title: 'Place Value', file: '#' },
               { id: 'DEC-02', title: 'Converting to Fractions', file: '#' },
               { id: 'DEC-03', title: 'Adding Decimals', file: '#' },
-              { id: 'DEC-04', title: 'Subtracting Decimals', file: '#' }
+              { id: 'DEC-04', title: 'Subtracting Decimals', file: '#' },
+              { id: 'DEC-05', title: 'Multiplying Decimals', file: '#' },
+              { id: 'DEC-06', title: 'Dividing Decimals', file: '#' }
+          ]
+      },
+      {
+          title: "Algebraic Foundations",
+          modules: [
+              { id: 'ALG-01', title: 'Variables & Expressions', file: '#' },
+              { id: 'ALG-02', title: 'Substitution', file: '#' },
+              { id: 'ALG-03', title: 'Like Terms', file: '#' }
           ]
       }
   ];
 
-  // Flatten array to manage global unlock index easily
+  // Flatten array to map global progress tracking
   const flatCurriculum = curriculumSections.flatMap(section => section.modules.map(mod => mod.id));
 
   let userProfile = {};
@@ -163,29 +185,34 @@
       
       const isSuperUser = String(userProfile.studentId).toLowerCase().includes('superuser');
 
-      curriculumSections.forEach(section => {
-          let sectionHtml = `<div class="section-title">${section.title}</div><div class="module-group">`;
-          
+      curriculumSections.forEach((section, sIndex) => {
+          let masteredCount = 0;
+          let containsActiveModule = false;
+          let rowsHtml = '';
+
+          // 1. Build the rows and determine section states
           section.modules.forEach(mod => {
               let globalIndex = flatCurriculum.indexOf(mod.id);
               let stateClass = '';
               let icon = '';
               let href = `href="${mod.file}"`;
 
-              // Determine State
+              // Check Mastery Status
               if (userProfile.completedNodes.includes(mod.id)) {
                   stateClass = 'row-mastered';
                   icon = '✓';
+                  masteredCount++;
               } else if (globalIndex === userProfile.unlockedNodeIndex || isSuperUser) {
                   stateClass = 'row-unlocked';
                   icon = '▶';
+                  if (globalIndex === userProfile.unlockedNodeIndex) containsActiveModule = true;
               } else {
                   stateClass = 'row-locked';
                   icon = '🔒';
                   href = ''; 
               }
 
-              sectionHtml += `
+              rowsHtml += `
                   <a ${href} class="module-row ${stateClass}">
                       <div class="mod-badge">${mod.id.split('-')[1]}</div>
                       <div class="mod-title">${mod.title}</div>
@@ -194,30 +221,26 @@
               `;
           });
           
-          sectionHtml += `</div>`;
-          container.innerHTML += sectionHtml;
-      });
-  }
-
-  function resetProfile() {
-      if(confirm("Are you sure you want to reset your local progress?")) {
-          let isSuper = String(userProfile.studentId).toLowerCase().includes('superuser');
-          let newId = isSuper ? "SuperUser" : ('Student_' + Math.floor(Math.random() * 10000));
+          // 2. Determine if accordion should be open on load
+          let isMasteredSection = (masteredCount === section.modules.length);
+          let progressIcon = isMasteredSection ? '🏆' : '⏳';
           
-          let freshProfile = {
-              studentId: newId,
-              xp: 0,
-              streak: 1,
-              completedNodes: [],
-              unlockedNodeIndex: 0,
-              gateLevels: {},
-              failedAttempts: {},
-              remediation: {}
-          };
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(freshProfile));
-          location.reload();
-      }
-  }
-</script>
-</body>
-</html>
+          // Default logic: Open the section containing the active module. 
+          // If SuperUser, default to opening the first section.
+          let isOpen = containsActiveModule || (isSuperUser && sIndex === 0) ? 'is-open is-active' : '';
+
+          // 3. Assemble the Accordion Wrapper
+          let sectionHtml = `
+              <div class="section-wrapper ${isOpen}" id="section-wrap-${sIndex}">
+                  <button class="section-header" onclick="toggleSection(${sIndex})">
+                      <div class="section-title-wrap">
+                          <span class="section-name">${section.title}</span>
+                          <span class="section-progress">${progressIcon} ${masteredCount}/${section.modules.length} Mastered</span>
+                      </div>
+                      <span class="chevron">▼</span>
+                  </button>
+                  <div class="module-list">
+                      ${rowsHtml}
+                  </div>
+              </div>
+          `;
