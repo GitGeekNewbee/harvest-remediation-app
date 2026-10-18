@@ -5,445 +5,200 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
-    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; --text-main: #202124; --text-muted: #5f6368; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: var(--text-main); display: flex; justify-content: center; min-height: 100dvh; overflow-x: hidden; }
-    .app-container { width: 100%; max-width: 600px; background: var(--bg); display: flex; flex-direction: column; position: relative; padding-bottom: 40px; }
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
-    /* Top Navigation Bar */
-    .top-nav { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .nav-brand { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.5px; display: flex; flex-direction: column; }
-    .student-name-display { font-size: 0.85rem; font-weight: normal; opacity: 0.9; margin-top: 2px; cursor: pointer; text-decoration: underline; text-decoration-style: dotted; }
-    .nav-stats { display: flex; gap: 15px; align-items: center; font-weight: bold; font-size: 1.1rem; }
-    .stat-badge { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.2); padding: 5px 12px; border-radius: 20px; }
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
     
-    /* Section Headers */
-    .section-title { font-size: 1.1rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 25px 20px 10px 20px; display: flex; justify-content: space-between; align-items: center; }
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
-    /* Daily Spiral Banner */
-    .spiral-banner { background: linear-gradient(135deg, #34a853, #2b8c45); margin: 10px 20px; border-radius: 16px; padding: 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(52,168,83,0.3); cursor: pointer; transition: transform 0.2s; }
-    .spiral-banner:active { transform: scale(0.98); }
-    .spiral-text h3 { margin: 0 0 5px 0; font-size: 1.4rem; }
-    .spiral-text p { margin: 0; font-size: 0.95rem; opacity: 0.9; }
-    .spiral-icon { font-size: 2.5rem; }
-    .spiral-locked { filter: grayscale(100%); opacity: 0.7; cursor: not-allowed; }
+    /* DASHBOARD HEADER */
+    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); }
+    .header-top { display: flex; justify-content: space-between; align-items: center; }
+    .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;}
+    .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px;}
+    
+    .stats-row { display: flex; gap: 10px; }
+    .stat-pill { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+    .stat-xp { color: var(--amber); }
+    .stat-streak { color: #f97316; }
 
-    /* Grit Shop */
-    .shop-container { margin: 0 20px; background: var(--card); border-radius: 16px; padding: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-    .shop-info { display: flex; flex-direction: column; }
-    .shop-title { font-weight: bold; font-size: 1.1rem; margin-bottom: 3px; display: flex; align-items: center; gap: 5px;}
-    .shop-desc { font-size: 0.85rem; color: var(--text-muted); }
-    .btn-buy { background: var(--warning); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 5px rgba(251,188,4,0.3); transition: background 0.2s; }
-    .btn-buy:disabled { background: #e0e0e0; color: #9aa0a6; box-shadow: none; cursor: not-allowed; }
+    /* SCROLLABLE CONTENT AREA */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 25px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; background: var(--slate-50); }
+    
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 15px; margin-top: 10px; }
 
-    /* Module Grid */
-    .module-grid { display: flex; flex-direction: column; gap: 15px; padding: 0 20px; }
-    .module-card { background: var(--card); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; position: relative; overflow: hidden;}
-    .module-card:active { transform: scale(0.98); }
+    /* V2 MODULE GRID */
+    .module-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 30px; }
     
-    .mod-icon { width: 50px; height: 50px; border-radius: 12px; background: #e8f0fe; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; font-weight: bold; color: var(--primary); flex-shrink: 0; }
-    .mod-details { flex-grow: 1; }
-    .mod-title { font-size: 1.2rem; font-weight: bold; margin: 0 0 4px 0; color: var(--text-main); }
-    .mod-status { font-size: 0.85rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .module-card { background: #ffffff; border: 2px solid var(--slate-200); border-radius: var(--radius); padding: 15px; display: flex; flex-direction: column; justify-content: space-between; min-height: 110px; text-decoration: none; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
     
+    .module-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); margin-bottom: 8px; letter-spacing: 0.5px; }
+    .module-title { font-size: 0.95rem; font-weight: 700; color: var(--slate-900); line-height: 1.3; }
+    .module-icon { align-self: flex-end; font-size: 1.2rem; margin-top: 10px; }
+
     /* Card States */
-    .card-locked { opacity: 0.6; cursor: not-allowed; background: #f8f9fa; }
-    .card-locked .mod-icon { background: #e0e0e0; color: #9aa0a6; }
-    .card-completed { border-color: var(--success); }
-    .card-completed .mod-icon { background: #d4edda; color: var(--success); }
-    .card-active { border-color: var(--primary); box-shadow: 0 4px 15px rgba(26,115,232,0.15); }
+    .card-mastered { border-color: var(--emerald); background: var(--emerald-light); }
+    .card-mastered .module-badge { color: var(--emerald); }
     
-    /* Teacher Beacon */
-    .beacon { background: #fce8e6; color: var(--danger); font-size: 0.85rem; font-weight: bold; padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 6px; margin-top: 10px; border: 1px dashed var(--danger); }
-    .clear-beacon-btn { margin-left: auto; background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; cursor: pointer; }
-
-    /* Modals */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-box h3 { margin-top: 0; font-size: 1.5rem; color: var(--text-main); }
-    .modal-box p { color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
-    .btn-modal { padding: 12px 20px; font-size: 1.1rem; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; width: 100%; }
+    .card-unlocked { border-color: var(--indigo); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15); transform: translateY(-2px); }
+    .card-unlocked .module-badge { color: var(--indigo); }
+    .card-unlocked::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--indigo); }
+    
+    .card-locked { border-color: var(--slate-200); background: var(--slate-100); opacity: 0.6; pointer-events: none; }
+    .card-locked .module-title { color: var(--slate-500); }
+    
+    /* UTILITIES */
+    .btn-reset { padding: 10px; background: none; border: 1px solid var(--slate-300); color: var(--slate-500); border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; margin-top: 20px; text-align: center; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <!-- Top Nav -->
-  <div class="top-nav">
-    <div class="nav-brand">
-      Concept Lab
-      <!-- Clickable Name Display triggers switchUser() -->
-      <span class="student-name-display" id="display-student-name" onclick="switchUser()">Loading...</span>
+  
+  <!-- HEADER -->
+  <header class="dash-header">
+    <div class="header-top">
+        <div>
+            <h1 class="app-title">Concept Lab</h1>
+            <div class="student-id" id="display-id">Loading Profile...</div>
+        </div>
     </div>
-    <div class="nav-stats">
-      <div class="stat-badge" id="hud-streak">🔥 0</div>
-      <div class="stat-badge" id="hud-freezes">🧊 0</div>
-      <div class="stat-badge" id="hud-xp" style="color:#fbbc04;">⭐ 0</div>
+    <div class="stats-row">
+        <div class="stat-pill stat-xp">⭐ <span id="display-xp">0</span> XP</div>
+        <div class="stat-pill stat-streak">🔥 <span id="display-streak">0</span> Day Streak</div>
     </div>
-  </div>
+  </header>
 
-  <!-- Daily Spiral -->
-  <div class="section-title">Retrieval Practice</div>
-  <div class="spiral-banner spiral-locked" id="btn-spiral" onclick="launchSpiral()">
-    <div class="spiral-text">
-      <h3>Daily Spiral</h3>
-      <p id="spiral-desc">Complete a module to unlock.</p>
+  <!-- CONTENT -->
+  <div class="content-area">
+    
+    <div class="section-title">Rational Numbers</div>
+    
+    <!-- DYNAMIC GRID -->
+    <div class="module-grid" id="rat-grid">
+        <!-- JS will populate the module cards here -->
     </div>
-    <div class="spiral-icon">🌀</div>
+
+    <!-- UTILITY BUTTON FOR TESTING -->
+    <button class="btn-reset" onclick="resetProfile()">Reset Test Profile</button>
+    
   </div>
 
-  <!-- Grit Shop -->
-  <div class="section-title">Grit Shop</div>
-  <div class="shop-container">
-    <div class="shop-info">
-      <div class="shop-title">🧊 Streak Freeze</div>
-      <div class="shop-desc">Protects your 🔥 if you miss a day.</div>
-    </div>
-    <button class="btn-buy" id="btn-buy-freeze" onclick="buyFreeze()">500 XP</button>
-  </div>
-
-  <!-- Curriculum Grid -->
-  <div class="section-title">Curriculum Pathway</div>
-  <div class="module-grid" id="curriculum-grid">
-    <!-- Cards injected by JS -->
-  </div>
-</div>
-
-<!-- Student ID Modal -->
-<div class="modal-overlay" id="student-modal">
-  <div class="modal-box">
-    <h3 style="margin-bottom:10px;">Welcome to Concept Lab</h3>
-    <p>Please enter your First and Last name.</p>
-    <input type="text" id="student-name-input" placeholder="e.g. Sipho Ndlovu" style="width:90%; padding:12px; margin-bottom:20px; border-radius:8px; border:2px solid #ccc; font-size:1.1rem; text-align:center;">
-    <button class="btn-modal btn-primary" onclick="saveStudentName()" style="background:var(--primary); color:white;">Let's Go ➔</button>
-  </div>
-</div>
-
-<!-- General Alert Modal -->
-<div class="modal-overlay" id="alert-modal">
-  <div class="modal-box">
-    <div style="font-size:3rem; margin-bottom:10px;" id="alert-icon">🔔</div>
-    <h3 id="alert-title">Notice</h3>
-    <p id="alert-text">Message goes here.</p>
-    <button class="btn-modal btn-primary" onclick="closeModal()" style="background:var(--primary); color:white;">Got it</button>
-  </div>
 </div>
 
 <script>
-  // --- TELEMETRY SYNC ENGINE ---
-  const TELEMETRY_URL = "https://script.google.com/macros/s/AKfycbx4vErx32y3Y1tCbw1On37dsoQgyKWmEOnReyPT6NrLYnDyvErq6kpUh4kDY5jIDvKm/exec";
-
-  function processTelemetryQueue() {
-    if (!navigator.onLine) return; 
-    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
-    if (queue.length === 0) return;
-
-    let item = queue[0]; 
-
-    fetch(TELEMETRY_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(item)
-    }).then(response => {
-      queue.shift();
-      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
-      if (queue.length > 0) setTimeout(processTelemetryQueue, 1000);
-    }).catch(err => {
-      console.log("Telemetry sync paused (offline or network error).");
-    });
-  }
-
-  window.addEventListener('online', processTelemetryQueue);
-  setInterval(processTelemetryQueue, 15000);
-
-  // --- CURRICULUM DEFINITION ---
+  // --- V2 SYNCHRONIZED CURRICULUM DATA ---
   const curriculum = [
-    { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
-    { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
-    { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
-    { id: 'RAT-04', title: 'Unlike Denominators', file: 'rat-04.html' },
-    { id: 'RAT-05', title: 'Improper & Mixed', file: 'rat-05.html' },
-    { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
-    { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' },
-    { id: 'RAT-08', title: 'Word Problems', file: 'rat-08.html' },
-    { id: 'DEC-01', title: 'Decimals Intro', file: 'dec-01.html' }, 
-    { id: 'DEC-02', title: 'The Zooming Line', file: 'dec-02.html' }, 
-    { id: 'DEC-03', title: 'Adding & Subtracting', file: 'dec-03.html' }, 
-    { id: 'DEC-04', title: 'Multiply/Divide by 10s', file: 'dec-04.html' },
-    { id: 'DEC-05', title: 'Multiplying Decimals', file: 'dec-05.html' },
-    { id: 'DEC-06', title: 'Dividing Decimals', file: 'dec-06.html' },
-    { id: 'DEC-07', title: 'Percentages', file: 'dec-07.html' },
-    { id: 'DEC-08', title: 'Financial & Metric Ops', file: 'dec-08.html' }
+      { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
+      { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
+      { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
+      { id: 'RAT-04', title: 'Subtracting Like Fractions', file: 'rat-04.html' },
+      { id: 'RAT-05', title: 'Unlike Fractions (+/-)', file: 'rat-05.html' },
+      { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
+      { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' },
+      { id: 'RAT-08', title: 'Mixed & Improper', file: 'rat-08.html' }
   ];
 
-  let profile = {
-    studentId: null,
-    xp: 0,
-    unlockedNodeIndex: 0,
-    completedNodes: [],
-    failedAttempts: {},
-    gateLevels: {},
-    remediation: {},
-    streak: 0,
-    freezes: 0,
-    lastLoginDate: ""
-  };
+  let userProfile = {};
 
   // --- INITIALIZATION ---
-  function init() {
-    let saved = localStorage.getItem('harvest_maths_profile');
-    if (saved) {
-      profile = { ...profile, ...JSON.parse(saved) };
-    }
-    
-    if (!profile.studentId) {
-      document.getElementById('student-modal').classList.add('show');
-    } else {
-      document.getElementById('display-student-name').innerText = profile.studentId;
-      processDailyStreak();
-      renderDashboard();
-      processTelemetryQueue(); 
-    }
-  }
+  document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      renderGrid();
+  });
 
-  function switchUser() {
-    document.getElementById('student-name-input').value = profile.studentId || "";
-    document.getElementById('student-modal').classList.add('show');
-  }
-
-  function saveStudentName() {
-    let nameInput = document.getElementById('student-name-input').value.trim();
-    if (nameInput.length < 2) return;
-    
-    let lowerName = nameInput.toLowerCase();
-    
-    // HARD RESET
-    if (lowerName === 'reset' || lowerName === 'clear') {
-      localStorage.removeItem('harvest_maths_profile');
-      window.location.reload();
-      return;
-    }
-    
-    // SAFE PROFILE SWITCHING: Wipe old data if the name changes (and it isn't SuperUser)
-    if (profile.studentId && profile.studentId !== nameInput && lowerName !== 'superuser' && lowerName !== 'admin') {
-      profile = {
-        studentId: nameInput, xp: 0, unlockedNodeIndex: 0, completedNodes: [],
-        failedAttempts: {}, gateLevels: {}, remediation: {}, streak: 0, freezes: 0, lastLoginDate: ""
-      };
-    } else {
-      profile.studentId = nameInput;
-    }
-
-    // SUPERUSER TRIGGER
-    if (lowerName === 'superuser' || lowerName === 'admin') {
-      profile.studentId = "SuperUser (Admin)";
-      profile.unlockedNodeIndex = curriculum.length;
-      profile.completedNodes = curriculum.map(c => c.id);
-      profile.completedNodes.push('DIAGNOSTIC-COMPLETE');
-      profile.xp = Math.max(profile.xp, 5000);
-      profile.streak = Math.max(profile.streak, 10);
-      profile.freezes = Math.max(profile.freezes, 5);
-      
-      saveProfile();
-      document.getElementById('student-modal').classList.remove('show');
-      document.getElementById('display-student-name').innerText = profile.studentId;
-      renderDashboard();
-      showModal('🔓', 'God Mode Activated', 'All modules unlocked. Gatekeepers bypassed. Shop credits applied.');
-      return;
-    }
-    
-    // Normal Student Flow
-    saveProfile();
-    
-    if (profile.completedNodes.length === 0 && profile.unlockedNodeIndex === 0) {
-        window.location.href = 'diagnostic.html';
-    } else {
-        document.getElementById('student-modal').classList.remove('show');
-        document.getElementById('display-student-name').innerText = profile.studentId;
-        processDailyStreak();
-        renderDashboard();
-    }
-  }
-
-  // --- HABIT LOOP LOGIC (STREAKS & FREEZES) ---
-  function getTodayString() {
-    let d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-
-  function getDaysDifference(dateString1, dateString2) {
-    if (!dateString1 || !dateString2) return 999;
-    let d1 = new Date(dateString1);
-    let d2 = new Date(dateString2);
-    let diffTime = Math.abs(d2 - d1);
-    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  }
-
-  function processDailyStreak() {
-    const today = getTodayString();
-    
-    if (profile.lastLoginDate === today) { return; }
-
-    if (!profile.lastLoginDate) {
-      profile.streak = 1;
-      profile.lastLoginDate = today;
-    } else {
-      let daysMissed = getDaysDifference(profile.lastLoginDate, today) - 1;
-      
-      if (daysMissed === 0) {
-        profile.streak++;
-        profile.lastLoginDate = today;
-      } else if (daysMissed > 0) {
-        if (profile.freezes >= 1) { 
-          profile.freezes--;
-          profile.streak++; 
-          profile.lastLoginDate = today;
-          showModal('🧊', 'Streak Saved!', 'You missed a day, but your Streak Freeze automatically protected your flame. Keep it burning!');
-        } else {
-          profile.streak = 1;
-          profile.lastLoginDate = today;
-          showModal('🔥', 'New Streak Started', 'Your streak reset. Consistency is the secret to maths fluency. Let\'s build a new habit today!');
-        }
-      }
-    }
-    saveProfile();
-  }
-
-  // --- GRIT SHOP ---
-  function buyFreeze() {
-    if (profile.xp >= 500) {
-      profile.xp -= 500;
-      profile.freezes++;
-      saveProfile();
-      renderDashboard();
-      showModal('🧊', 'Freeze Acquired', 'You purchased a Streak Freeze! If you miss a day, this will automatically deploy to save your flame.');
-    }
-  }
-
-  // --- RENDER ENGINE ---
-  function renderDashboard() {
-    document.getElementById('hud-xp').innerText = `⭐ ${profile.xp}`;
-    document.getElementById('hud-streak').innerText = `🔥 ${profile.streak}`;
-    document.getElementById('hud-freezes').innerText = `🧊 ${profile.freezes}`;
-
-    let buyBtn = document.getElementById('btn-buy-freeze');
-    if (profile.xp < 500) {
-      buyBtn.disabled = true;
-      buyBtn.innerText = "Need 500 XP";
-    } else {
-      buyBtn.disabled = false;
-      buyBtn.innerText = "Buy (500 XP)";
-    }
-
-    let spiralBanner = document.getElementById('btn-spiral');
-    let spiralDesc = document.getElementById('spiral-desc');
-    if (profile.completedNodes.length > 0) {
-      spiralBanner.classList.remove('spiral-locked');
-      spiralDesc.innerText = "10 quick questions to build long-term memory.";
-    }
-
-    let grid = document.getElementById('curriculum-grid');
-    grid.innerHTML = '';
-
-    curriculum.forEach((mod, index) => {
-      let isUnlocked = index <= profile.unlockedNodeIndex || profile.studentId.includes('SuperUser');
-      let isCompleted = profile.completedNodes.includes(mod.id);
-      let isActive = index === profile.unlockedNodeIndex && !isCompleted;
-      
-      let cardClass = 'module-card';
-      if (!isUnlocked) cardClass += ' card-locked';
-      if (isActive) cardClass += ' card-active';
-      if (isCompleted) cardClass += ' card-completed';
-
-      let statusText = isCompleted ? 'Mastered' : (isActive ? 'Next Module' : 'Locked');
-      let iconText = isCompleted ? '✓' : (index + 1);
-
-      let fails = profile.failedAttempts[mod.id] || 0;
-      let beaconHtml = '';
-      if (fails >= 5) {
-        beaconHtml = `
-          <div class="beacon">
-            ⚠️ Guide Consultation Needed
-            <button class="clear-beacon-btn" onclick="clearBeacon(event, '${mod.id}')">Clear</button>
-          </div>`;
+  function loadProfile() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if (saved) {
+          userProfile = JSON.parse(saved);
+      } else {
+          // Create new default profile. Diagnostic removed. RAT-01 unlocked by default.
+          userProfile = {
+              studentId: 'Student_' + Math.floor(Math.random() * 10000),
+              xp: 0,
+              streak: 1,
+              completedNodes: [],
+              unlockedNodeIndex: 0, // Starts at 0 (RAT-01)
+              gateLevels: {},
+              failedAttempts: {},
+              remediation: {}
+          };
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
       }
 
-      let hasRemediation = (profile.remediation && profile.remediation[mod.id] && profile.remediation[mod.id].length > 0);
-      if (hasRemediation && !profile.studentId.includes('SuperUser')) {
-          statusText = 'Focus Drill Active';
-          cardClass += ' card-active';
-          cardClass = cardClass.replace('card-completed', '');
+      document.getElementById('display-id').innerText = userProfile.studentId;
+      document.getElementById('display-xp').innerText = userProfile.xp;
+      document.getElementById('display-streak').innerText = userProfile.streak || 1;
+  }
+
+  function renderGrid() {
+      const grid = document.getElementById('rat-grid');
+      grid.innerHTML = '';
+      
+      const isSuperUser = String(userProfile.studentId).toLowerCase().includes('superuser');
+
+      curriculum.forEach((mod, index) => {
+          let stateClass = '';
+          let icon = '';
+          let href = `href="${mod.file}"`;
+
+          // Determine State
+          if (userProfile.completedNodes.includes(mod.id)) {
+              stateClass = 'card-mastered';
+              icon = '✅';
+          } else if (index === userProfile.unlockedNodeIndex || isSuperUser) {
+              stateClass = 'card-unlocked';
+              icon = '▶️';
+          } else {
+              stateClass = 'card-locked';
+              icon = '🔒';
+              href = ''; // Disable link for locked items
+          }
+
+          // Build Card HTML
+          const cardHtml = `
+              <a ${href} class="module-card ${stateClass}">
+                  <div>
+                      <div class="module-badge">${mod.id}</div>
+                      <div class="module-title">${mod.title}</div>
+                  </div>
+                  <div class="module-icon">${icon}</div>
+              </a>
+          `;
+          
+          grid.innerHTML += cardHtml;
+      });
+  }
+
+  function resetProfile() {
+      if(confirm("Are you sure you want to reset your local progress?")) {
+          let isSuper = String(userProfile.studentId).toLowerCase().includes('superuser');
+          let newId = isSuper ? "SuperUser" : ('Student_' + Math.floor(Math.random() * 10000));
+          
+          let freshProfile = {
+              studentId: newId,
+              xp: 0,
+              streak: 1,
+              completedNodes: [],
+              unlockedNodeIndex: 0,
+              gateLevels: {},
+              failedAttempts: {},
+              remediation: {}
+          };
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(freshProfile));
+          location.reload();
       }
-
-      let cardHtml = `
-        <a href="${isUnlocked ? mod.file : '#'}" class="${cardClass}" onclick="return checkLock(event, ${isUnlocked})">
-          <div class="mod-icon">${iconText}</div>
-          <div class="mod-details">
-            <div class="mod-status" style="color: ${isCompleted ? 'var(--success)' : (isActive || hasRemediation ? 'var(--primary)' : 'var(--text-muted)')}">${statusText}</div>
-            <h3 class="mod-title">${mod.id}: ${mod.title}</h3>
-            ${beaconHtml}
-          </div>
-        </a>
-      `;
-      grid.innerHTML += cardHtml;
-    });
   }
-
-  // --- INTERACTION LOGIC ---
-  function checkLock(e, isUnlocked) {
-    if (!isUnlocked) {
-      e.preventDefault();
-      showModal('🔒', 'Module Locked', 'You must master the previous modules before accessing this content to prevent conceptual gaps.');
-      return false;
-    }
-    return true;
-  }
-
-  function launchSpiral() {
-    if (profile.completedNodes.length === 0) {
-      showModal('🔒', 'Spiral Locked', 'The Daily Spiral combines facts from modules you have already mastered. Master your first module to unlock it!');
-    } else {
-      window.location.href = 'spiral.html';
-    }
-  }
-
-  function clearBeacon(e, moduleId) {
-    e.preventDefault(); 
-    profile.failedAttempts[moduleId] = 0;
-    saveProfile();
-    
-    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
-    queue.push({
-      studentId: profile.studentId,
-      moduleId: moduleId,
-      xp: 0,
-      accuracy: 0,
-      fails: 0,
-      action: "Guide Cleared Intervention"
-    });
-    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
-    processTelemetryQueue();
-
-    renderDashboard();
-    showModal('✅', 'Consultation Cleared', `The intervention flag for ${moduleId} has been reset by the Guide.`);
-  }
-
-  function saveProfile() {
-    localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-  }
-
-  function showModal(icon, title, text) {
-    document.getElementById('alert-icon').innerText = icon;
-    document.getElementById('alert-title').innerText = title;
-    document.getElementById('alert-text').innerText = text;
-    document.getElementById('alert-modal').classList.add('show');
-  }
-
-  function closeModal() {
-    document.getElementById('alert-modal').classList.remove('show');
-  }
-
-  init();
 </script>
 </body>
 </html>
