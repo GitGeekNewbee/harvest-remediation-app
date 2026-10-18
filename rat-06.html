@@ -29,7 +29,7 @@
     .stat-xp { color: var(--amber); }
 
     /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; }
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -49,11 +49,14 @@
     .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: opacity 0.3s;}
     .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: opacity 0.3s;}
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
-    
-    /* ALGEBRAIC MAPPING VISUALS */
-    .bridge-group { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 5px 15px; border-radius: var(--radius); background: var(--slate-50); border: 2px dashed var(--slate-300); }
-    .bridge-group.top { border-color: var(--indigo); background: var(--indigo-light); color: var(--indigo); border-bottom: none; border-radius: 8px 8px 0 0; }
-    .bridge-group.bot { border-color: var(--rose); background: var(--rose-light); color: var(--rose); border-top: none; border-radius: 0 0 8px 8px; }
+
+    /* AREA MODEL FOR MULTIPLICATION */
+    .area-model { display: grid; border: 3px solid var(--slate-900); width: 100%; max-width: 200px; aspect-ratio: 1; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+    .area-cell { border: 1px solid var(--slate-300); transition: background-color 0.4s ease; display: flex; align-items: center; justify-content: center; }
+    .fill-blue { background-color: rgba(79, 70, 229, 0.4); } /* Row shade */
+    .fill-red { background-color: rgba(225, 29, 72, 0.4); } /* Col shade */
+    .fill-green { background-color: var(--emerald); border-color: var(--emerald); color: white; font-weight: 800; font-size: 1.2rem;} /* Overlap */
+    .fill-empty { background-color: transparent; }
 
     /* FADING STEP ARCHITECTURE */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
@@ -110,7 +113,7 @@
     <div style="text-align:center; padding: 20px 0;">
       <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Multiplying fractions is pure scaling. Prove your multiplication fluency before we begin.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Multiplying fractions requires instant times-tables recall. Prove your fluency.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
@@ -139,66 +142,76 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">The Straight-Across Rule</div>
-      <p class="instruction-text">Multiplying fractions is the easiest operation of all. You simply map the tops together, and map the bottoms together.</p>
+      <div class="section-title">A Part of a Part</div>
+      <p class="instruction-text">Multiplying a fraction is like finding the overlapping area of two slices.</p>
       
       <div class="pinned-visual">
-        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">2</div>
-                <div class="frac-den" style="color:var(--rose);">3</div>
-            </div>
+        <div class="math-row" style="font-size: 2rem; margin-bottom:15px;">
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den" style="color:var(--indigo);">2</div></div>
             <div class="operator">×</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">4</div>
-                <div class="frac-den" style="color:var(--rose);">5</div>
-            </div>
-            <div class="operator">=</div>
-            <div class="fraction">
-                <div class="frac-num" style="padding:0; border:none;">
-                    <div class="bridge-group top">
-                        <span>2</span><span class="operator" style="font-size:1.5rem; color:var(--indigo);">×</span><span>4</span>
-                    </div>
-                </div>
-                <div style="width:100%; border-bottom:3px solid var(--slate-900);"></div>
-                <div class="frac-den" style="padding:0;">
-                    <div class="bridge-group bot">
-                        <span>3</span><span class="operator" style="font-size:1.5rem; color:var(--rose);">×</span><span>5</span>
-                    </div>
-                </div>
-            </div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den" style="color:var(--rose);">4</div></div>
+        </div>
+
+        <!-- 2x4 Area Model -->
+        <div class="area-model" style="grid-template-rows: repeat(2, 1fr); grid-template-columns: repeat(4, 1fr);">
+            <div class="area-cell fill-green">✓</div>
+            <div class="area-cell fill-green">✓</div>
+            <div class="area-cell fill-green">✓</div>
+            <div class="area-cell fill-blue"></div>
+            <div class="area-cell fill-red"></div>
+            <div class="area-cell fill-red"></div>
+            <div class="area-cell fill-red"></div>
+            <div class="area-cell fill-empty"></div>
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>Top × Top. Bottom × Bottom.</b> You do not need to find a common denominator!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We sliced the box <b>in half horizontally</b> and <b>in quarters vertically</b>. The overlapping green boxes are our answer.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">Solve and Simplify</div>
-      <p class="instruction-text">Once you multiply straight across, always check if your final answer can be simplified.</p>
+      <div class="section-title">The Multiply Rule</div>
+      <p class="instruction-text">Look closely at the numbers to see how the grid was built.</p>
       
       <div class="pinned-visual">
-        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px;">
-            <div class="fraction">
-                <div class="frac-num" style="padding:0; border:none;">
-                    <div class="bridge-group top" style="padding:5px 10px;">2 <span style="font-size:1.2rem;">×</span> 4</div>
-                </div>
-                <div style="width:100%; border-bottom:3px solid var(--slate-900);"></div>
-                <div class="frac-den" style="padding:0;">
-                    <div class="bridge-group bot" style="padding:5px 10px;">3 <span style="font-size:1.2rem;">×</span> 5</div>
-                </div>
-            </div>
-            <div class="operator">➔</div>
-            <div class="fraction">
-                <div class="frac-num" style="color:var(--indigo);">8</div>
-                <div class="frac-den" style="color:var(--rose);">15</div>
-            </div>
+        <div class="math-row" style="font-size: 2rem; margin-bottom:5px;">
+            <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den" style="color:var(--indigo);">2</div></div>
+            <div class="operator">×</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den" style="color:var(--rose);">4</div></div>
+            <div class="operator">=</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--emerald);">3</div><div class="frac-den">8</div></div>
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The numbers 8 and 15 have no common factors, so <b>8/15</b> is our final, lowest-terms answer.</p>
+      <div style="background:var(--indigo-light); border-left:4px solid var(--indigo); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom: 15px;">
+          <p style="margin:0; font-size:1rem; color:var(--slate-900); font-weight:600;"><b>Tops (Numerators):</b> <span style="color:var(--indigo);">1</span> × <span style="color:var(--rose);">3</span> = <span style="color:var(--emerald);">3</span> green boxes.</p>
+      </div>
+      <div style="background:var(--slate-200); border-left:4px solid var(--slate-700); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom: 20px;">
+          <p style="margin:0; font-size:1rem; color:var(--slate-900); font-weight:600;"><b>Bottoms (Denominators):</b> <span style="color:var(--indigo);">2</span> × <span style="color:var(--rose);">4</span> = 8 total boxes.</p>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>The Rule:</b> Multiply the tops straight across. Multiply the bottoms straight across.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Final Step: Simplify</div>
+      <p class="instruction-text">Just like Addition, if your final fraction can be divided down, you must simplify it.</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 2.2rem; margin-bottom:15px;">
+            <div class="fraction"><div class="frac-num">2</div><div class="frac-den">3</div></div>
+            <div class="operator">×</div>
+            <div class="fraction"><div class="frac-num">3</div><div class="frac-den">4</div></div>
+            <div class="operator">=</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--slate-400);">6</div><div class="frac-den" style="color:var(--slate-400);">12</div></div>
+            <div class="operator">➔</div>
+            <div class="fraction"><div class="frac-num" style="color:var(--emerald);">1</div><div class="frac-den" style="color:var(--emerald);">2</div></div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>6/12</b> is mathematically correct, but <b>1/2</b> is the fully simplified final answer.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -209,7 +222,11 @@
     
     <!-- Pinned Visuals -->
     <div class="pinned-visual">
-        <div class="math-row" style="font-size: 1.8rem; margin-bottom:10px;" id="g-q-container">
+        <div class="math-row" style="font-size: 2rem; margin-bottom:15px;" id="g-q-container">
+            <!-- Injected by JS -->
+        </div>
+        
+        <div id="g-bar-container" style="width:100%; margin-top: 5px; display:flex; justify-content:center;">
             <!-- Injected by JS -->
         </div>
     </div>
@@ -218,14 +235,12 @@
     <div id="g-dynamic-steps" style="width:100%;">
         <!-- Steps injected by JS -->
     </div>
-    
-    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-area hidden" id="zone-practice">
     <div class="section-title">Strict Practice</div>
-    <p class="instruction-text">Multiply straight across and simplify your final answer.</p>
+    <p class="instruction-text">Multiply straight across, then simplify to lowest terms.</p>
 
     <div class="pinned-visual">
         <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
@@ -248,8 +263,6 @@
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your answer MUST be fully simplified.</p>
     </div>
-    
-    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -311,7 +324,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2; 
+  const totalSlides = 3; 
   let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -320,6 +333,13 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // MATH HELPER FUNCTIONS
+  function getGCD(x, y) {
+      x = Math.abs(x); y = Math.abs(y);
+      while(y) { var t = y; y = x % y; x = t; }
+      return x;
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -354,7 +374,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -365,19 +385,25 @@
 
       document.getElementById('keypad').classList.add('open');
       
-      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) document.getElementById(paddingEl).style.height = '260px';
+      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+      
+      if (containerId) {
+          let container = document.getElementById(containerId);
+          
+          container.style.paddingBottom = '350px';
 
-      if (appState === 'GUIDED' && stepId) {
-          setTimeout(() => {
-              let stepEl = document.getElementById(stepId);
-              if(stepEl) {
-                  let viewportHeight = window.innerHeight - 260; 
-                  let elementOffset = stepEl.getBoundingClientRect().top;
-                  let scrollTarget = window.scrollY + elementOffset - (viewportHeight / 2) + (stepEl.offsetHeight / 2) - 50; 
-                  document.getElementById('zone-guided').scrollTo({ top: scrollTarget, behavior: 'smooth' });
-              }
-          }, 300); 
+          if (stepId) {
+              setTimeout(() => {
+                  let stepEl = document.getElementById(stepId);
+                  if(stepEl) {
+                      let visual = container.querySelector('.pinned-visual');
+                      let visualHeight = visual ? visual.offsetHeight : 0;
+                      
+                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+              }, 250); 
+          }
       }
   }
 
@@ -402,6 +428,7 @@
   }
 
   function flashError(box) {
+      if (!box) return;
       box.classList.add('flash-error');
       setTimeout(() => box.classList.remove('flash-error'), 400);
   }
@@ -414,6 +441,22 @@
 
   function closeToast() {
       document.getElementById('toast').classList.remove('show');
+  }
+
+  // --- VISUAL GENERATOR FOR MULTIPLICATION ---
+  function drawAreaModel(n1, d1, n2, d2, showCheckmarks = false) {
+      let html = `<div class="area-model" style="grid-template-columns: repeat(${d2}, 1fr); grid-template-rows: repeat(${d1}, 1fr);">`;
+      for(let r = 0; r < d1; r++) {
+          for(let c = 0; c < d2; c++) {
+              let isH = r < n1;
+              let isV = c < n2;
+              let cClass = (isH && isV) ? 'fill-green' : (isH ? 'fill-blue' : (isV ? 'fill-red' : 'fill-empty'));
+              let content = (showCheckmarks && isH && isV) ? '✓' : '';
+              html += `<div class="area-cell ${cClass}">${content}</div>`;
+          }
+      }
+      html += `</div>`;
+      return html;
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -449,7 +492,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -556,7 +599,7 @@
   }
 
   function resetSprintUI() {
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       document.getElementById('zone-gate-active').classList.add('hidden');
       document.getElementById('zone-gate-intro').classList.remove('hidden');
   }
@@ -573,7 +616,7 @@
       document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
       openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
@@ -660,7 +703,7 @@
   function unlockLesson() {
     closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
+    document.getElementById('mastery-text').classList.remove('timer-alert');
     document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
@@ -694,49 +737,25 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Map Top $\times$ Top. Multiply the numerators together:</div>
+          <div class="step-text">1. Multiply straight across. (Tops × Tops) and (Bottoms × Bottoms).</div>
           <div class="math-row" style="justify-content: flex-start;">
             <div class="fraction">
-              <div class="frac-num" style="border-bottom:none; padding-bottom:0;">
-                <div class="bridge-group top" style="font-size:1.5rem;">
-                   <span id="g-n1-label"></span><span class="operator" style="color:var(--indigo);">×</span><span id="g-n2-label"></span> <span style="margin:0 10px; color:var(--slate-400);">=</span>
-                   <div class="input-box" style="height:40px; min-width:50px; font-size:1.5rem;" id="g-sum-n" onclick="openKeypad('g-sum-n', 'g-step-1')"></div>
-                </div>
-              </div>
+              <div class="frac-num"><div class="input-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box" id="g-raw-d" onclick="openKeypad('g-raw-d', 'g-step-1')"></div></div>
             </div>
           </div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Map Bottom $\times$ Bottom. Multiply the denominators together:</div>
+          <div class="step-text">2. Finally, check if your answer can be simplified. If not, type it again.</div>
           <div class="math-row" style="justify-content: flex-start;">
             <div class="fraction">
-              <div class="frac-den" style="padding-top:0;">
-                <div class="bridge-group bot" style="font-size:1.5rem;">
-                   <span id="g-d1-label"></span><span class="operator" style="color:var(--rose);">×</span><span id="g-d2-label"></span> <span style="margin:0 10px; color:var(--slate-400);">=</span>
-                   <div class="input-box" style="height:40px; min-width:50px; font-size:1.5rem;" id="g-sum-d" onclick="openKeypad('g-sum-d', 'g-step-2')"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Simplify your final answer to its lowest terms.</div>
-          <div class="math-row" style="justify-content: flex-start;">
-            <div class="fraction">
-              <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-3')"></div></div>
-              <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-3')"></div></div>
+              <div class="frac-num"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-2')"></div></div>
+              <div class="frac-den"><div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-2')"></div></div>
             </div>
           </div>
         </div>
       `;
-      
-      // Inject labels dynamically so they match the problem
-      document.getElementById('g-n1-label').innerText = gData.n1;
-      document.getElementById('g-n2-label').innerText = gData.n2;
-      document.getElementById('g-d1-label').innerText = gData.d1;
-      document.getElementById('g-d2-label').innerText = gData.d2;
-
-      openKeypad('g-sum-n', 'g-step-1');
+      openKeypad('g-raw-n', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -745,33 +764,35 @@
       if (guidedLevel === 1) {
           gData = { 
               q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">2</div><div class="frac-den" style="color:var(--rose);">3</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den">2</div></div>
                 <div class="operator">×</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den" style="color:var(--rose);">4</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den">5</div></div>
               `,
-              n1: 2, d1: 3, n2: 1, d2: 4,
-              prodN: "2", prodD: "12",
-              simpN: "1", simpD: "6",
-              err1: "Multiply the top numbers: 2 × 1.",
-              err2: "Multiply the bottom numbers: 3 × 4."
+              n1: 1, d1: 2, n2: 1, d2: 5,
+              rawN: "1", rawD: "10",
+              simpN: "1", simpD: "10",
+              err1: "Multiply straight across: (1×1) over (2×5).",
+              err2: "1/10 cannot be divided down any smaller. Just re-type it as your final answer."
           };
       } else {
           gData = { 
               q: `
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den" style="color:var(--rose);">5</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">2</div><div class="frac-den">3</div></div>
                 <div class="operator">×</div>
-                <div class="fraction"><div class="frac-num" style="color:var(--indigo);">5</div><div class="frac-den" style="color:var(--rose);">6</div></div>
+                <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den">4</div></div>
               `,
-              n1: 3, d1: 5, n2: 5, d2: 6,
-              prodN: "15", prodD: "30",
+              n1: 2, d1: 3, n2: 3, d2: 4,
+              rawN: "6", rawD: "12",
               simpN: "1", simpD: "2",
-              err1: "Multiply the top numbers: 3 × 5.",
-              err2: "Multiply the bottom numbers: 5 × 6."
+              err1: "Multiply straight across: (2×3) over (3×4).",
+              err2: "Both 6 and 12 divide perfectly by 6. The simplified fraction is 1/2."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       document.getElementById('g-q-container').innerHTML = gData.q;
+      
+      document.getElementById('g-bar-container').innerHTML = drawAreaModel(gData.n1, gData.d1, gData.n2, gData.d2, false);
       
       buildGuidedSteps();
   }
@@ -781,8 +802,8 @@
       box.classList.add('flash-success');
       box.classList.remove('active');
       
-      document.getElementById(currentStepId).classList.add('completed');
-      document.getElementById(nextStepId).classList.remove('locked');
+      if(currentStepId) document.getElementById(currentStepId).classList.add('completed');
+      if(nextStepId) document.getElementById(nextStepId).classList.remove('locked');
       
       openKeypad(nextBoxId, nextStepId);
   }
@@ -793,54 +814,63 @@
       if (val === '') return;
 
       if (activeStepId === 'g-step-1') {
-          if (val === gData.prodN) {
-              xp += 5;
-              document.getElementById('xp-counter').innerText = xp;
-              
-              // Add visual proof mapping to the pinned section
-              let qCont = document.getElementById('g-q-container');
-              if (!qCont.innerHTML.includes('=')) {
-                  qCont.innerHTML += `<div class="operator">=</div><div class="fraction" id="g-live-frac"><div class="frac-num" style="color:var(--indigo); transition:0.3s;">${gData.prodN}</div><div class="frac-den" id="g-live-den" style="color:var(--rose); opacity:0; transition:0.3s;">?</div></div>`;
+          if (activeBoxId === 'g-raw-n') {
+              if (val === gData.rawN) {
+                  box.classList.add('flash-success');
+                  box.classList.remove('active');
+                  openKeypad('g-raw-d', 'g-step-1');
+              } else {
+                  showError("Multiply the numerators: " + gData.n1 + " × " + gData.n2);
+                  flashError(box);
+              }
+          } else if (activeBoxId === 'g-raw-d') {
+              // STRICT SEQUENCE CHECK
+              if (document.getElementById('g-raw-n').innerText === '') {
+                  showError("Find the top numerator first.");
+                  openKeypad('g-raw-n', 'g-step-1');
+                  return;
               }
 
-              advanceGuidedStep('g-step-1', 'g-step-2', 'g-sum-d');
-          } else {
-              showError(gData.err1);
-              flashError(box);
+              if (val === gData.rawD) {
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  // Add checkmarks to the visual grid to show the area found
+                  document.getElementById('g-bar-container').innerHTML = drawAreaModel(gData.n1, gData.d1, gData.n2, gData.d2, true);
+                  
+                  advanceGuidedStep('g-step-1', 'g-step-2', 'g-simp-n');
+              } else {
+                  showError("Multiply the denominators: " + gData.d1 + " × " + gData.d2);
+                  flashError(box);
+              }
           }
-      } 
-      else if (activeStepId === 'g-step-2') {
-          if (val === gData.prodD) {
-              xp += 5;
-              document.getElementById('xp-counter').innerText = xp;
-              
-              // Update visual proof mapping
-              document.getElementById('g-live-den').innerText = gData.prodD;
-              document.getElementById('g-live-den').style.opacity = '1';
-
-              advanceGuidedStep('g-step-2', 'g-step-3', 'g-simp-n');
-          } else {
-              showError(gData.err2);
-              flashError(box);
-          }
-      }
-      else if (activeStepId === 'g-step-3') {
+      } else if (activeStepId === 'g-step-2') {
           if (activeBoxId === 'g-simp-n') {
               if (val === gData.simpN) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
-                  openKeypad('g-simp-d', 'g-step-3');
+                  openKeypad('g-simp-d', 'g-step-2');
               } else {
-                  showError("Find the common factor for " + gData.prodN + " and " + gData.prodD + ".");
+                  showError(gData.err2);
                   flashError(box);
               }
           } else if (activeBoxId === 'g-simp-d') {
+              // STRICT SEQUENCE CHECK
+              if (document.getElementById('g-simp-n').innerText === '') {
+                  showError("Find the simplified numerator first.");
+                  openKeypad('g-simp-n', 'g-step-2');
+                  return;
+              }
+
               if (val === gData.simpD) {
                   box.classList.add('flash-success');
                   box.classList.remove('active');
-                  document.getElementById('g-step-3').classList.add('completed');
+                  document.getElementById('g-step-2').classList.add('completed');
                   document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  
+                  // Retract padding cleanly
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  
                   activeBoxId = null;
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
@@ -855,7 +885,7 @@
                       }
                   }, 1200);
               } else {
-                  showError("Find the common factor to simplify the denominator.");
+                  showError(gData.err2);
                   flashError(box);
               }
           }
@@ -873,39 +903,32 @@
     loadPracticeQuestion();
   }
 
-  function getGCD(x, y) {
-      x = Math.abs(x); y = Math.abs(y);
-      while(y) { var t = y; y = x % y; x = t; }
-      return x;
-  }
-
   function generatePracticeQuestion() {
-    let d1, d2, n1, n2;
-    d1 = Math.floor(Math.random() * 5) + 2; // 2 to 6
-    d2 = Math.floor(Math.random() * 5) + 2; // 2 to 6
-    n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
-    n2 = Math.floor(Math.random() * (d2 - 1)) + 1;
-        
-    let prodN = n1 * n2;
-    let prodD = d1 * d2;
-
-    let simpScale = getGCD(prodN, prodD);
-    let ansN = (prodN / simpScale).toString();
-    let ansD = (prodD / simpScale).toString();
+    let d1 = Math.floor(Math.random() * 8) + 2; 
+    let d2 = Math.floor(Math.random() * 8) + 2; 
+    let n1 = Math.floor(Math.random() * (d1 - 1)) + 1; 
+    let n2 = Math.floor(Math.random() * (d2 - 1)) + 1; 
+    
+    let rawN = n1 * n2;
+    let rawD = d1 * d2;
+    let gcd = getGCD(rawN, rawD);
+    
+    let ansN = rawN / gcd;
+    let ansD = rawD / gcd;
 
     let qStr = `
-        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den" style="color:var(--rose);">${d1}</div></div>
+        <div class="fraction"><div class="frac-num">${n1}</div><div class="frac-den">${d1}</div></div>
         <div class="operator">×</div>
-        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n2}</div><div class="frac-den" style="color:var(--rose);">${d2}</div></div>
+        <div class="fraction"><div class="frac-num">${n2}</div><div class="frac-den">${d2}</div></div>
     `;
     
     return { 
         qHtml: qStr, 
-        ansN: ansN,
-        ansD: ansD,
-        rawN: prodN.toString(),
-        rawD: prodD.toString(),
-        n1: n1, d1: d1, n2: n2, d2: d2
+        n1, d1, n2, d2,
+        rawN: rawN.toString(),
+        rawD: rawD.toString(),
+        ansN: ansN.toString(),
+        ansD: ansD.toString()
     };
   }
 
@@ -915,7 +938,10 @@
     document.getElementById('p-ans-d').innerText = '';
     document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
     
+    // 1. Strict State-Sync Verification (Generation Before Rendering)
     currentQ = generatePracticeQuestion();
+    
+    // 2. Render HTML
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     
     openKeypad('p-ans-n', 'practice');
@@ -942,14 +968,23 @@
     let valN = document.getElementById('p-ans-n').innerText;
     let valD = document.getElementById('p-ans-d').innerText;
     
-    if (valD === '') return;
+    // --- TRAPDOOR SEQUENCE INTERCEPT ---
+    if (valN === '' || valD === '') {
+        showError("Show your work! You must fill in both boxes.");
+        let emptyBox = (valN === '') ? 'p-ans-n' : 'p-ans-d';
+        openKeypad(emptyBox, 'practice');
+        return; 
+    }
 
     let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
-        document.getElementById('scroll-padding-practice').style.height = '10px';
+        
+        // Retract padding cleanly
+        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
@@ -958,21 +993,23 @@
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        let userVal = parseFloat(valN) / parseFloat(valD);
-        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
-        
-        let errorMsg = `Streak Broken!\n\n1. Top × Top = ${currentQ.rawN}.\n2. Bottom × Bottom = ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
+        let errorMsg = `Streak Broken!\n\n1. Multiply Tops: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}.\n2. Multiply Bottoms: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
         let errorTag = "General_Error";
 
-        if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
-            errorMsg = `NOT SIMPLIFIED!\n\nYour math is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms.`;
+        // Trapdoor Logic
+        let isRawCorrect = (valN === currentQ.rawN && valD === currentQ.rawD);
+        let userVal = parseFloat(valN) / parseFloat(valD);
+        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
+
+        if (isRawCorrect || (!isNaN(userVal) && userVal === rawVal)) {
+            errorMsg = `NOT SIMPLIFIED!\n\nYour multiplication is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms to proceed.`;
             errorTag = "Unsimplified_Answer";
         } else if (valN === (currentQ.n1 + currentQ.n2).toString() || valD === (currentQ.d1 + currentQ.d2).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou ADDED instead of multiplying! Pay attention to the × sign. Top × Top, Bottom × Bottom.`;
+            errorMsg = `CRITICAL ERROR!\n\nYou added instead of multiplying! Remember to multiply straight across.`;
             errorTag = "Added_Instead_Of_Multiplied";
-        } else if (valN === (currentQ.n1 * currentQ.d2).toString() || valD === (currentQ.d1 * currentQ.n2).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou CROSS-multiplied! Cross multiplication is only used for comparing or dividing. For standard multiplication, just multiply straight across.`;
-            errorTag = "Cross_Multiplied_Error";
+        } else if (valN === (currentQ.n1 * currentQ.d2).toString() || valN === (currentQ.n2 * currentQ.d1).toString()) {
+            errorMsg = `CRITICAL ERROR!\n\nYou cross-multiplied! We only cross-multiply when solving equations. For regular multiplication, just multiply STRAIGHT across.`;
+            errorTag = "Cross_Multiplied";
         }
 
         masteryPoints = 0;
