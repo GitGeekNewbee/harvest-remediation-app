@@ -22,21 +22,27 @@
     .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* V2 MICRO-HUD */
-    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; }
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
     .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
     /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s ease; scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
-    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
-    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
-    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10; transition: all 0.3s ease;}
     
+    /* --- FOCUS MODE DYNAMICS (SOLUTION A) --- */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .content-area { padding-top: 5px; } /* Minimized top gap */
+
     /* BUTTONS */
     .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
     .btn-primary { background: var(--indigo); color: white; }
@@ -136,7 +142,6 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
-    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Multiply Rule</div>
@@ -198,6 +203,7 @@
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
   <div class="content-area hidden" id="zone-guided">
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
+    <p class="instruction-text">Follow the steps below to solve.</p>
     
     <div class="pinned-visual">
         <!-- Original Equation -->
@@ -377,15 +383,12 @@
       }
   });
 
-  // --- FINAL BULLETPROOF SCROLL FIX ---
+  // --- SOLUTION A & B: FOCUS MODE + DYNAMIC VIEWPORT BOUNDARY ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) {
-          showError("System Error: Element not found. Please restart module.");
-          return;
-      }
+      if (!targetBox) return;
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -396,38 +399,35 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
+      // 1. Trigger Solution A (Focus Mode) -> Collapses top UI to free up space
+      document.body.classList.add('focus-active');
+
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
       let container = document.querySelector('.content-area');
       if (container) {
-          // Dynamically inject a massive bottom padding (50vh) so we can always scroll anything to the middle
-          container.style.paddingBottom = '50vh';
+          // 2. Trigger Solution B -> Lock the bottom of the container exactly to the top of the keypad
+          let keypadHeight = keypad.offsetHeight || 280;
+          container.style.paddingBottom = (keypadHeight + 20) + 'px';
 
           setTimeout(() => {
-              // 1. Get raw coordinates
-              let containerRect = container.getBoundingClientRect();
-              let keypadRect = keypad.getBoundingClientRect();
-              
-              // 2. Find the exact `.fraction` wrapper holding both num and den
-              let fractionWrapper = targetBox.closest('.fraction');
-              let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
-
-              // 3. Calculate the usable visual space between the header and the keypad
-              let usableTop = containerRect.top;
-              let usableBottom = keypadRect.top;
-              let usableHeight = usableBottom - usableTop;
-
-              // 4. Find where the fraction currently sits, and where we want it to sit (dead center of usable space)
-              let targetCenterY = targetRect.top + (targetRect.height / 2);
-              let desiredCenterY = usableTop + (usableHeight / 2);
-              
-              // 5. Scroll the exact difference
-              let scrollDelta = targetCenterY - desiredCenterY;
-
-              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
-          }, 350); // Wait 350ms to ensure keypad CSS slide animation is 100% finished
+              // 3. Find the master white box and scroll its TOP edge near the top of the screen
+              // Because the top UI is hidden, and the bottom is bounded, this guarantees a perfect frame.
+              let visualBlock = targetBox.closest('.pinned-visual');
+              if (visualBlock) {
+                  let targetScroll = visualBlock.offsetTop - 10;
+                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+              }
+          }, 350); // Wait for CSS transitions (Focus Mode collapse + Keypad slide)
       }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); // Expand UI back to normal
+      let container = document.querySelector('.content-area');
+      if (container) container.style.paddingBottom = '60px'; // Reset padding
   }
 
   function typeNum(char) {
@@ -580,7 +580,7 @@
   }
 
   function evaluateSprint() {
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad();
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
@@ -738,7 +738,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad();
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -882,8 +882,7 @@
               if (val === gData.simpD) {
                   box.classList.add('flash-success');
                   document.getElementById('g-step-2').classList.add('completed');
-                  document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  closeKeypad();
                   
                   activeBoxId = null;
                   xp += 10;
@@ -1002,8 +1001,7 @@
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
-        document.getElementById('keypad').classList.remove('open');
-        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        closeKeypad();
         
         masteryPoints++;
         streak++;
@@ -1077,7 +1075,7 @@
 
     logTelemetryEvent("Mastered Module", 100);
 
-    document.getElementById('keypad').classList.remove('open');
+    closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
   };
