@@ -22,7 +22,7 @@
     .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* V2 MICRO-HUD */
-    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease;}
     .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
@@ -32,17 +32,15 @@
     .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
-    /* V2 TYPOGRAPHY & LAYOUT */
-    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
-    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
-    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10; transition: all 0.3s ease;}
-    
-    /* --- FOCUS MODE DYNAMICS (SOLUTION A) --- */
+    /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
-    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
-    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
-    body.focus-active .content-area { padding-top: 5px; } /* Minimized top gap */
+    body.focus-active .content-area { padding-top: 10px; }
 
+    /* V2 TYPOGRAPHY & LAYOUT */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
+    
     /* BUTTONS */
     .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
     .btn-primary { background: var(--indigo); color: white; }
@@ -61,11 +59,11 @@
     .merged-num { border-bottom: 3px solid var(--slate-900); padding-bottom: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
     .merged-den { padding-top: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
 
-    /* FADING STEP ARCHITECTURE */
+    /* FADING STEP ARCHITECTURE (DOM REVERSED TO SIT AT TOP) */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
-    .step-container.locked { opacity: 0.2; pointer-events: none; }
-    .step-container.completed { opacity: 0.5; border-color: var(--emerald); }
-    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); margin-bottom: 12px; line-height: 1.4; }
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
@@ -142,6 +140,7 @@
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
   <div class="content-area hidden" id="zone-learn">
+    
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Multiply Rule</div>
@@ -203,38 +202,40 @@
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
   <div class="content-area hidden" id="zone-guided">
     <div class="section-title" id="g-title">Guided Practice 1/2</div>
-    <p class="instruction-text">Follow the steps below to solve.</p>
+    
+    <!-- DOM REVERSAL: Instructions at the Top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 15px;">
+        <!-- Steps injected by JS -->
+    </div>
     
     <div class="pinned-visual">
-        <!-- Original Equation -->
-        <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
+        <div class="math-row" style="margin-bottom:15px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
-        
-        <!-- Raw Merged Answer (Step 1) -->
+        <!-- HORIZONTAL INJECTION: Steps now flow horizontally to match Independent Practice -->
         <div class="math-row">
-            <div class="fraction">
+            <div class="operator" style="margin-right:15px;">=</div>
+            <!-- Raw Merged Answer (Step 1) -->
+            <div class="fraction" style="font-size:2.5rem;">
               <div class="frac-num"><div class="input-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
               <div class="frac-den"><div class="input-box" id="g-raw-d" onclick="openKeypad('g-raw-d', 'g-step-1')"></div></div>
             </div>
+
+            <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
+            <div id="g-dynamic-answer-area" style="display:flex; flex-direction:row; align-items:center;"></div>
         </div>
-
-        <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
-        <div id="g-dynamic-answer-area" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
-    </div>
-
-    <!-- Stepped Instructions -->
-    <div id="g-dynamic-steps" style="width:100%;">
-        <!-- Steps injected by JS -->
     </div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
   <div class="content-area hidden" id="zone-practice">
     <div class="section-title">Strict Practice</div>
-    <p class="instruction-text">Multiply straight across. Then simplify to your final answer.</p>
+    
+    <!-- DOM REVERSAL: Rule and Instructions at the Top -->
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
+    </div>
 
     <div class="pinned-visual">
         <!-- Original Equation -->
@@ -267,10 +268,6 @@
             </div>
           </div>
         </div>
-    </div>
-    
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-top:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
     </div>
   </div>
 
@@ -383,7 +380,7 @@
       }
   });
 
-  // --- SOLUTION A & B: FOCUS MODE + DYNAMIC VIEWPORT BOUNDARY ---
+  // --- SOLUTION 1 (DOM REVERSAL) + SOLUTION A (FOCUS MODE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -399,7 +396,7 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
-      // 1. Trigger Solution A (Focus Mode) -> Collapses top UI to free up space
+      // Focus mode hides the top HUD, saving space
       document.body.classList.add('focus-active');
 
       let keypad = document.getElementById('keypad');
@@ -407,27 +404,33 @@
       
       let container = document.querySelector('.content-area');
       if (container) {
-          // 2. Trigger Solution B -> Lock the bottom of the container exactly to the top of the keypad
-          let keypadHeight = keypad.offsetHeight || 280;
-          container.style.paddingBottom = (keypadHeight + 20) + 'px';
+          let keypadHeight = keypad.offsetHeight || 300;
+          // Add padding so there's room to scroll
+          container.style.paddingBottom = (keypadHeight + 40) + 'px';
 
           setTimeout(() => {
-              // 3. Find the master white box and scroll its TOP edge near the top of the screen
-              // Because the top UI is hidden, and the bottom is bounded, this guarantees a perfect frame.
-              let visualBlock = targetBox.closest('.pinned-visual');
-              if (visualBlock) {
-                  let targetScroll = visualBlock.offsetTop - 10;
+              // Now that the instructions are permanently at the top of the block,
+              // we scroll to the instructions container or the math container.
+              // Because of the DOM Reversal, the text is guaranteed to be above the math!
+              let scrollTarget = null;
+              
+              if (appState === 'GUIDED') scrollTarget = document.getElementById('g-dynamic-steps');
+              else if (appState === 'PRACTICE') scrollTarget = targetBox.closest('.pinned-visual');
+
+              if (scrollTarget) {
+                  // Pin the top of the target to the top of the viewport
+                  let targetScroll = scrollTarget.offsetTop - 10;
                   container.scrollTo({ top: targetScroll, behavior: 'smooth' });
               }
-          }, 350); // Wait for CSS transitions (Focus Mode collapse + Keypad slide)
+          }, 350); 
       }
   }
 
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
-      document.body.classList.remove('focus-active'); // Expand UI back to normal
+      document.body.classList.remove('focus-active'); 
       let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; // Reset padding
+      if (container) container.style.paddingBottom = '60px'; 
   }
 
   function typeNum(char) {
@@ -845,18 +848,16 @@
                   document.getElementById('g-step-1').classList.add('completed');
                   document.getElementById('g-step-2').classList.remove('locked');
                   
-                  // DYNAMIC INJECTION: Safely build Step 2
+                  // HORIZONTAL INJECTION: Build Step 2 inline (matches practice layout)
                   let answerArea = document.getElementById('g-dynamic-answer-area');
                   answerArea.innerHTML = `
-                    <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
-                    <div class="math-row">
-                      <div class="fraction">
-                        <div class="frac-num">
-                            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-2')"></div>
-                        </div>
-                        <div class="frac-den">
-                            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-2')"></div>
-                        </div>
+                    <div class="operator" style="margin: 0 15px;">➔</div>
+                    <div class="fraction" style="font-size:2.5rem;">
+                      <div class="frac-num">
+                          <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-n" onclick="openKeypad('g-simp-n', 'g-step-2')"></div>
+                      </div>
+                      <div class="frac-den">
+                          <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-simp-d" onclick="openKeypad('g-simp-d', 'g-step-2')"></div>
                       </div>
                     </div>
                   `;
