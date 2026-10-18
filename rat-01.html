@@ -28,8 +28,8 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding 0.3s; scroll-behavior: smooth; display: flex; flex-direction: column; position: relative; }
+    /* SCROLLABLE CONTENT AREA - Transition added for smooth padding expansion */
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; padding-bottom: 60px; transition: padding-bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1); scroll-behavior: smooth; display: flex; flex-direction: column; position: relative;}
     .hidden { display: none !important; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -178,7 +178,6 @@
         <!-- Steps injected by JS -->
     </div>
     
-    <div id="scroll-padding-guided" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
@@ -206,7 +205,6 @@
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row.</p>
     </div>
     
-    <div id="scroll-padding-practice" style="height: 10px; transition: height 0.3s;"></div>
   </div>
 
   <!-- V2 KEYPAD DRAWER -->
@@ -309,7 +307,7 @@
       }
   });
 
-  // --- V2 KEYPAD & NAVIGATION LOGIC (WITH SCROLL FIX) ---
+  // --- V2 KEYPAD & NAVIGATION LOGIC (REBUILT SCROLL ENGINE) ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
@@ -320,28 +318,28 @@
 
       document.getElementById('keypad').classList.add('open');
       
-      let paddingEl = (appState === 'GUIDED') ? 'scroll-padding-guided' : (appState === 'PRACTICE' ? 'scroll-padding-practice' : null);
-      if (paddingEl) {
-          // Expanded padding from 260px to 400px to guarantee the scroll track never runs out
-          document.getElementById(paddingEl).style.height = '400px'; 
-      }
+      let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
+      
+      if (containerId) {
+          let container = document.getElementById(containerId);
+          
+          // CRITICAL FIX: Expand the scrollable area of the active container directly
+          // This forces the track to extend well past the top of the keypad.
+          container.style.paddingBottom = '350px';
 
-      // Flawless container-relative auto-scroll
-      if (stepId) {
-          setTimeout(() => {
-              let stepEl = document.getElementById(stepId);
-              let containerId = appState === 'GUIDED' ? 'zone-guided' : (appState === 'PRACTICE' ? 'zone-practice' : null);
-              
-              if(stepEl && containerId) {
-                  let container = document.getElementById(containerId);
-                  let visual = container.querySelector('.pinned-visual');
-                  let visualHeight = visual ? visual.offsetHeight : 0;
-                  
-                  // Scroll the container so the active step docks perfectly beneath the pinned visual
-                  let targetScroll = stepEl.offsetTop - visualHeight - 15; 
-                  container.scrollTo({ top: targetScroll, behavior: 'smooth' });
-              }
-          }, 250); 
+          if (stepId) {
+              setTimeout(() => {
+                  let stepEl = document.getElementById(stepId);
+                  if(stepEl) {
+                      let visual = container.querySelector('.pinned-visual');
+                      let visualHeight = visual ? visual.offsetHeight : 0;
+                      
+                      // Docks the active step exactly 15 pixels below the sticky visual
+                      let targetScroll = stepEl.offsetTop - visualHeight - 15; 
+                      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+                  }
+              }, 150); 
+          }
       }
   }
 
@@ -702,8 +700,8 @@
       box.classList.add('flash-success');
       box.classList.remove('active');
       
-      if (currentStepId) document.getElementById(currentStepId).classList.add('completed');
-      if (nextStepId) document.getElementById(nextStepId).classList.remove('locked');
+      document.getElementById(currentStepId).classList.add('completed');
+      document.getElementById(nextStepId).classList.remove('locked');
       
       openKeypad(nextBoxId, nextStepId);
   }
@@ -747,13 +745,16 @@
                   box.classList.remove('active');
                   document.getElementById('g-step-3').classList.add('completed');
                   document.getElementById('keypad').classList.remove('open');
-                  document.getElementById('scroll-padding-guided').style.height = '10px';
+                  
+                  // CRITICAL FIX: Retract padding cleanly when the keypad closes
+                  document.getElementById('zone-guided').style.paddingBottom = '60px'; 
+                  
                   activeBoxId = null;
                   
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Let's do one more."); // Using toast for positive feedback too to save screen space
+                          showError("Excellent! Let's do one more."); 
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
@@ -828,7 +829,10 @@
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
         document.getElementById('keypad').classList.remove('open');
-        document.getElementById('scroll-padding-practice').style.height = '10px';
+        
+        // CRITICAL FIX: Retract padding cleanly when keypad closes
+        document.getElementById('zone-practice').style.paddingBottom = '60px'; 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
@@ -854,7 +858,6 @@
         showError(errorMsg);
         logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
         
-        // Reset the inputs after error so they don't have to delete manually
         setTimeout(() => {
             document.getElementById('p-ans-n').innerText = '';
             document.getElementById('p-ans-d').innerText = '';
