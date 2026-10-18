@@ -5,24 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
-    /* V4 MATURE COLOR PALETTE & TYPOGRAPHY */
+    /* V5 MATURE COLOR PALETTE & TYPOGRAPHY */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root { 
       --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
       --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
-      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff; --indigo-dark: #3730a3;
       --emerald: #059669; --emerald-light: #d1fae5;
       --rose: #e11d48; --rose-light: #ffe4e6;
       --amber: #d97706; --amber-light: #fef3c7;
-      --radius: 8px;
+      --radius: 12px;
     }
     
     body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
-    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    .app-container { width: 100%; max-width: 500px; background: var(--slate-50); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
     
     /* DASHBOARD HEADER */
-    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); z-index: 10;}
+    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); z-index: 10;}
     .header-top { display: flex; justify-content: space-between; align-items: center; }
     .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;}
     .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px;}
@@ -33,51 +33,59 @@
     .stat-streak { color: #f97316; }
 
     /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 15px; scroll-behavior: smooth; display: flex; flex-direction: column; background: var(--slate-50); }
+    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 20px 60px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; }
 
-    /* V4 ACCORDION ARCHITECTURE */
-    .section-wrapper { margin-bottom: 12px; border: 1px solid var(--slate-200); border-radius: var(--radius); background: #ffffff; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: box-shadow 0.2s ease;}
-    .section-wrapper.is-active { box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08); border-color: var(--slate-300); }
-    
-    .section-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: transparent; border: none; border-bottom: 1px solid transparent; cursor: pointer; text-align: left; transition: background 0.2s; outline: none;}
-    .section-header:hover { background: var(--slate-50); }
-    .section-wrapper.is-open .section-header { border-bottom-color: var(--slate-100); background: var(--slate-50); }
+    /* --- THE HERO CARD (CURRENT FOCUS) --- */
+    .hero-card { background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%); border-radius: var(--radius); padding: 25px; color: white; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start;}
+    .hero-card::after { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none;}
+    .hero-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; color: var(--indigo-light); margin-bottom: 10px; display: flex; align-items: center; gap: 5px;}
+    .hero-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 5px 0; line-height: 1.2; z-index: 2;}
+    .hero-subtitle { color: var(--indigo-light); font-size: 0.95rem; margin: 0 0 20px 0; font-weight: 500; z-index: 2;}
+    .hero-btn { display: inline-flex; align-items: center; gap: 8px; background: white; color: var(--indigo); padding: 14px 24px; border-radius: 30px; font-weight: 800; text-decoration: none; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s; z-index: 2;}
+    .hero-btn:active { transform: scale(0.96); }
+
+    /* --- COURSE OUTLINE (ACCORDIONS) --- */
+    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 12px; margin-top: 10px; }
+
+    .section-wrapper { margin-bottom: 12px; border: 1px solid var(--slate-200); border-radius: var(--radius); background: #ffffff; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .section-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #ffffff; border: none; border-bottom: 1px solid transparent; cursor: pointer; text-align: left; outline: none; }
+    .section-header:active { background: var(--slate-50); }
     
     .section-title-wrap { display: flex; flex-direction: column; gap: 4px; }
-    .section-name { font-size: 0.9rem; font-weight: 800; color: var(--slate-800); text-transform: uppercase; letter-spacing: 1px; }
+    .section-name { font-size: 0.95rem; font-weight: 800; color: var(--slate-800); }
     .section-progress { font-size: 0.8rem; font-weight: 600; color: var(--slate-500); display: flex; align-items: center; gap: 6px;}
     
-    .chevron { color: var(--slate-400); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 1rem; font-weight: 800;}
+    .chevron { color: var(--slate-400); transition: transform 0.3s ease; font-size: 1rem; font-weight: 800;}
     .section-wrapper.is-open .chevron { transform: rotate(180deg); color: var(--indigo);}
 
-    .module-list { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .section-wrapper.is-open .module-list { max-height: 1000px; /* Arbitrary large number for CSS transition */ }
+    .module-list { display: none; }
+    .section-wrapper.is-open .module-list { display: block; border-top: 1px solid var(--slate-100);}
 
     /* MODULE ROWS */
-    .module-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--slate-100); text-decoration: none; transition: background 0.2s ease; position: relative; }
+    .module-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--slate-100); text-decoration: none; position: relative; }
     .module-row:last-child { border-bottom: none; }
-    .module-row:hover { background: var(--slate-50); }
     
     .mod-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); background: var(--slate-100); padding: 4px 8px; border-radius: 4px; margin-right: 15px; min-width: 45px; text-align: center; letter-spacing: 0.5px;}
     .mod-title { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); flex-grow: 1; }
     .mod-icon { font-size: 1rem; color: var(--slate-300); }
 
     /* ROW STATES */
+    .row-mastered { background: #ffffff; }
     .row-mastered .mod-badge { background: var(--emerald-light); color: var(--emerald); }
     .row-mastered .mod-icon { color: var(--emerald); }
     
-    .row-unlocked { border-left: 4px solid var(--indigo); padding-left: 14px; background: #ffffff; }
-    .row-unlocked .mod-badge { background: var(--indigo-light); color: var(--indigo); }
-    .row-unlocked .mod-title { font-weight: 800; }
+    .row-unlocked { border-left: 4px solid var(--indigo); padding-left: 14px; background: var(--indigo-light); }
+    .row-unlocked .mod-badge { background: var(--indigo); color: white; }
+    .row-unlocked .mod-title { font-weight: 800; color: var(--indigo-dark);}
     .row-unlocked .mod-icon { color: var(--indigo); }
 
-    .row-locked { background: #fafafa; pointer-events: none; }
-    .row-locked .mod-title { color: var(--slate-400); }
-    .row-locked .mod-badge { opacity: 0.5; }
+    .row-locked { background: var(--slate-50); pointer-events: none; opacity: 0.7; }
+    .row-locked .mod-title { color: var(--slate-500); }
+    .row-locked .mod-badge { opacity: 0.7; }
     
     /* UTILITIES */
-    .btn-reset { padding: 12px; background: transparent; border: 1px dashed var(--slate-300); color: var(--slate-400); border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; margin-top: 15px; text-align: center; transition: 0.2s; width: 100%;}
-    .btn-reset:hover { border-color: var(--slate-400); color: var(--slate-600); }
+    .btn-reset { padding: 12px; background: transparent; border: 2px dashed var(--slate-300); color: var(--slate-400); border-radius: var(--radius); font-size: 0.85rem; font-weight: 700; cursor: pointer; margin-top: 30px; text-align: center; width: 100%; transition: 0.2s;}
+    .btn-reset:active { background: var(--slate-200); }
   </style>
 </head>
 <body>
@@ -100,16 +108,22 @@
 
   <!-- CONTENT -->
   <div class="content-area">
+      
+      <!-- HERO CARD (DYNAMICALLY INJECTED) -->
+      <div id="hero-container"></div>
+
+      <div class="section-title">Course Outline</div>
       <div id="curriculum-container">
           <!-- JS will populate accordion sections here -->
       </div>
+      
       <button class="btn-reset" onclick="resetProfile()">Reset Test Profile</button>
   </div>
 
 </div>
 
 <script>
-  // --- V4 SCALABLE CURRICULUM DATA ---
+  // --- V5 SCALABLE CURRICULUM DATA ---
   const curriculumSections = [
       {
           title: "Rational Numbers",
@@ -127,56 +141,106 @@
       {
           title: "Decimals",
           modules: [
-              { id: 'DEC-01', title: 'Place Value', file: '#' },
+              { id: 'DEC-01', title: 'Place Value & Rounding', file: '#' },
               { id: 'DEC-02', title: 'Converting to Fractions', file: '#' },
               { id: 'DEC-03', title: 'Adding Decimals', file: '#' },
               { id: 'DEC-04', title: 'Subtracting Decimals', file: '#' },
               { id: 'DEC-05', title: 'Multiplying Decimals', file: '#' },
-              { id: 'DEC-06', title: 'Dividing Decimals', file: '#' }
-          ]
-      },
-      {
-          title: "Algebraic Foundations",
-          modules: [
-              { id: 'ALG-01', title: 'Variables & Expressions', file: '#' },
-              { id: 'ALG-02', title: 'Substitution', file: '#' },
-              { id: 'ALG-03', title: 'Like Terms', file: '#' }
+              { id: 'DEC-06', title: 'Dividing Decimals', file: '#' },
+              { id: 'DEC-07', title: 'Decimals to Percentages', file: '#' },
+              { id: 'DEC-08', title: 'Word Problems', file: '#' }
           ]
       }
   ];
 
-  // Flatten array to map global progress tracking
-  const flatCurriculum = curriculumSections.flatMap(section => section.modules.map(mod => mod.id));
+  // Crash-proof flat mapping
+  let flatCurriculum = [];
+  curriculumSections.forEach(sec => {
+      sec.modules.forEach(mod => {
+          flatCurriculum.push(mod.id);
+      });
+  });
 
   let userProfile = {};
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
-      loadProfile();
-      renderCurriculum();
+      try {
+          loadProfile();
+          renderHero();
+          renderCurriculum();
+      } catch (error) {
+          console.error("Dashboard Load Error:", error);
+          document.getElementById('curriculum-container').innerHTML = `<div style="padding:20px; color:var(--rose); font-weight:bold; text-align:center;">Error loading curriculum data. Please Reset Profile.</div>`;
+      }
   });
 
   function loadProfile() {
       let saved = localStorage.getItem('harvest_maths_profile');
+      
       if (saved) {
-          userProfile = JSON.parse(saved);
+          try {
+              userProfile = JSON.parse(saved);
+              // Migration fail-safes
+              if (typeof userProfile.unlockedNodeIndex === 'undefined') userProfile.unlockedNodeIndex = 0;
+              if (!userProfile.completedNodes) userProfile.completedNodes = [];
+          } catch (e) {
+              console.warn("Corrupted save file. Generating new profile.");
+              generateFreshProfile();
+          }
       } else {
-          userProfile = {
-              studentId: 'Student_' + Math.floor(Math.random() * 10000),
-              xp: 0,
-              streak: 1,
-              completedNodes: [],
-              unlockedNodeIndex: 0, 
-              gateLevels: {},
-              failedAttempts: {},
-              remediation: {}
-          };
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
+          generateFreshProfile();
       }
 
-      document.getElementById('display-id').innerText = userProfile.studentId;
-      document.getElementById('display-xp').innerText = userProfile.xp;
+      // Safe UI update
+      let idDisplay = document.getElementById('display-id');
+      if(idDisplay) idDisplay.innerText = userProfile.studentId;
+      document.getElementById('display-xp').innerText = userProfile.xp || 0;
       document.getElementById('display-streak').innerText = userProfile.streak || 1;
+  }
+
+  function generateFreshProfile() {
+      userProfile = {
+          studentId: 'Student_' + Math.floor(Math.random() * 10000),
+          xp: 0,
+          streak: 1,
+          completedNodes: [],
+          unlockedNodeIndex: 0, 
+          gateLevels: {},
+          failedAttempts: {},
+          remediation: {}
+      };
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
+  }
+
+  function renderHero() {
+      let activeIndex = userProfile.unlockedNodeIndex;
+      if (activeIndex >= flatCurriculum.length) activeIndex = flatCurriculum.length - 1; // Cap at end
+
+      let activeModId = flatCurriculum[activeIndex];
+      let activeModData = null;
+      let activeSecTitle = "";
+
+      // Find active module details
+      curriculumSections.forEach(sec => {
+          let found = sec.modules.find(m => m.id === activeModId);
+          if (found) {
+              activeModData = found;
+              activeSecTitle = sec.title;
+          }
+      });
+
+      if (activeModData) {
+          let heroHtml = `
+              <div class="hero-card">
+                  <div class="hero-label">✦ CURRENT FOCUS</div>
+                  <h2 class="hero-title">${activeModData.id}: ${activeModData.title}</h2>
+                  <p class="hero-subtitle">${activeSecTitle}</p>
+                  <a href="${activeModData.file}" class="hero-btn">Resume Journey ➔</a>
+              </div>
+          `;
+          document.getElementById('hero-container').innerHTML = heroHtml;
+      }
   }
 
   function renderCurriculum() {
@@ -187,17 +251,15 @@
 
       curriculumSections.forEach((section, sIndex) => {
           let masteredCount = 0;
-          let containsActiveModule = false;
           let rowsHtml = '';
 
-          // 1. Build the rows and determine section states
+          // 1. Build Rows
           section.modules.forEach(mod => {
               let globalIndex = flatCurriculum.indexOf(mod.id);
               let stateClass = '';
               let icon = '';
               let href = `href="${mod.file}"`;
 
-              // Check Mastery Status
               if (userProfile.completedNodes.includes(mod.id)) {
                   stateClass = 'row-mastered';
                   icon = '✓';
@@ -205,7 +267,6 @@
               } else if (globalIndex === userProfile.unlockedNodeIndex || isSuperUser) {
                   stateClass = 'row-unlocked';
                   icon = '▶';
-                  if (globalIndex === userProfile.unlockedNodeIndex) containsActiveModule = true;
               } else {
                   stateClass = 'row-locked';
                   icon = '🔒';
@@ -221,17 +282,12 @@
               `;
           });
           
-          // 2. Determine if accordion should be open on load
           let isMasteredSection = (masteredCount === section.modules.length);
           let progressIcon = isMasteredSection ? '🏆' : '⏳';
           
-          // Default logic: Open the section containing the active module. 
-          // If SuperUser, default to opening the first section.
-          let isOpen = containsActiveModule || (isSuperUser && sIndex === 0) ? 'is-open is-active' : '';
-
-          // 3. Assemble the Accordion Wrapper
+          // 2. Assemble Accordion (Closed by default to save cognitive load)
           let sectionHtml = `
-              <div class="section-wrapper ${isOpen}" id="section-wrap-${sIndex}">
+              <div class="section-wrapper" id="section-wrap-${sIndex}">
                   <button class="section-header" onclick="toggleSection(${sIndex})">
                       <div class="section-title-wrap">
                           <span class="section-name">${section.title}</span>
@@ -244,3 +300,36 @@
                   </div>
               </div>
           `;
+          
+          container.innerHTML += sectionHtml;
+      });
+  }
+
+  function toggleSection(index) {
+      const wrapper = document.getElementById(`section-wrap-${index}`);
+      wrapper.classList.toggle('is-open');
+  }
+
+  // --- TESTING ---
+  function resetProfile() {
+      if(confirm("Are you sure you want to completely wipe and reset this test profile?")) {
+          let isSuper = String(userProfile.studentId).toLowerCase().includes('superuser');
+          let newId = isSuper ? "SuperUser_Admin" : ('Student_' + Math.floor(Math.random() * 10000));
+          
+          let freshProfile = {
+              studentId: newId,
+              xp: 0,
+              streak: 1,
+              completedNodes: [],
+              unlockedNodeIndex: 0,
+              gateLevels: {},
+              failedAttempts: {},
+              remediation: {}
+          };
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(freshProfile));
+          location.reload();
+      }
+  }
+</script>
+</body>
+</html>
