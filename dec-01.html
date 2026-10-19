@@ -5,215 +5,348 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - DEC-01</title>
   <style>
-    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
-    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
-    /* HUD */
-    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
-    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
-    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
-    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
-    .stats { font-weight: 800; font-size: 1.1rem; }
-    .stats-xp { color: var(--warning); }
-    .stats-mastery { color: var(--primary); }
-    .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
+    
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* THE APP CONTAINER */
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    
+    /* V2 MICRO-HUD */
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
+    .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
+    .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
+    .stat-xp { color: var(--amber); }
 
-    /* Content */
-    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    /* SCROLL ENGINE: Shrinks naturally when keypad opens */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
     .hidden { display: none !important; }
-    h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-warning { background: var(--warning); color: #fff; }
 
-    /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .v-frac { display: inline-flex; flex-direction: column; align-items: center; position: relative; }
-    .v-num { border-bottom: 4px solid #333; padding: 0 8px; }
-    .v-den { padding: 0 8px; }
-    .sprint-math { font-size: 4rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    /* FOCUS MODE DYNAMICS */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .content-area { padding-top: 10px; }
     
-    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 100px; height: 55px; padding: 0 10px; font-size: 2.5rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s; }
-    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
-    .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
-    .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
+    /* TYPOGRAPHY */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
-    /* Interactive Manipulative */
-    .manipulative-container { background: white; padding: 20px 10px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .grid-comparison { display: flex; width: 100%; justify-content: space-around; align-items: flex-end; gap: 10px; flex-wrap: wrap; }
-    .grid-box { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-    .grid-label { font-size: 1.5rem; font-weight: bold; color: var(--text-main); }
-    .controls-row { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top:10px; }
-    .ctrl-btn { flex: 1; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; border: 2px solid #dadce0; background: #f8f9fa; cursor: pointer; transition: 0.2s; }
-    .ctrl-btn:active { transform: scale(0.95); }
+    /* BUTTONS */
+    .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:active { background: #4338ca; }
+    .btn-warning { background: var(--amber); color: white; }
 
-    /* Comparison Options */
-    .opt-box { padding: 15px 10px; font-size: 2.2rem; font-weight: bold; border: 3px solid #dadce0; border-radius: 16px; background: #f8f9fa; color: #333; display: flex; justify-content: center; align-items: center; flex: 1; }
+    /* MATH FORMATTING */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
+    .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 5px; }
+    .frac-num { padding: 0 10px 6px 10px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: color 0.3s;}
+    .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; transition: color 0.3s;}
+    .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
-    /* Keypad (Modified for Decimals) */
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
-    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .key:active { background: #e8eaed; transform: translateY(2px); }
-    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+    /* DEC-01 SPECIFIC: AREA MODEL GRIDS */
+    .grid-100 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 1px; width: 150px; height: 150px; background: var(--slate-300); border: 2px solid var(--slate-400); border-radius: 4px; padding: 2px;}
+    .grid-100 .cell { background: white; border-radius: 1px; }
+    .grid-100 .cell.fill-indigo { background: var(--indigo); }
+    
+    .grid-10 { display: grid; grid-template-columns: 1fr; gap: 2px; width: 40px; height: 150px; background: var(--slate-300); border: 2px solid var(--slate-400); border-radius: 4px; padding: 2px;}
+    .grid-10 .cell { background: white; border-radius: 1px; }
+    .grid-10 .cell.fill-rose { background: var(--rose); }
 
-    /* Modals */
-    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
-    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+    /* FADING STEP ARCHITECTURE (DOM REVERSED) */
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
+    
+    /* INPUT BOXES */
+    .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.wide { width: 100px; }
+    .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
+    .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
+    .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
+
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; 
+    }
+    .keypad-drawer.open { 
+        max-height: 380px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    
+    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-action { background: var(--slate-300); font-size: 1.2rem;}
+    .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter:active { background: #4338ca; }
+
+    /* V2 ERROR TOAST & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
+    .toast-container.show { opacity: 1; top: 65px; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .completion-overlay.show { opacity: 1; pointer-events: all; }
+    .completion-icon { font-size: 4rem; margin-bottom: 20px; }
+    .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <div class="hud">
-    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
-    <div class="progress-wrapper">
-      <div class="mastery-label" id="hud-label">MASTERY METER</div>
-      <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+  <!-- MICRO HUD -->
+  <div class="micro-hud">
+    <div class="stat-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="hud-center">
+        <span style="color:var(--slate-400); font-size:0.7rem;" id="hud-label">MASTERY</span>
+        <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
     </div>
-    <div class="stats stats-mastery" id="hud-stats"><span id="mastery-text">0/5</span></div>
+    <div style="color:var(--indigo);" id="mastery-text">0/5</div>
   </div>
 
   <!-- ZONE 0: GATEKEEPER INTRO -->
-  <div class="content-zone" id="zone-gate-intro">
-    <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
-    <h2>Fluency Gatekeeper</h2>
-    <p>Decimal fractions are just fractions with a denominator of 10 or 100. Pass 3 rapid levels to prove you can convert them instantly.</p>
-    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
-      <b>The 3-Level Pathway:</b>
-      <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Tenths (e.g., 3/10 = 0,3)</li>
-        <li><b>Level 2:</b> Double-Digit Hundredths</li>
-        <li><b>Level 3:</b> Single-Digit Hundredths (e.g., 4/100)</li>
+  <div class="content-area" id="zone-gate-intro">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Decimals are built entirely on Base-10 scaling. Prove your fluency with 10s and 100s.</p>
+    </div>
+    
+    <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
+      <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
+      <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
+        <li><b>Level 1:</b> Multiplication (× 10)</li>
+        <li><b>Level 2:</b> Multiplication (× 100)</li>
+        <li><b>Level 3:</b> Division (÷ 10 and ÷ 100)</li>
       </ul>
-      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold; color:var(--danger);">Note: In South Africa, always use a comma ( , ) for decimals!</p>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
     </div>
     <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
   </div>
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
-  <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Tenths</h2>
-    <div class="math-row" id="sprint-q"></div>
-    <div class="input-col">
-      <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
-    </div>
-  </div>
-
-  <!-- ZONE 1: GUIDED LEARNING (WITH MANIPULATIVE) -->
-  <div class="content-zone hidden" id="zone-learn">
-    <div id="slide-1">
-      <h2>What is a Decimal?</h2>
-      <p>A decimal is just a quick way to write a fraction out of 10, 100, or 1000 without drawing the fraction line.</p>
-      
-      <div class="manipulative-container">
-        <div class="math-row" style="margin:0;">
-          <div class="v-frac"><div class="v-num">3</div><div class="v-den">10</div></div>
-          <div>=</div>
-          <div style="color:var(--primary);">0,3</div>
-        </div>
-        <div style="width:80%; height:2px; background:#e0e0e0; margin: 15px 0;"></div>
-        <div class="math-row" style="margin:0;">
-          <div class="v-frac"><div class="v-num">25</div><div class="v-den">100</div></div>
-          <div>=</div>
-          <div style="color:var(--primary);">0,25</div>
-        </div>
-      </div>
-      <p style="text-align:left;">The comma separates the whole numbers from the fractions.</p>
-    </div>
-
-    <div id="slide-2" class="hidden">
-      <h2>The Whole-Number Illusion</h2>
-      <p>Which number is larger? <b>0,2</b> or <b>0,15</b>?</p>
-      <p style="text-align:left;">Because 15 is a bigger number than 2, many people guess 0,15. Let's look at the blocks.</p>
-      
-      <div class="manipulative-container">
-        <div class="grid-comparison">
-          <div class="grid-box">
-            <div id="svg-grid-1"></div>
-            <div class="grid-label" style="color:var(--primary);">0,2</div>
-            <div style="font-size:0.85rem; color:#5f6368;">2 tenths</div>
-          </div>
-          <div style="font-size:1.5rem; font-weight:bold; color:var(--text-muted); padding-bottom:30px;">vs</div>
-          <div class="grid-box">
-            <div id="svg-grid-2"></div>
-            <div class="grid-label" style="color:#e1b12c;">0,15</div>
-            <div style="font-size:0.85rem; color:#5f6368;">15 hundredths</div>
-          </div>
-        </div>
-      </div>
-      <p style="text-align:left;">0,2 fills two entire columns (20 blocks). 0,15 only fills 15 blocks. <b>0,2 is larger!</b></p>
-    </div>
-
-    <div id="slide-3" class="hidden">
-      <h2>The Invisible Zero Rule</h2>
-      <p>To avoid the illusion, you can always add an invisible zero to the end of a decimal without changing its value.</p>
-      <div style="background: #e8f0fe; padding: 20px; border-radius: 12px; margin: 15px 0;">
-        <div class="math-row" style="margin:0;">
-          <div>0,2</div>
-          <div>=</div>
-          <div style="color:var(--primary);">0,20</div>
-        </div>
-      </div>
-      <p style="text-align:left;">If you compare <b>0,20</b> and <b>0,15</b>, it instantly makes sense. 20 blocks is more than 15 blocks.</p>
-    </div>
-
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Next ➔</button>
-  </div>
-
-  <!-- ZONE 2: PRACTICE -->
-  <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Type the LARGER decimal:</div>
-    
-    <div style="display:flex; justify-content:center; gap:15px; margin: 30px 0; width:100%; padding:0 10px; box-sizing:border-box;">
-      <div class="opt-box" id="p-opt1"></div>
-      <div class="opt-box" id="p-opt2"></div>
-    </div>
-
+  <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Base-10</div>
+    <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
     <div class="math-row" style="margin-top:20px;">
-      <div>Larger =</div>
-      <div class="input-col">
-        <div class="f-box active" id="p-ans" onclick="setActive('p-ans')"></div>
+        <div class="input-box active wide" style="height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
+    </div>
+  </div>
+
+  <!-- ZONE 1: GUIDED LEARNING (I DO) -->
+  <div class="content-area hidden" id="zone-learn">
+    
+    <!-- Slide 1 -->
+    <div id="slide-1">
+      <div class="section-title">Tenths</div>
+      <p class="instruction-text">Fractions and Decimals are just two different languages to describe the exact same blocks.</p>
+      
+      <div class="pinned-visual">
+        <div style="display:flex; justify-content:center; gap:30px; align-items:center; width:100%;">
+            <div id="learn-grid-10"></div>
+            
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="math-row" style="justify-content:flex-start;">
+                    <div style="color:var(--slate-500); font-size:1.2rem; width:80px;">Fraction:</div>
+                    <div class="fraction"><div class="frac-num" style="color:var(--rose);">3</div><div class="frac-den">10</div></div>
+                </div>
+                <div class="math-row" style="justify-content:flex-start;">
+                    <div style="color:var(--slate-500); font-size:1.2rem; width:80px;">Decimal:</div>
+                    <div style="color:var(--rose);">0.3</div>
+                </div>
+            </div>
+        </div>
       </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The first spot behind the dot is the <b>Tenths</b> place. 3 out of 10 blocks is 0.3.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 2 -->
+    <div id="slide-2" class="hidden">
+      <div class="section-title">Hundredths</div>
+      <p class="instruction-text">If we slice the block into 100 tiny pieces, we are now working in the second spot behind the dot.</p>
+      
+      <div class="pinned-visual">
+        <div style="display:flex; justify-content:center; gap:20px; align-items:center; width:100%; flex-wrap:wrap;">
+            <div id="learn-grid-100"></div>
+            
+            <div style="display:flex; flex-direction:column; gap:20px;">
+                <div class="math-row" style="justify-content:flex-start;">
+                    <div style="color:var(--slate-500); font-size:1.2rem; width:80px;">Fraction:</div>
+                    <div class="fraction"><div class="frac-num" style="color:var(--indigo);">45</div><div class="frac-den">100</div></div>
+                </div>
+                <div class="math-row" style="justify-content:flex-start;">
+                    <div style="color:var(--slate-500); font-size:1.2rem; width:80px;">Decimal:</div>
+                    <div style="color:var(--indigo);">0.45</div>
+                </div>
+            </div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We have 4 full columns (tenths) and 5 tiny blocks (hundredths). That gives us <b>0.45</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Danger Zone</div>
+      <p class="instruction-text" style="color:var(--rose);">Watch out! Do not mix up Tenths and Hundredths.</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 1.8rem; margin-bottom:15px; color:var(--rose);">
+            <div class="fraction"><div class="frac-num">3</div><div class="frac-den">100</div></div>
+            <div class="operator">≠</div>
+            <div>0.3</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-around; width:100%; margin-top:20px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="learn-grid-trap-1"></div>
+                <div style="margin-top:10px; font-weight:800; color:var(--indigo);">0.03</div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="learn-grid-trap-2"></div>
+                <div style="margin-top:10px; font-weight:800; color:var(--rose);">0.30</div>
+            </div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">3 Hundredths is just 3 tiny blocks (<b>0.03</b>). You MUST put a zero placeholder in the tenths spot!</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
+    </div>
+  </div>
+
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-area hidden" id="zone-guided">
+    <div class="section-title" id="g-title">Guided Practice 1/2</div>
+    
+    <!-- DOM REVERSAL: Instructions at the Top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 15px;">
+        <!-- Steps injected by JS -->
     </div>
     
-    <p style="font-size:0.85rem; color:var(--danger); margin-top:10px; padding-bottom:40px;">Remember to use a comma!</p>
-  </div>
-
-  <!-- KEYPAD (MODIFIED FOR DECIMALS) -->
-  <div class="keypad hidden" id="keypad">
-    <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
-    <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
-    <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
-    <div class="key" onclick="typeNum(',')">,</div><div class="key" onclick="typeNum('0')">0</div><div class="key" onclick="deleteNum()">⌫</div>
-    <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
-  </div>
-
-  <!-- TRAFFIC LIGHT MODAL -->
-  <div class="modal-overlay" id="hint-modal">
-    <div class="modal-box">
-      <div class="traffic-light" id="modal-icon">🟡</div>
-      <h3 id="modal-title" style="margin-top:0;">Hint</h3>
-      <p id="modal-text" style="font-size:1.1rem; line-height:1.5;"></p>
-      <button class="btn btn-primary" onclick="closeModal()" id="modal-btn">I Understand</button>
+    <div class="pinned-visual">
+        <div id="g-vis-container" style="margin-bottom:20px;"></div>
+        
+        <!-- Horizontal Answer Equation -->
+        <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box" id="g-frac-n" onclick="openKeypad('g-frac-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box wide" id="g-frac-d" onclick="openKeypad('g-frac-d', 'g-step-1')"></div></div>
+            </div>
+            
+            <div id="g-dec-area" style="display:none; align-items:center;">
+                <div class="operator" style="margin: 0 10px;">➔</div>
+                <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-dec" onclick="openKeypad('g-dec', 'g-step-2')"></div>
+            </div>
+        </div>
     </div>
   </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
+  <div class="content-area hidden" id="zone-practice">
+    <div class="section-title">Strict Practice</div>
+    
+    <!-- DOM REVERSAL: Warning at the Top -->
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Watch your zero placeholders!</p>
+    </div>
+
+    <div class="pinned-visual">
+        <div id="p-vis-container" style="margin-bottom:20px;"></div>
+        
+        <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box active" id="p-frac-n" onclick="openKeypad('p-frac-n', 'practice')"></div></div>
+              <div class="frac-den"><div class="input-box wide" id="p-frac-d" onclick="openKeypad('p-frac-d', 'practice')"></div></div>
+            </div>
+            
+            <div style="display:flex; align-items:center;">
+                <div class="operator" style="margin: 0 10px;">➔</div>
+                <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-dec" onclick="openKeypad('p-dec', 'practice')"></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <div class="keypad-drawer" id="keypad">
+    <div class="keypad-grid">
+      <div class="key-btn" onclick="typeNum('1')">1</div>
+      <div class="key-btn" onclick="typeNum('2')">2</div>
+      <div class="key-btn" onclick="typeNum('3')">3</div>
+      <div class="key-btn" onclick="typeNum('4')">4</div>
+      <div class="key-btn" onclick="typeNum('5')">5</div>
+      <div class="key-btn" onclick="typeNum('6')">6</div>
+      <div class="key-btn" onclick="typeNum('7')">7</div>
+      <div class="key-btn" onclick="typeNum('8')">8</div>
+      <div class="key-btn" onclick="typeNum('9')">9</div>
+      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
+      <div class="key-btn" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+    </div>
+  </div>
+
+  <!-- TOAST ERROR MESSAGE -->
+  <div class="toast-container" id="toast">
+      <div class="toast-icon">⚠️</div>
+      <div id="toast-msg">Error message goes here.</div>
+      <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- COMPLETION OVERLAY -->
+  <div class="completion-overlay" id="completion-screen">
+      <div class="completion-icon">🏆</div>
+      <div class="completion-title">Module Mastered!</div>
+      <p style="font-size:1.2rem; color:var(--slate-500); font-weight:600; margin-bottom:30px;">Total XP: <span id="final-xp" style="color:var(--amber);">0</span></p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+  </div>
+
 </div>
 
 <script>
   // Global State
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
+  let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-01'; 
 
-  // CASCADING GATEKEEPER VARIABLES
+  // Gatekeeper Variables
   let gateLevel = 1; 
   let sprintTimer;
   let timeLeft = 60; 
@@ -222,121 +355,209 @@
   let currentSprintQ = {};
   const sprintTargetAttempts = 15;
 
-  // REMEDIATION VARIABLES
+  // Remediation Variables
   let sessionMissed = [];
   let currentRemediationQ = null;
   let remediationIndex = -1;
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 3;
-  let streak = 0, mistakesOnCurrent = 0;
+  const totalSlides = 3; 
+  let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
   let currentQ = {}; 
 
-  // --- INITIALIZATION & ANTI-AMNESIA ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
+  // Guided Practice Variables
+  let guidedLevel = 1;
+  let gData = {};
 
+  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
-          }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
 
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
+      // Draw Learn Slides Visuals statically
+      document.getElementById('learn-grid-10').innerHTML = drawAreaGrid(3, 10);
+      document.getElementById('learn-grid-100').innerHTML = drawAreaGrid(45, 100);
+      document.getElementById('learn-grid-trap-1').innerHTML = drawAreaGrid(3, 100);
+      document.getElementById('learn-grid-trap-2').innerHTML = drawAreaGrid(30, 100);
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showError("Focus Drill Active: You must clear missed facts to unlock the Gatekeeper.");
+                  document.getElementById('btn-start-sprint').innerText = "Resume Drill";
+                  document.getElementById('btn-start-sprint').onclick = startRemediation;
+              }
           }
+      } catch (e) {
+          console.error("Profile parsing error", e);
       }
-      
-      initGrids(); // Init Manipulative
 
-      // --- GOD MODE BYPASS ---
+      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel + " (Base-10)";
+
       if (isSuperUser) {
           document.getElementById('zone-gate-intro').classList.add('hidden');
           unlockLesson();
       }
   });
 
-  // --- KEYPAD LOGIC (MODIFIED FOR COMMAS) ---
-  function setActive(id) {
-    if(appState === 'LOCKED') return;
-    if(document.getElementById(activeBoxId)) {
-      document.getElementById(activeBoxId).classList.remove('active');
-    }
-    activeBoxId = id;
-    let box = document.getElementById(activeBoxId);
-    if(box) box.classList.add('active');
+  // --- VISUAL GRID GENERATOR ---
+  function drawAreaGrid(shaded, total) {
+      let html = '';
+      if(total === 10) {
+          html += `<div class="grid-10">`;
+          for(let i=0; i<10; i++) {
+              html += `<div class="cell ${i < shaded ? 'fill-rose' : ''}"></div>`;
+          }
+          html += `</div>`;
+      } else {
+          html += `<div class="grid-100">`;
+          for(let i=0; i<100; i++) {
+              html += `<div class="cell ${i < shaded ? 'fill-indigo' : ''}"></div>`;
+          }
+          html += `</div>`;
+      }
+      return html;
+  }
+
+  // --- FLEXBOX SCROLL ENGINE ---
+  function openKeypad(boxId, stepId) {
+      if(appState === 'LOCKED') return;
+
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) return;
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
+      activeBoxId = boxId;
+      activeStepId = stepId;
+      targetBox.classList.add('active');
+
+      document.body.classList.add('focus-active');
+
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
+      
+      let container = document.querySelector('.content-area');
+      if (container) {
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let wrapper = targetBox.closest('.math-row') || targetBox.closest('.fraction');
+              let targetRect = (wrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); 
+      let container = document.querySelector('.content-area');
+      if (container) container.style.paddingBottom = '60px';
   }
 
   function typeNum(char) {
-    if(appState === 'LOCKED') return;
-    let box = document.getElementById(activeBoxId);
-    if(!box) return;
-    
-    // Prevent double commas
-    if(char === ',' && box.innerText.includes(',')) return;
-    
-    if(box.innerText.length < 5) box.innerText += char;
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      
+      // Decimal Specific Logic: Allow one dot, max 5 chars
+      if(char === '.' && box.innerText.includes('.')) return; 
+      if(box.innerText.length < 5) box.innerText += char;
   }
   
   function deleteNum() {
-    if(appState === 'LOCKED') return;
-    let box = document.getElementById(activeBoxId);
-    if(box) box.innerText = box.innerText.slice(0, -1);
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
-    if(appState === 'GATEKEEPER') checkSprintAnswer();
-    else if (appState === 'REMEDIATION') checkRemediationAnswer();
-    else if (appState === 'PRACTICE') checkPracticeAnswer();
+      if(appState === 'LOCKED') return;
+      if(appState === 'GATEKEEPER') checkSprintAnswer();
+      else if (appState === 'REMEDIATION') checkRemediationAnswer();
+      else if (appState === 'GUIDED') checkGuidedAnswer();
+      else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- INTERACTIVE GRID MANIPULATIVE LOGIC ---
-  function getGridSVG(shadedCount, color) {
-    let svg = `<svg width="110" height="110" viewBox="0 0 100 100" style="border:1px solid #ccc; background:#fff; border-radius:4px;">`;
-    // Render columns first to naturally show "tenths"
-    for(let col=0; col<10; col++) {
-      for(let row=0; row<10; row++) {
-        let index = col * 10 + row;
-        let fill = index < shadedCount ? color : 'transparent';
-        svg += `<rect x="${col*10}" y="${row*10}" width="10" height="10" fill="${fill}" stroke="#e0e0e0" stroke-width="0.5"/>`;
-      }
-    }
-    svg += `</svg>`;
-    return svg;
+  function flashError(box) {
+      if (!box) return;
+      box.classList.add('flash-error');
+      setTimeout(() => box.classList.remove('flash-error'), 400);
   }
 
-  function initGrids() {
-    document.getElementById('svg-grid-1').innerHTML = getGridSVG(20, 'rgba(26,115,232,0.8)');
-    document.getElementById('svg-grid-2').innerHTML = getGridSVG(15, 'rgba(253,203,110,0.8)');
+  function showError(msg) {
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast').classList.add('show');
+      setTimeout(closeToast, 4000);
+  }
+
+  function closeToast() {
+      document.getElementById('toast').classList.remove('show');
+  }
+
+  function triggerStreakBreak(msg, tag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      
+      ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      showError(msg);
+      logTelemetryEvent("Trapdoor Triggered", 0, tag);
+      
+      setTimeout(() => {
+          ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
+              let el = document.getElementById(id);
+              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
+          });
+          openKeypad('p-frac-n', 'practice');
+      }, 4500);
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
-    closeModal(); 
+    closeToast(); 
     appState = 'GATEKEEPER';
     sessionMissed = [];
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
-    document.getElementById('keypad').classList.remove('hidden');
+    document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Tenths";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Hundredths";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Small Hundredths";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Multiples of 10";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Multiples of 100";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Base-10 Division";
 
-    document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
     document.getElementById('mastery-text').innerText = "01:00";
@@ -344,7 +565,8 @@
     sprintAttempts = 0;
     sprintCorrect = 0;
     timeLeft = 60;
-    setActive('sprint-ans');
+    
+    openKeypad('sprint-ans', 'sprint');
     loadSprintQuestion();
     
     if(sprintTimer) clearInterval(sprintTimer); 
@@ -355,7 +577,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -365,69 +587,63 @@
   }
 
   function generateGateQuestion(level) {
-    let qHtml, ansStr;
+    let qText, ans;
     if (level === 1) { 
-      let n = Math.floor(Math.random() * 9) + 1; // 1 to 9
-      qHtml = `<div class="v-frac"><div class="v-num">${n}</div><div class="v-den">10</div></div><div>=</div>`;
-      ansStr = `0,${n}`;
+        let a = Math.floor(Math.random() * 12) + 1;
+        ans = a * 10;
+        qText = Math.random() > 0.5 ? `${a} × 10 =` : `10 × ${a} =`;
     } else if (level === 2) { 
-      let n = Math.floor(Math.random() * 90) + 10; // 10 to 99
-      qHtml = `<div class="v-frac"><div class="v-num">${n}</div><div class="v-den">100</div></div><div>=</div>`;
-      ansStr = `0,${n}`;
+        let a = Math.floor(Math.random() * 12) + 1;
+        ans = a * 100;
+        qText = Math.random() > 0.5 ? `${a} × 100 =` : `100 × ${a} =`;
     } else { 
-      let n = Math.floor(Math.random() * 9) + 1; // 1 to 9
-      qHtml = `<div class="v-frac"><div class="v-num">${n}</div><div class="v-den">100</div></div><div>=</div>`;
-      ansStr = `0,0${n}`;
+        let a = Math.floor(Math.random() * 12) + 1;
+        let isHundred = Math.random() > 0.5;
+        let prod = a * (isHundred ? 100 : 10);
+        ans = a;
+        qText = `${prod} ÷ ${isHundred ? 100 : 10} =`;
     }
-    // Store plain text version for remediation logging
-    let qText = qHtml.replace(/<[^>]*>/g, '').replace('=', ' =');
-    return { qHtml, qText, ansStr };
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: ans.toString() };
   }
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
-    document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
+    document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
   }
 
   function checkSprintAnswer() {
     let boxText = document.getElementById('sprint-ans').innerText;
     if(boxText === '') return;
-    
-    // Strict South African comma check
-    if (boxText.includes('.')) {
-        showModal('🔴', 'Format Error', 'In South Africa, we use a comma ( , ) to write decimals, not a full stop.');
-        document.getElementById('sprint-ans').innerText = '';
-        return;
-    }
 
     sprintAttempts++;
     let box = document.getElementById('sprint-ans');
     
-    if(boxText === currentSprintQ.ansStr) {
+    if(boxText === currentSprintQ.ans) {
       sprintCorrect++;
       xp += 5;
       document.getElementById('xp-counter').innerText = xp;
-      box.classList.add('flash-green');
+      box.classList.add('flash-success');
     } else {
-      box.classList.add('flash-red');
+      box.classList.add('flash-error');
       let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
       if(!exists) {
-          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ansStr, streak: 0 });
+          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
       }
     }
-    setTimeout(loadSprintQuestion, 200);
+    setTimeout(loadSprintQuestion, 150);
   }
 
   function evaluateSprint() {
-    document.getElementById('keypad').classList.add('hidden');
+    closeKeypad(); 
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
+        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
@@ -437,8 +653,8 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
-        document.getElementById('modal-btn').onclick = startSprint;
+        resetSprintUI();
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
       } else {
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
@@ -446,10 +662,7 @@
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
-
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. You have proven your decimal fractions are fully automated. The lesson is now unlocked.`);
-        document.getElementById('modal-btn').innerText = "Enter Lesson";
-        document.getElementById('modal-btn').onclick = unlockLesson;
+        unlockLesson();
       }
     } else {
       if(sessionMissed.length > 0) {
@@ -460,31 +673,38 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showModal('🔴', `Level ${gateLevel} Failed`, `Accuracy: ${Math.round(accuracy)}%\n\nYou need to run a focus drill on the specific facts you missed before trying again.`);
-          document.getElementById('modal-btn').innerText = "Start Focus Drill";
-          document.getElementById('modal-btn').onclick = startRemediation;
+          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          resetSprintUI();
+          document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
+          document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing your fraction conversions.`);
-          document.getElementById('modal-btn').innerText = "Try Again";
-          document.getElementById('modal-btn').onclick = resetSprint;
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          resetSprintUI();
       }
     }
   }
 
+  function resetSprintUI() {
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      document.getElementById('zone-gate-active').classList.add('hidden');
+      document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
   // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
   function startRemediation() {
-      closeModal();
+      closeToast();
       appState = 'REMEDIATION';
       document.getElementById('zone-gate-intro').classList.add('hidden');
       document.getElementById('zone-gate-active').classList.remove('hidden');
-      document.getElementById('keypad').classList.remove('hidden');
+      document.getElementById('zone-gate-active').style.display = 'flex';
       
       document.getElementById('sprint-title').innerText = "Focus Drill";
-      document.getElementById('sprint-title').style.color = "var(--danger)";
+      document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
+      openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
   }
 
@@ -506,23 +726,15 @@
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
           
           document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
-          document.getElementById('sprint-q').innerHTML = `<div style="font-size:3rem; font-weight:bold;">${currentRemediationQ.qText}</div>`;
+          document.getElementById('sprint-q').innerHTML = currentRemediationQ.qText;
           document.getElementById('sprint-ans').innerText = '';
-          document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
-          document.getElementById('sprint-ans').style.color = 'var(--primary)';
-          setActive('sprint-ans');
+          document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
       }
   }
 
   function checkRemediationAnswer() {
       let boxText = document.getElementById('sprint-ans').innerText;
       if(boxText === '') return;
-      
-      if (boxText.includes('.')) {
-          showModal('🔴', 'Format Error', 'Use a comma ( , ) for decimals.');
-          document.getElementById('sprint-ans').innerText = '';
-          return;
-      }
 
       let box = document.getElementById('sprint-ans');
       let saved = localStorage.getItem('harvest_maths_profile');
@@ -532,7 +744,7 @@
       let queue = p.remediation[currentModuleId];
 
       if(boxText === currentRemediationQ.ans) {
-          box.classList.add('flash-green');
+          box.classList.add('flash-success');
           xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
           
@@ -541,9 +753,9 @@
               queue.splice(remediationIndex, 1); 
           }
           localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-          setTimeout(loadRemediationQuestion, 300);
+          setTimeout(loadRemediationQuestion, 250);
       } else {
-          box.classList.add('flash-red');
+          flashError(box);
           queue[remediationIndex].streak = 0; 
           localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           
@@ -553,45 +765,37 @@
           
           setTimeout(() => {
               box.innerText = currentRemediationQ.ans; 
-              box.style.color = 'var(--danger)';
+              box.style.color = 'var(--rose)';
           }, 300);
 
           setTimeout(() => {
               appState = 'REMEDIATION';
               document.getElementById('keypad').style.opacity = '1';
               document.getElementById('keypad').style.pointerEvents = 'all';
+              box.style.color = 'var(--slate-900)';
               loadRemediationQuestion();
-          }, 2500);
+          }, 2000);
       }
   }
 
   function endRemediation() {
       sessionMissed = [];
-      showModal('🟢', 'Drill Complete!', 'Excellent. You have built fluency in your blind spots. Let\'s try the Gatekeeper again.');
-      document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
-      document.getElementById('modal-btn').onclick = resetSprint; 
-  }
-
-  function resetSprint() {
-    closeModal();
-    sessionMissed = [];
-    document.getElementById('hud-stats').classList.remove('timer-alert');
-    document.getElementById('zone-gate-active').classList.add('hidden');
-    document.getElementById('zone-gate-intro').classList.remove('hidden');
-    document.getElementById('keypad').classList.add('hidden'); 
-    
-    let startBtn = document.getElementById('btn-start-sprint');
-    if(startBtn) startBtn.innerText = "Start Level " + gateLevel; 
+      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      resetSprintUI();
+      document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
+      document.getElementById('btn-start-sprint').onclick = startSprint; 
   }
 
   function unlockLesson() {
-    closeModal();
+    closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
-    document.getElementById('hud-label').innerText = "MASTERY METER";
+    document.getElementById('mastery-text').classList.remove('timer-alert');
+    document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    closeKeypad(); 
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -601,57 +805,159 @@
     slideIndex++;
     if(slideIndex <= totalSlides) {
       document.getElementById('slide-' + slideIndex).classList.remove('hidden');
-      if(slideIndex === totalSlides) document.getElementById('btn-next-slide').innerText = "Start Practice";
     } else {
-      startPractice();
+      startGuidedPractice();
     }
   }
 
-  // --- ZONE 2: PRACTICE LOGIC ---
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = `
+        <div class="step-container" id="g-step-1">
+          <div class="step-text">1. Write the fraction that matches the visual grid.</div>
+        </div>
+        <div class="step-container locked" id="g-step-2">
+          <div class="step-text">2. Convert that fraction into a decimal number.</div>
+        </div>
+      `;
+      openKeypad('g-frac-n', 'g-step-1');
+  }
+
+  function loadGuidedQuestion() {
+      if (guidedLevel === 1) {
+          gData = { n: "7", d: "10", dec: "0.7", err1: "Count the shaded strips out of the 10 total.", err2: "7 tenths is written as zero point seven." };
+      } else {
+          // Trapdoor preview
+          gData = { n: "5", d: "100", dec: "0.05", err1: "Count the shaded squares out of the 100 total.", err2: "Watch out! It is 5 hundredths, not 5 tenths. You need a zero placeholder." };
+      }
+
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-vis-container').innerHTML = drawAreaGrid(parseInt(gData.n), parseInt(gData.d));
+      
+      // Clear inputs
+      ['g-frac-n', 'g-frac-d', 'g-dec'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+      });
+      document.getElementById('g-dec-area').style.display = 'none';
+
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let valN = document.getElementById('g-frac-n').innerText;
+      let valD = document.getElementById('g-frac-d').innerText;
+      
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      if (activeStepId === 'g-step-1') {
+          if (activeBoxId === 'g-frac-n') {
+              if (val === gData.n) { box.classList.add('flash-success'); openKeypad('g-frac-d', 'g-step-1'); }
+              else { showError(gData.err1); flashError(box); }
+          } else if (activeBoxId === 'g-frac-d') {
+              if (val === gData.d) {
+                  box.classList.add('flash-success');
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  
+                  document.getElementById('g-dec-area').style.display = 'flex';
+                  openKeypad('g-dec', 'g-step-2');
+              } else {
+                  showError("The denominator is the total blocks in the grid.");
+                  flashError(box);
+              }
+          }
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-dec') {
+              if (val === gData.dec) {
+                  box.classList.add('flash-success');
+                  document.getElementById('g-step-2').classList.add('completed');
+                  closeKeypad(); 
+                  
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Excellent! Watch out for the zero trap on this next one."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError(gData.err2);
+                  flashError(box);
+              }
+          }
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
   function startPractice() {
     appState = 'PRACTICE';
-    document.getElementById('zone-learn').classList.add('hidden');
+    document.getElementById('zone-guided').classList.add('hidden');
     document.getElementById('zone-practice').classList.remove('hidden');
-    document.getElementById('keypad').classList.remove('hidden');
 
+    masteryPoints = 0; 
     updateProgressBar();
-    setActive('p-ans');
     loadPracticeQuestion();
   }
 
   function generatePracticeQuestion() {
-    // Pairs specifically designed to trigger the whole-number illusion
-    const illusionPairs = [
-      {a: "0,3", b: "0,15", ans: "0,3"},
-      {a: "0,2", b: "0,19", ans: "0,2"},
-      {a: "0,4", b: "0,25", ans: "0,4"},
-      {a: "0,5", b: "0,48", ans: "0,5"},
-      {a: "0,1", b: "0,09", ans: "0,1"},
-      {a: "0,7", b: "0,65", ans: "0,7"},
-      {a: "0,6", b: "0,55", ans: "0,6"},
-      {a: "0,8", b: "0,72", ans: "0,8"},
-      {a: "0,9", b: "0,88", ans: "0,9"},
-      {a: "0,2", b: "0,05", ans: "0,2"}
-    ];
-    let q = illusionPairs[Math.floor(Math.random() * illusionPairs.length)];
-    let swap = Math.random() > 0.5;
+    let rand = Math.random();
+    let n, d;
     
-    return {
-      opt1: swap ? q.b : q.a,
-      opt2: swap ? q.a : q.b,
-      ansStr: q.ans
+    if (rand < 0.3) {
+        // Tenths
+        d = 10;
+        n = Math.floor(Math.random() * 9) + 1;
+    } else if (rand < 0.6) {
+        // Hundredths (Large)
+        d = 100;
+        n = Math.floor(Math.random() * 89) + 10; // 10 to 99
+    } else {
+        // Hundredths (Trapdoor Focus - Single Digit)
+        d = 100;
+        n = Math.floor(Math.random() * 9) + 1; // 1 to 9
+    }
+
+    let decStr = (n / d).toString();
+    // JavaScript formats 0.3, 0.45, 0.05 perfectly natively.
+
+    return { 
+        n: n.toString(),
+        d: d.toString(),
+        dec: decStr,
+        html: drawAreaGrid(n, d)
     };
   }
 
   function loadPracticeQuestion() {
-    mistakesOnCurrent = 0;
-    document.getElementById('p-ans').innerText = '';
-    document.getElementById('p-ans').classList.remove('flash-green', 'flash-red');
-    setActive('p-ans');
-    
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-opt1').innerText = currentQ.opt1;
-    document.getElementById('p-opt2').innerText = currentQ.opt2;
+    
+    ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+    });
+
+    document.getElementById('p-vis-container').innerHTML = currentQ.html;
+    openKeypad('p-frac-n', 'practice');
   }
 
   function updateProgressBar() {
@@ -661,180 +967,147 @@
   }
 
   function checkPracticeAnswer() {
-    let boxText = document.getElementById('p-ans').innerText;
-    if(boxText === '') return;
+    let valN = document.getElementById('p-frac-n').innerText;
+    let valD = document.getElementById('p-frac-d').innerText;
+    let valDec = document.getElementById('p-dec').innerText;
 
-    if (boxText.includes('.')) {
-        showModal('🔴', 'Format Error', 'Please use a comma ( , ) instead of a full stop.');
-        document.getElementById('p-ans').innerText = '';
-        return;
+    let box = document.getElementById(activeBoxId);
+    if (box.innerText === '') return;
+
+    if (activeBoxId === 'p-frac-n') { box.classList.add('flash-success'); openKeypad('p-frac-d', 'practice'); return; }
+    if (activeBoxId === 'p-frac-d') { box.classList.add('flash-success'); openKeypad('p-dec', 'practice'); return; }
+
+    if (valDec === '') return;
+
+    // --- STRICT SEQUENCE INTERCEPT ---
+    if (valN === '' || valD === '') {
+        showError("You must write the fraction before converting to a decimal.");
+        openKeypad((valN === '') ? 'p-frac-n' : 'p-frac-d', 'practice');
+        return; 
     }
 
-    // Allow 0,2 or 0,20 to be marked correct
-    let isCorrect = false;
-    if (boxText === currentQ.ansStr || boxText === currentQ.ansStr + "0") {
-        isCorrect = true;
-    }
+    let isFracCorrect = (valN === currentQ.n && valD === currentQ.d);
+    let userDecNum = parseFloat(valDec);
+    let targetDecNum = parseFloat(currentQ.dec);
+    let isDecCorrect = (!isNaN(userDecNum) && userDecNum === targetDecNum);
 
-    if(isCorrect) {
-      if (mistakesOnCurrent === 0) {
+    if (isFracCorrect && isDecCorrect) {
+        document.getElementById('p-dec').classList.add('flash-success');
+        closeKeypad(); 
+        
         masteryPoints++;
         streak++;
-        xp += (streak >= 3) ? 150 : 100;
+        xp += 50; 
         updateProgressBar();
-        document.getElementById('p-ans').classList.add('flash-green');
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
-      } else {
-        streak = 0;
-        xp += 10;
-        document.getElementById('xp-counter').innerText = xp;
-        showModal('🔵', 'Corrected', 'Good fix. Remember, no mastery points are awarded when you use a hint.');
-        setTimeout(() => { closeModal(); loadPracticeQuestion(); }, 2500);
-      }
     } else {
-      streak = 0;
-      if (mistakesOnCurrent === 0) {
-        masteryPoints = Math.max(0, masteryPoints - 1);
-        updateProgressBar();
-      }
-      mistakesOnCurrent++;
-      
-      document.getElementById('p-ans').classList.add('flash-red');
-      
-      // Provide conceptual hint
-      let wrongAns = boxText;
-      let wrongFloat = parseFloat(wrongAns.replace(',', '.'));
-      let correctFloat = parseFloat(currentQ.ansStr.replace(',', '.'));
-      
-      if (!isNaN(wrongFloat) && wrongFloat < correctFloat) {
-          showModal('🔴', 'The Illusion', `You fell for the whole-number illusion!\n\nAdd an invisible zero to the end of ${currentQ.ansStr} to make it ${currentQ.ansStr}0.\n\nNow compare them. Which is actually larger?`);
-      } else {
-          showModal('🔴', 'Check Again', `Look at the two options carefully. Type the exact number that represents the larger amount.`);
-      }
+        // DEC-01 TRAPDOORS
+        let errorMsg = `Streak Broken!\n\nThe grid shows ${currentQ.n} out of ${currentQ.d} blocks. The decimal format is ${currentQ.dec}.`;
+        let errorTag = "General_Error";
+
+        if (!isFracCorrect) {
+            errorMsg = `GRID ERROR!\n\nYou did not read the visual correctly. The grid shows ${currentQ.n} shaded blocks out of ${currentQ.d} total blocks.`;
+            errorTag = "Incorrect_Fraction_Read";
+        } else if (currentQ.d === '100' && parseInt(currentQ.n) < 10) {
+            // Trapdoor for 5/100 written as 0.5
+            let trapVal = parseFloat('0.' + currentQ.n);
+            if (userDecNum === trapVal) {
+                errorMsg = `PHANTOM ZERO TRAPDOOR!\n\nYou wrote ${currentQ.n} Tenths (${trapVal}), but the grid shows ${currentQ.n} Hundredths! You MUST put a zero in the tenths spot to hold the place value: ${currentQ.dec}.`;
+                errorTag = "Hundredths_Place_Value_Error";
+            }
+        } else if (currentQ.d === '10' && valDec === ('0.0' + currentQ.n)) {
+            // Trapdoor for 3/10 written as 0.03
+            errorMsg = `PLACE VALUE ERROR!\n\nYou wrote ${currentQ.n} Hundredths (${valDec}), but the grid shows ${currentQ.n} Tenths! The tenths spot is right next to the dot: ${currentQ.dec}.`;
+            errorTag = "Tenths_Place_Value_Error";
+        }
+
+        triggerStreakBreak(errorMsg, errorTag);
     }
   }
 
-  // --- MODAL & END LOGIC ---
-  function showModal(icon, title, text) {
-    document.getElementById('modal-icon').innerText = icon;
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
-    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
-    document.getElementById('hint-modal').classList.add('show');
-    if(appState === 'PRACTICE') {
-      document.getElementById('modal-btn').innerText = "I Understand";
-      document.getElementById('modal-btn').onclick = closeModal;
-    }
-  }
+  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
+  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-  function closeModal() { 
-    document.getElementById('hint-modal').classList.remove('show'); 
-    let box = document.getElementById('p-ans');
-    if(box) box.classList.remove('flash-red');
-  }
-
-</script>
-
-  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
-  <script>
-    document.addEventListener('keydown', function(event) {
-      if(appState === 'LOCKED') return; 
-      let hintModal = document.getElementById('hint-modal');
-      if (hintModal && hintModal.classList.contains('show')) {
-        if (event.key === 'Enter') document.getElementById('modal-btn').click();
-        return;
-      }
-      if (event.key >= '0' && event.key <= '9') {
-        typeNum(event.key);
-      } else if (event.key === ',' || event.key === '.') {
-        // Intercept decimal point and convert to South African comma
-        event.preventDefault();
-        typeNum(',');
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        deleteNum();
-      } else if (event.key === 'Enter') {
-        submitAnswer();
-      }
+  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      errorType: errorTag,         
+      timestamp: new Date().toISOString() 
     });
-  </script>
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
 
-  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
-  <script>
-    // Appended DEC-01 to Curriculum Order
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01'];
-
-    function logTelemetryEvent(action, accuracyVal) {
-      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
-      let student = p.studentId || "Unknown";
-      let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp += xp; 
       
-      let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
-      queue.push({
-        studentId: student,
-        moduleId: currentModuleId,
-        xp: xp,
-        accuracy: accuracyVal,
-        fails: fails,
-        action: action
-      });
-      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    endModule = function() {
+    logTelemetryEvent("Mastered Module", 100);
+
+    closeKeypad();
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  };
+
+  const originalEvaluateSprint = evaluateSprint;
+  evaluateSprint = function() {
+    originalEvaluateSprint(); 
+    
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
         let profile = JSON.parse(saved);
-        profile.xp += xp; 
-        
-        if(!profile.completedNodes.includes(currentModuleId)) {
-          profile.completedNodes.push(currentModuleId);
-          
-          let currentIndex = curriculumOrder.indexOf(currentModuleId);
-          if (profile.unlockedNodeIndex === currentIndex) {
-            profile.unlockedNodeIndex = currentIndex + 1; 
-          }
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) {
+          profile.failedAttempts[currentModuleId] = 0;
         }
+        profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+    } else {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+    }
+  };
 
-      logTelemetryEvent("Mastered Module", 100);
-
-      closeModal();
-      document.getElementById('zone-practice').classList.add('hidden');
-      document.getElementById('keypad').classList.add('hidden');
-      document.getElementById('zone-learn').classList.remove('hidden');
-      document.getElementById('zone-learn').innerHTML = `
-        <h1 style="font-size:4rem; margin:0;">🏆</h1>
-        <h2 style="color:var(--success);">Module Mastered!</h2>
-        <h3 style="color:var(--primary);">Total: ${xp} XP</h3>
-        <p>Your progress has been saved securely to your device.</p>
-        <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
-      `;
-    };
-
-    const originalEvaluateSprint = evaluateSprint;
-    evaluateSprint = function() {
-      originalEvaluateSprint(); 
-      
-      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-        let saved = localStorage.getItem('harvest_maths_profile');
-        if(saved) {
-          let profile = JSON.parse(saved);
-          if(!profile.failedAttempts) profile.failedAttempts = {};
-          if(!profile.failedAttempts[currentModuleId]) {
-            profile.failedAttempts[currentModuleId] = 0;
-          }
-          profile.failedAttempts[currentModuleId]++;
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-        }
-        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-      } else {
-        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-      }
-    };
-  </script>
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  document.addEventListener('keydown', function(event) {
+    if(appState === 'LOCKED') return; 
+    
+    // Decimal key support
+    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+      typeNum(event.key);
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
 </body>
 </html>
