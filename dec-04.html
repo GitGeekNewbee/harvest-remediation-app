@@ -56,8 +56,8 @@
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
     /* DEC-04: VERTICAL ALIGNMENT GRID */
-    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 15px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; }
-    .vert-grid .dot { color: var(--rose); font-weight: 900; transform: translateY(-5px); }
+    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 20px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; }
+    .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); } /* SA Comma Baseline Fix */
     .vert-grid .op { color: var(--rose); font-weight: 900; }
     .vert-grid .line { grid-column: 1 / -1; width: 100%; height: 4px; background: var(--slate-900); border-radius: 2px; margin: 5px 0; }
     .vert-grid .ans-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; width: 100%; padding-top: 5px; padding-right: 5px; }
@@ -83,7 +83,7 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -103,13 +103,15 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -179,12 +181,12 @@
         
         <div class="vert-grid" style="opacity: 0.8;">
            <div></div>
-           <div></div><div>7</div><div class="dot">.</div><div>2</div><div style="color:var(--slate-300);">?</div>
+           <div></div><div>7</div><div class="comma">,</div><div>2</div><div style="color:var(--slate-300);">?</div>
            <div class="op">-</div>
-           <div></div><div>3</div><div class="dot">.</div><div>4</div><div>5</div>
+           <div></div><div>3</div><div class="comma">,</div><div>4</div><div>5</div>
            <div class="line"></div>
            <div class="ans-row">
-               <div style="padding-right:15px; color:var(--rose);">3.8<span class="dropped-digit">5</span></div>
+               <div style="padding-right:15px; color:var(--rose);">3,8<span class="dropped-digit">5</span></div>
            </div>
         </div>
         
@@ -204,19 +206,19 @@
       <div class="pinned-visual">
         <div class="vert-grid">
            <div></div>
-           <div></div><div>7</div><div class="dot">.</div><div>2</div><div class="pad-hint" style="color:var(--emerald); border-color:var(--emerald); font-weight:800; background:var(--emerald-light);">0</div>
+           <div></div><div>7</div><div class="comma">,</div><div>2</div><div class="pad-hint" style="color:var(--emerald); border-color:var(--emerald); font-weight:800; background:var(--emerald-light);">0</div>
            <div class="op">-</div>
-           <div></div><div>3</div><div class="dot">.</div><div>4</div><div>5</div>
+           <div></div><div>3</div><div class="comma">,</div><div>4</div><div>5</div>
            <div class="line"></div>
            <div class="ans-row">
-               <div style="padding-right:15px; color:var(--emerald);">3.75</div>
+               <div style="padding-right:15px; color:var(--emerald);">3,75</div>
            </div>
         </div>
 
         <div style="position:absolute; top:25px; right:45px; width:45px; height:120px; background:var(--emerald); opacity:0.1; z-index:0; border-radius:8px;"></div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once we put the <b>0</b> there, it becomes <b>10 - 5</b> (after borrowing). The correct answer is 3.75, not 3.85!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once we put the <b>0</b> there, it becomes <b>10 - 5</b> (after borrowing). The correct answer is 3,75, not 3,85!</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
 
@@ -254,22 +256,27 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <!-- V2 RESTORED CONSISTENT KEYPAD -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Top 3 Rows (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
+      
       <div class="key-btn" onclick="typeNum('4')">4</div>
       <div class="key-btn" onclick="typeNum('5')">5</div>
       <div class="key-btn" onclick="typeNum('6')">6</div>
+      
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      
+      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -357,9 +364,10 @@
       }
   });
 
-  // --- GRID RENDER ENGINE ---
+  // --- GRID RENDER ENGINE (SOUTH AFRICAN COMMA ENABLED) ---
   function parseNum(nStr) {
-      let parts = nStr.split('.');
+      // Split on the SA comma
+      let parts = nStr.split(',');
       let intP = parts[0];
       let decP = parts[1] || "";
       return {
@@ -384,11 +392,11 @@
       <div class="vert-grid">
          <!-- Row 1 -->
          <div></div>
-         <div>${top.t}</div><div>${top.o}</div><div class="dot">.</div><div>${top.d1}</div>${t_d2}
+         <div>${top.t}</div><div>${top.o}</div><div class="comma">,</div><div>${top.d1}</div>${t_d2}
          
          <!-- Row 2 -->
          <div class="op">-</div>
-         <div>${bot.t}</div><div>${bot.o}</div><div class="dot">.</div><div>${bot.d1}</div>${b_d2}
+         <div>${bot.t}</div><div>${bot.o}</div><div class="comma">,</div><div>${bot.d1}</div>${b_d2}
          
          <!-- Line -->
          <div class="line"></div>
@@ -458,7 +466,7 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      if(char === '.' && box.innerText.includes('.')) return; 
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
   }
   
@@ -802,9 +810,9 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
-          gData = { t: "8.5", b: "2.34", ans: "6.16" };
+          gData = { t: "8,5", b: "2,34", ans: "6,16" };
       } else {
-          gData = { t: "12.3", b: "4.15", ans: "8.15" };
+          gData = { t: "12,3", b: "4,15", ans: "8,15" };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -865,8 +873,8 @@
                       }
                   }, 1200);
               } else {
-                  if (!val.includes('.')) {
-                      showError("You forgot to drop the decimal point down into your answer!");
+                  if (!val.includes(',')) {
+                      showError("You forgot to drop the decimal comma down into your answer!");
                   } else {
                       showError("Check your subtraction! Remember to borrow.");
                   }
@@ -894,27 +902,35 @@
     let topVal = parseFloat(`${w1}.${d1}`);
     
     // Bottom number: 2 decimal places with a non-zero hundredth (e.g. 1.45)
-    let w2 = Math.floor(Math.random() * (w1 - 1)) + 1; // guarantees w2 < w1
+    // Guarantees w2 < w1 to prevent negative answers at this stage
+    let w2 = Math.floor(Math.random() * (w1 - 1)) + 1; 
     let d2 = Math.floor(Math.random() * 10);
     let h2 = Math.floor(Math.random() * 9) + 1; // 1 to 9 (forces borrowing from tenths)
     let botVal = parseFloat(`${w2}.${d2}${h2}`);
 
     let sum = topVal - botVal;
-    sum = Math.round(sum * 100) / 100; // float fix
+    sum = Math.round(sum * 100) / 100; // JS float fix
 
-    let topStr = topVal.toFixed(1);
-    let botStr = botVal.toFixed(2);
+    let topStrDot = topVal.toFixed(1);
+    let botStrDot = botVal.toFixed(2);
+    
+    // Convert to SA Comma for UI
+    let topStr = topStrDot.replace('.', ',');
+    let botStr = botStrDot.replace('.', ',');
+    let ansStr = sum.toFixed(2).replace('.', ',');
 
-    // Calculate Phantom Zero Trap Answer
-    let botTenths = parseFloat(botStr.slice(0, -1)); // e.g. 3.85 -> 3.8
-    let diff = (parseFloat(topStr) - botTenths).toFixed(1); // e.g. 12.4 - 3.8 = 8.6
-    let trapAns = diff + botStr.slice(-1); // "8.65"
+    // Calculate Phantom Zero Trap Answer securely using dots
+    let botTenths = parseFloat(botStrDot.slice(0, -1)); // e.g. 3.85 -> 3.8
+    let diff = (parseFloat(topStrDot) - botTenths).toFixed(1); // e.g. 12.4 - 3.8 = 8.6
+    let trapAnsDot = diff + botStrDot.slice(-1); // "8.65"
+    let trapAns = trapAnsDot.replace('.', ',');
 
     return { 
         top: topStr, 
         bot: botStr, 
-        ans: sum.toFixed(2),
-        trapAns: trapAns
+        ans: ansStr,
+        trapAns: trapAns,
+        droppedDigit: h2.toString()
     };
   }
 
@@ -976,12 +992,11 @@
         let errorMsg = `Streak Broken!\n\n1. Pad with a 0.\n2. Borrow from the Tenths.\n3. The correct answer is ${currentQ.ans}.`;
         let errorTag = "General_Subtraction_Error";
 
-        if (!valAns.includes('.')) {
-            errorMsg = `CRITICAL ERROR!\n\nYou forgot to drop the decimal point down! The dots must form a straight line down into your answer.`;
-            errorTag = "Missing_Decimal_Point";
+        if (!valAns.includes(',')) {
+            errorMsg = `CRITICAL ERROR!\n\nYou forgot to drop the decimal comma down! The commas must form a straight line down into your answer.`;
+            errorTag = "Missing_Decimal_Comma";
         } else if (valAns === currentQ.trapAns) {
-            let droppedDigit = currentQ.bot.slice(-1);
-            errorMsg = `PHANTOM ZERO TRAP!\n\nYou cannot just drop the ${droppedDigit} down. You cannot take ${droppedDigit} away from nothing! You MUST borrow from the tenths column.`;
+            errorMsg = `PHANTOM ZERO TRAP!\n\nYou cannot just drop the ${currentQ.droppedDigit} down. You cannot take ${currentQ.droppedDigit} away from nothing! You MUST borrow from the tenths column.`;
             errorTag = "Phantom_Zero_Misconception";
         }
 
@@ -1061,7 +1076,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
