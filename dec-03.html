@@ -56,8 +56,8 @@
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
     /* DEC-03: VERTICAL ALIGNMENT GRID */
-    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 15px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; }
-    .vert-grid .dot { color: var(--rose); font-weight: 900; transform: translateY(-5px); }
+    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 20px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; }
+    .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); } /* SA Comma Baseline Fix */
     .vert-grid .op { color: var(--slate-400); }
     .vert-grid .line { grid-column: 1 / -1; width: 100%; height: 4px; background: var(--slate-900); border-radius: 2px; margin: 5px 0; }
     .vert-grid .ans-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; width: 100%; padding-top: 5px; padding-right: 5px; }
@@ -79,7 +79,7 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -99,13 +99,15 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -175,9 +177,9 @@
         
         <div class="vert-grid" style="opacity: 0.6;">
            <div></div>
-           <div></div><div>1</div><div class="dot">.</div><div>4</div><div></div>
+           <div></div><div>1</div><div class="comma">,</div><div>4</div><div></div>
            <div class="op">+</div>
-           <div></div><div></div><div>3</div><div class="dot">.</div><div>8</div><div>5</div>
+           <div></div><div></div><div>3</div><div class="comma">,</div><div>8</div><div>5</div>
            <div class="line"></div>
         </div>
         
@@ -191,17 +193,17 @@
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">The Alignment Rule</div>
-      <p class="instruction-text">You must stack the decimal points perfectly on top of each other. The dots form a straight vertical line.</p>
+      <p class="instruction-text">You must stack the decimal commas perfectly on top of each other. The commas form a straight vertical line.</p>
       
       <div class="pinned-visual">
         <div class="vert-grid">
            <div></div>
-           <div></div><div>1</div><div class="dot">.</div><div>4</div><div class="pad-hint">0</div>
+           <div></div><div>1</div><div class="comma">,</div><div>4</div><div class="pad-hint">0</div>
            <div class="op">+</div>
-           <div></div><div>3</div><div class="dot">.</div><div>8</div><div>5</div>
+           <div></div><div>3</div><div class="comma">,</div><div>8</div><div>5</div>
            <div class="line"></div>
            <div class="ans-row">
-               <div style="padding-right:15px; color:var(--emerald);">5.25</div>
+               <div style="padding-right:15px; color:var(--emerald);">15,25</div>
            </div>
         </div>
 
@@ -246,22 +248,27 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <!-- V2 RESTORED CONSISTENT KEYPAD -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Top 3 Rows (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
+      
       <div class="key-btn" onclick="typeNum('4')">4</div>
       <div class="key-btn" onclick="typeNum('5')">5</div>
       <div class="key-btn" onclick="typeNum('6')">6</div>
+      
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      
+      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -349,9 +356,10 @@
       }
   });
 
-  // --- GRID RENDER ENGINE ---
+  // --- GRID RENDER ENGINE (SOUTH AFRICAN COMMA ENABLED) ---
   function parseNum(nStr) {
-      let parts = nStr.split('.');
+      // Split on the SA comma
+      let parts = nStr.split(',');
       let intP = parts[0];
       let decP = parts[1] || "";
       return {
@@ -376,11 +384,11 @@
       <div class="vert-grid">
          <!-- Row 1 -->
          <div></div>
-         <div>${top.t}</div><div>${top.o}</div><div class="dot">.</div><div>${top.d1}</div>${t_d2}
+         <div>${top.t}</div><div>${top.o}</div><div class="comma">,</div><div>${top.d1}</div>${t_d2}
          
          <!-- Row 2 -->
          <div class="op">+</div>
-         <div>${bot.t}</div><div>${bot.o}</div><div class="dot">.</div><div>${bot.d1}</div>${b_d2}
+         <div>${bot.t}</div><div>${bot.o}</div><div class="comma">,</div><div>${bot.d1}</div>${b_d2}
          
          <!-- Line -->
          <div class="line"></div>
@@ -450,7 +458,7 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      if(char === '.' && box.innerText.includes('.')) return; 
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
   }
   
@@ -786,7 +794,7 @@
           <div class="step-text">1. Pad the empty space with a zero so the decimals are perfectly aligned.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Add straight down, and remember to drop the decimal point into your answer.</div>
+          <div class="step-text">2. Add straight down, and remember to drop the decimal comma into your answer.</div>
         </div>
       `;
       openKeypad('g-pad', 'g-step-1');
@@ -794,9 +802,9 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
-          gData = { t: "12.4", b: "3.85", ans: "16.25" };
+          gData = { t: "12,4", b: "3,85", ans: "16,25" };
       } else {
-          gData = { t: "8.15", b: "14.3", ans: "22.45" };
+          gData = { t: "8,15", b: "14,3", ans: "22,45" };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -857,8 +865,8 @@
                       }
                   }, 1200);
               } else {
-                  if (!val.includes('.')) {
-                      showError("You forgot to drop the decimal point down into your answer!");
+                  if (!val.includes(',')) {
+                      showError("You forgot to drop the decimal comma down into your answer!");
                   } else {
                       showError("Check your addition! Remember to carry over if it goes past 9.");
                   }
@@ -888,19 +896,24 @@
     sum = Math.round(sum * 100) / 100;
 
     let isSwap = Math.random() > 0.5;
-    let top = isSwap ? n2.toFixed(2) : n1.toFixed(1);
-    let bot = isSwap ? n1.toFixed(1) : n2.toFixed(2);
+    let topStrDot = isSwap ? n2.toFixed(2) : n1.toFixed(1);
+    let botStrDot = isSwap ? n1.toFixed(1) : n2.toFixed(2);
     
-    // Calculate Right-Justify Trap Answer
-    let tStr = top.replace('.', '');
-    let bStr = bot.replace('.', '');
+    // SA Comma UI Strings
+    let topStr = topStrDot.replace('.', ',');
+    let botStr = botStrDot.replace('.', ',');
+    let ansStr = sum.toFixed(2).replace('.', ',');
+
+    // Calculate Right-Justify Trap Answer using safe dots behind the scenes
+    let tStr = topStrDot.replace('.', '');
+    let bStr = botStrDot.replace('.', '');
     let trapSum = parseInt(tStr) + parseInt(bStr);
-    let rightJustifiedAns = (trapSum / 100).toFixed(2); // If they added digits as whole numbers
+    let rightJustifiedAns = (trapSum / 100).toFixed(2).replace('.', ','); 
 
     return { 
-        top: top, 
-        bot: bot, 
-        ans: sum.toFixed(2),
+        top: topStr, 
+        bot: botStr, 
+        ans: ansStr,
         trapAns: rightJustifiedAns
     };
   }
@@ -960,14 +973,14 @@
         else setTimeout(loadPracticeQuestion, 800);
     } else {
         // TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Align the dots.\n2. Add straight down.\n3. The correct answer is ${currentQ.ans}.`;
+        let errorMsg = `Streak Broken!\n\n1. Align the commas.\n2. Add straight down.\n3. The correct answer is ${currentQ.ans}.`;
         let errorTag = "General_Addition_Error";
 
-        if (!valAns.includes('.')) {
-            errorMsg = `CRITICAL ERROR!\n\nYou forgot to drop the decimal point down! ${valAns} is way too big. The dots must form a straight line down into your answer.`;
-            errorTag = "Missing_Decimal_Point";
-        } else if (parseFloat(valAns) === parseFloat(currentQ.trapAns)) {
-            errorMsg = `RIGHT-JUSTIFY TRAP!\n\nYou ignored the decimal points and just added the digits like whole numbers. You MUST stack the decimal dots perfectly on top of each other.`;
+        if (!valAns.includes(',')) {
+            errorMsg = `CRITICAL ERROR!\n\nYou forgot to drop the decimal comma down! ${valAns} is way too big. The commas must form a straight vertical line down into your answer.`;
+            errorTag = "Missing_Decimal_Comma";
+        } else if (valAns === currentQ.trapAns) {
+            errorMsg = `RIGHT-JUSTIFY TRAP!\n\nYou ignored the decimal commas and just added the digits like whole numbers. You MUST stack the commas perfectly on top of each other.`;
             errorTag = "Right_Justify_Misconception";
         }
 
@@ -1047,7 +1060,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
