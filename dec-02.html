@@ -59,7 +59,8 @@
     .pv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 10px; }
     .pv-header { font-size: 0.75rem; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--slate-200); padding-bottom: 5px;}
     .pv-cell { font-size: 2rem; font-weight: 700; color: var(--slate-900); padding: 5px 0; display:flex; justify-content:center; align-items:center; }
-    .pv-dot { font-size: 2.5rem; font-weight: 800; color: var(--rose); margin-top: -10px;}
+    /* SOUTH AFRICAN COMMA FIX */
+    .pv-comma { font-size: 2.5rem; font-weight: 800; color: var(--rose); align-self: flex-end; transform: translateY(4px); line-height: 0.5; margin-left: 2px;}
     
     .zero-pad { color: var(--emerald); font-weight: 800; background: var(--emerald-light); border-radius: 4px; padding: 2px 8px;}
 
@@ -71,14 +72,14 @@
     
     /* INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
-    .input-box.wide { width: 95px; }
+    .input-box.wide { width: 105px; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD WITH COMPARATORS (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -92,20 +93,22 @@
         flex-shrink: 0; 
     }
     .keypad-drawer.open { 
-        max-height: 400px; 
+        max-height: 420px; 
         padding: 15px 15px 25px 15px; 
         opacity: 1;
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 48px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 50px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
     .key-comp { font-size: 1.8rem; font-weight: 800; color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 55px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -170,7 +173,7 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The "Longer is Larger" Trap</div>
-      <p class="instruction-text">Which number is bigger: <b style="color:var(--indigo);">0.5</b> or <b style="color:var(--rose);">0.125</b>?</p>
+      <p class="instruction-text">Which number is bigger: <b style="color:var(--indigo);">0,5</b> or <b style="color:var(--rose);">0,125</b>?</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:700; color:var(--rose); margin-top:0;">125 looks larger than 5... but look at the place value!</p>
@@ -181,19 +184,19 @@
             <div class="pv-header">Hund</div>
             <div class="pv-header">Thous</div>
             
-            <div class="pv-cell" style="color:var(--indigo);">0<span class="pv-dot">.</span></div>
+            <div class="pv-cell" style="color:var(--indigo);">0<span class="pv-comma">,</span></div>
             <div class="pv-cell" style="color:var(--indigo);">5</div>
             <div class="pv-cell"></div>
             <div class="pv-cell"></div>
             
-            <div class="pv-cell" style="color:var(--rose);">0<span class="pv-dot">.</span></div>
+            <div class="pv-cell" style="color:var(--rose);">0<span class="pv-comma">,</span></div>
             <div class="pv-cell" style="color:var(--rose);">1</div>
             <div class="pv-cell" style="color:var(--rose);">2</div>
             <div class="pv-cell" style="color:var(--rose);">5</div>
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>0.5</b> has 5 whole columns (Tenths). <b>0.125</b> only has 1 whole column. Therefore, <b>0.5 is mathematically larger</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>0,5</b> has 5 whole columns (Tenths). <b>0,125</b> only has 1 whole column. Therefore, <b>0,5 is mathematically larger</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
@@ -210,21 +213,21 @@
             <div class="pv-header">Hund</div>
             <div class="pv-header">Thous</div>
             
-            <div class="pv-cell" style="color:var(--indigo);">0<span class="pv-dot">.</span></div>
+            <div class="pv-cell" style="color:var(--indigo);">0<span class="pv-comma">,</span></div>
             <div class="pv-cell" style="color:var(--indigo);">5</div>
             <div class="pv-cell"><span class="zero-pad">0</span></div>
             <div class="pv-cell"><span class="zero-pad">0</span></div>
             
-            <div class="pv-cell" style="color:var(--rose);">0<span class="pv-dot">.</span></div>
+            <div class="pv-cell" style="color:var(--rose);">0<span class="pv-comma">,</span></div>
             <div class="pv-cell" style="color:var(--rose);">1</div>
             <div class="pv-cell" style="color:var(--rose);">2</div>
             <div class="pv-cell" style="color:var(--rose);">5</div>
         </div>
         
         <div class="math-row" style="font-size: 2.5rem;">
-            <div style="color:var(--indigo);">0.5<span style="color:var(--emerald);">00</span></div>
+            <div style="color:var(--indigo);">0,5<span style="color:var(--emerald);">00</span></div>
             <div style="color:var(--emerald); margin:0 15px;">></div>
-            <div style="color:var(--rose);">0.125</div>
+            <div style="color:var(--rose);">0,125</div>
         </div>
 
       </div>
@@ -247,7 +250,7 @@
     <div class="pinned-visual">
         
         <div class="math-row" style="margin-bottom:15px; font-size:2.5rem; color:var(--slate-400);" id="g-q-container">
-            <!-- E.g., 0.4 vs 0.35 -->
+            <!-- E.g., 0,4 vs 0,35 -->
         </div>
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
@@ -276,7 +279,7 @@
     <div class="pinned-visual">
         
         <div class="math-row" style="margin-bottom:15px; font-size:2.5rem; color:var(--slate-500);" id="p-q-display">
-            <!-- e.g., 0.5 vs 0.125 -->
+            <!-- e.g., 0,5 vs 0,125 -->
         </div>
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
@@ -289,9 +292,10 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD WITH COMPARATORS (FLEXBOX) -->
+  <!-- V2 12-COLUMN HYBRID DECIMAL KEYPAD (FLEXBOX) -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Standard Numerals (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
@@ -304,15 +308,16 @@
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
       
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      
+      <!-- Comparators (Span 4) -->
       <div class="key-btn key-comp" onclick="typeNum('<')">&lt;</div>
       <div class="key-btn key-comp" style="color:var(--slate-400); border-color:var(--slate-300); background:white;" onclick="typeNum('=')">=</div>
       <div class="key-btn key-comp" onclick="typeNum('>')">&gt;</div>
       
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      <!-- Standard Bottom Row (Span 3) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -457,15 +462,16 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      // Allow only one decimal, allow only one comparator
-      if(char === '.' && box.innerText.includes('.')) return; 
+      // Allow only one decimal comma, allow only one comparator
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(['<', '>', '='].includes(char)) {
           if (activeBoxId === 'p-sign' || activeBoxId === 'g-sign') {
               box.innerText = char; // Replace if it's the sign box
           }
           return; 
       }
-      if(box.innerText.length < 6) box.innerText += char;
+      // Increased length to 7 to safely accommodate "0,xxxx" padding if needed
+      if(box.innerText.length < 7) box.innerText += char;
   }
   
   function deleteNum() {
@@ -571,25 +577,25 @@
     let base = Math.floor(Math.random() * 9) + 1; // 1 to 9
     
     if (level === 1) { 
-        // Tenths -> Hundredths (0.5 = 0.50)
-        qText = `0.${base} =`;
-        ans = `0.${base}0`;
+        // Tenths -> Hundredths (0,5 = 0,50)
+        qText = `0,${base} =`;
+        ans = `0,${base}0`;
     } else if (level === 2) { 
         // Tenths or Hundredths -> Thousandths
         if (Math.random() > 0.5) {
-            qText = `0.${base} =`;
-            ans = `0.${base}00`;
+            qText = `0,${base} =`;
+            ans = `0,${base}00`;
         } else {
             let hund = Math.floor(Math.random() * 9) + 1;
-            qText = `0.${base}${hund} =`;
-            ans = `0.${base}${hund}0`;
+            qText = `0,${base}${hund} =`;
+            ans = `0,${base}${hund}0`;
         }
     } else { 
         // Mixed logic
         let type = Math.floor(Math.random() * 3);
-        if (type === 0) { qText = `0.${base} =`; ans = `0.${base}00`; }
-        else if (type === 1) { qText = `0.${base} =`; ans = `0.${base}0`; }
-        else { let hund = Math.floor(Math.random() * 9) + 1; qText = `0.${base}${hund} =`; ans = `0.${base}${hund}0`; }
+        if (type === 0) { qText = `0,${base} =`; ans = `0,${base}00`; }
+        else if (type === 1) { qText = `0,${base} =`; ans = `0,${base}0`; }
+        else { let hund = Math.floor(Math.random() * 9) + 1; qText = `0,${base}${hund} =`; ans = `0,${base}${hund}0`; }
     }
     
     let logText = qText.replace('=', ' =').trim();
@@ -812,7 +818,7 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Rewrite BOTH numbers below, adding zeros until they have the exact same number of places.</div>
+          <div class="step-text">1. Rewrite BOTH numbers below, adding zeros until they have the exact same number of places after the comma.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Now choose the correct sign: Less Than (<), Equal (=), or Greater Than (>).</div>
@@ -824,15 +830,15 @@
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
           gData = { 
-              d1: "0.4", d2: "0.35",
-              pad1: "0.40", pad2: "0.35",
+              d1: "0,4", d2: "0,35",
+              pad1: "0,40", pad2: "0,35",
               sign: ">",
               err1: "Pad BOTH decimals to 2 places using zeros."
           };
       } else {
           gData = { 
-              d1: "0.125", d2: "0.6",
-              pad1: "0.125", pad2: "0.600",
+              d1: "0,125", d2: "0,6",
+              pad1: "0,125", pad2: "0,600",
               sign: "<",
               err1: "Pad BOTH decimals to 3 places using zeros."
           };
@@ -932,41 +938,52 @@
   }
 
   function generatePracticeQuestion() {
-    let dec1, dec2;
+    let dec1_num, dec2_num;
     let isTrap = Math.random() > 0.3; // 70% chance to intentionally trigger a trapdoor layout
 
     if (isTrap) {
         // "Longer is Larger" trap (e.g., 0.5 vs 0.125)
         let topDigit = Math.floor(Math.random() * 7) + 3; // 3 to 9
-        dec1 = (topDigit / 10).toFixed(1); 
+        dec1_num = parseFloat((topDigit / 10).toFixed(1)); 
         
         let bottomTrap = (topDigit - 1) * 100 + Math.floor(Math.random() * 99); 
-        dec2 = (bottomTrap / 1000).toFixed(3); 
+        dec2_num = parseFloat((bottomTrap / 1000).toFixed(3)); 
         
-        if (Math.random() > 0.5) { let temp = dec1; dec1 = dec2; dec2 = temp; } 
+        if (Math.random() > 0.5) { let temp = dec1_num; dec1_num = dec2_num; dec2_num = temp; } 
     } else {
         // General comparison, varying lengths
         let val = Math.floor(Math.random() * 99) + 1;
-        dec1 = (val / 100).toFixed(2);
-        dec2 = (Math.random() > 0.5) ? (val / 100).toFixed(2) : ((Math.floor(Math.random() * 99) + 1) / 100).toFixed(2);
-        
-        if (dec1.endsWith('0')) dec1 = parseFloat(dec1).toString();
-        if (dec2.endsWith('0')) dec2 = parseFloat(dec2).toString();
+        dec1_num = parseFloat((val / 100).toFixed(2));
+        dec2_num = (Math.random() > 0.5) ? parseFloat((val / 100).toFixed(2)) : parseFloat(((Math.floor(Math.random() * 99) + 1) / 100).toFixed(2));
     }
 
-    let l1 = dec1.split('.')[1] ? dec1.split('.')[1].length : 0;
-    let l2 = dec2.split('.')[1] ? dec2.split('.')[1].length : 0;
+    // Convert cleanly to strings to determine lengths and padding
+    let s1 = dec1_num.toString();
+    let s2 = dec2_num.toString();
+
+    let l1 = s1.split('.')[1] ? s1.split('.')[1].length : 0;
+    let l2 = s2.split('.')[1] ? s2.split('.')[1].length : 0;
     let padLen = Math.max(l1, l2);
     if (padLen < 3) padLen = 3; // Force thousandths padding for absolute strictness
 
-    let pad1 = parseFloat(dec1).toFixed(padLen);
-    let pad2 = parseFloat(dec2).toFixed(padLen);
+    // Pad Strings and Convert to South African format
+    let pad1 = dec1_num.toFixed(padLen).replace('.', ',');
+    let pad2 = dec2_num.toFixed(padLen).replace('.', ',');
+    
+    // Display Decimals in SA format
+    let dec1_sa = s1.replace('.', ',');
+    let dec2_sa = s2.replace('.', ',');
 
-    let v1 = parseFloat(dec1);
-    let v2 = parseFloat(dec2);
-    let ansSign = v1 > v2 ? '>' : (v1 < v2 ? '<' : '=');
+    // Mathematical Sign Generation
+    let ansSign = dec1_num > dec2_num ? '>' : (dec1_num < dec2_num ? '<' : '=');
 
-    return { dec1, dec2, pad1, pad2, ansSign, padLen };
+    return { 
+        dec1_sa, dec2_sa, 
+        pad1, pad2, 
+        ansSign, padLen, 
+        v1: dec1_num, v2: dec2_num,
+        l1: dec1_sa.length, l2: dec2_sa.length
+    };
   }
 
   function loadPracticeQuestion() {
@@ -978,9 +995,9 @@
     });
 
     document.getElementById('p-q-display').innerHTML = `
-        <div style="color:var(--indigo);">${currentQ.dec1}</div>
+        <div style="color:var(--indigo);">${currentQ.dec1_sa}</div>
         <div style="color:var(--slate-300); margin:0 15px;">?</div>
-        <div style="color:var(--rose);">${currentQ.dec2}</div>
+        <div style="color:var(--rose);">${currentQ.dec2_sa}</div>
     `;
     
     openKeypad('p-pad-1', 'practice');
@@ -1033,20 +1050,15 @@
         let errorTag = "General_Error";
 
         if (!isPad1Correct || !isPad2Correct) {
-            errorMsg = `PADDING ERROR!\n\nYou must add zeros until BOTH numbers have exactly ${currentQ.padLen} places after the dot. \n${currentQ.dec1} -> ${currentQ.pad1} \n${currentQ.dec2} -> ${currentQ.pad2}`;
+            errorMsg = `PADDING ERROR!\n\nYou must add zeros until BOTH numbers have exactly ${currentQ.padLen} places after the comma. \n${currentQ.dec1_sa} -> ${currentQ.pad1} \n${currentQ.dec2_sa} -> ${currentQ.pad2}`;
             errorTag = "Incorrect_Zero_Padding";
         } else if (!isSignCorrect) {
-            // Did they fall for the Longer is Larger trap?
-            let v1 = parseFloat(currentQ.dec1);
-            let v2 = parseFloat(currentQ.dec2);
-            let l1 = currentQ.dec1.length;
-            let l2 = currentQ.dec2.length;
-            
-            if (v1 > v2 && l1 < l2 && valS === '<') {
-                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec2} has more digits. But if you look at your padded numbers, ${currentQ.pad1} is clearly larger than ${currentQ.pad2}.`;
+            // Evaluator Trapdoor logic
+            if (currentQ.v1 > currentQ.v2 && currentQ.l1 < currentQ.l2 && valS === '<') {
+                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec2_sa} has more digits. But if you look at your padded numbers, ${currentQ.pad1} is clearly larger than ${currentQ.pad2}.`;
                 errorTag = "Longer_Is_Larger_Misconception";
-            } else if (v2 > v1 && l2 < l1 && valS === '>') {
-                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec1} has more digits. But if you look at your padded numbers, ${currentQ.pad2} is clearly larger than ${currentQ.pad1}.`;
+            } else if (currentQ.v2 > currentQ.v1 && currentQ.l2 < currentQ.l1 && valS === '>') {
+                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec1_sa} has more digits. But if you look at your padded numbers, ${currentQ.pad2} is clearly larger than ${currentQ.pad1}.`;
                 errorTag = "Longer_Is_Larger_Misconception";
             } else {
                 errorMsg = `SIGN ERROR!\n\nLook carefully at your padded numbers: ${currentQ.pad1} ${currentQ.ansSign} ${currentQ.pad2}.`;
@@ -1130,7 +1142,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === '<' || event.key === '>' || event.key === '=') {
       typeNum(event.key);
