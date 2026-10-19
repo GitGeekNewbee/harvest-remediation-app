@@ -70,7 +70,7 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -90,13 +90,15 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -159,13 +161,13 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Decimal Shift</div>
-      <p class="instruction-text">When you multiply by 10, 100, or 1000, the digits slide around the decimal point.</p>
+      <p class="instruction-text">When you multiply by 10, 100, or 1000, the digits slide around the decimal comma.</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--slate-500); margin-top:0;">Multiply = Shift Right (Gets Bigger)</p>
         
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
-            <div style="color:var(--indigo);">3.4</div>
+            <div style="color:var(--indigo);">3,4</div>
             <div class="operator" style="color:var(--amber); margin:0 10px;">×</div>
             <div>10</div>
             <div class="operator" style="margin:0 10px;">=</div>
@@ -175,7 +177,7 @@
         <div style="border-top: 2px dashed var(--slate-200); width:100%; margin: 15px 0;"></div>
 
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
-            <div style="color:var(--indigo);">3.4</div>
+            <div style="color:var(--indigo);">3,4</div>
             <div class="operator" style="color:var(--amber); margin:0 10px;">×</div>
             <div>100</div>
             <div class="operator" style="margin:0 10px;">=</div>
@@ -183,7 +185,7 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Count the zeros! <b>10</b> has one zero, so the decimal shifts 1 place. <b>100</b> has two zeros, so it shifts 2 places.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Count the zeros! <b>10</b> has one zero, so the comma shifts 1 place. <b>100</b> has two zeros, so it shifts 2 places.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
@@ -194,37 +196,37 @@
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; color:var(--rose);">
-            <div>2.5</div>
+            <div>2,5</div>
             <div class="operator" style="color:var(--amber); margin:0 10px;">×</div>
             <div>10</div>
             <div class="operator" style="margin:0 10px;">≠</div>
-            <div>2.50</div>
+            <div>2,50</div>
         </div>
         
         <div style="position:absolute; inset:0; display:flex; justify-content:center; align-items:center; font-size:8rem; color:var(--rose); font-weight:900; opacity:0.3; pointer-events:none;">✕</div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">2.50 is exactly the same size as 2.5! You didn't make it bigger. You MUST shift the dot: <b>2.5 × 10 = 25</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">2,50 is exactly the same size as 2,5! You didn't make it bigger. You MUST shift the comma: <b>2,5 × 10 = 25</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
       <div class="section-title">Dividing Shifts Left</div>
-      <p class="instruction-text">Dividing means the number gets smaller. The decimal shifts to the LEFT.</p>
+      <p class="instruction-text">Dividing means the number gets smaller. The decimal comma shifts to the LEFT.</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--slate-500); margin-top:0;">Divide = Shift Left (Gets Smaller)</p>
         
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
-            <div style="color:var(--indigo);">45.2</div>
+            <div style="color:var(--indigo);">45,2</div>
             <div class="operator" style="color:var(--rose); margin:0 10px;">÷</div>
             <div>10</div>
             <div class="operator" style="margin:0 10px;">=</div>
-            <div style="color:var(--emerald);">4.52</div>
+            <div style="color:var(--emerald);">4,52</div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The dot moved exactly 1 space to the left, shrinking 45 down to 4 point something.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The comma moved exactly 1 space to the left, shrinking 45 down to 4 comma something.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -262,22 +264,27 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <!-- V2 RESTORED CONSISTENT KEYPAD -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Top 3 Rows (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
+      
       <div class="key-btn" onclick="typeNum('4')">4</div>
       <div class="key-btn" onclick="typeNum('5')">5</div>
       <div class="key-btn" onclick="typeNum('6')">6</div>
+      
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      
+      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -332,7 +339,7 @@
   let guidedLevel = 1;
   let gData = {};
 
-  // MATH HELPER: Safe Float Shift
+  // MATH HELPER: Safe Float Shift (Computes securely using JS '.' format)
   function safeShiftDecimal(numStr, op, powerStr) {
       let p = parseInt(powerStr);
       let n = parseFloat(numStr);
@@ -436,7 +443,8 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      if(char === '.' && box.innerText.includes('.')) return; 
+      // Use South African comma
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
   }
   
@@ -775,7 +783,7 @@
           </div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text" id="g-dir-text">2. Now shift the decimal that many places to make the number BIGGER.</div>
+          <div class="step-text" id="g-dir-text">2. Now shift the comma that many places to make the number BIGGER.</div>
           <div class="math-row" style="justify-content:flex-start;">
               <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
           </div>
@@ -786,9 +794,9 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
-          gData = { num: "3.45", op: "×", pow: "100", zeros: "2", ans: "345", dirText: "Multiply means the number gets BIGGER. Shift the decimal 2 places RIGHT." };
+          gData = { num: "3,45", op: "×", pow: "100", zeros: "2", ans: "345", dirText: "Multiply means the number gets BIGGER. Shift the comma 2 places RIGHT." };
       } else {
-          gData = { num: "12.4", op: "÷", pow: "10", zeros: "1", ans: "1.24", dirText: "Divide means the number gets SMALLER. Shift the decimal 1 place LEFT." };
+          gData = { num: "12,4", op: "÷", pow: "10", zeros: "1", ans: "1,24", dirText: "Divide means the number gets SMALLER. Shift the comma 1 place LEFT." };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -865,7 +873,7 @@
   }
 
   function generatePracticeQuestion() {
-    // Generate a random float between 1 and 99.99
+    // Generate a random float
     let raw = (Math.floor(Math.random() * 9900) + 100) / 100;
     
     // Pick an operation and a power of 10
@@ -873,20 +881,20 @@
     let powList = [10, 100, 1000];
     let power = powList[Math.floor(Math.random() * powList.length)];
     
-    // Format the starting number cleanly (strip trailing zeros if any)
-    let numStr = parseFloat(raw.toString()).toString(); 
+    // Use JS internal dot strings for math evaluation
+    let numStrDot = parseFloat(raw.toString()).toString(); 
     let powerStr = power.toString();
 
-    // Calculate answers
-    let correctAns = safeShiftDecimal(numStr, op, powerStr);
-    let wrongDirAns = safeShiftDecimal(numStr, op === '×' ? '÷' : '×', powerStr);
+    // Calculate secure answers using dot-based engine
+    let correctAnsDot = safeShiftDecimal(numStrDot, op, powerStr);
+    let wrongDirAnsDot = safeShiftDecimal(numStrDot, op === '×' ? '÷' : '×', powerStr);
     
     return { 
-        numStr: numStr,
+        num_sa: numStrDot.replace('.', ','),
         op: op,
         powerStr: powerStr,
-        ans: correctAns,
-        wrongDirAns: wrongDirAns
+        ans_sa: correctAnsDot.replace('.', ','),
+        wrongDirAns_sa: wrongDirAnsDot.replace('.', ',')
     };
   }
 
@@ -897,7 +905,7 @@
     if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
 
     document.getElementById('p-q-display').innerHTML = `
-        <div style="color:var(--indigo);">${currentQ.numStr}</div>
+        <div style="color:var(--indigo);">${currentQ.num_sa}</div>
         <div class="operator" style="color:var(--amber); margin:0 15px;">${currentQ.op}</div>
         <div>${currentQ.powerStr}</div>
         <div class="operator" style="margin: 0 15px;">=</div>
@@ -917,7 +925,7 @@
     let valAns = document.getElementById('p-ans').innerText;
     if (valAns === '') return;
 
-    let isCorrect = (valAns === currentQ.ans);
+    let isCorrect = (valAns === currentQ.ans_sa);
 
     if (isCorrect) {
         document.getElementById('p-ans').classList.add('flash-success');
@@ -932,18 +940,22 @@
         else setTimeout(loadPracticeQuestion, 800);
     } else {
         // DEC-05 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n${currentQ.powerStr} has zeros, so shift the decimal ${currentQ.powerStr.length - 1} places. The correct answer is ${currentQ.ans}.`;
+        let errorMsg = `Streak Broken!\n\n${currentQ.powerStr} has zeros, so shift the comma ${currentQ.powerStr.length - 1} places. The correct answer is ${currentQ.ans_sa}.`;
         let errorTag = "General_Shift_Error";
+        
+        // Calculate the "Appended Zero" trap string
+        let appendedZero_sa = currentQ.num_sa;
+        for(let i=0; i < currentQ.powerStr.length - 1; i++) appendedZero_sa += '0';
 
-        if (currentQ.op === '×' && (valAns === currentQ.numStr + '0' || valAns === currentQ.numStr + '00' || valAns === currentQ.numStr + '000')) {
-            errorMsg = `WHOLE NUMBER TRAP!\n\nYou can't just stick a zero on the end of a decimal number! Adding a zero to the end of ${currentQ.numStr} does not change its size. You MUST shift the decimal point to the right.`;
+        if (currentQ.op === '×' && valAns === appendedZero_sa) {
+            errorMsg = `WHOLE NUMBER TRAP!\n\nYou can't just stick a zero on the end of a decimal number! Adding a zero to the end of ${currentQ.num_sa} does not change its size. You MUST shift the decimal comma to the right.`;
             errorTag = "Appended_Zero_To_Decimal";
-        } else if (parseFloat(valAns) === parseFloat(currentQ.wrongDirAns)) {
+        } else if (valAns === currentQ.wrongDirAns_sa) {
             let dirFix = currentQ.op === '×' ? "RIGHT to make the number BIGGER." : "LEFT to make the number SMALLER.";
-            errorMsg = `WRONG DIRECTION!\n\nYou shifted the decimal the wrong way! Look at the sign (${currentQ.op}). You need to shift the decimal to the ${dirFix}`;
+            errorMsg = `WRONG DIRECTION!\n\nYou shifted the comma the wrong way! Look at the sign (${currentQ.op}). You need to shift the comma to the ${dirFix}`;
             errorTag = "Shifted_Wrong_Direction";
-        } else if (parseFloat(valAns) === parseFloat(currentQ.ans)) {
-             errorMsg = `FORMAT ERROR!\n\nYour math is technically correct, but format it cleanly without unnecessary extra zeroes. The answer is ${currentQ.ans}.`;
+        } else if (parseFloat(valAns.replace(',','.')) === parseFloat(currentQ.ans_sa.replace(',','.'))) {
+             errorMsg = `FORMAT ERROR!\n\nYour math is technically correct, but format it cleanly without unnecessary extra zeroes. The answer is ${currentQ.ans_sa}.`;
              errorTag = "Trailing_Zeros_Format";
         }
 
@@ -1023,7 +1035,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
