@@ -77,7 +77,7 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -97,13 +97,15 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -166,36 +168,36 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Float Strategy</div>
-      <p class="instruction-text">When you divide a decimal by a whole number, there is only one rule you must remember: <b>Float the Dot.</b></p>
+      <p class="instruction-text">When you divide a decimal by a whole number, there is only one rule you must remember: <b>Float the Comma.</b></p>
       
       <div class="pinned-visual">
         <div class="div-house">
-            <div class="div-quotient" style="color:var(--emerald);">3.2</div>
+            <div class="div-quotient" style="color:var(--emerald);">3,2</div>
             <div class="dot-float-line" style="left:55%;"></div>
             <div class="div-divisor">4</div>
-            <div class="div-dividend">12.8</div>
+            <div class="div-dividend">12,8</div>
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The decimal point moves straight up from the house into the answer. It never shifts left or right.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The decimal comma moves straight up from the house into the answer. It never shifts left or right.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">Divide Normally</div>
-      <p class="instruction-text">Once the dot is floated up, you just pretend the numbers are whole and divide normally.</p>
+      <p class="instruction-text">Once the comma is floated up, you just pretend the numbers are whole and divide normally.</p>
       
       <div class="pinned-visual">
         <div class="div-house">
             <div class="div-quotient" style="color:var(--emerald);">
                 <div style="margin-right:25px;">3</div>
-                <div>.</div>
+                <div>,</div>
                 <div style="margin-left:5px;">2</div>
             </div>
             <div class="dot-float-line" style="left:55%;"></div>
             <div class="div-divisor">4</div>
-            <div class="div-dividend">12.8</div>
+            <div class="div-dividend">12,8</div>
         </div>
         
         <div style="display:flex; flex-direction:column; gap:10px; width:100%; margin-top:25px; padding-top:15px; border-top: 2px dashed var(--slate-200);">
@@ -204,7 +206,7 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Ignore the dot while doing the math. Just make sure your numbers line up above the house.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Ignore the comma while doing the math. Just make sure your numbers line up above the house.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
@@ -217,13 +219,13 @@
         <div class="div-house">
             <div class="div-quotient" style="color:var(--emerald);">
                 <div style="margin-right:20px;">0</div>
-                <div>.</div>
+                <div>,</div>
                 <div style="margin-left:3px;">0</div>
                 <div style="margin-left:12px;">5</div>
             </div>
             <div class="dot-float-line" style="left:55%;"></div>
             <div class="div-divisor">3</div>
-            <div class="div-dividend">0.15</div>
+            <div class="div-dividend">0,15</div>
         </div>
       </div>
       <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">3 cannot go into 0, so we write <b>0</b>. 3 cannot go into 1, so we write <b>0</b>. 3 goes into 15 five times.</p>
@@ -253,7 +255,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Float the dot straight up, then divide.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Float the comma straight up, then divide.</p>
     </div>
 
     <div class="pinned-visual">
@@ -263,22 +265,27 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <!-- V2 12-COLUMN HYBRID KEYPAD (FLEXBOX) -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Standard Numerals (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
+      
       <div class="key-btn" onclick="typeNum('4')">4</div>
       <div class="key-btn" onclick="typeNum('5')">5</div>
       <div class="key-btn" onclick="typeNum('6')">6</div>
+      
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      
+      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -368,12 +375,12 @@
       }
   });
 
-  // --- SCAFFOLD RENDERER ---
+  // --- SCAFFOLD RENDERER (SOUTH AFRICAN COMMA) ---
   function buildDivScaffold(divisor, dividend, inputId, stepId) {
-      // Calculates roughly where the dot is in the string to place the guide line visually
-      let dotIndex = dividend.toString().indexOf('.');
+      // Calculates roughly where the comma is in the string to place the guide line visually
+      let commaIndex = dividend.toString().indexOf(',');
       let totalLength = dividend.toString().length;
-      let leftPct = ((dotIndex + 0.5) / totalLength) * 100;
+      let leftPct = ((commaIndex + 0.5) / totalLength) * 100;
       
       return `
       <div class="div-house">
@@ -444,7 +451,7 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      if(char === '.' && box.innerText.includes('.')) return; 
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
   }
   
@@ -771,7 +778,7 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Float the dot! Write your answer, but make sure the decimal point is exactly above the dot inside the house.</div>
+          <div class="step-text">1. Float the comma! Write your answer, but make sure the decimal comma is exactly above the comma inside the house.</div>
         </div>
       `;
       openKeypad('g-ans', 'g-step-1');
@@ -779,9 +786,9 @@
 
   function loadGuidedQuestion() {
       if (guidedLevel === 1) {
-          gData = { d: "3", D: "6.9", ans: "2.3", err: "Float the dot straight up! 6 ÷ 3 = 2, and 9 ÷ 3 = 3." };
+          gData = { d: "3", D: "6,9", ans: "2,3", err: "Float the comma straight up! 6 ÷ 3 = 2, and 9 ÷ 3 = 3." };
       } else {
-          gData = { d: "4", D: "0.12", ans: "0.03", err: "You MUST use zero placeholders! 4 can't go into 0, and 4 can't go into 1. The answer is 0.03." };
+          gData = { d: "4", D: "0,12", ans: "0,03", err: "You MUST use zero placeholders! 4 can't go into 0, and 4 can't go into 1. The answer is 0,03." };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -844,11 +851,15 @@
 
     let quotient = qRaw / Math.pow(10, places);
     let dividend = (qRaw * divisor) / Math.pow(10, places);
+    
+    // JS float precision fix
+    quotient = Math.round(quotient * 100) / 100;
+    dividend = Math.round(dividend * 100) / 100;
 
     return { 
         d: divisor.toString(),
-        D: dividend.toString(),
-        ans: quotient.toString(),
+        D_sa: dividend.toString().replace('.', ','),
+        ans_sa: quotient.toString().replace('.', ','),
         rawQ: qRaw.toString()
     };
   }
@@ -859,7 +870,7 @@
     let el = document.getElementById('p-ans');
     if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
 
-    document.getElementById('p-scaffold').innerHTML = buildDivScaffold(currentQ.d, currentQ.D, 'p-ans', 'practice');
+    document.getElementById('p-scaffold').innerHTML = buildDivScaffold(currentQ.d, currentQ.D_sa, 'p-ans', 'practice');
     
     openKeypad('p-ans', 'practice');
   }
@@ -874,7 +885,7 @@
     let valAns = document.getElementById('p-ans').innerText;
     if (valAns === '') return;
 
-    let isCorrect = (valAns === currentQ.ans);
+    let isCorrect = (valAns === currentQ.ans_sa);
 
     if (isCorrect) {
         document.getElementById('p-ans').classList.add('flash-success');
@@ -889,21 +900,23 @@
         else setTimeout(loadPracticeQuestion, 800);
     } else {
         // DEC-07 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Float the dot straight up.\n2. Divide normally.\n3. The answer is ${currentQ.ans}.`;
+        let errorMsg = `Streak Broken!\n\n1. Float the comma straight up.\n2. Divide normally.\n3. The answer is ${currentQ.ans_sa}.`;
         let errorTag = "General_Division_Error";
 
         if (valAns === currentQ.rawQ) {
-            errorMsg = `CRITICAL ERROR!\n\nYou completely ignored the decimal point! You MUST float the dot straight up into your answer: ${currentQ.ans}.`;
-            errorTag = "Ignored_Decimal_Point";
-        } else if (!valAns.includes('.')) {
-            errorMsg = `MISSING DECIMAL!\n\nYour answer must include a decimal point. Float the dot straight up from inside the house.`;
-            errorTag = "Missing_Decimal_Point";
+            errorMsg = `CRITICAL ERROR!\n\nYou completely ignored the decimal comma! You MUST float the comma straight up into your answer: ${currentQ.ans_sa}.`;
+            errorTag = "Ignored_Decimal_Comma";
+        } else if (!valAns.includes(',')) {
+            errorMsg = `MISSING DECIMAL!\n\nYour answer must include a decimal comma. Float the comma straight up from inside the house.`;
+            errorTag = "Missing_Decimal_Comma";
         } else {
-            // Check for missing placeholder zero (e.g. 0.05 vs 0.5)
-            let userVal = parseFloat(valAns);
-            let targVal = parseFloat(currentQ.ans);
+            // Evaluator Math Sandbox: Revert commas to dots to safely check algebra
+            let userVal = parseFloat(valAns.replace(',', '.'));
+            let targVal = parseFloat(currentQ.ans_sa.replace(',', '.'));
+            
+            // Check for missing placeholder zero (e.g. 0,05 vs 0,5)
             if (userVal === targVal * 10 || userVal === targVal / 10) {
-                 errorMsg = `PLACE VALUE ERROR!\n\nCheck your placeholder zeros. If the divisor can't go into a number, you must put a 0 on top to hold the spot! The answer is ${currentQ.ans}.`;
+                 errorMsg = `PLACE VALUE ERROR!\n\nCheck your placeholder zeros. If the divisor can't go into a number, you must put a 0 on top to hold the spot! The answer is ${currentQ.ans_sa}.`;
                  errorTag = "Missing_Placeholder_Zero";
             }
         }
@@ -984,7 +997,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
