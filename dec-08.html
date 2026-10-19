@@ -5,220 +5,339 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - DEC-08</title>
   <style>
-    :root { --primary: #1a73e8; --success: #34a853; --warning: #fbbc04; --danger: #ea4335; --bg: #f4f7f6; --card: #ffffff; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--bg); color: #202124; display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation;}
-    .app-container { width: 100%; max-width: 500px; background: var(--card); height: 100%; display: flex; flex-direction: column; position: relative; }
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
-    /* HUD */
-    .hud { padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f0f0; background: #fff; }
-    .progress-wrapper { flex-grow: 1; margin: 0 15px; display: flex; flex-direction: column; align-items: center; }
-    .mastery-label { font-size: 0.75rem; font-weight: 800; color: #5f6368; letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
-    .progress-track { width: 100%; height: 12px; background: #e0e0e0; border-radius: 10px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--success); width: 0%; transition: width 0.4s; }
-    .stats { font-weight: 800; font-size: 1.1rem; }
-    .stats-xp { color: var(--warning); }
-    .stats-mastery { color: var(--primary); }
-    .timer-alert { color: var(--danger); animation: pulse 1s infinite alternate; }
-    @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
+    
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* THE APP CONTAINER */
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    
+    /* V2 MICRO-HUD */
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
+    .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
+    .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
+    .stat-xp { color: var(--amber); }
 
-    /* Content Zones */
-    .content-zone { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; text-align: center; }
+    /* SCROLL ENGINE */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
     .hidden { display: none !important; }
-    h2 { margin-top: 0; color: #333; font-size: 1.5rem; }
-    p { font-size: 1.1rem; color: #5f6368; line-height: 1.4; padding: 0 5px;}
-    .btn { padding: 15px 30px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; margin-top: 15px; width: 100%; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-warning { background: var(--warning); color: #fff; }
 
-    /* Math Displays & Input Boxes */
-    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: bold; margin: 15px 0; gap: 15px; }
-    .sprint-math { font-size: 2.5rem; font-weight: 900; color: var(--primary); margin: 20px 0; }
+    /* FOCUS MODE DYNAMICS */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .content-area { padding-top: 10px; }
     
-    .input-col { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .f-box { min-width: 90px; height: 55px; padding: 0 10px; font-size: 2rem; display: flex; justify-content: center; align-items: center; border: 3px solid #e0e0e0; border-radius: 12px; background: #fff; color: var(--primary); font-weight: bold; transition: background 0.2s, border-color 0.2s; }
-    .f-box.active { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(26,115,232,0.2); }
-    .f-box.flash-green { background: #d4edda; border-color: var(--success); color: var(--success); }
-    .f-box.flash-red { background: #f8d7da; border-color: var(--danger); color: var(--danger); }
+    /* TYPOGRAPHY */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
-    /* Interactive Manipulative */
-    .manipulative-container { background: white; padding: 20px 15px; border-radius: 16px; border: 2px solid #e0e0e0; margin: 15px 0; width: 100%; max-width: 450px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    /* BUTTONS */
+    .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:active { background: #4338ca; }
+    .btn-warning { background: var(--amber); color: white; }
 
-    /* Word Problem Card */
-    .wp-card { background: #e8f0fe; border: 2px solid #aecbfa; border-radius: 12px; padding: 20px; text-align: left; font-size: 1.2rem; color: #174ea6; margin-bottom: 20px; line-height: 1.5; font-weight: 500; }
-    .currency-symbol { font-size: 2rem; font-weight: bold; color: #333; }
+    /* MATH FORMATTING */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
+    .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
+    
+    /* DEC-08: SHIFT ARROWS */
+    .shift-row { display: flex; align-items: center; justify-content: center; gap: 40px; font-size: 1.1rem; font-weight: 800; color: var(--emerald); width: 100%; margin: 5px 0;}
+    .shift-arrow { display: flex; flex-direction: column; align-items: center; }
 
-    /* Guided Zone Specifics */
-    .guided-step { display: flex; flex-direction: column; align-items: flex-start; width: 100%; background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: left; opacity: 1; transition: opacity 0.3s; }
-    .guided-step.locked { opacity: 0.4; pointer-events: none; }
-    .guided-text { font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 10px; }
-    .guided-row { display: flex; width: 100%; align-items: center; gap: 10px; }
+    /* FADING STEP ARCHITECTURE (DOM REVERSED) */
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
+    
+    /* INPUT BOXES */
+    .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.wide { width: 110px; }
+    .input-box.x-wide { width: 140px; }
+    .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
+    .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
+    .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
-    /* Keypad */
-    .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 12px; background: #f8f9fa; border-top: 1px solid #e0e0e0; padding-bottom: 15px; transition: opacity 0.3s; }
-    .key { background: #fff; border: 1px solid #dadce0; border-radius: 12px; font-size: 1.5rem; font-weight: bold; padding: 10px 0; display: flex; justify-content: center; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .key:active { background: #e8eaed; transform: translateY(2px); }
-    .key-action { grid-column: span 3; background: var(--primary); color: white; }
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* Modals */
-    .modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; }
-    .modal-overlay.show { opacity: 1; pointer-events: all; }
-    .modal-box { background: white; padding: 25px; border-radius: 16px; width: 85%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto; }
-    .traffic-light { font-size: 3rem; margin-bottom: 10px; }
+    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; 
+    }
+    .keypad-drawer.open { 
+        max-height: 380px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    
+    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-action { background: var(--slate-300); font-size: 1.2rem;}
+    .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter:active { background: #4338ca; }
+
+    /* V2 ERROR TOAST & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
+    .toast-container.show { opacity: 1; top: 65px; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .completion-overlay.show { opacity: 1; pointer-events: all; }
+    .completion-icon { font-size: 4rem; margin-bottom: 20px; }
+    .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
   </style>
 </head>
 <body>
 
 <div class="app-container">
-  <div class="hud">
-    <div class="stats stats-xp"><span id="xp-counter">0</span> XP</div>
-    <div class="progress-wrapper">
-      <div class="mastery-label" id="hud-label">MASTERY METER</div>
-      <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+  <!-- MICRO HUD -->
+  <div class="micro-hud">
+    <div class="stat-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="hud-center">
+        <span style="color:var(--slate-400); font-size:0.7rem;" id="hud-label">MASTERY</span>
+        <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
     </div>
-    <div class="stats stats-mastery" id="hud-stats"><span id="mastery-text">0/5</span></div>
+    <div style="color:var(--indigo);" id="mastery-text">0/5</div>
   </div>
 
   <!-- ZONE 0: GATEKEEPER INTRO -->
-  <div class="content-zone" id="zone-gate-intro">
-    <h1 style="font-size:3rem; margin:10px 0;">⏱️</h1>
-    <h2>Fluency Gatekeeper</h2>
-    <p>Word problems require all your focus. Prove your basic decimal arithmetic is automated before proceeding.</p>
-    <div style="background:#fff8e1; border:2px dashed var(--warning); padding:15px; border-radius:12px; text-align:left; margin:15px 0;">
-      <b>The 3-Level Pathway:</b>
-      <ul style="margin:5px 0; padding-left:20px; color:#5f6368;">
-        <li><b>Level 1:</b> Adding Decimals</li>
-        <li><b>Level 2:</b> Subtracting Decimals</li>
-        <li><b>Level 3:</b> Multiplying Decimals</li>
+  <div class="content-area" id="zone-gate-intro">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To divide by a decimal, you must quickly identify the power of 10 needed to make it whole.</p>
+    </div>
+    
+    <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
+      <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
+      <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
+        <li><b>Level 1:</b> Tenths to Whole (× 10)</li>
+        <li><b>Level 2:</b> Hundredths to Whole (× 100)</li>
+        <li><b>Level 3:</b> Mixed Scaling</li>
       </ul>
-      <p style="margin-top:10px; font-size:0.9rem; font-weight:bold;">Target: 15 questions per level at 90% accuracy.</p>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
     </div>
     <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
   </div>
 
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
-  <div class="content-zone hidden" id="zone-gate-active">
-    <h2 style="color:var(--warning);" id="sprint-title">Level 1: Adding Decimals</h2>
-    <div class="sprint-math" id="sprint-q"></div>
-    <div class="input-col">
-      <div class="f-box active" id="sprint-ans" onclick="setActive('sprint-ans')"></div>
+  <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Scale to Whole</div>
+    <p style="color:var(--slate-500); font-weight:600; margin-bottom: 20px;">What do you multiply by to make it whole?</p>
+    <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
+    <div class="math-row" style="margin-top:20px;">
+        <div class="input-box active wide" style="height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
     </div>
   </div>
 
   <!-- ZONE 1: GUIDED LEARNING (I DO) -->
-  <div class="content-zone hidden" id="zone-learn">
+  <div class="content-area hidden" id="zone-learn">
     
+    <!-- Slide 1 -->
     <div id="slide-1">
-      <h2>The Language of Math</h2>
-      <p>Word problems hide the math operations inside everyday language. Look for the keywords:</p>
+      <div class="section-title">The Divisor Problem</div>
+      <p class="instruction-text">We cannot divide if the divisor (the outside number) is a decimal. It must be a whole number.</p>
       
-      <div class="manipulative-container" style="align-items:flex-start; font-size:1.1rem; line-height:1.6;">
-        <div><span style="font-size:1.5rem;">➕</span> <b>Add:</b> "Total", "Altogether", "Sum"</div>
-        <hr style="width:100%; border:0; border-top:1px solid #eee;">
-        <div><span style="font-size:1.5rem;">➖</span> <b>Subtract:</b> "Change", "Difference", "Left over"</div>
-        <hr style="width:100%; border:0; border-top:1px solid #eee;">
-        <div><span style="font-size:1.5rem;">✖️</span> <b>Multiply:</b> "Each", "Per", "Total cost of many"</div>
-        <hr style="width:100%; border:0; border-top:1px solid #eee;">
-        <div><span style="font-size:1.5rem;">➗</span> <b>Divide:</b> "Split", "Shared equally", "Portions"</div>
+      <div class="pinned-visual">
+        <p style="text-align:center; font-weight:800; color:var(--rose); margin-top:0;">DANGER: Decimal Divisor</p>
+        
+        <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
+            <div style="color:var(--indigo);">1.28</div>
+            <div class="operator" style="color:var(--slate-400); margin:0 10px;">÷</div>
+            <div style="color:var(--rose);">0.4</div>
+        </div>
       </div>
-      <p style="text-align:left;">Read the sentence carefully to decide which operation you need before you touch the numbers.</p>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We can't easily figure out how many "0.4s" fit into something. We need to turn that 0.4 into a <b>4</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
+    <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <h2>The Currency Trap</h2>
-      <p>In Financial Mathematics, whole numbers are traps. They hide invisible commas and zeros.</p>
+      <div class="section-title">The Shift-Shift Rule</div>
+      <p class="instruction-text">To make the divisor whole, we shift the decimal point (multiply by 10). But to keep it balanced, <b style="color:var(--emerald);">whatever you do to the outside, you MUST do to the inside!</b></p>
       
-      <div class="wp-card">
-        Thabo buys a pie for R15,50. He pays with a R50 note. How much change does he receive?
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 2.5rem; justify-content:center;">
+            <div style="color:var(--indigo);">1.28</div>
+            <div class="operator" style="color:var(--slate-400); margin:0 10px;">÷</div>
+            <div style="color:var(--rose);">0.4</div>
+        </div>
+        
+        <div class="shift-row">
+            <div class="shift-arrow">↓ <span>× 10</span></div>
+            <div class="shift-arrow" style="margin-left: 20px;">↓ <span>× 10</span></div>
+        </div>
+        
+        <div class="math-row" style="font-size: 2.5rem; justify-content:center;">
+            <div style="color:var(--indigo);">12.8</div>
+            <div class="operator" style="color:var(--slate-400); margin:0 10px;">÷</div>
+            <div style="color:var(--emerald);">4</div>
+        </div>
       </div>
       
-      <div style="background: #fce8e6; padding: 15px; border-radius: 12px; margin-bottom: 15px; text-align:left; border:1px solid var(--danger);">
-        <p style="font-size:1rem; font-weight:bold; margin:0 0 5px 0; color:var(--danger);">Wrong Setup:</p>
-        <p style="margin:0; color:#333;">50 - 15,50 = 34,50 (Forgot to borrow!)</p>
-      </div>
-
-      <div style="background: #e8f0fe; padding: 15px; border-radius: 12px; text-align:left; border:1px solid var(--primary);">
-        <p style="font-size:1rem; font-weight:bold; margin:0 0 5px 0; color:var(--primary);">Correct Setup:</p>
-        <p style="margin:0; color:#333;"><b>50,00</b> - 15,50 = 34,50</p>
-      </div>
-      
-      <p style="text-align:left; margin-top:15px;">Always add <b>,00</b> to whole Rands before you subtract!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Because we shifted BOTH decimals one place to the right, $12.8 \div 4$ will give us the exact same answer as $1.28 \div 0.4$.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
-    <button class="btn btn-primary" id="btn-next-slide" onclick="nextSlide()">Start Guided Practice ➔</button>
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">Solve Normally</div>
+      <p class="instruction-text">Now that the divisor is a whole number, you can float the dot and divide normally.</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 2.5rem; justify-content:center;">
+            <div style="color:var(--indigo);">12.8</div>
+            <div class="operator" style="color:var(--slate-400); margin:0 10px;">÷</div>
+            <div style="color:var(--emerald);">4</div>
+            <div class="operator" style="color:var(--slate-400); margin:0 10px;">=</div>
+            <div style="color:var(--emerald); font-weight:900;">3.2</div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The problem is now perfectly safe to solve.</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
+    </div>
   </div>
 
   <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
-  <div class="content-zone hidden" id="zone-guided">
-    <div class="instruction" style="color:var(--primary); font-weight:bold; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;" id="g-title">Guided Practice 1/2</div>
+  <div class="content-area hidden" id="zone-guided">
+    <div class="section-title" id="g-title">Guided Practice 1/2</div>
     
-    <div class="wp-card" id="g-q" style="font-size:1.1rem; padding:15px;">
-      <!-- Populated by JS -->
+    <!-- DOM REVERSAL: Instructions at the Top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 15px;">
+        <!-- Steps injected by JS -->
     </div>
-
-    <!-- Step 1 -->
-    <div class="guided-step" id="g-box-1">
-      <div class="guided-text" id="g-t1">1. Step 1 text here:</div>
-      <div class="guided-row">
-        <div class="currency-symbol" id="g-sym-1" style="display:none;">R</div>
-        <div class="f-box active" id="g-ans-1" onclick="setActive('g-ans-1')"></div>
-      </div>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="guided-step locked" id="g-box-2">
-      <div class="guided-text" id="g-t2">2. Step 2 text here:</div>
-      <div class="guided-row">
-        <div class="currency-symbol" id="g-sym-2" style="display:none;">R</div>
-        <div class="f-box" id="g-ans-2" onclick="setActive('g-ans-2')"></div>
-      </div>
+    
+    <div class="pinned-visual">
+        <!-- Vertical layout for clear mapping -->
+        <div class="math-row" style="margin-bottom:5px;" id="g-q-container">
+            <!-- Injected by JS -->
+        </div>
+        
+        <div class="shift-row" id="g-arrow-container">
+            <!-- Injected by JS -->
+        </div>
+        
+        <div class="math-row" style="margin-top:5px; margin-bottom:15px; gap: 15px;">
+           <div class="input-box wide" id="g-shift-a" onclick="openKeypad('g-shift-a', 'g-step-1')"></div>
+           <div class="operator">÷</div>
+           <div class="input-box wide" id="g-shift-b" onclick="openKeypad('g-shift-b', 'g-step-1')"></div>
+        </div>
+        
+        <div id="g-ans-area" style="display:none; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
+            <div class="operator" style="margin-right:15px;">=</div>
+            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
+        </div>
     </div>
   </div>
 
   <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
-  <div class="content-zone hidden" id="zone-practice">
-    <div class="instruction">Solve the Word Problem:</div>
-
-    <div class="wp-card" id="p-q-display" style="margin-top:20px;">
-      <!-- Populated by JS -->
-    </div>
-
-    <div class="math-row" style="margin-top:20px;">
-      <div class="currency-symbol" id="p-sym"></div>
-      <div class="input-col">
-        <div class="f-box active" id="p-ans" onclick="setActive('p-ans')"></div>
-      </div>
-      <div class="currency-symbol" id="p-unit" style="font-size:1.5rem; color:#5f6368; margin-left:5px;"></div>
-    </div>
+  <div class="content-area hidden" id="zone-practice">
+    <div class="section-title">Strict Practice</div>
     
-    <p style="font-size:0.85rem; color:var(--danger); margin-top:10px; padding-bottom:40px; text-align:left;">
-      <b>Strict Mode Active:</b> You must get 5 correct in a row. A single mistake resets your mastery to zero.
-    </p>
-  </div>
+    <!-- DOM REVERSAL: Warning at the Top -->
+    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Shift BOTH numbers equally before dividing.</p>
+    </div>
 
-  <!-- KEYPAD -->
-  <div class="keypad hidden" id="keypad">
-    <div class="key" onclick="typeNum('1')">1</div><div class="key" onclick="typeNum('2')">2</div><div class="key" onclick="typeNum('3')">3</div>
-    <div class="key" onclick="typeNum('4')">4</div><div class="key" onclick="typeNum('5')">5</div><div class="key" onclick="typeNum('6')">6</div>
-    <div class="key" onclick="typeNum('7')">7</div><div class="key" onclick="typeNum('8')">8</div><div class="key" onclick="typeNum('9')">9</div>
-    <div class="key" onclick="typeNum(',')">,</div><div class="key" onclick="typeNum('0')">0</div><div class="key" onclick="deleteNum()">⌫</div>
-    <div class="key key-action" onclick="submitAnswer()">Submit Answer</div>
-  </div>
-
-  <!-- TRAFFIC LIGHT MODAL -->
-  <div class="modal-overlay" id="hint-modal">
-    <div class="modal-box">
-      <div class="traffic-light" id="modal-icon">🟡</div>
-      <h3 id="modal-title" style="margin-top:0;">Hint</h3>
-      <p id="modal-text" style="font-size:1.1rem; line-height:1.5;"></p>
-      <button class="btn btn-primary" onclick="closeModal()" id="modal-btn">I Understand</button>
+    <div class="pinned-visual">
+        <div class="math-row" style="margin-bottom:15px;" id="p-q-display">
+            <!-- Injected by JS -->
+        </div>
+        
+        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:15px;">⬇</div>
+        
+        <div class="math-row" style="gap:15px; margin-bottom:15px;">
+           <div style="display:flex; flex-direction:column; align-items:center;">
+               <span style="font-size:0.75rem; color:var(--indigo); font-weight:800; margin-bottom:5px;">SHIFTED DIVIDEND</span>
+               <div class="input-box wide active" id="p-shift-a" onclick="openKeypad('p-shift-a', 'practice')"></div>
+           </div>
+           
+           <div class="operator" style="margin-top:15px;">÷</div>
+           
+           <div style="display:flex; flex-direction:column; align-items:center;">
+               <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; margin-bottom:5px;">WHOLE DIVISOR</span>
+               <div class="input-box wide" id="p-shift-b" onclick="openKeypad('p-shift-b', 'practice')"></div>
+           </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
+            <div class="operator" style="margin-right:15px;">=</div>
+            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+        </div>
     </div>
   </div>
+
+  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <div class="keypad-drawer" id="keypad">
+    <div class="keypad-grid">
+      <div class="key-btn" onclick="typeNum('1')">1</div>
+      <div class="key-btn" onclick="typeNum('2')">2</div>
+      <div class="key-btn" onclick="typeNum('3')">3</div>
+      <div class="key-btn" onclick="typeNum('4')">4</div>
+      <div class="key-btn" onclick="typeNum('5')">5</div>
+      <div class="key-btn" onclick="typeNum('6')">6</div>
+      <div class="key-btn" onclick="typeNum('7')">7</div>
+      <div class="key-btn" onclick="typeNum('8')">8</div>
+      <div class="key-btn" onclick="typeNum('9')">9</div>
+      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
+      <div class="key-btn" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+    </div>
+  </div>
+
+  <!-- TOAST ERROR MESSAGE -->
+  <div class="toast-container" id="toast">
+      <div class="toast-icon">⚠️</div>
+      <div id="toast-msg">Error message goes here.</div>
+      <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- COMPLETION OVERLAY -->
+  <div class="completion-overlay" id="completion-screen">
+      <div class="completion-icon">🏆</div>
+      <div class="completion-title">Module Mastered!</div>
+      <p style="font-size:1.2rem; color:var(--slate-500); font-weight:600; margin-bottom:30px;">Total XP: <span id="final-xp" style="color:var(--amber);">0</span></p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+  </div>
+
 </div>
 
 <script>
   // Global State
   let appState = 'GATEKEEPER'; 
   let activeBoxId = 'sprint-ans';
+  let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-08'; 
 
@@ -238,38 +357,54 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2;
-  let streak = 0, mistakesOnCurrent = 0;
+  const totalSlides = 3; 
+  let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
   let currentQ = {}; 
 
   // Guided Practice Variables
   let guidedLevel = 1;
-  let guidedSubStep = 1;
   let gData = {};
 
-  // --- INITIALIZATION ---
-  let savedProf = localStorage.getItem('harvest_maths_profile');
+  // MATH HELPER
+  function safeShiftDecimal(numStr, op, powerStr) {
+      let p = parseInt(powerStr);
+      let n = parseFloat(numStr);
+      if (op === '×') {
+          return parseFloat((n * p).toPrecision(12)).toString();
+      } else {
+          return parseFloat((n / p).toPrecision(12)).toString();
+      }
+  }
 
+  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
-      if(startBtn) startBtn.innerText = "Start Level " + gateLevel;
-
       let isSuperUser = false;
-      if(savedProf) {
-          let p = JSON.parse(savedProf);
-          if(p.gateLevels && p.gateLevels[currentModuleId]) {
-              gateLevel = p.gateLevels[currentModuleId];
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showError("Focus Drill Active: You must clear missed facts to unlock the Gatekeeper.");
+                  document.getElementById('btn-start-sprint').innerText = "Resume Drill";
+                  document.getElementById('btn-start-sprint').onclick = startRemediation;
+              }
           }
-          if(p.studentId && p.studentId.includes('SuperUser')) {
-              isSuperUser = true;
-          }
-          if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
-              showModal('🔴', 'Focus Drill Active', 'You left before finishing your focus drill. You must clear these facts to unlock the Gatekeeper.');
-              document.getElementById('modal-btn').innerText = "Resume Drill";
-              document.getElementById('modal-btn').onclick = startRemediation;
-          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
+      }
+
+      if(startBtn && startBtn.innerText !== "Resume Drill") {
+          startBtn.innerText = "Start Level " + gateLevel;
       }
 
       if (isSuperUser) {
@@ -278,54 +413,133 @@
       }
   });
 
-  // --- KEYPAD LOGIC ---
-  function setActive(id) {
-    if(appState === 'LOCKED') return;
-    if(document.getElementById(activeBoxId)) {
-      document.getElementById(activeBoxId).classList.remove('active');
-    }
-    activeBoxId = id;
-    let box = document.getElementById(activeBoxId);
-    if(box) box.classList.add('active');
+  // --- FLEXBOX SCROLL ENGINE ---
+  function openKeypad(boxId, stepId) {
+      if(appState === 'LOCKED') return;
+
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) return;
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
+      activeBoxId = boxId;
+      activeStepId = stepId;
+      targetBox.classList.add('active');
+
+      document.body.classList.add('focus-active');
+
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
+      
+      let container = document.querySelector('.content-area');
+      if (container) {
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let wrapper = targetBox.closest('.pinned-visual') || targetBox.closest('.math-row');
+              let targetRect = (wrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); 
+      let container = document.querySelector('.content-area');
+      if (container) container.style.paddingBottom = '60px';
   }
 
   function typeNum(char) {
-    if(appState === 'LOCKED') return;
-    let box = document.getElementById(activeBoxId);
-    if(!box) return;
-    
-    if(char === ',' && box.innerText.includes(',')) return;
-    if(box.innerText.length < 8) box.innerText += char;
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      
+      if(char === '.' && box.innerText.includes('.')) return; 
+      if(box.innerText.length < 6) box.innerText += char;
   }
   
   function deleteNum() {
-    if(appState === 'LOCKED') return;
-    let box = document.getElementById(activeBoxId);
-    if(box) box.innerText = box.innerText.slice(0, -1);
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
-    if(appState === 'GATEKEEPER') checkSprintAnswer();
-    else if (appState === 'REMEDIATION') checkRemediationAnswer();
-    else if (appState === 'GUIDED') checkGuidedAnswer();
-    else if (appState === 'PRACTICE') checkPracticeAnswer();
+      if(appState === 'LOCKED') return;
+      if(appState === 'GATEKEEPER') checkSprintAnswer();
+      else if (appState === 'REMEDIATION') checkRemediationAnswer();
+      else if (appState === 'GUIDED') checkGuidedAnswer();
+      else if (appState === 'PRACTICE') checkPracticeAnswer();
   }
 
-  // --- ZONE 0: GATEKEEPER ---
+  function flashError(box) {
+      if (!box) return;
+      box.classList.add('flash-error');
+      setTimeout(() => box.classList.remove('flash-error'), 400);
+  }
+
+  function showError(msg) {
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast').classList.add('show');
+      setTimeout(closeToast, 5000);
+  }
+
+  function closeToast() {
+      document.getElementById('toast').classList.remove('show');
+  }
+
+  function triggerStreakBreak(msg, tag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      
+      ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      showError(msg);
+      logTelemetryEvent("Trapdoor Triggered", 0, tag);
+      
+      setTimeout(() => {
+          ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
+              let el = document.getElementById(id);
+              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
+          });
+          openKeypad('p-shift-a', 'practice');
+      }, 5000);
+  }
+
+  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
   function startSprint() {
-    closeModal(); 
+    closeToast(); 
     appState = 'GATEKEEPER';
     sessionMissed = [];
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
-    document.getElementById('keypad').classList.remove('hidden');
+    document.getElementById('zone-gate-active').style.display = 'flex';
     
-    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Addition (+)";
-    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Subtraction (-)";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Multiplication (×)";
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Tenths to Whole";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Hundredths to Whole";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Mixed Scaling";
 
-    document.getElementById('sprint-title').style.color = "var(--warning)";
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
     document.getElementById('mastery-text').innerText = "01:00";
@@ -333,7 +547,8 @@
     sprintAttempts = 0;
     sprintCorrect = 0;
     timeLeft = 60;
-    setActive('sprint-ans');
+    
+    openKeypad('sprint-ans', 'sprint');
     loadSprintQuestion();
     
     if(sprintTimer) clearInterval(sprintTimer); 
@@ -344,7 +559,7 @@
       let s = timeLeft % 60;
       document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
       
-      if(timeLeft <= 10) document.getElementById('hud-stats').classList.add('timer-alert');
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
       
       if(timeLeft <= 0) {
         clearInterval(sprintTimer);
@@ -355,68 +570,64 @@
 
   function generateGateQuestion(level) {
     let qText, ans;
+    let base = Math.floor(Math.random() * 11) + 2; // 2 to 12
+    
     if (level === 1) { 
-      let n1 = (Math.floor(Math.random() * 8) + 1) / 10; // 0.1 to 0.8
-      let n2 = (Math.floor(Math.random() * 8) + 1) / 10;
-      ans = Math.round((n1 + n2) * 10) / 10;
-      qText = `${n1.toString().replace('.',',')} + ${n2.toString().replace('.',',')} =`;
+        let dec = parseFloat((base / 10).toPrecision(12)).toString();
+        qText = `${dec} × [ ? ] = ${base}`;
+        ans = "10";
     } else if (level === 2) { 
-      let n1 = Math.floor(Math.random() * 8) + 3; // 3 to 10
-      let n2 = (Math.floor(Math.random() * 25) + 5) / 10; // 0.5 to 2.9
-      ans = Math.round((n1 - n2) * 10) / 10;
-      qText = `${n1} - ${n2.toString().replace('.',',')} =`;
+        let dec = parseFloat((base / 100).toPrecision(12)).toString();
+        qText = `${dec} × [ ? ] = ${base}`;
+        ans = "100";
     } else { 
-      let n1 = (Math.floor(Math.random() * 9) + 1) / 10; // 0.1 to 0.9
-      let n2 = Math.floor(Math.random() * 8) + 2; // 2 to 9
-      ans = Math.round((n1 * n2) * 10) / 10;
-      qText = `${n1.toString().replace('.',',')} × ${n2} =`;
+        let isHundred = Math.random() > 0.5;
+        let dec = parseFloat((base / (isHundred ? 100 : 10)).toPrecision(12)).toString();
+        qText = `${dec} × [ ? ] = ${base}`;
+        ans = isHundred ? "100" : "10";
     }
-    let logText = qText.replace(/<[^>]*>/g, '').replace('  ', ' ').trim();
-    return { qHtml: `<span style="font-size:2.5rem;">${qText}</span>`, qText: logText, ans: ans.toString().replace('.',',') };
+    
+    let logText = qText.replace('[ ? ]', '?');
+    return { qHtml: qText, qText: logText, ans: ans };
   }
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
-    document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
+    document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
   }
 
   function checkSprintAnswer() {
     let boxText = document.getElementById('sprint-ans').innerText;
     if(boxText === '') return;
-    
-    // Forgiveness for equivalent decimals in gatekeeper (e.g., 0,5 == 0,50)
-    let userF = parseFloat(boxText.replace(',','.'));
-    let ansF = parseFloat(currentSprintQ.ans.replace(',','.'));
-    let isCorrect = (!isNaN(userF) && userF === ansF && !boxText.endsWith(','));
 
     sprintAttempts++;
     let box = document.getElementById('sprint-ans');
     
-    if(isCorrect) {
+    if(boxText === currentSprintQ.ans) {
       sprintCorrect++;
       xp += 5;
       document.getElementById('xp-counter').innerText = xp;
-      box.classList.add('flash-green');
+      box.classList.add('flash-success');
     } else {
-      box.classList.add('flash-red');
+      box.classList.add('flash-error');
       let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
       if(!exists) {
           sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
       }
     }
-    setTimeout(loadSprintQuestion, 200);
+    setTimeout(loadSprintQuestion, 150);
   }
 
   function evaluateSprint() {
-    document.getElementById('keypad').classList.add('hidden');
+    closeKeypad(); 
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showModal('🟢', `Level ${gateLevel} Cleared!`, `Awesome speed! Get ready for Level ${gateLevel + 1}.`);
+        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
@@ -426,8 +637,8 @@
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
 
-        document.getElementById('modal-btn').innerText = `Start Level ${gateLevel}`;
-        document.getElementById('modal-btn').onclick = startSprint;
+        resetSprintUI();
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
       } else {
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
@@ -435,10 +646,7 @@
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
-
-        showModal('🟢', 'Gate Cleared!', `Attempts: ${sprintAttempts}\nAccuracy: ${Math.round(accuracy)}%\n\nExcellent. Your arithmetic facts are automated. The lesson is now unlocked.`);
-        document.getElementById('modal-btn').innerText = "Enter Lesson";
-        document.getElementById('modal-btn').onclick = unlockLesson;
+        unlockLesson();
       }
     } else {
       if(sessionMissed.length > 0) {
@@ -449,31 +657,38 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showModal('🔴', `Level ${gateLevel} Failed`, `Accuracy: ${Math.round(accuracy)}%\n\nYou need to run a focus drill on the specific facts you missed before trying again.`);
-          document.getElementById('modal-btn').innerText = "Start Focus Drill";
-          document.getElementById('modal-btn').onclick = startRemediation;
+          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          resetSprintUI();
+          document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
+          document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showModal('🔴', `Level ${gateLevel} Failed`, `Attempts: ${sprintAttempts} (Target: ${sprintTargetAttempts})\nAccuracy: ${Math.round(accuracy)}% (Target: 90%)\n\nKeep practicing!`);
-          document.getElementById('modal-btn').innerText = "Try Again";
-          document.getElementById('modal-btn').onclick = resetSprint;
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          resetSprintUI();
       }
     }
   }
 
-  // --- ZONE 0.5: REMEDIATION ---
+  function resetSprintUI() {
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      document.getElementById('zone-gate-active').classList.add('hidden');
+      document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
+  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
   function startRemediation() {
-      closeModal();
+      closeToast();
       appState = 'REMEDIATION';
       document.getElementById('zone-gate-intro').classList.add('hidden');
       document.getElementById('zone-gate-active').classList.remove('hidden');
-      document.getElementById('keypad').classList.remove('hidden');
+      document.getElementById('zone-gate-active').style.display = 'flex';
       
       document.getElementById('sprint-title').innerText = "Focus Drill";
-      document.getElementById('sprint-title').style.color = "var(--danger)";
+      document.getElementById('sprint-title').style.color = "var(--rose)";
       document.getElementById('hud-label').innerText = "FACTS REMAINING";
       document.getElementById('hud-track').classList.add('hidden');
-      document.getElementById('hud-stats').classList.remove('timer-alert');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
       
+      openKeypad('sprint-ans', 'sprint');
       loadRemediationQuestion();
   }
 
@@ -495,21 +710,15 @@
           if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
           
           document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
-          document.getElementById('sprint-q').innerHTML = `<div style="font-size:2.5rem; font-weight:bold;">${currentRemediationQ.qText}</div>`;
+          document.getElementById('sprint-q').innerHTML = currentRemediationQ.qText;
           document.getElementById('sprint-ans').innerText = '';
-          document.getElementById('sprint-ans').classList.remove('flash-green', 'flash-red');
-          document.getElementById('sprint-ans').style.color = 'var(--primary)';
-          setActive('sprint-ans');
+          document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
       }
   }
 
   function checkRemediationAnswer() {
       let boxText = document.getElementById('sprint-ans').innerText;
       if(boxText === '') return;
-
-      let userF = parseFloat(boxText.replace(',','.'));
-      let ansF = parseFloat(currentRemediationQ.ans.replace(',','.'));
-      let isCorrect = (!isNaN(userF) && userF === ansF && !boxText.endsWith(','));
 
       let box = document.getElementById('sprint-ans');
       let saved = localStorage.getItem('harvest_maths_profile');
@@ -518,8 +727,8 @@
       
       let queue = p.remediation[currentModuleId];
 
-      if(isCorrect) {
-          box.classList.add('flash-green');
+      if(boxText === currentRemediationQ.ans) {
+          box.classList.add('flash-success');
           xp += 2; 
           document.getElementById('xp-counter').innerText = xp;
           
@@ -528,9 +737,9 @@
               queue.splice(remediationIndex, 1); 
           }
           localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
-          setTimeout(loadRemediationQuestion, 300);
+          setTimeout(loadRemediationQuestion, 250);
       } else {
-          box.classList.add('flash-red');
+          flashError(box);
           queue[remediationIndex].streak = 0; 
           localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           
@@ -540,45 +749,37 @@
           
           setTimeout(() => {
               box.innerText = currentRemediationQ.ans; 
-              box.style.color = 'var(--danger)';
-          }, 300);
+              box.style.color = 'var(--rose)';
+          }, 400);
 
           setTimeout(() => {
               appState = 'REMEDIATION';
               document.getElementById('keypad').style.opacity = '1';
               document.getElementById('keypad').style.pointerEvents = 'all';
+              box.style.color = 'var(--slate-900)';
               loadRemediationQuestion();
-          }, 2500);
+          }, 2000);
       }
   }
 
   function endRemediation() {
       sessionMissed = [];
-      showModal('🟢', 'Drill Complete!', 'Excellent. Let\'s try the Gatekeeper again.');
-      document.getElementById('modal-btn').innerText = "Return to Gatekeeper";
-      document.getElementById('modal-btn').onclick = resetSprint; 
-  }
-
-  function resetSprint() {
-    closeModal();
-    sessionMissed = [];
-    document.getElementById('hud-stats').classList.remove('timer-alert');
-    document.getElementById('zone-gate-active').classList.add('hidden');
-    document.getElementById('zone-gate-intro').classList.remove('hidden');
-    document.getElementById('keypad').classList.add('hidden'); 
-    
-    let startBtn = document.getElementById('btn-start-sprint');
-    if(startBtn) startBtn.innerText = "Start Level " + gateLevel; 
+      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      resetSprintUI();
+      document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
+      document.getElementById('btn-start-sprint').onclick = startSprint; 
   }
 
   function unlockLesson() {
-    closeModal();
+    closeToast();
     appState = 'LEARN';
-    document.getElementById('hud-stats').classList.remove('timer-alert');
-    document.getElementById('hud-label').innerText = "MASTERY METER";
+    document.getElementById('mastery-text').classList.remove('timer-alert');
+    document.getElementById('hud-label').innerText = "MASTERY";
     document.getElementById('hud-track').classList.remove('hidden');
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    closeKeypad(); 
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -598,10 +799,21 @@
       appState = 'GUIDED';
       document.getElementById('zone-learn').classList.add('hidden');
       document.getElementById('zone-guided').classList.remove('hidden');
-      document.getElementById('keypad').classList.remove('hidden');
-      
       guidedLevel = 1;
       loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = `
+        <div class="step-container" id="g-step-1">
+          <div class="step-text">1. What does the divisor need to be a whole number? Shift BOTH numbers exactly the same amount.</div>
+        </div>
+        <div class="step-container locked" id="g-step-2">
+          <div class="step-text">2. Now the problem is safe to divide. Solve the new equation.</div>
+        </div>
+      `;
+      openKeypad('g-shift-a', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -609,94 +821,109 @@
       
       if (guidedLevel === 1) {
           gData = { 
-              wp: "Nomusa buys 3 pens for R4,50 each. She pays with a R20 note. How much change does she receive?",
-              t1: "1. Calculate total cost: 3 × R4,50 =",
-              a1: "13,50", // Or 13,5
-              sym1: true,
-              t2: "2. Calculate change: R20,00 - R13,50 =",
-              a2: "6,50", // Or 6,5
-              sym2: true
+              a: "1.25", b: "0.5", 
+              mult: "10", 
+              shiftA: "12.5", shiftB: "5", 
+              ans: "2.5" 
           };
       } else {
           gData = { 
-              wp: "A 5kg bag of sugar costs R82,50. What is the cost per kilogram?",
-              t1: "1. Set up the division: R82,50 ÷ 5 =",
-              a1: "16,50", 
-              sym1: true,
-              t2: "2. Final Answer:",
-              a2: "16,50", 
-              sym2: true
+              a: "0.276", b: "0.06", 
+              mult: "100", 
+              shiftA: "27.6", shiftB: "6", 
+              ans: "4.6" 
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-q').innerText = gData.wp;
       
-      document.getElementById('g-t1').innerText = gData.t1;
-      document.getElementById('g-t2').innerText = gData.t2;
+      document.getElementById('g-q-container').innerHTML = `
+          <div style="color:var(--indigo);">${gData.a}</div>
+          <div class="operator" style="color:var(--slate-400);">÷</div>
+          <div style="color:var(--rose);">${gData.b}</div>
+      `;
       
-      document.getElementById('g-sym-1').style.display = gData.sym1 ? 'block' : 'none';
-      document.getElementById('g-sym-2').style.display = gData.sym2 ? 'block' : 'none';
+      document.getElementById('g-arrow-container').innerHTML = `
+          <div class="shift-arrow">↓ <span>× ${gData.mult}</span></div>
+          <div class="shift-arrow" style="margin-left: 20px;">↓ <span>× ${gData.mult}</span></div>
+      `;
       
-      [1, 2].forEach(i => {
-          let b = document.getElementById('g-ans-' + i);
-          b.innerText = '';
-          b.classList.remove('flash-green', 'flash-red', 'active');
+      ['g-shift-a', 'g-shift-b', 'g-ans'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
       });
-      
-      document.getElementById('g-box-2').classList.add('locked');
-      setActive('g-ans-1');
+      document.getElementById('g-ans-area').style.display = 'none';
+
+      buildGuidedSteps();
   }
 
   function checkGuidedAnswer() {
+      let valSA = document.getElementById('g-shift-a').innerText;
+      let valSB = document.getElementById('g-shift-b').innerText;
+      let valAns = document.getElementById('g-ans').innerText;
+      
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
       if (val === '') return;
 
-      if (val.includes('.')) {
-          showModal('🔴', 'Format Error', 'Use a comma ( , ) instead of a full stop.');
-          box.innerText = ''; return;
-      }
-
-      let target = guidedSubStep === 1 ? gData.a1 : gData.a2;
-      
-      // Floating point equivalence check
-      let userF = parseFloat(val.replace(',', '.'));
-      let ansF = parseFloat(target.replace(',', '.'));
-      let isCorrect = (!isNaN(userF) && userF === ansF && !val.endsWith(','));
-
-      if (isCorrect) {
-          box.classList.add('flash-green');
-          xp += 10;
-          document.getElementById('xp-counter').innerText = xp;
-          
-          // Enforce 0 suffix for currency visually if they just typed 13,5
-          if (gData.sym1 && val.includes(',') && val.split(',')[1].length === 1) {
-              box.innerText += '0'; 
-          }
-          
-          if (guidedSubStep === 1) {
-              guidedSubStep = 2;
-              setTimeout(() => {
+      if (activeStepId === 'g-step-1') {
+          if (activeBoxId === 'g-shift-a') {
+              if (val === gData.shiftA) {
+                  box.classList.add('flash-success');
                   box.classList.remove('active');
-                  document.getElementById('g-box-2').classList.remove('locked');
-                  setActive('g-ans-2');
-              }, 400);
-          } else {
-              if (guidedLevel === 1) {
-                  guidedLevel = 2;
-                  showModal('🟢', 'Perfect Scaffold', 'Excellent! You set up the steps perfectly. Let\'s try one more.');
-                  document.getElementById('modal-btn').onclick = () => { closeModal(); loadGuidedQuestion(); };
+                  openKeypad('g-shift-b', 'g-step-1');
               } else {
-                  showModal('🟢', 'Training Complete', 'You know how to extract math from words! Now, you must prove it in the Strict Practice zone.');
-                  document.getElementById('modal-btn').onclick = () => { closeModal(); startPractice(); };
+                  showError(`Multiply ${gData.a} × ${gData.mult}. Shift the dot to the right.`);
+                  flashError(box);
+              }
+          } else if (activeBoxId === 'g-shift-b') {
+              if (valSA === '') {
+                  showError("Shift the first number too!");
+                  openKeypad('g-shift-a', 'g-step-1');
+                  return;
+              }
+
+              if (val === gData.shiftB) {
+                  box.classList.add('flash-success');
+                  box.classList.remove('active');
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  
+                  document.getElementById('g-ans-area').style.display = 'flex';
+                  openKeypad('g-ans', 'g-step-2');
+              } else {
+                  showError(`Multiply ${gData.b} × ${gData.mult}. Make it a whole number.`);
+                  flashError(box);
               }
           }
-      } else {
-          box.classList.add('flash-red');
-          if (guidedLevel === 1 && guidedSubStep === 1) showModal('🔴', 'Calculation Error', `What is 3 × 4,50? Calculate 3 × 45 first.`);
-          else if (guidedLevel === 1 && guidedSubStep === 2) showModal('🔴', 'Subtraction Trap', `Did you subtract from 20,00? Remember to borrow properly!`);
-          else showModal('🔴', 'Division Error', `Try setting up a short division box. 5 into 8 goes 1 time, remainder 3...`);
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-ans') {
+              if (val === gData.ans) {
+                  box.classList.add('flash-success');
+                  document.getElementById('g-step-2').classList.add('completed');
+                  closeKeypad(); 
+                  
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Excellent! Let's do one more."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError(`Solve the new safe equation: ${gData.shiftA} ÷ ${gData.shiftB}.`);
+                  flashError(box);
+              }
+          }
       }
   }
 
@@ -705,90 +932,58 @@
     appState = 'PRACTICE';
     document.getElementById('zone-guided').classList.add('hidden');
     document.getElementById('zone-practice').classList.remove('hidden');
-    document.getElementById('keypad').classList.remove('hidden');
 
     masteryPoints = 0; 
     updateProgressBar();
-    setActive('p-ans');
     loadPracticeQuestion();
   }
 
   function generatePracticeQuestion() {
-    let type = Math.floor(Math.random() * 4);
-    let wp, ans, sym = "", unit = "", hint = "";
+    let placesB = Math.random() > 0.5 ? 1 : 2; // Divisor places (0.x or 0.0x)
+    let bRaw = Math.floor(Math.random() * 12) + 2; // 2 to 13
+    let b = bRaw / Math.pow(10, placesB);
 
-    if (type === 0) { // Addition (Total Cost)
-        let item1 = Math.floor(Math.random() * 20) + 15;
-        let c1 = [50, 99, 95][Math.floor(Math.random()*3)];
-        let p1 = item1 + (c1/100);
-        
-        let item2 = Math.floor(Math.random() * 10) + 5;
-        let c2 = [50, 25, 99][Math.floor(Math.random()*3)];
-        let p2 = item2 + (c2/100);
-        
-        ans = Math.round((p1 + p2)*100)/100;
-        wp = `Sipho buys a sandwich for R${p1.toFixed(2).replace('.',',')} and a juice for R${p2.toFixed(2).replace('.',',')}. How much does he spend in total?`;
-        sym = "R";
-        hint = "Keyword: 'Total'. You must ADD the two amounts. Make sure your commas line up vertically.";
-    } else if (type === 1) { // Subtraction (Change)
-        let cost = Math.floor(Math.random() * 30) + 10;
-        let cents = [25, 50, 75][Math.floor(Math.random()*3)];
-        let p = cost + (cents/100);
-        let note = cost < 40 ? 50 : 100;
-        
-        ans = Math.round((note - p)*100)/100;
-        wp = `Lerato buys stationery for R${p.toFixed(2).replace('.',',')}. She pays with a R${note} note. How much change does she get?`;
-        sym = "R";
-        hint = `Keyword: 'Change'. You must SUBTRACT. Remember to write R${note} as R${note},00 so you can borrow properly.`;
-    } else if (type === 2) { // Multiplication (Multiple items)
-        let cost = Math.floor(Math.random() * 10) + 5;
-        let cents = [50, 20][Math.floor(Math.random()*2)];
-        let p = cost + (cents/100);
-        let qty = Math.floor(Math.random() * 4) + 3; // 3 to 6
-        
-        ans = Math.round((p * qty)*100)/100;
-        wp = `A school requires ${qty} workbooks. If one workbook costs R${p.toFixed(2).replace('.',',')}, what is the total cost?`;
-        sym = "R";
-        hint = `Keyword: 'One costs... total cost'. You must MULTIPLY. Use the jump counting method.`;
-    } else { // Division (Measurement)
-        let totalLen = Math.floor(Math.random() * 10) + 4; // 4 to 13
-        let dec = [2, 5, 8][Math.floor(Math.random()*3)];
-        let len = totalLen + (dec/10);
-        let pieces = Math.floor(Math.random() * 3) + 2; // 2 to 4
-        
-        // Ensure clean division
-        ans = len * pieces;
-        // Wait, division problem:
-        ans = len; // we want the answer to be clean
-        let fullLen = Math.round((len * pieces)*10)/10;
-        
-        wp = `A piece of wood is ${fullLen.toString().replace('.',',')} meters long. It is cut exactly into ${pieces} equal pieces. How long is each piece?`;
-        unit = "m";
-        hint = "Keyword: 'Cut into equal pieces'. You must DIVIDE the total length by the number of pieces.";
-    }
+    let ansRaw = Math.floor(Math.random() * 89) + 11; // 11 to 99
+    let placesAns = Math.random() > 0.5 ? 0 : 1; // Ans places (xx or x.x)
+    let ans = ansRaw / Math.pow(10, placesAns);
 
-    return { 
-        qText: wp,
-        ansStr: ans.toString().replace('.', ','),
-        sym: sym,
-        unit: unit,
-        hint: hint
+    let a = b * ans;
+    
+    // JS float safe logic
+    a = Math.round(a * 1000) / 1000;
+    b = Math.round(b * 100) / 100;
+    ans = Math.round(ans * 10) / 10;
+
+    let multiplier = Math.pow(10, placesB);
+    let shiftA = Math.round(a * multiplier * 1000) / 1000;
+    let shiftB = Math.round(b * multiplier * 100) / 100; 
+
+    return {
+        a: a.toString(),
+        b: b.toString(),
+        shiftA: shiftA.toString(),
+        shiftB: shiftB.toString(),
+        ans: ans.toString(),
+        mult: multiplier,
+        trapA: a.toString() // What A is if they don't shift it
     };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans').innerText = '';
-    document.getElementById('p-ans').classList.remove('flash-green', 'flash-red');
-    setActive('p-ans');
-    
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-q-display').innerText = currentQ.qText;
     
-    document.getElementById('p-sym').innerText = currentQ.sym;
-    document.getElementById('p-sym').style.display = currentQ.sym ? 'block' : 'none';
+    ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+    });
+
+    document.getElementById('p-q-display').innerHTML = `
+        <div style="color:var(--indigo);">${currentQ.a}</div>
+        <div class="operator" style="color:var(--slate-400);">÷</div>
+        <div style="color:var(--rose);">${currentQ.b}</div>
+    `;
     
-    document.getElementById('p-unit').innerText = currentQ.unit;
-    document.getElementById('p-unit').style.display = currentQ.unit ? 'block' : 'none';
+    openKeypad('p-shift-a', 'practice');
   }
 
   function updateProgressBar() {
@@ -798,162 +993,140 @@
   }
 
   function checkPracticeAnswer() {
-    let boxText = document.getElementById('p-ans').innerText;
-    if(boxText === '') return;
+    let valSA = document.getElementById('p-shift-a').innerText;
+    let valSB = document.getElementById('p-shift-b').innerText;
+    let valAns = document.getElementById('p-ans').innerText;
 
-    if (boxText.includes('.')) {
-        showModal('🔴', 'Format Error', 'Please use a comma ( , ) instead of a full stop.');
-        document.getElementById('p-ans').innerText = '';
-        return;
+    let box = document.getElementById(activeBoxId);
+    if (box.innerText === '') return;
+
+    if (activeBoxId === 'p-shift-a') { box.classList.add('flash-success'); openKeypad('p-shift-b', 'practice'); return; }
+    if (activeBoxId === 'p-shift-b') { box.classList.add('flash-success'); openKeypad('p-ans', 'practice'); return; }
+
+    if (valAns === '') return;
+
+    // --- STRICT SEQUENCE INTERCEPT ---
+    if (valSA === '' || valSB === '') {
+        showError("Show your work! Shift both decimals first to create the safe equation.");
+        openKeypad((valSA === '') ? 'p-shift-a' : 'p-shift-b', 'practice');
+        return; 
     }
 
-    let userFloat = parseFloat(boxText.replace(',', '.'));
-    let ansFloat = parseFloat(currentQ.ansStr.replace(',', '.'));
-    
-    let isCorrect = (!isNaN(userFloat) && userFloat === ansFloat && !boxText.endsWith(','));
+    let isSACorrect = (valSA === currentQ.shiftA);
+    let isSBCorrect = (valSB === currentQ.shiftB);
+    let isAnsCorrect = (valAns === currentQ.ans);
 
-    if(isCorrect) {
+    if (isSACorrect && isSBCorrect && isAnsCorrect) {
+        document.getElementById('p-ans').classList.add('flash-success');
+        closeKeypad(); 
+        
         masteryPoints++;
         streak++;
         xp += 50; 
         updateProgressBar();
-        document.getElementById('p-ans').classList.add('flash-green');
-        
-        // Auto-format currency zero
-        if (currentQ.sym === "R" && boxText.includes(',') && boxText.split(',')[1].length === 1) {
-            document.getElementById('p-ans').innerText += '0';
-        }
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // STRICT MODE: HARD RESET
-        masteryPoints = 0;
-        streak = 0;
-        updateProgressBar();
-        document.getElementById('p-ans').classList.add('flash-red');
-        
-        showModal('🔴', 'Streak Broken', `Strict Mastery requires 5 correct answers in a row. Your streak has been reset to 0.\n\n${currentQ.hint}`);
+        // DEC-08 TRAPDOORS
+        let errorMsg = `Streak Broken!\n\n1. Multiply both by ${currentQ.mult}.\n2. Safe Equation: ${currentQ.shiftA} ÷ ${currentQ.shiftB}.\n3. Final Answer: ${currentQ.ans}.`;
+        let errorTag = "General_Error";
+
+        if (valSA === currentQ.trapA && valSB === currentQ.shiftB) {
+            errorMsg = `ASYNCHRONOUS SHIFT TRAP!\n\nYou successfully multiplied the divisor by ${currentQ.mult} to make it whole, but you FORGOT to shift the dividend! Whatever you do to the outside, you MUST do to the inside!`;
+            errorTag = "Forgot_To_Shift_Dividend";
+        } else if (!isSACorrect || !isSBCorrect) {
+            errorMsg = `SHIFT ERROR!\n\nTo make ${currentQ.b} a whole number, you must multiply by ${currentQ.mult}. You MUST multiply both numbers by exactly ${currentQ.mult}.`;
+            errorTag = "Incorrect_Shift_Calculation";
+        } else if (!isAnsCorrect) {
+             errorMsg = `DIVISION ERROR!\n\nYou successfully built the safe equation: ${currentQ.shiftA} ÷ ${currentQ.shiftB}. Check your division math to find ${currentQ.ans}.`;
+             errorTag = "Final_Division_Calculation_Error";
+        }
+
+        triggerStreakBreak(errorMsg, errorTag);
     }
   }
 
-  // --- MODAL & END LOGIC ---
-  function showModal(icon, title, text) {
-    document.getElementById('modal-icon').innerText = icon;
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-title').style.color = (icon === '🟢') ? 'var(--success)' : ((icon === '🔵') ? 'var(--primary)' : 'var(--danger)');
-    document.getElementById('modal-text').innerHTML = text.replace(/\n/g, '<br>');
-    document.getElementById('hint-modal').classList.add('show');
-    if(appState === 'PRACTICE' || appState === 'GUIDED') {
-      document.getElementById('modal-btn').innerText = "I Understand";
-      document.getElementById('modal-btn').onclick = closeModal;
-    }
-  }
+  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
+  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
 
-  function closeModal() { 
-    document.getElementById('hint-modal').classList.remove('show'); 
-    let box = document.getElementById(activeBoxId);
-    if(box) box.classList.remove('flash-red');
-  }
-
-</script>
-
-  <!-- ⌨️ PHYSICAL KEYBOARD SUPPORT PATCH -->
-  <script>
-    document.addEventListener('keydown', function(event) {
-      if(appState === 'LOCKED') return; 
-      let hintModal = document.getElementById('hint-modal');
-      if (hintModal && hintModal.classList.contains('show')) {
-        if (event.key === 'Enter') document.getElementById('modal-btn').click();
-        return;
-      }
-      if (event.key >= '0' && event.key <= '9') {
-        typeNum(event.key);
-      } else if (event.key === ',' || event.key === '.') {
-        event.preventDefault();
-        typeNum(',');
-      } else if (event.key === 'Backspace' || event.key === 'Delete') {
-        deleteNum();
-      } else if (event.key === 'Enter') {
-        submitAnswer();
-      }
+  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      errorType: errorTag,         
+      timestamp: new Date().toISOString() 
     });
-  </script>
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
 
-  <!-- 🔌 DASHBOARD SYNC PATCH & TELEMETRY -->
-  <script>
-    const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
-
-    function logTelemetryEvent(action, accuracyVal) {
-      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
-      let student = p.studentId || "Unknown";
-      let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp += xp; 
       
-      let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
-      queue.push({
-        studentId: student,
-        moduleId: currentModuleId,
-        xp: xp,
-        accuracy: accuracyVal,
-        fails: fails,
-        action: action
-      });
-      localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    endModule = function() {
+    logTelemetryEvent("Mastered Module", 100);
+
+    closeKeypad();
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  };
+
+  const originalEvaluateSprint = evaluateSprint;
+  evaluateSprint = function() {
+    originalEvaluateSprint(); 
+    
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
         let profile = JSON.parse(saved);
-        profile.xp += xp; 
-        
-        if(!profile.completedNodes.includes(currentModuleId)) {
-          profile.completedNodes.push(currentModuleId);
-          
-          let currentIndex = curriculumOrder.indexOf(currentModuleId);
-          if (profile.unlockedNodeIndex === currentIndex) {
-            profile.unlockedNodeIndex = currentIndex + 1; 
-          }
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) {
+          profile.failedAttempts[currentModuleId] = 0;
         }
+        profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+    } else {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+    }
+  };
 
-      logTelemetryEvent("Mastered Module", 100);
-
-      closeModal();
-      document.getElementById('zone-practice').classList.add('hidden');
-      document.getElementById('keypad').classList.add('hidden');
-      document.getElementById('zone-learn').classList.remove('hidden');
-      document.getElementById('zone-learn').innerHTML = `
-        <h1 style="font-size:4rem; margin:0;">🏆</h1>
-        <h2 style="color:var(--success);">Decimal Suite Mastered!</h2>
-        <h3 style="color:var(--primary);">Total: ${xp} XP</h3>
-        <p>You have conquered every decimal concept required for Grade 9. Incredible work.</p>
-        <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
-      `;
-    };
-
-    const originalEvaluateSprint = evaluateSprint;
-    evaluateSprint = function() {
-      originalEvaluateSprint(); 
-      
-      let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-      if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-        let saved = localStorage.getItem('harvest_maths_profile');
-        if(saved) {
-          let profile = JSON.parse(saved);
-          if(!profile.failedAttempts) profile.failedAttempts = {};
-          if(!profile.failedAttempts[currentModuleId]) {
-            profile.failedAttempts[currentModuleId] = 0;
-          }
-          profile.failedAttempts[currentModuleId]++;
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-        }
-        logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-      } else {
-        logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-      }
-    };
-  </script>
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  document.addEventListener('keydown', function(event) {
+    if(appState === 'LOCKED') return; 
+    
+    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+      typeNum(event.key);
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
 </body>
 </html>
