@@ -76,7 +76,7 @@
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-    /* DECIMAL KEYPAD (FLEXBOX FLOW) */
+    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -96,13 +96,15 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
     
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
-    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; grid-column: span 3; height: 60px; margin-top: 5px; }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
     /* V2 ERROR TOAST & COMPLETION OVERLAY */
@@ -164,41 +166,41 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">Ignore the Dots</div>
-      <p class="instruction-text">When multiplying decimals, do NOT try to line up the dots! First, multiply the numbers exactly like they are whole numbers.</p>
+      <div class="section-title">Ignore the Commas</div>
+      <p class="instruction-text">When multiplying decimals, do NOT try to line up the commas! First, multiply the numbers exactly like they are whole numbers.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
-            <div style="color:var(--indigo);">0.3</div>
+            <div style="color:var(--indigo);">0,3</div>
             <div class="operator" style="color:var(--amber); margin:0 10px;">×</div>
-            <div style="color:var(--rose);">0.04</div>
+            <div style="color:var(--rose);">0,04</div>
         </div>
 
         <div style="color:var(--slate-400); font-size:1.5rem; font-weight:800; margin-bottom:15px;">⬇</div>
 
         <div class="math-row" style="font-size: 2.5rem; justify-content:center;">
-            <div style="color:var(--indigo);"><span class="crossed-out">0.</span>3</div>
+            <div style="color:var(--indigo);"><span class="crossed-out">0,</span>3</div>
             <div class="operator" style="color:var(--amber); margin:0 10px;">×</div>
-            <div style="color:var(--rose);"><span class="crossed-out">0.0</span>4</div>
+            <div style="color:var(--rose);"><span class="crossed-out">0,0</span>4</div>
             <div class="operator" style="margin:0 10px;">=</div>
             <div style="color:var(--emerald);">12</div>
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We pretend the decimals aren't there. <b>3 × 4 = 12</b>. That is our base number.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We pretend the commas aren't there. <b>3 × 4 = 12</b>. That is our base number.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">The Decimal Counter</div>
-      <p class="instruction-text">Now, count every single digit that sits behind a decimal point in the original problem.</p>
+      <p class="instruction-text">Now, count every single digit that sits behind a decimal comma in the original problem.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 3rem; margin-bottom:15px; color:var(--slate-900);">
-            <div>0.<span class="dec-highlight">3</span></div>
+            <div>0,<span class="dec-highlight">3</span></div>
             <div class="operator" style="color:var(--amber); margin:0 15px;">×</div>
-            <div>0.<span class="dec-highlight">0</span><span class="dec-highlight">4</span></div>
+            <div>0,<span class="dec-highlight">0</span><span class="dec-highlight">4</span></div>
         </div>
         
         <div style="display:flex; justify-content:center; gap:20px; width:100%; margin-top:20px;">
@@ -208,20 +210,20 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">There is <b>1</b> digit behind the dot in 0.3, and <b>2</b> digits behind the dot in 0.04. That equals <b>3 total places</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">There is <b>1</b> digit behind the comma in 0,3, and <b>2</b> digits behind the comma in 0,04. That equals <b>3 total places</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
       <div class="section-title">The Final Shift</div>
-      <p class="instruction-text">Place the decimal point in your answer so it has exactly the same number of places.</p>
+      <p class="instruction-text">Place the comma in your answer so it has exactly the same number of places.</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--slate-500); margin-top:0;">Base Number: 12</p>
         
         <div class="math-row" style="font-size: 3.5rem; justify-content:center; margin-top:15px; letter-spacing:5px;">
-            <div style="color:var(--emerald);">0.012</div>
+            <div style="color:var(--emerald);">0,012</div>
         </div>
         
         <div style="display:flex; justify-content:center; gap:5px; margin-top:5px; padding-left:15px;">
@@ -230,7 +232,7 @@
             <div style="width:25px; height:10px; border-top:3px solid var(--emerald); border-right:3px solid var(--emerald); border-radius:0 50% 0 0;"></div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We needed 3 decimal places, but 12 only has 2 digits. So we pad the front with a zero to make it <b>0.012</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We needed 3 decimal places, but 12 only has 2 digits. So we pad the front with a zero to make it <b>0,012</b>.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -278,7 +280,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Multiply as whole numbers, count the places, and place the dot.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Multiply as whole numbers, count the places, and place the comma.</p>
     </div>
 
     <div class="pinned-visual">
@@ -307,22 +309,27 @@
     </div>
   </div>
 
-  <!-- V2 DECIMAL KEYPAD (FLEXBOX) -->
+  <!-- V2 12-COLUMN HYBRID DECIMAL KEYPAD (FLEXBOX) -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
+      <!-- Standard Numerals (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
+      
       <div class="key-btn" onclick="typeNum('4')">4</div>
       <div class="key-btn" onclick="typeNum('5')">5</div>
       <div class="key-btn" onclick="typeNum('6')">6</div>
+      
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-dec" onclick="typeNum('.')">.</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">Submit ⏎</div>
+      
+      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -377,15 +384,29 @@
   let guidedLevel = 1;
   let gData = {};
 
-  // MATH HELPER: Safe Format
+  // MATH HELPER: Safe Format (South African Comma)
   function formatDec(rawNum, places) {
       let s = rawNum.toString();
       while (s.length <= places) {
           s = "0" + s;
       }
-      let decStr = s.slice(0, s.length - places) + "." + s.slice(s.length - places);
-      if (decStr.startsWith('.')) decStr = '0' + decStr;
+      let decStr = s.slice(0, s.length - places) + "," + s.slice(s.length - places);
+      if (decStr.startsWith(',')) decStr = '0' + decStr;
       return decStr;
+  }
+
+  // MATH HELPER: Safe String Generator (South African Comma)
+  function toDecStr(num, places) {
+      let s = num.toString();
+      if (places === 1) {
+          if (s.length === 1) return "0," + s;
+          return s.slice(0, -1) + "," + s.slice(-1);
+      } else if (places === 2) {
+          if (s.length === 1) return "0,0" + s;
+          if (s.length === 2) return "0," + s;
+          return s.slice(0, -2) + "," + s.slice(-2);
+      }
+      return s;
   }
 
   // --- INITIALIZATION ---
@@ -480,7 +501,7 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      if(char === '.' && box.innerText.includes('.')) return; 
+      if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
   }
   
@@ -814,13 +835,13 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Ignore the decimals. Multiply the numbers exactly like they are whole numbers.</div>
+          <div class="step-text">1. Ignore the commas. Multiply the numbers exactly like they are whole numbers.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Look back at the problem. Count ALL the digits behind the dots.</div>
+          <div class="step-text">2. Look back at the problem. Count ALL the digits behind the commas.</div>
         </div>
         <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Place the decimal in your answer so it matches the total places exactly.</div>
+          <div class="step-text">3. Place the comma in your answer so it matches the total places exactly.</div>
         </div>
       `;
       openKeypad('g-wn', 'g-step-1');
@@ -830,9 +851,9 @@
       guidedSubStep = 1;
       
       if (guidedLevel === 1) {
-          gData = { str1: "0.2", str2: "0.3", wn: "6", pl: "2", ans: "0.06" };
+          gData = { str1: "0,2", str2: "0,3", wn: "6", pl: "2", ans: "0,06" };
       } else {
-          gData = { str1: "1.2", str2: "0.04", wn: "48", pl: "3", ans: "0.048" };
+          gData = { str1: "1,2", str2: "0,04", wn: "48", pl: "3", ans: "0,048" };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -873,7 +894,7 @@
               
               openKeypad('g-pl', 'g-step-2');
           } else {
-              showError(`Ignore the dots. Just multiply the whole numbers together.`);
+              showError(`Ignore the commas. Just multiply the whole numbers together.`);
               flashError(box);
           }
       } else if (activeStepId === 'g-step-2') {
@@ -895,7 +916,7 @@
               document.getElementById('g-ans-area').style.display = 'flex';
               openKeypad('g-ans', 'g-step-3');
           } else {
-              showError(`Count every digit behind a decimal point in ${gData.str1} and ${gData.str2}.`);
+              showError(`Count every digit behind a decimal comma in ${gData.str1} and ${gData.str2}.`);
               flashError(box);
           }
       } else if (activeStepId === 'g-step-3') {
@@ -941,21 +962,7 @@
     loadPracticeQuestion();
   }
 
-  function toDecStr(num, places) {
-      let s = num.toString();
-      if (places === 1) {
-          if (s.length === 1) return "0." + s;
-          return s.slice(0, -1) + "." + s.slice(-1);
-      } else if (places === 2) {
-          if (s.length === 1) return "0.0" + s;
-          if (s.length === 2) return "0." + s;
-          return s.slice(0, -2) + "." + s.slice(-2);
-      }
-      return s;
-  }
-
   function generatePracticeQuestion() {
-    // We intentionally skip 10 to avoid trailing zero bugs that obscure the place-counting logic
     let bases = [2,3,4,5,6,7,8,9,11,12];
     let b1 = bases[Math.floor(Math.random() * bases.length)];
     let b2 = bases[Math.floor(Math.random() * bases.length)];
@@ -976,8 +983,7 @@
         str2: str2,
         rawWN: rawProd.toString(),
         places: totalPlaces.toString(),
-        ans: finalStr,
-        addTrap: (parseFloat(str1) + parseFloat(str2)).toString() // Just in case they added
+        ans: finalStr
     };
   }
 
@@ -1045,17 +1051,22 @@
         let errorTag = "General_Error";
 
         if (!isWnCorrect) {
-            errorMsg = `MATH ERROR!\n\nYou must multiply the numbers first. Ignore the dots. What is ${currentQ.rawWN / (currentQ.str2.replace('.','')*1)} × ${currentQ.str2.replace('.','')*1}? It's ${currentQ.rawWN}, not ${valWN}.`;
+            let pureInt1 = currentQ.str1.replace(',','') * 1;
+            let pureInt2 = currentQ.str2.replace(',','') * 1;
+            errorMsg = `MATH ERROR!\n\nYou must multiply the numbers first. Ignore the commas. What is ${pureInt1} × ${pureInt2}? It's ${currentQ.rawWN}, not ${valWN}.`;
             errorTag = "Whole_Number_Multiplication_Error";
         } else if (!isPlCorrect) {
-            errorMsg = `COUNTING ERROR!\n\nLook at the original problem: ${currentQ.str1} × ${currentQ.str2}. You must count EVERY digit that sits behind a dot. There are exactly ${currentQ.places} places, not ${valPl}.`;
+            errorMsg = `COUNTING ERROR!\n\nLook at the original problem: ${currentQ.str1} × ${currentQ.str2}. You must count EVERY digit that sits behind a comma. There are exactly ${currentQ.places} places, not ${valPl}.`;
             errorTag = "Miscounted_Decimal_Places";
         } else if (!isAnsCorrect) {
-            errorMsg = `PLACEMENT ERROR!\n\nYou calculated the correct base number (${currentQ.rawWN}) and you counted the right number of places (${currentQ.places}). But you placed the decimal incorrectly! It must be exactly ${currentQ.ans}.`;
+            errorMsg = `PLACEMENT ERROR!\n\nYou calculated the correct base number (${currentQ.rawWN}) and you counted the right number of places (${currentQ.places}). But you placed the comma incorrectly! It must be exactly ${currentQ.ans}.`;
             errorTag = "Incorrect_Decimal_Placement";
             
-            // Check for float equivalence formatting error
-            if (parseFloat(valAns) === parseFloat(currentQ.ans) && valAns !== currentQ.ans) {
+            // Check for float equivalence formatting error safely
+            let userFloat = parseFloat(valAns.replace(',', '.'));
+            let targFloat = parseFloat(currentQ.ans.replace(',', '.'));
+            
+            if (userFloat === targFloat && valAns !== currentQ.ans) {
                  errorMsg = `FORMAT ERROR!\n\nYour answer is technically correct, but you must format it exactly with ${currentQ.places} places. The answer is ${currentQ.ans}.`;
                  errorTag = "Formatting_Error";
             }
@@ -1137,7 +1148,7 @@
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === '.') {
+    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
