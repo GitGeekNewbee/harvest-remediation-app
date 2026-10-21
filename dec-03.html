@@ -56,7 +56,7 @@
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
     /* DEC-03: VERTICAL ALIGNMENT GRID */
-    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 20px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; }
+    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 20px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; position: relative;}
     .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); } /* SA Comma Baseline Fix */
     .vert-grid .op { color: var(--slate-400); }
     .vert-grid .line { grid-column: 1 / -1; width: 100%; height: 4px; background: var(--slate-900); border-radius: 2px; margin: 5px 0; }
@@ -103,7 +103,7 @@
     
     .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
-    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    .key-bottom { grid-column: span 3; } 
     
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
@@ -175,11 +175,10 @@
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--rose); margin-top:0;">DANGER: Misaligned Place Values</p>
         
-        <div class="vert-grid" style="opacity: 0.6;">
-           <div></div>
-           <div></div><div>1</div><div class="comma">,</div><div>4</div><div></div>
-           <div class="op">+</div>
-           <div></div><div></div><div>3</div><div class="comma">,</div><div>8</div><div>5</div>
+        <!-- Flawless Grid for Misalignment Demo -->
+        <div class="vert-grid" style="opacity: 0.8;">
+           <div></div><div></div><div>1</div><div>2</div><div class="comma" style="color:var(--slate-900);">,</div><div>4</div>
+           <div class="op">+</div><div></div><div></div><div>3</div><div class="comma" style="color:var(--slate-900);">,</div><div>8</div><div style="transform:translateX(-30px);">5</div>
            <div class="line"></div>
         </div>
         
@@ -197,20 +196,42 @@
       
       <div class="pinned-visual">
         <div class="vert-grid">
-           <div></div>
-           <div></div><div>1</div><div class="comma">,</div><div>4</div><div class="pad-hint">0</div>
-           <div class="op">+</div>
-           <div></div><div>3</div><div class="comma">,</div><div>8</div><div>5</div>
+           <!-- Row 1 -->
+           <div></div><div>1</div><div>2</div><div class="comma">,</div><div>4</div><div class="pad-hint">0</div>
+           <!-- Row 2 -->
+           <div class="op">+</div><div></div><div>3</div><div class="comma">,</div><div>8</div><div>5</div>
            <div class="line"></div>
-           <div class="ans-row">
-               <div style="padding-right:15px; color:var(--emerald);">15,25</div>
-           </div>
+           <!-- Answer Row (Grid Cells for perfect alignment) -->
+           <div></div><div style="color:var(--emerald);">1</div><div style="color:var(--emerald);">6</div><div class="comma" style="color:var(--emerald);">,</div><div style="color:var(--emerald);">2</div><div style="color:var(--emerald);">5</div>
         </div>
 
         <div style="position:absolute; top:25px; left:50%; transform:translateX(-50%); width:4px; height:120px; background:var(--rose); opacity:0.3; z-index:0;"></div>
       </div>
       
       <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">To keep everything balanced, always <b style="color:var(--emerald);">pad the empty spaces with a zero</b> before you begin adding.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 (NEW) -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">Carrying Over</div>
+      <p class="instruction-text">When a column adds up to 10 or more, you must carry the extra amount to the next column on the left, just like whole numbers.</p>
+      
+      <div class="pinned-visual">
+        <div class="vert-grid">
+           <!-- Carry Row -->
+           <div></div><div></div><div style="font-size:1.2rem; color:var(--rose); font-weight:800; align-self:end; transform:translateY(5px);">+1</div><div></div><div></div><div></div>
+           <!-- Row 1 -->
+           <div></div><div>1</div><div>2</div><div class="comma">,</div><div style="color:var(--indigo);">4</div><div style="color:var(--slate-400);">0</div>
+           <!-- Row 2 -->
+           <div class="op">+</div><div></div><div>3</div><div class="comma">,</div><div style="color:var(--indigo);">8</div><div style="color:var(--slate-400);">5</div>
+           <div class="line"></div>
+           <!-- Answer Row -->
+           <div></div><div style="color:var(--emerald);">1</div><div style="color:var(--emerald);">6</div><div class="comma" style="color:var(--emerald);">,</div><div style="color:var(--emerald);">2</div><div style="color:var(--slate-400);">5</div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">4 tenths + 8 tenths = 12 tenths. We write down the <b>2</b>, and carry the <b>1</b> over the comma into the Ones column.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
 
@@ -313,7 +334,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2; 
+  const totalSlides = 3; 
   let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -358,7 +379,6 @@
 
   // --- GRID RENDER ENGINE (SOUTH AFRICAN COMMA ENABLED) ---
   function parseNum(nStr) {
-      // Split on the SA comma
       let parts = nStr.split(',');
       let intP = parts[0];
       let decP = parts[1] || "";
@@ -794,7 +814,7 @@
           <div class="step-text">1. Pad the empty space with a zero so the decimals are perfectly aligned.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Add straight down, and remember to drop the decimal comma into your answer.</div>
+          <div class="step-text">2. Add straight down. Carry any extra amounts, and drop the decimal comma straight down into your answer.</div>
         </div>
       `;
       openKeypad('g-pad', 'g-step-1');
