@@ -233,6 +233,41 @@
       </div>
       
       <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once they are exactly the same length, it is easy to see that <b>500 thousandths</b> is much larger than <b>125 thousandths</b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 (NEW: THE INEQUALITY SIGNS) -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Signs</div>
+      <p class="instruction-text">We use the <b>&lt;</b> and <b>&gt;</b> signs to compare numbers. The open mouth always eats the bigger number!</p>
+      
+      <div class="pinned-visual">
+        <div style="display:flex; flex-direction:column; gap:20px; width:100%;">
+            
+            <!-- Greater Than Example -->
+            <div style="display:flex; flex-direction:column; align-items:center; padding-bottom:15px; border-bottom:1px solid var(--slate-200);">
+                <div class="math-row" style="font-size: 2.5rem; margin-bottom:5px;">
+                    <div style="color:var(--emerald); font-weight:800;">0,500</div>
+                    <div style="color:var(--indigo); margin:0 15px;">&gt;</div>
+                    <div style="color:var(--slate-400);">0,125</div>
+                </div>
+                <div style="color:var(--slate-500); font-weight:700; font-size:0.9rem; text-transform:uppercase;">Greater Than</div>
+            </div>
+
+            <!-- Less Than Example -->
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div class="math-row" style="font-size: 2.5rem; margin-bottom:5px;">
+                    <div style="color:var(--slate-400);">0,125</div>
+                    <div style="color:var(--rose); margin:0 15px;">&lt;</div>
+                    <div style="color:var(--emerald); font-weight:800;">0,500</div>
+                </div>
+                <div style="color:var(--slate-500); font-weight:700; font-size:0.9rem; text-transform:uppercase;">Less Than</div>
+            </div>
+
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If the first number is bigger, use <b>&gt;</b> (Greater Than). If the first number is smaller, use <b>&lt;</b> (Less Than).</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
 
@@ -255,14 +290,11 @@
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
         
-        <!-- Horizontal Answer Equation -->
+        <!-- Horizontal Answer Equation (ALL VISIBLE IMMEDATELY) -->
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
             <div class="input-box wide" id="g-pad-1" onclick="openKeypad('g-pad-1', 'g-step-1')"></div>
-            
-            <div id="g-sign-area" style="display:none; align-items:center; gap:15px;">
-                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-sign" onclick="openKeypad('g-sign', 'g-step-2')"></div>
-                <div class="input-box wide" id="g-pad-2" onclick="openKeypad('g-pad-2', 'g-step-1')"></div>
-            </div>
+            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-sign" onclick="openKeypad('g-sign', 'g-step-2')"></div>
+            <div class="input-box wide" id="g-pad-2" onclick="openKeypad('g-pad-2', 'g-step-1')"></div>
         </div>
     </div>
   </div>
@@ -362,7 +394,7 @@
 
   // Mastery Variables
   let slideIndex = 1;
-  const totalSlides = 2; 
+  const totalSlides = 3; 
   let streak = 0;
   let masteryPoints = 0;
   const masteryTarget = 5;
@@ -462,15 +494,20 @@
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
       
-      // Allow only one decimal comma, allow only one comparator
+      // Allow only one decimal comma
       if(char === ',' && box.innerText.includes(',')) return; 
+      
+      // Comparator Input Logic & Error Handling
       if(['<', '>', '='].includes(char)) {
           if (activeBoxId === 'p-sign' || activeBoxId === 'g-sign') {
-              box.innerText = char; // Replace if it's the sign box
+              box.innerText = char; 
+          } else {
+              showError("Pad the decimals with zeros first! You are currently typing in a number box.");
+              flashError(box);
           }
           return; 
       }
-      // Increased length to 7 to safely accommodate "0,xxxx" padding if needed
+      
       if(box.innerText.length < 7) box.innerText += char;
   }
   
@@ -858,8 +895,6 @@
           let el = document.getElementById(id);
           if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
       });
-      
-      document.getElementById('g-pad-2').parentElement.style.display = 'none'; // hide step 2
 
       buildGuidedSteps();
   }
@@ -891,7 +926,6 @@
                   document.getElementById('g-step-1').classList.add('completed');
                   document.getElementById('g-step-2').classList.remove('locked');
                   
-                  document.getElementById('g-sign-area').style.display = 'flex';
                   openKeypad('g-sign', 'g-step-2');
               } else {
                   showError(gData.err1);
@@ -1017,15 +1051,15 @@
     let box = document.getElementById(activeBoxId);
     if (box.innerText === '') return;
 
-    if (activeBoxId === 'p-pad-1') { box.classList.add('flash-success'); openKeypad('p-sign', 'practice'); return; }
-    if (activeBoxId === 'p-sign') { box.classList.add('flash-success'); openKeypad('p-pad-2', 'practice'); return; }
+    if (activeBoxId === 'p-pad-1') { box.classList.add('flash-success'); openKeypad('p-pad-2', 'practice'); return; }
+    if (activeBoxId === 'p-pad-2') { box.classList.add('flash-success'); openKeypad('p-sign', 'practice'); return; }
 
-    if (val2 === '') return;
+    if (valS === '') return;
 
     // --- STRICT SEQUENCE INTERCEPT ---
-    if (val1 === '' || valS === '') {
+    if (val1 === '' || val2 === '') {
         showError("Show your work! Pad the decimals and choose a sign.");
-        openKeypad((val1 === '') ? 'p-pad-1' : 'p-sign', 'practice');
+        openKeypad((val1 === '') ? 'p-pad-1' : 'p-pad-2', 'practice');
         return; 
     }
 
@@ -1034,7 +1068,7 @@
     let isSignCorrect = (valS === currentQ.ansSign);
 
     if (isPad1Correct && isPad2Correct && isSignCorrect) {
-        document.getElementById('p-pad-2').classList.add('flash-success');
+        document.getElementById('p-sign').classList.add('flash-success');
         closeKeypad(); 
         
         masteryPoints++;
