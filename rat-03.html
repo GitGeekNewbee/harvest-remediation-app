@@ -101,10 +101,24 @@
         border-top: 1px solid var(--slate-300); 
         box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
     }
-    .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 400px; }
-    
-    .key-btn { background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+
+    /* TRUE 12-COLUMN HYBRID GRID */
+    .keypad-grid { 
+        display: grid; 
+        grid-template-columns: repeat(12, 1fr); 
+        gap: 8px; 
+        width: 100%; 
+        max-width: 400px; 
+    }
+    .key-btn { 
+        grid-column: span 4; 
+        background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; 
+        height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); 
+        display: flex; justify-content: center; align-items: center; cursor: pointer; 
+        transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); 
+    }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; } 
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
@@ -332,9 +346,11 @@
       <div class="key-btn" onclick="typeNum('7')">7</div>
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
-      <div class="key-btn key-action" onclick="deleteNum()">⌫</div>
-      <div class="key-btn" onclick="typeNum('0')">0</div>
-      <div class="key-btn key-enter" onclick="submitAnswer()">⏎</div>
+      <!-- Bottom Row: 4 keys spanning 3 columns each -->
+      <div class="key-btn key-bottom" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
     </div>
   </div>
 
@@ -1056,141 +1072,4 @@
     let valN = document.getElementById('p-ans-n').innerText;
     let valD = document.getElementById('p-ans-d').innerText;
     
-    // --- TRAPDOOR SEQUENCE INTERCEPT ---
-    if (valN === '' || valD === '') {
-        showError("Show your work! You must fill in both numbers.");
-        let emptyBox = (valN === '') ? 'p-ans-n' : 'p-ans-d';
-        openKeypad(emptyBox, 'practice');
-        return; 
-    }
-
-    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
-
-    if(isCorrect) {
-        document.getElementById('p-ans-d').classList.add('flash-success');
-        closeKeypad(); // Sync Transition
-        
-        masteryPoints++;
-        streak++;
-        xp += 50; 
-        updateProgressBar();
-        
-        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
-        else setTimeout(loadPracticeQuestion, 800);
-    } else {
-        let userVal = parseFloat(valN) / parseFloat(valD);
-        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
-        
-        let errorMsg = `Streak Broken!\n\n1. Add the tops to get ${currentQ.rawN}.\n2. The bottom stays ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
-        let errorTag = "General_Error";
-
-        if (!isNaN(userVal) && userVal === rawVal && (valN !== currentQ.ansN)) {
-            errorMsg = `NOT SIMPLIFIED!\n\nYour addition is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST divide the top and bottom by their common factor.`;
-            errorTag = "Unsimplified_Answer";
-        } else if (valD !== currentQ.ansD && valD !== currentQ.rawD) {
-            errorMsg = `CRITICAL ERROR!\n\nYou added the bottoms! Remember the blocks? The pieces don't magically shrink. The denominator stays the same.`;
-            errorTag = "Added_Denominators";
-        }
-
-        masteryPoints = 0;
-        streak = 0;
-        updateProgressBar();
-        document.getElementById('p-ans-n').classList.add('flash-error');
-        document.getElementById('p-ans-d').classList.add('flash-error');
-        
-        showError(errorMsg);
-        logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
-        
-        setTimeout(() => {
-            document.getElementById('p-ans-n').innerText = '';
-            document.getElementById('p-ans-d').innerText = '';
-            document.getElementById('p-ans-n').classList.remove('flash-error');
-            document.getElementById('p-ans-d').classList.remove('flash-error');
-            openKeypad('p-ans-n', 'practice');
-        }, 3500);
-    }
-  }
-
-  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
-
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
-    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
-    let student = p.studentId || "Unknown";
-    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
-    
-    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
-    queue.push({
-      studentId: student,
-      moduleId: currentModuleId,
-      xp: xp,
-      accuracy: accuracyVal,
-      fails: fails,
-      action: action,
-      errorType: errorTag,         
-      timestamp: new Date().toISOString() 
-    });
-    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
-  }
-
-  function endModule() {
-    let saved = localStorage.getItem('harvest_maths_profile');
-    if(saved) {
-      let profile = JSON.parse(saved);
-      profile.xp += xp; 
-      
-      if(!profile.completedNodes.includes(currentModuleId)) {
-        profile.completedNodes.push(currentModuleId);
-        
-        let currentIndex = curriculumOrder.indexOf(currentModuleId);
-        if (profile.unlockedNodeIndex === currentIndex) {
-          profile.unlockedNodeIndex = currentIndex + 1; 
-        }
-      }
-      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-    }
-
-    logTelemetryEvent("Mastered Module", 100);
-
-    closeKeypad();
-    document.getElementById('final-xp').innerText = xp;
-    document.getElementById('completion-screen').classList.add('show');
-  };
-
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-    }
-  };
-
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
-  document.addEventListener('keydown', function(event) {
-    if(appState === 'LOCKED') return; 
-    
-    if (event.key >= '0' && event.key <= '9') {
-      typeNum(event.key);
-    } else if (event.key === 'Backspace' || event.key === 'Delete') {
-      deleteNum();
-    } else if (event.key === 'Enter') {
-      submitAnswer();
-    }
-  });
-</script>
-</body>
-</html>
+    // --- TRAP
