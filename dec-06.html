@@ -30,7 +30,7 @@
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
 
-    /* SCROLL ENGINE */
+    /* SCROLL ENGINE: Shrinks naturally when keypad opens */
     .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
     .hidden { display: none !important; }
 
@@ -61,7 +61,7 @@
     .crossed-out::after { content: ''; position: absolute; top: 50%; left: -10%; width: 120%; height: 3px; background: var(--rose); transform: rotate(-20deg); }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
@@ -75,8 +75,10 @@
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -88,6 +90,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 380px; 
@@ -107,13 +110,21 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -135,9 +146,9 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To multiply decimals, your whole-number times tables must be flawless.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To multiply decimals accurately, your whole-number times tables must be automatic.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
@@ -166,8 +177,8 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">Ignore the Commas</div>
-      <p class="instruction-text">When multiplying decimals, do NOT try to line up the commas! First, multiply the numbers exactly like they are whole numbers.</p>
+      <div class="section-title">Step 1: Multiply as Whole Numbers</div>
+      <p class="instruction-text">When multiplying decimals, do NOT line up the commas! First, ignore the commas and multiply the numbers as whole numbers.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2.5rem; margin-bottom:15px; justify-content:center;">
@@ -187,14 +198,14 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We pretend the commas aren't there. <b>3 × 4 = 12</b>. That is our base number.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Ignore the commas first: <b>3 × 4 = 12</b>. That gives us our Whole Number product.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">The Decimal Counter</div>
-      <p class="instruction-text">Now, count every single digit that sits behind a decimal comma in the original problem.</p>
+      <div class="section-title">Step 2: Count Total Decimal Places</div>
+      <p class="instruction-text">Next, count every single digit that sits behind a decimal comma in BOTH numbers of the question.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 3rem; margin-bottom:15px; color:var(--slate-900);">
@@ -210,17 +221,17 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">There is <b>1</b> digit behind the comma in 0,3, and <b>2</b> digits behind the comma in 0,04. That equals <b>3 total places</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem; font-weight:600;">There is <b>1</b> digit behind the comma in 0,3, and <b>2</b> digits behind the comma in 0,04. That equals <b>3 Total Places</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <div class="section-title">The Final Shift</div>
-      <p class="instruction-text">Place the comma in your answer so it has exactly the same number of places.</p>
+      <div class="section-title">Step 3: Place the Comma</div>
+      <p class="instruction-text">Place the decimal comma in your Final Answer so that it has the exact same number of decimal places.</p>
       
       <div class="pinned-visual">
-        <p style="text-align:center; font-weight:800; color:var(--slate-500); margin-top:0;">Base Number: 12</p>
+        <p style="text-align:center; font-weight:800; color:var(--slate-500); margin-top:0;">Whole Number Product: 12</p>
         
         <div class="math-row" style="font-size: 3.5rem; justify-content:center; margin-top:15px; letter-spacing:5px;">
             <div style="color:var(--emerald);">0,012</div>
@@ -232,7 +243,7 @@
             <div style="width:25px; height:10px; border-top:3px solid var(--emerald); border-right:3px solid var(--emerald); border-radius:0 50% 0 0;"></div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We needed 3 decimal places, but 12 only has 2 digits. So we pad the front with a zero to make it <b>0,012</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We need 3 decimal places, and 12 only has 2 digits, so we put a placeholder zero in front to get the Final Answer <b>0,012</b>.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -256,7 +267,7 @@
         <!-- Multi-Step Interactive Horizontal Workflow -->
         <div class="math-row" style="gap:15px; margin-bottom:15px;">
            <div style="display:flex; flex-direction:column; align-items:center;">
-               <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE MATH</span>
+               <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE NUMBERS</span>
                <div class="input-box wide" id="g-wn" onclick="openKeypad('g-wn', 'g-step-1')"></div>
            </div>
            
@@ -266,8 +277,8 @@
            </div>
         </div>
         
-        <div id="g-ans-area" style="display:none; align-items:center; width:100%; justify-content:center;">
-            <div class="operator" style="margin-right:15px;">=</div>
+        <div id="g-ans-area" style="display:none; align-items:center; width:100%; justify-content:center; gap: 10px;">
+            <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
             <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-3')"></div>
         </div>
 
@@ -280,7 +291,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Multiply as whole numbers, count the places, and place the comma.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Multiply as whole numbers, count total places, and enter your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
@@ -292,7 +303,7 @@
         
         <div class="math-row" style="gap:15px; margin-bottom:15px;">
            <div style="display:flex; flex-direction:column; align-items:center;">
-               <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE MATH</span>
+               <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE NUMBERS</span>
                <div class="input-box wide active" id="p-wn" onclick="openKeypad('p-wn', 'practice')"></div>
            </div>
            
@@ -302,8 +313,8 @@
            </div>
         </div>
         
-        <div style="display:flex; align-items:center; width:100%; justify-content:center;">
-            <div class="operator" style="margin-right:15px;">=</div>
+        <div style="display:flex; align-items:center; width:100%; justify-content:center; gap: 10px;">
+            <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
             <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
         </div>
     </div>
@@ -325,7 +336,7 @@
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
       
-      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <!-- Bottom Row (Span 3 - South African Comma Notation) -->
       <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
       <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
       <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
@@ -338,6 +349,14 @@
       <div class="toast-icon">⚠️</div>
       <div id="toast-msg">Error message goes here.</div>
       <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
   </div>
 
   <!-- COMPLETION OVERLAY -->
@@ -357,6 +376,7 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-06'; 
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -383,6 +403,15 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
 
   // MATH HELPER: Safe Format (South African Comma)
   function formatDec(rawNum, places) {
@@ -465,7 +494,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -493,22 +522,22 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
-      if(box.innerText.length < 6) box.innerText += char;
+      if(box.innerText.length < 7) box.innerText += char;
   }
   
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -535,26 +564,29 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-wn', 'p-pl', 'p-ans'].forEach(id => {
           let el = document.getElementById(id);
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
-          ['p-wn', 'p-pl', 'p-ans'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-wn', 'practice');
-      }, 5000);
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -621,6 +653,7 @@
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
@@ -655,12 +688,13 @@
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -671,6 +705,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -685,12 +720,12 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -792,7 +827,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -835,21 +870,20 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Ignore the commas. Multiply the numbers exactly like they are whole numbers.</div>
+          <div class="step-text">1. Ignore the commas and multiply the numbers as Whole Numbers.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Look back at the problem. Count ALL the digits behind the commas.</div>
+          <div class="step-text">2. Count ALL the digits behind the decimal commas in the question.</div>
         </div>
         <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Place the comma in your answer so it matches the total places exactly.</div>
+          <div class="step-text">3. Place the comma so your Final Answer has that exact number of decimal places.</div>
         </div>
       `;
       openKeypad('g-wn', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
-      guidedSubStep = 1;
-      
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { str1: "0,2", str2: "0,3", wn: "6", pl: "2", ans: "0,06" };
       } else {
@@ -876,7 +910,6 @@
   function checkGuidedAnswer() {
       let valWN = document.getElementById('g-wn').innerText;
       let valPl = document.getElementById('g-pl').innerText;
-      let valAns = document.getElementById('g-ans').innerText;
       
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
@@ -894,7 +927,7 @@
               
               openKeypad('g-pl', 'g-step-2');
           } else {
-              showError(`Ignore the commas. Just multiply the whole numbers together.`);
+              showError(`Ignore the commas first. Multiply the whole numbers together.`);
               flashError(box);
           }
       } else if (activeStepId === 'g-step-2') {
@@ -935,17 +968,20 @@
               xp += 10;
               document.getElementById('xp-counter').innerText = xp;
               
+              let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+              logTelemetryEvent("Guided Practice Correct", 100, "Guided_Dec_06", durationSeconds);
+
               setTimeout(() => {
                   if (guidedLevel === 1) {
                       guidedLevel = 2;
-                      showError("Excellent! Let's do one more."); 
+                      showError("Well done! Let's try one more."); 
                       loadGuidedQuestion(); 
                   } else {
                       startPractice(); 
                   }
               }, 1000);
           } else {
-              showError(`The answer is ${gData.wn}, but it MUST have exactly ${gData.pl} decimal places. You might need to add zeros to the front!`);
+              showError(`Your product is ${gData.wn}, and it MUST have ${gData.pl} decimal places. Use placeholder zeros if needed!`);
               flashError(box);
           }
       }
@@ -963,7 +999,7 @@
   }
 
   function generatePracticeQuestion() {
-    let bases = [2,3,4,5,6,7,8,9,11,12];
+    let bases = [2,3,4,6,7,8,9,11,12];
     let b1 = bases[Math.floor(Math.random() * bases.length)];
     let b2 = bases[Math.floor(Math.random() * bases.length)];
 
@@ -975,20 +1011,26 @@
 
     let rawProd = b1 * b2;
     let totalPlaces = p1 + p2;
+    let maxInputPlaces = Math.max(p1, p2);
     
     let finalStr = formatDec(rawProd, totalPlaces);
+    let alignedCommaTrapStr = formatDec(rawProd, maxInputPlaces);
 
     return { 
         str1: str1,
         str2: str2,
+        b1: b1,
+        b2: b2,
         rawWN: rawProd.toString(),
         places: totalPlaces.toString(),
-        ans: finalStr
+        ans: finalStr,
+        alignedCommaTrapStr: alignedCommaTrapStr
     };
   }
 
   function loadPracticeQuestion() {
     currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
     
     ['p-wn', 'p-pl', 'p-ans'].forEach(id => {
         let el = document.getElementById(id);
@@ -1016,7 +1058,7 @@
     let valAns = document.getElementById('p-ans').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     if (activeBoxId === 'p-wn') { box.classList.add('flash-success'); openKeypad('p-pl', 'practice'); return; }
     if (activeBoxId === 'p-pl') { box.classList.add('flash-success'); openKeypad('p-ans', 'practice'); return; }
@@ -1025,7 +1067,7 @@
 
     // --- STRICT SEQUENCE INTERCEPT ---
     if (valWN === '' || valPl === '') {
-        showError("Show your work! Prove the whole number math and decimal places first.");
+        showError("Show your work! Complete the Whole Numbers and Total Places boxes first.");
         openKeypad((valWN === '') ? 'p-wn' : 'p-pl', 'practice');
         return; 
     }
@@ -1033,6 +1075,7 @@
     let isWnCorrect = (valWN === currentQ.rawWN);
     let isPlCorrect = (valPl === currentQ.places);
     let isAnsCorrect = (valAns === currentQ.ans);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
 
     if (isWnCorrect && isPlCorrect && isAnsCorrect) {
         document.getElementById('p-ans').classList.add('flash-success');
@@ -1041,48 +1084,56 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // DEC-06 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Multiply as whole numbers: ${currentQ.rawWN}\n2. Total decimal places: ${currentQ.places}\n3. Final Answer: ${currentQ.ans}`;
-        let errorTag = "General_Error";
+        // HIGH-RESOLUTION DEC-06 TRAPDOORS
+        let errorTitle = "Decimal Multiplication Error!";
+        let errorMsg = `1. Whole Number Product: ${currentQ.rawWN}\n2. Total Decimal Places: ${currentQ.places}\n3. Final Answer: ${currentQ.ans}`;
+        let cognitiveTag = "General_Multiplication_Error";
 
         if (!isWnCorrect) {
-            let pureInt1 = currentQ.str1.replace(',','') * 1;
-            let pureInt2 = currentQ.str2.replace(',','') * 1;
-            errorMsg = `MATH ERROR!\n\nYou must multiply the numbers first. Ignore the commas. What is ${pureInt1} × ${pureInt2}? It's ${currentQ.rawWN}, not ${valWN}.`;
-            errorTag = "Whole_Number_Multiplication_Error";
+            errorTitle = "Whole Number Multiplication Error!";
+            errorMsg = `Ignore the commas first and multiply the whole numbers: ${currentQ.b1} × ${currentQ.b2} = ${currentQ.rawWN}, not ${valWN}.`;
+            cognitiveTag = "Whole_Number_Multiplication_Error";
+        } else if (!valAns.includes(',')) {
+            errorTitle = "Decimal Dropping Trap!";
+            errorMsg = `You completely ignored the decimal comma in your Final Answer! After multiplying ${currentQ.b1} × ${currentQ.b2} = ${currentQ.rawWN}, you must place the comma for ${currentQ.places} decimal places: ${currentQ.ans}.`;
+            cognitiveTag = "Decimal_Dropping_Trap";
         } else if (!isPlCorrect) {
-            errorMsg = `COUNTING ERROR!\n\nLook at the original problem: ${currentQ.str1} × ${currentQ.str2}. You must count EVERY digit that sits behind a comma. There are exactly ${currentQ.places} places, not ${valPl}.`;
-            errorTag = "Miscounted_Decimal_Places";
-        } else if (!isAnsCorrect) {
-            errorMsg = `PLACEMENT ERROR!\n\nYou calculated the correct base number (${currentQ.rawWN}) and you counted the right number of places (${currentQ.places}). But you placed the comma incorrectly! It must be exactly ${currentQ.ans}.`;
-            errorTag = "Incorrect_Decimal_Placement";
-            
-            // Check for float equivalence formatting error safely
-            let userFloat = parseFloat(valAns.replace(',', '.'));
-            let targFloat = parseFloat(currentQ.ans.replace(',', '.'));
-            
-            if (userFloat === targFloat && valAns !== currentQ.ans) {
-                 errorMsg = `FORMAT ERROR!\n\nYour answer is technically correct, but you must format it exactly with ${currentQ.places} places. The answer is ${currentQ.ans}.`;
-                 errorTag = "Formatting_Error";
-            }
+            errorTitle = "Miscounted Decimal Places!";
+            errorMsg = `Count EVERY digit behind a decimal comma in BOTH numbers (${currentQ.str1} × ${currentQ.str2}). There are ${currentQ.places} total decimal places, not ${valPl}.`;
+            cognitiveTag = "Miscounted_Decimal_Places_Trap";
+        } else if (valAns === currentQ.alignedCommaTrapStr) {
+            errorTitle = "Comma Alignment Trap!";
+            errorMsg = `You did not shift for all ${currentQ.places} decimal places! In multiplication, do not just drop the comma down — add the decimal places from both numbers to get ${currentQ.ans}.`;
+            cognitiveTag = "Comma_Alignment_Trap";
+        } else {
+            errorTitle = "Decimal Placement Error!";
+            errorMsg = `You found the right product (${currentQ.rawWN}) and counted ${currentQ.places} places, but placed the comma in the wrong spot. The Final Answer is ${currentQ.ans}.`;
+            cognitiveTag = "Incorrect_Decimal_Placement_Trap";
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
     }
   }
 
   // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1092,7 +1143,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1102,7 +1155,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1115,12 +1169,12 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete");
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
   const originalEvaluateSprint = evaluateSprint;
   evaluateSprint = function() {
@@ -1138,18 +1192,27 @@
         profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
     } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
     }
   };
 
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
+    if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
     } else if (event.key === 'Enter') {

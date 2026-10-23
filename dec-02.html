@@ -65,7 +65,7 @@
     .zero-pad { color: var(--emerald); font-weight: 800; background: var(--emerald-light); border-radius: 4px; padding: 2px 8px;}
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
@@ -78,8 +78,10 @@
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -91,6 +93,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 420px; 
@@ -111,13 +114,21 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.4rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -139,9 +150,9 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To compare decimals, you must equalize them by padding with zeros. Prove your fluency.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To compare decimals fairly, you must make them the same length by padding with zeros.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
@@ -159,7 +170,7 @@
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
     <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Pad to Hundredths</div>
-    <p style="color:var(--slate-500); font-weight:600; margin-bottom: 20px;">Add trailing zeros to match the length.</p>
+    <p style="color:var(--slate-500); font-weight:600; margin-bottom: 20px;">Add trailing zeros to match the target length.</p>
     
     <div class="math-row" style="font-size:3rem; color:var(--indigo);" id="sprint-q"></div>
     <div class="math-row" style="margin-top:20px;">
@@ -172,11 +183,11 @@
     
     <!-- Slide 1 -->
     <div id="slide-1">
-      <div class="section-title">The "Longer is Larger" Trap</div>
-      <p class="instruction-text">Which number is bigger: <b style="color:var(--indigo);">0,5</b> or <b style="color:var(--rose);">0,125</b>?</p>
+      <div class="section-title">The Whole Number Bias Trap</div>
+      <p class="instruction-text">Which number is larger: <b style="color:var(--indigo);">0,5</b> or <b style="color:var(--rose);">0,125</b>?</p>
       
       <div class="pinned-visual">
-        <p style="text-align:center; font-weight:700; color:var(--rose); margin-top:0;">125 looks larger than 5... but look at the place value!</p>
+        <p style="text-align:center; font-weight:700; color:var(--rose); margin-top:0;">125 looks bigger than 5... but check the place value columns!</p>
         
         <div class="pv-grid" style="margin-top: 15px;">
             <div class="pv-header">Ones</div>
@@ -196,14 +207,14 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>0,5</b> has 5 whole columns (Tenths). <b>0,125</b> only has 1 whole column. Therefore, <b>0,5 is mathematically larger</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>0,5</b> has 5 Tenths. <b>0,125</b> only has 1 Tenth. Therefore, <b>0,5 is larger</b>. More digits behind the comma does NOT make a decimal bigger!</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">The Padding Strategy</div>
-      <p class="instruction-text">To prevent your brain from getting tricked by whole numbers, ALWAYS add zeros to the end until both decimals are the same length.</p>
+      <div class="section-title">The Zero-Padding Strategy</div>
+      <p class="instruction-text">To stop your brain from being tricked by whole number length, ALWAYS add zeros to the end until both decimals have the same number of places.</p>
       
       <div class="pinned-visual">
         
@@ -226,20 +237,20 @@
         
         <div class="math-row" style="font-size: 2.5rem;">
             <div style="color:var(--indigo);">0,5<span style="color:var(--emerald);">00</span></div>
-            <div style="color:var(--emerald); margin:0 15px;">></div>
+            <div style="color:var(--emerald); margin:0 15px;">&gt;</div>
             <div style="color:var(--rose);">0,125</div>
         </div>
 
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once they are exactly the same length, it is easy to see that <b>500 thousandths</b> is much larger than <b>125 thousandths</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once both numbers have 3 decimal places, it is clear that <b>500 thousandths</b> is larger than <b>125 thousandths</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
-    <!-- Slide 3 (NEW: THE INEQUALITY SIGNS) -->
+    <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <div class="section-title">The Signs</div>
-      <p class="instruction-text">We use the <b>&lt;</b> and <b>&gt;</b> signs to compare numbers. The open mouth always eats the bigger number!</p>
+      <div class="section-title">Comparison Signs</div>
+      <p class="instruction-text">Use the <b>&lt;</b> and <b>&gt;</b> signs for your Final Answer. The open side always faces the bigger number.</p>
       
       <div class="pinned-visual">
         <div style="display:flex; flex-direction:column; gap:20px; width:100%;">
@@ -267,7 +278,7 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If the first number is bigger, use <b>&gt;</b> (Greater Than). If the first number is smaller, use <b>&lt;</b> (Less Than).</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If the first number is bigger, choose <b>&gt;</b>. If the first number is smaller, choose <b>&lt;</b>.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
 
@@ -290,7 +301,7 @@
         
         <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
         
-        <!-- Horizontal Answer Equation (ALL VISIBLE IMMEDATELY) -->
+        <!-- Horizontal Answer Equation -->
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
             <div class="input-box wide" id="g-pad-1" onclick="openKeypad('g-pad-1', 'g-step-1')"></div>
             <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-sign" onclick="openKeypad('g-sign', 'g-step-2')"></div>
@@ -305,7 +316,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad with zeros FIRST to avoid the trap, then choose the sign.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad both numbers with zeros FIRST, then select the comparison sign for your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
@@ -360,6 +371,14 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -377,6 +396,7 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-02'; 
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -403,6 +423,15 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -458,7 +487,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -486,13 +515,13 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box) return;
       
       // Allow only one decimal comma
       if(char === ',' && box.innerText.includes(',')) return; 
@@ -514,7 +543,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -541,26 +570,29 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-pad-1', 'p-pad-2', 'p-sign'].forEach(id => {
           let el = document.getElementById(id);
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
-          ['p-pad-1', 'p-pad-2', 'p-sign'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-pad-1', 'practice');
-      }, 5000);
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -614,11 +646,9 @@
     let base = Math.floor(Math.random() * 9) + 1; // 1 to 9
     
     if (level === 1) { 
-        // Tenths -> Hundredths (0,5 = 0,50)
         qText = `0,${base} =`;
         ans = `0,${base}0`;
     } else if (level === 2) { 
-        // Tenths or Hundredths -> Thousandths
         if (Math.random() > 0.5) {
             qText = `0,${base} =`;
             ans = `0,${base}00`;
@@ -628,7 +658,6 @@
             ans = `0,${base}${hund}0`;
         }
     } else { 
-        // Mixed logic
         let type = Math.floor(Math.random() * 3);
         if (type === 0) { qText = `0,${base} =`; ans = `0,${base}00`; }
         else if (type === 1) { qText = `0,${base} =`; ans = `0,${base}0`; }
@@ -641,6 +670,7 @@
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
@@ -675,12 +705,13 @@
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -691,6 +722,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -705,12 +737,12 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -812,7 +844,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -855,29 +887,30 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Rewrite BOTH numbers below, adding zeros until they have the exact same number of places after the comma.</div>
+          <div class="step-text">1. Rewrite BOTH numbers below, adding zeros until they have the exact same number of decimal places.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Now choose the correct sign: Less Than (<), Equal (=), or Greater Than (>).</div>
+          <div class="step-text">2. Select the Final Answer sign: Less Than (&lt;), Equal (=), or Greater Than (&gt;).</div>
         </div>
       `;
       openKeypad('g-pad-1', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { 
               d1: "0,4", d2: "0,35",
               pad1: "0,40", pad2: "0,35",
               sign: ">",
-              err1: "Pad BOTH decimals to 2 places using zeros."
+              err1: "Pad BOTH decimals to 2 decimal places using zeros."
           };
       } else {
           gData = { 
               d1: "0,125", d2: "0,6",
               pad1: "0,125", pad2: "0,600",
               sign: "<",
-              err1: "Pad BOTH decimals to 3 places using zeros."
+              err1: "Pad BOTH decimals to 3 decimal places using zeros."
           };
       }
 
@@ -900,10 +933,6 @@
   }
 
   function checkGuidedAnswer() {
-      let val1 = document.getElementById('g-pad-1').innerText;
-      let val2 = document.getElementById('g-pad-2').innerText;
-      let valS = document.getElementById('g-sign').innerText;
-      
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
       if (val === '') return;
@@ -943,17 +972,20 @@
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
                   
+                  let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+                  logTelemetryEvent("Guided Practice Correct", 100, "Guided_Dec_02", durationSeconds);
+
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Let's do a harder one."); 
+                          showError("Well done! Let's try a 3-place comparison."); 
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
                       }
                   }, 1200);
               } else {
-                  showError("Think carefully! " + gData.pad1 + " vs " + gData.pad2);
+                  showError("Compare the padded numbers carefully: " + gData.pad1 + " vs " + gData.pad2);
                   flashError(box);
               }
           }
@@ -973,22 +1005,29 @@
 
   function generatePracticeQuestion() {
     let dec1_num, dec2_num;
-    let isTrap = Math.random() > 0.3; // 70% chance to intentionally trigger a trapdoor layout
+    let isTrap = Math.random() > 0.25; // High probability of testing Whole Number Bias trap
 
     if (isTrap) {
-        // "Longer is Larger" trap (e.g., 0.5 vs 0.125)
-        let topDigit = Math.floor(Math.random() * 7) + 3; // 3 to 9
+        // Whole Number Bias trap (e.g., 0,8 vs 0,45 or 0,5 vs 0,125)
+        let topDigit = Math.floor(Math.random() * 6) + 4; // 4 to 9
         dec1_num = parseFloat((topDigit / 10).toFixed(1)); 
         
-        let bottomTrap = (topDigit - 1) * 100 + Math.floor(Math.random() * 99); 
-        dec2_num = parseFloat((bottomTrap / 1000).toFixed(3)); 
+        if (Math.random() > 0.5) {
+            // 2 decimal places trap (e.g. 0,8 vs 0,45)
+            let bottomTrap = (Math.floor(Math.random() * (topDigit - 2)) + 1) * 10 + (Math.floor(Math.random() * 8) + 1);
+            dec2_num = parseFloat((bottomTrap / 100).toFixed(2));
+        } else {
+            // 3 decimal places trap (e.g. 0,5 vs 0,125)
+            let bottomTrap = (topDigit - 1) * 100 + (Math.floor(Math.random() * 88) + 11); 
+            dec2_num = parseFloat((bottomTrap / 1000).toFixed(3)); 
+        }
         
         if (Math.random() > 0.5) { let temp = dec1_num; dec1_num = dec2_num; dec2_num = temp; } 
     } else {
         // General comparison, varying lengths
-        let val = Math.floor(Math.random() * 99) + 1;
+        let val = Math.floor(Math.random() * 89) + 11;
         dec1_num = parseFloat((val / 100).toFixed(2));
-        dec2_num = (Math.random() > 0.5) ? parseFloat((val / 100).toFixed(2)) : parseFloat(((Math.floor(Math.random() * 99) + 1) / 100).toFixed(2));
+        dec2_num = (Math.random() > 0.5) ? parseFloat((val / 100).toFixed(2)) : parseFloat(((Math.floor(Math.random() * 89) + 11) / 100).toFixed(2));
     }
 
     // Convert cleanly to strings to determine lengths and padding
@@ -998,7 +1037,7 @@
     let l1 = s1.split('.')[1] ? s1.split('.')[1].length : 0;
     let l2 = s2.split('.')[1] ? s2.split('.')[1].length : 0;
     let padLen = Math.max(l1, l2);
-    if (padLen < 3) padLen = 3; // Force thousandths padding for absolute strictness
+    if (padLen < 2) padLen = 2;
 
     // Pad Strings and Convert to South African format
     let pad1 = dec1_num.toFixed(padLen).replace('.', ',');
@@ -1022,6 +1061,7 @@
 
   function loadPracticeQuestion() {
     currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
     
     ['p-pad-1', 'p-pad-2', 'p-sign'].forEach(id => {
         let el = document.getElementById(id);
@@ -1049,7 +1089,7 @@
     let valS = document.getElementById('p-sign').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     if (activeBoxId === 'p-pad-1') { box.classList.add('flash-success'); openKeypad('p-pad-2', 'practice'); return; }
     if (activeBoxId === 'p-pad-2') { box.classList.add('flash-success'); openKeypad('p-sign', 'practice'); return; }
@@ -1058,7 +1098,7 @@
 
     // --- STRICT SEQUENCE INTERCEPT ---
     if (val1 === '' || val2 === '') {
-        showError("Show your work! Pad the decimals and choose a sign.");
+        showError("Show your work! Pad both decimals with zeros first.");
         openKeypad((val1 === '') ? 'p-pad-1' : 'p-pad-2', 'practice');
         return; 
     }
@@ -1067,6 +1107,8 @@
     let isPad2Correct = (val2 === currentQ.pad2);
     let isSignCorrect = (valS === currentQ.ansSign);
 
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+
     if (isPad1Correct && isPad2Correct && isSignCorrect) {
         document.getElementById('p-sign').classList.add('flash-success');
         closeKeypad(); 
@@ -1074,43 +1116,55 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // DEC-02 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Pad to ${currentQ.padLen} decimal places: ${currentQ.pad1} and ${currentQ.pad2}.\n2. Choose the sign: ${currentQ.pad1} ${currentQ.ansSign} ${currentQ.pad2}.`;
-        let errorTag = "General_Error";
+        // HIGH-RESOLUTION DEC-02 TRAPDOORS
+        let errorTitle = "Comparison Error!";
+        let errorMsg = `1. Pad both numbers to ${currentQ.padLen} decimal places: ${currentQ.pad1} and ${currentQ.pad2}.\n2. Final Answer: ${currentQ.pad1} ${currentQ.ansSign} ${currentQ.pad2}.`;
+        let cognitiveTag = "General_Comparison_Error";
 
         if (!isPad1Correct || !isPad2Correct) {
-            errorMsg = `PADDING ERROR!\n\nYou must add zeros until BOTH numbers have exactly ${currentQ.padLen} places after the comma. \n${currentQ.dec1_sa} -> ${currentQ.pad1} \n${currentQ.dec2_sa} -> ${currentQ.pad2}`;
-            errorTag = "Incorrect_Zero_Padding";
+            errorTitle = "Zero Padding Error!";
+            errorMsg = `You must add zeros to the end until BOTH numbers have ${currentQ.padLen} digits behind the comma:\n${currentQ.dec1_sa} ➔ ${currentQ.pad1}\n${currentQ.dec2_sa} ➔ ${currentQ.pad2}`;
+            cognitiveTag = "Incorrect_Zero_Padding_Trap";
         } else if (!isSignCorrect) {
-            // Evaluator Trapdoor logic
+            // Whole Number Bias Trapdoor
             if (currentQ.v1 > currentQ.v2 && currentQ.l1 < currentQ.l2 && valS === '<') {
-                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec2_sa} has more digits. But if you look at your padded numbers, ${currentQ.pad1} is clearly larger than ${currentQ.pad2}.`;
-                errorTag = "Longer_Is_Larger_Misconception";
+                errorTitle = "Whole Number Bias Trap!";
+                errorMsg = `You treated ${currentQ.dec2_sa} as bigger than ${currentQ.dec1_sa} just because it has more digits! Compare the padded numbers: ${currentQ.pad1} is larger than ${currentQ.pad2}.`;
+                cognitiveTag = "Whole_Number_Bias_Trap";
             } else if (currentQ.v2 > currentQ.v1 && currentQ.l2 < currentQ.l1 && valS === '>') {
-                errorMsg = `LONGER IS LARGER TRAP!\n\nYou got tricked because ${currentQ.dec1_sa} has more digits. But if you look at your padded numbers, ${currentQ.pad2} is clearly larger than ${currentQ.pad1}.`;
-                errorTag = "Longer_Is_Larger_Misconception";
+                errorTitle = "Whole Number Bias Trap!";
+                errorMsg = `You treated ${currentQ.dec1_sa} as bigger than ${currentQ.dec2_sa} just because it has more digits! Compare the padded numbers: ${currentQ.pad2} is larger than ${currentQ.pad1}.`;
+                cognitiveTag = "Whole_Number_Bias_Trap";
             } else {
-                errorMsg = `SIGN ERROR!\n\nLook carefully at your padded numbers: ${currentQ.pad1} ${currentQ.ansSign} ${currentQ.pad2}.`;
-                errorTag = "Incorrect_Sign_Selection";
+                errorTitle = "Sign Selection Error!";
+                errorMsg = `Look closely at your padded numbers. The open mouth of the sign must face the larger number: ${currentQ.pad1} ${currentQ.ansSign} ${currentQ.pad2}.`;
+                cognitiveTag = "Incorrect_Sign_Selection";
             }
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
     }
   }
 
   // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1120,7 +1174,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1130,7 +1186,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1143,12 +1200,12 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete");
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
   const originalEvaluateSprint = evaluateSprint;
   evaluateSprint = function() {
@@ -1166,18 +1223,27 @@
         profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
     } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
     }
   };
 
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
+    if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
     } else if (event.key === '<' || event.key === '>' || event.key === '=') {
       typeNum(event.key);
     } else if (event.key === 'Backspace' || event.key === 'Delete') {

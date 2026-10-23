@@ -5,346 +5,223 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Harvest Concept Lab - Dashboard</title>
   <style>
-    /* V5 MATURE COLOR PALETTE & TYPOGRAPHY */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
     :root { 
       --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
       --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
-      --indigo: #4f46e5; --indigo-light: #e0e7ff; --indigo-dark: #3730a3;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
       --emerald: #059669; --emerald-light: #d1fae5;
       --rose: #e11d48; --rose-light: #ffe4e6;
       --amber: #d97706; --amber-light: #fef3c7;
       --radius: 12px;
     }
     
-    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
-    .app-container { width: 100%; max-width: 500px; background: var(--slate-50); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; min-height: 100dvh; }
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; min-height: 100%; display: flex; flex-direction: column; box-shadow: 0 0 20px rgba(0,0,0,0.05); }
     
-    /* DASHBOARD HEADER */
-    .dash-header { background: var(--slate-900); color: white; padding: 25px 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; border-bottom: 4px solid var(--indigo); z-index: 10;}
-    .header-top { display: flex; justify-content: space-between; align-items: center; }
-    .app-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; margin: 0;}
-    
-    /* EDITABLE STUDENT ID */
-    .student-id { font-size: 0.85rem; color: var(--slate-400); font-weight: 600; margin-top: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: color 0.2s;}
-    .student-id:active, .student-id:hover { color: var(--indigo-light); }
-    .student-id::after { content: '✎'; font-size: 0.8rem; opacity: 0.8;}
-    
+    /* Header & Profile */
+    .header { background: var(--slate-900); color: white; padding: 25px 20px 20px; border-radius: 0 0 20px 20px; margin-bottom: 20px; }
+    .app-title { font-size: 1.6rem; font-weight: 800; margin: 0 0 5px 0; letter-spacing: -0.5px; }
+    .student-profile { display: flex; align-items: center; gap: 8px; color: var(--slate-300); font-size: 1.05rem; font-weight: 600; margin-bottom: 15px; cursor: pointer; }
+    .student-profile:hover { color: white; }
     .stats-row { display: flex; gap: 10px; }
-    .stat-pill { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-    .stat-xp { color: var(--amber); }
-    .stat-streak { color: #f97316; }
-
-    /* SCROLLABLE CONTENT AREA */
-    .content-area { flex-grow: 1; overflow-y: auto; padding: 20px 20px 60px 20px; scroll-behavior: smooth; display: flex; flex-direction: column; }
-
-    /* --- THE HERO CARD (CURRENT FOCUS) --- */
-    .hero-card { background: linear-gradient(135deg, var(--indigo) 0%, var(--indigo-dark) 100%); border-radius: var(--radius); padding: 25px; color: white; margin-bottom: 30px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start;}
-    .hero-card::after { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none;}
-    .hero-label { font-size: 0.75rem; font-weight: 800; letter-spacing: 1.5px; color: var(--indigo-light); margin-bottom: 10px; display: flex; align-items: center; gap: 5px;}
-    .hero-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 5px 0; line-height: 1.2; z-index: 2;}
-    .hero-subtitle { color: var(--indigo-light); font-size: 0.95rem; margin: 0 0 20px 0; font-weight: 500; z-index: 2;}
-    .hero-btn { display: inline-flex; align-items: center; gap: 8px; background: white; color: var(--indigo); padding: 14px 24px; border-radius: 30px; font-weight: 800; text-decoration: none; font-size: 1.05rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: transform 0.1s; z-index: 2;}
-    .hero-btn:active { transform: scale(0.96); }
-
-    /* --- COURSE OUTLINE (ACCORDIONS) --- */
-    .section-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--slate-500); font-weight: 800; margin-bottom: 12px; margin-top: 10px; }
-
-    .section-wrapper { margin-bottom: 12px; border: 1px solid var(--slate-200); border-radius: var(--radius); background: #ffffff; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .section-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: #ffffff; border: none; border-bottom: 1px solid transparent; cursor: pointer; text-align: left; outline: none; }
-    .section-header:active { background: var(--slate-50); }
+    .stat-badge { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .stat-badge.xp { color: var(--amber); }
     
-    .section-title-wrap { display: flex; flex-direction: column; gap: 4px; }
-    .section-name { font-size: 0.95rem; font-weight: 800; color: var(--slate-800); }
-    .section-progress { font-size: 0.8rem; font-weight: 600; color: var(--slate-500); display: flex; align-items: center; gap: 6px;}
-    
-    .chevron { color: var(--slate-400); transition: transform 0.3s ease; font-size: 1rem; font-weight: 800;}
-    .section-wrapper.is-open .chevron { transform: rotate(180deg); color: var(--indigo);}
+    /* Current Focus Card */
+    .content-area { padding: 0 20px 30px; flex-grow: 1; }
+    .focus-card { background: linear-gradient(135deg, var(--indigo), #4338ca); border-radius: var(--radius); padding: 25px 20px; color: white; margin-bottom: 25px; box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25); position: relative; overflow: hidden; }
+    .focus-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo-light); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .focus-title { font-size: 1.8rem; font-weight: 800; margin: 0 0 5px 0; line-height: 1.1; }
+    .focus-section { font-size: 1rem; color: var(--indigo-light); font-weight: 600; margin-bottom: 20px; }
+    .btn-resume { background: white; color: var(--indigo); border: none; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 1.05rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-resume:active { transform: scale(0.96); }
 
-    .module-list { display: none; }
-    .section-wrapper.is-open .module-list { display: block; border-top: 1px solid var(--slate-100);}
-
-    /* MODULE ROWS */
-    .module-row { display: flex; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--slate-100); text-decoration: none; position: relative; }
-    .module-row:last-child { border-bottom: none; }
+    /* Course Outline */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--slate-400); font-weight: 800; margin-bottom: 12px; }
+    .module-group { background: white; border: 1px solid var(--slate-200); border-radius: var(--radius); margin-bottom: 12px; padding: 18px 20px; transition: border-color 0.2s; }
+    .module-group.active-group { border-color: var(--indigo); border-width: 2px; padding: 17px 19px; }
+    .module-group-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+    .group-name { font-size: 1.2rem; font-weight: 800; color: var(--slate-900); margin: 0; }
+    .group-progress { font-size: 0.9rem; font-weight: 600; color: var(--slate-500); display: flex; align-items: center; gap: 6px; }
+    .group-progress.complete { color: var(--emerald); }
     
-    .mod-badge { font-size: 0.7rem; font-weight: 800; color: var(--slate-500); background: var(--slate-100); padding: 4px 8px; border-radius: 4px; margin-right: 15px; min-width: 45px; text-align: center; letter-spacing: 0.5px;}
-    .mod-title { font-size: 0.95rem; font-weight: 600; color: var(--slate-900); flex-grow: 1; }
-    .mod-icon { font-size: 1rem; color: var(--slate-300); }
-
-    /* ROW STATES */
-    .row-mastered { background: #ffffff; }
-    .row-mastered .mod-badge { background: var(--emerald-light); color: var(--emerald); }
-    .row-mastered .mod-icon { color: var(--emerald); }
+    .module-list { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; border-top: 1px solid var(--slate-100); padding-top: 15px; }
+    .module-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.95rem; font-weight: 600; color: var(--slate-700); padding: 8px 0; text-decoration: none; }
+    .module-item.locked { color: var(--slate-300); pointer-events: none; }
+    .module-item.completed { color: var(--emerald); }
+    .module-item.current { color: var(--indigo); font-weight: 800; }
     
-    .row-unlocked { border-left: 4px solid var(--indigo); padding-left: 14px; background: var(--indigo-light); }
-    .row-unlocked .mod-badge { background: var(--indigo); color: white; }
-    .row-unlocked .mod-title { font-weight: 800; color: var(--indigo-dark);}
-    .row-unlocked .mod-icon { color: var(--indigo); }
-
-    .row-locked { background: var(--slate-50); pointer-events: none; opacity: 0.7; }
-    .row-locked .mod-title { color: var(--slate-500); }
-    .row-locked .mod-badge { opacity: 0.7; }
-    
-    /* UTILITIES */
-    .btn-reset { padding: 12px; background: transparent; border: 2px dashed var(--slate-300); color: var(--slate-400); border-radius: var(--radius); font-size: 0.85rem; font-weight: 700; cursor: pointer; margin-top: 30px; text-align: center; width: 100%; transition: 0.2s;}
-    .btn-reset:active { background: var(--slate-200); }
+    /* Footer */
+    .footer { padding: 20px; text-align: center; border-top: 1px solid var(--slate-200); margin-top: auto; }
+    .btn-reset { background: transparent; border: 2px dashed var(--slate-300); color: var(--slate-500); font-weight: 700; padding: 12px; border-radius: var(--radius); width: 100%; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
+    .btn-reset:hover { background: var(--rose-light); border-color: var(--rose); color: var(--rose); }
   </style>
 </head>
 <body>
 
 <div class="app-container">
   
-  <!-- HEADER -->
-  <header class="dash-header">
-    <div class="header-top">
-        <div>
-            <h1 class="app-title">Concept Lab</h1>
-            <div class="student-id" id="display-id" onclick="changeUserId()">Loading Profile...</div>
-        </div>
+  <div class="header">
+    <h1 class="app-title">Concept Lab</h1>
+    <div class="student-profile" onclick="editName()" title="Click to edit name">
+      <span id="student-name">Student</span> ✏️
     </div>
     <div class="stats-row">
-        <div class="stat-pill stat-xp">⭐ <span id="display-xp">0</span> XP</div>
-        <div class="stat-pill stat-streak">🔥 <span id="display-streak">0</span> Day Streak</div>
+      <div class="stat-badge xp">⭐ <span id="xp-total">0</span> XP</div>
+      <div class="stat-badge">🔥 <span id="streak-total">0</span> Day Streak</div>
     </div>
-  </header>
+  </div>
 
-  <!-- CONTENT -->
   <div class="content-area">
-      
-      <!-- HERO CARD (DYNAMICALLY INJECTED) -->
-      <div id="hero-container"></div>
+    <div class="focus-card">
+      <div class="focus-label">✦ CURRENT FOCUS</div>
+      <h2 class="focus-title" id="focus-title">INT-01</h2>
+      <div class="focus-section" id="focus-section">Integers</div>
+      <a href="#" id="btn-resume" class="btn-resume">Resume Journey ➔</a>
+    </div>
 
-      <div class="section-title">Course Outline</div>
-      <div id="curriculum-container">
-          <!-- JS will populate accordion sections here -->
-      </div>
-      
-      <button class="btn-reset" onclick="resetProfile()">Reset Test Profile</button>
+    <div class="section-title">Course Outline</div>
+    
+    <div id="curriculum-container">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <div class="footer">
+    <button class="btn-reset" onclick="resetProfile()">Reset Test Profile & Telemetry</button>
   </div>
 
 </div>
 
 <script>
-  // --- V5 SCALABLE CURRICULUM DATA ---
-  const curriculumSections = [
-      {
-          title: "Rational Numbers",
-          modules: [
-              { id: 'RAT-01', title: 'Fractions Intro', file: 'rat-01.html' },
-              { id: 'RAT-02', title: 'Equivalent Fractions', file: 'rat-02.html' },
-              { id: 'RAT-03', title: 'Adding Like Fractions', file: 'rat-03.html' },
-              { id: 'RAT-04', title: 'Subtracting Like Fractions', file: 'rat-04.html' },
-              { id: 'RAT-05', title: 'Unlike Fractions (+/-)', file: 'rat-05.html' },
-              { id: 'RAT-06', title: 'Multiplying Fractions', file: 'rat-06.html' },
-              { id: 'RAT-07', title: 'Dividing Fractions', file: 'rat-07.html' },
-              { id: 'RAT-08', title: 'Mixed & Improper', file: 'rat-08.html' }
-          ]
-      },
-      {
-          title: "Decimals",
-          modules: [
-              { id: 'DEC-01', title: 'Tenths & Hundredths', file: 'dec-01.html' },
-              { id: 'DEC-02', title: 'Comparing Decimals', file: 'dec-02.html' },
-              { id: 'DEC-03', title: 'Adding Decimals', file: 'dec-03.html' },
-              { id: 'DEC-04', title: 'Subtracting Decimals', file: 'dec-04.html' },
-              { id: 'DEC-05', title: 'Multiplying by 10s', file: 'dec-05.html' },
-              { id: 'DEC-06', title: 'Multiplying Decimals', file: 'dec-06.html' },
-              { id: 'DEC-07', title: 'Dividing by Whole', file: 'dec-07.html' },
-              { id: 'DEC-08', title: 'Dividing by Decimals', file: 'dec-08.html' }
-          ]
-      }
+  // V2 Curriculum Architecture including INT phase
+  const curriculum = [
+    { id: 'RAT-01', name: 'Fraction Basics', group: 'Rational Numbers' },
+    { id: 'RAT-02', name: 'Equivalent Fractions', group: 'Rational Numbers' },
+    { id: 'RAT-03', name: 'Simplifying', group: 'Rational Numbers' },
+    { id: 'RAT-04', name: 'Improper & Mixed', group: 'Rational Numbers' },
+    { id: 'RAT-05', name: 'Adding & Subtracting', group: 'Rational Numbers' },
+    { id: 'RAT-06', name: 'Unlike Denominators', group: 'Rational Numbers' },
+    { id: 'RAT-07', name: 'Multiplying Fractions', group: 'Rational Numbers' },
+    { id: 'RAT-08', name: 'Dividing Fractions', group: 'Rational Numbers' },
+    { id: 'DEC-01', name: 'Place Value & Tenths', group: 'Decimals' },
+    { id: 'DEC-02', name: 'Hundredths & Thousandths', group: 'Decimals' },
+    { id: 'DEC-03', name: 'Comparing Decimals', group: 'Decimals' },
+    { id: 'DEC-04', name: 'Rounding', group: 'Decimals' },
+    { id: 'DEC-05', name: 'Adding Decimals', group: 'Decimals' },
+    { id: 'DEC-06', name: 'Subtracting Decimals', group: 'Decimals' },
+    { id: 'DEC-07', name: 'Multiplying Decimals', group: 'Decimals' },
+    { id: 'DEC-08', name: 'Dividing Decimals', group: 'Decimals' },
+    { id: 'INT-01', name: 'Additive Inverses', group: 'Integers' },
+    { id: 'INT-02', name: 'Subtracting Integers', group: 'Integers' },
+    { id: 'INT-03', name: 'Multiplying Integers', group: 'Integers' },
+    { id: 'INT-04', name: 'Dividing Integers', group: 'Integers' },
+    { id: 'INT-05', name: 'BODMAS & Integers', group: 'Integers' }
   ];
 
-  // Crash-proof flat mapping
-  let flatCurriculum = [];
-  curriculumSections.forEach(sec => {
-      sec.modules.forEach(mod => {
-          flatCurriculum.push(mod.id);
-      });
-  });
+  let p = {
+    studentId: 'Student',
+    xp: 0,
+    unlockedNodeIndex: 0,
+    completedNodes: []
+  };
 
-  let userProfile = {};
-
-  // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
-      try {
-          loadProfile();
-          renderHero();
-          renderCurriculum();
-      } catch (error) {
-          console.error("Dashboard Load Error:", error);
-          document.getElementById('curriculum-container').innerHTML = `<div style="padding:20px; color:var(--rose); font-weight:bold; text-align:center;">Error loading curriculum data. Please Reset Profile.</div>`;
-      }
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let parsed = JSON.parse(saved);
+      p = { ...p, ...parsed };
+    }
+    
+    // Safety check if arrays got misaligned during development
+    if (p.unlockedNodeIndex >= curriculum.length) {
+        p.unlockedNodeIndex = curriculum.length - 1;
+    }
+
+    renderDashboard();
   });
 
-  function loadProfile() {
-      let saved = localStorage.getItem('harvest_maths_profile');
+  function renderDashboard() {
+    document.getElementById('student-name').innerText = p.studentId;
+    document.getElementById('xp-total').innerText = p.xp || 0;
+    
+    let activeModule = curriculum[p.unlockedNodeIndex];
+    document.getElementById('focus-title').innerText = activeModule.id;
+    document.getElementById('focus-section').innerText = activeModule.name;
+    document.getElementById('btn-resume').href = `${activeModule.id.toLowerCase()}.html`;
+
+    let container = document.getElementById('curriculum-container');
+    container.innerHTML = '';
+
+    // Group curriculum by sections
+    let groups = {};
+    curriculum.forEach((mod, index) => {
+      if(!groups[mod.group]) groups[mod.group] = { total: 0, completed: 0, modules: [], isActiveGroup: false };
+      groups[mod.group].total++;
       
-      if (saved) {
-          try {
-              userProfile = JSON.parse(saved);
-              // Migration fail-safes
-              if (typeof userProfile.unlockedNodeIndex === 'undefined') userProfile.unlockedNodeIndex = 0;
-              if (!userProfile.completedNodes) userProfile.completedNodes = [];
-          } catch (e) {
-              console.warn("Corrupted save file. Generating new profile.");
-              generateFreshProfile();
-          }
-      } else {
-          generateFreshProfile();
+      let status = 'locked';
+      let icon = '🔒';
+      if (p.completedNodes.includes(mod.id)) {
+          status = 'completed';
+          icon = '✓';
+          groups[mod.group].completed++;
+      } else if (index === p.unlockedNodeIndex) {
+          status = 'current';
+          icon = '▶';
+          groups[mod.group].isActiveGroup = true;
+      } else if (p.studentId.toLowerCase().includes('superuser')) {
+          // SuperUser unlocks all links for testing
+          status = 'unlocked';
+          icon = '🔓';
       }
 
-      // Safe UI update
-      let idDisplay = document.getElementById('display-id');
-      if(idDisplay) idDisplay.innerText = userProfile.studentId;
-      document.getElementById('display-xp').innerText = userProfile.xp || 0;
-      document.getElementById('display-streak').innerText = userProfile.streak || 1;
+      groups[mod.group].modules.push(`
+        <a href="${(status !== 'locked') ? mod.id.toLowerCase()+'.html' : '#'}" class="module-item ${status}">
+          <span>${mod.id}: ${mod.name}</span>
+          <span>${icon}</span>
+        </a>
+      `);
+    });
+
+    // Render HTML for groups
+    for (let groupName in groups) {
+      let g = groups[groupName];
+      let isComplete = g.completed === g.total;
+      let html = `
+        <div class="module-group ${g.isActiveGroup ? 'active-group' : ''}">
+          <div class="module-group-header">
+            <h3 class="group-name">${groupName}</h3>
+            <div class="group-progress ${isComplete ? 'complete' : ''}">
+              ${isComplete ? '🏆' : '📊'} ${g.completed}/${g.total} Mastered
+            </div>
+          </div>
+          <div class="module-list">
+            ${g.modules.join('')}
+          </div>
+        </div>
+      `;
+      container.innerHTML += html;
+    }
   }
 
-  function generateFreshProfile() {
-      userProfile = {
-          studentId: 'Student_' + Math.floor(Math.random() * 10000),
-          xp: 0,
-          streak: 1,
-          completedNodes: [],
-          unlockedNodeIndex: 0, 
-          gateLevels: {},
-          failedAttempts: {},
-          remediation: {}
-      };
-      localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
+  function editName() {
+    let currentName = p.studentId;
+    let newName = prompt("Enter student name (Type 'SuperUser' to unlock all modules & bypass Gatekeepers):", currentName);
+    if (newName !== null && newName.trim() !== "") {
+      p.studentId = newName.trim();
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      renderDashboard();
+    }
   }
 
-  // --- CHANGE USER ID FUNCTION ---
-  function changeUserId() {
-      let currentId = userProfile.studentId || "";
-      let newId = prompt("Enter Student ID:\n(Tip: Include 'SuperUser' in the name to unlock all modules for testing)", currentId);
-      
-      if (newId !== null && newId.trim() !== "") {
-          userProfile.studentId = newId.trim();
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(userProfile));
-          location.reload(); // Reload immediately to apply locked/unlocked state changes
-      }
-  }
-
-  function renderHero() {
-      let activeIndex = userProfile.unlockedNodeIndex;
-      if (activeIndex >= flatCurriculum.length) activeIndex = flatCurriculum.length - 1; // Cap at end
-
-      let activeModId = flatCurriculum[activeIndex];
-      let activeModData = null;
-      let activeSecTitle = "";
-
-      // Find active module details
-      curriculumSections.forEach(sec => {
-          let found = sec.modules.find(m => m.id === activeModId);
-          if (found) {
-              activeModData = found;
-              activeSecTitle = sec.title;
-          }
-      });
-
-      if (activeModData) {
-          let heroHtml = `
-              <div class="hero-card">
-                  <div class="hero-label">✦ CURRENT FOCUS</div>
-                  <h2 class="hero-title">${activeModData.id}: ${activeModData.title}</h2>
-                  <p class="hero-subtitle">${activeSecTitle}</p>
-                  <a href="${activeModData.file}" class="hero-btn">Resume Journey ➔</a>
-              </div>
-          `;
-          document.getElementById('hero-container').innerHTML = heroHtml;
-      }
-  }
-
-  function renderCurriculum() {
-      const container = document.getElementById('curriculum-container');
-      container.innerHTML = '';
-      
-      const isSuperUser = String(userProfile.studentId).toLowerCase().includes('superuser');
-
-      curriculumSections.forEach((section, sIndex) => {
-          let masteredCount = 0;
-          let rowsHtml = '';
-
-          // 1. Build Rows
-          section.modules.forEach(mod => {
-              let globalIndex = flatCurriculum.indexOf(mod.id);
-              let stateClass = '';
-              let icon = '';
-              let href = `href="${mod.file}"`;
-
-              if (userProfile.completedNodes.includes(mod.id)) {
-                  stateClass = 'row-mastered';
-                  icon = '✓';
-                  masteredCount++;
-              } else if (globalIndex === userProfile.unlockedNodeIndex || isSuperUser) {
-                  stateClass = 'row-unlocked';
-                  icon = '▶';
-              } else {
-                  stateClass = 'row-locked';
-                  icon = '🔒';
-                  href = ''; 
-              }
-
-              rowsHtml += `
-                  <a ${href} class="module-row ${stateClass}">
-                      <div class="mod-badge">${mod.id.split('-')[1]}</div>
-                      <div class="mod-title">${mod.title}</div>
-                      <div class="mod-icon">${icon}</div>
-                  </a>
-              `;
-          });
-          
-          let isMasteredSection = (masteredCount === section.modules.length);
-          let progressIcon = isMasteredSection ? '🏆' : '⏳';
-          
-          // 2. Assemble Accordion (Closed by default to save cognitive load)
-          let sectionHtml = `
-              <div class="section-wrapper" id="section-wrap-${sIndex}">
-                  <button class="section-header" onclick="toggleSection(${sIndex})">
-                      <div class="section-title-wrap">
-                          <span class="section-name">${section.title}</span>
-                          <span class="section-progress">${progressIcon} ${masteredCount}/${section.modules.length} Mastered</span>
-                      </div>
-                      <span class="chevron">▼</span>
-                  </button>
-                  <div class="module-list">
-                      ${rowsHtml}
-                  </div>
-              </div>
-          `;
-          
-          container.innerHTML += sectionHtml;
-      });
-  }
-
-  function toggleSection(index) {
-      const wrapper = document.getElementById(`section-wrap-${index}`);
-      wrapper.classList.toggle('is-open');
-  }
-
-  // --- TESTING ---
   function resetProfile() {
-      if(confirm("Are you sure you want to completely wipe and reset this test profile?")) {
-          let isSuper = String(userProfile.studentId).toLowerCase().includes('superuser');
-          let newId = isSuper ? "SuperUser_Admin" : ('Student_' + Math.floor(Math.random() * 10000));
-          
-          let freshProfile = {
-              studentId: newId,
-              xp: 0,
-              streak: 1,
-              completedNodes: [],
-              unlockedNodeIndex: 0,
-              gateLevels: {},
-              failedAttempts: {},
-              remediation: {}
-          };
-          localStorage.setItem('harvest_maths_profile', JSON.stringify(freshProfile));
-          location.reload();
-      }
+    if(confirm("Are you sure? This will wipe all XP, telemetry, and progress.")) {
+      localStorage.removeItem('harvest_maths_profile');
+      localStorage.removeItem('harvest_telemetry_queue');
+      location.reload();
+    }
   }
 </script>
 </body>

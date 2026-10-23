@@ -60,7 +60,7 @@
     .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); } /* SA Comma Baseline Fix */
     .vert-grid .op { color: var(--rose); font-weight: 900; }
     .vert-grid .line { grid-column: 1 / -1; width: 100%; height: 4px; background: var(--slate-900); border-radius: 2px; margin: 5px 0; }
-    .vert-grid .ans-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; width: 100%; padding-top: 5px; padding-right: 5px; }
+    .vert-grid .ans-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; align-items: center; gap: 10px; width: 100%; padding-top: 5px; padding-right: 5px; }
     
     .pad-hint { border: 2px dashed var(--slate-300); color: var(--slate-300); width: 35px; height: 45px; display:flex; align-items:center; justify-content:center; border-radius: 6px; position: relative;}
     
@@ -69,7 +69,7 @@
     .dropped-digit::after { content: ''; position: absolute; top: 50%; left: -10%; width: 120%; height: 4px; background: var(--rose); transform: rotate(-15deg); }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
@@ -82,8 +82,10 @@
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -95,6 +97,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 380px; 
@@ -114,13 +117,21 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -142,16 +153,16 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To subtract decimals, your borrowing skills must be lightning fast.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To subtract decimals accurately, your mental subtraction and borrowing skills must be fast.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
       <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
       <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
-        <li><b>Level 1:</b> Basic Subtraction (up to 12)</li>
-        <li><b>Level 2:</b> Borrowing (Bridging 10s)</li>
+        <li><b>Level 1:</b> Basic Subtraction (up to 15)</li>
+        <li><b>Level 2:</b> Borrowing Across 10</li>
         <li><b>Level 3:</b> 2-Digit Mental Subtraction</li>
       </ul>
       <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
@@ -174,7 +185,7 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Phantom Zero Trap</div>
-      <p class="instruction-text">When subtracting ragged decimals, the biggest mistake is just "dropping" the bottom number down.</p>
+      <p class="instruction-text">When subtracting decimals of different lengths, the most common mistake is simply "dropping" the bottom digit down.</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--rose); margin-top:0;">DANGER: The Phantom Zero</p>
@@ -194,14 +205,14 @@
         <div style="position:absolute; top:85px; right:75px; font-size:2rem; color:var(--rose); opacity:0.8;">↓</div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">In the problem above, the student just dropped the 5 straight down. But you can't take 5 away from <i>nothing</i>!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">In the example above, the learner just dropped the 5 straight down. You cannot take 5 away from nothing!</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
-      <div class="section-title">The Borrowing Rule</div>
-      <p class="instruction-text">You MUST hold the empty place value with a zero. Then you can borrow correctly.</p>
+      <div class="section-title">The Pad &amp; Borrow Rule</div>
+      <p class="instruction-text">You MUST fill the empty place value with a <b>0</b> first. Then borrow 1 from the Tenths column.</p>
       
       <div class="pinned-visual">
         <div class="vert-grid">
@@ -218,7 +229,7 @@
         <div style="position:absolute; top:25px; right:45px; width:45px; height:120px; background:var(--emerald); opacity:0.1; z-index:0; border-radius:8px;"></div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once we put the <b>0</b> there, it becomes <b>10 - 5</b> (after borrowing). The correct answer is 3,75, not 3,85!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Once you write the <b>0</b>, borrow from the 2 so it becomes <b>10 - 5 = 5</b>. The Final Answer is <b>3,75</b>, not 3,85!</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
 
@@ -246,7 +257,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad with zero FIRST, then borrow and subtract.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad with zero FIRST, then borrow and enter your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
@@ -256,7 +267,7 @@
     </div>
   </div>
 
-  <!-- V2 RESTORED CONSISTENT KEYPAD -->
+  <!-- V2 12-COLUMN HYBRID KEYPAD -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
       <!-- Top 3 Rows (Span 4) -->
@@ -272,7 +283,7 @@
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
       
-      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <!-- Bottom Row (Span 3 - South African Comma Notation) -->
       <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
       <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
       <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
@@ -285,6 +296,14 @@
       <div class="toast-icon">⚠️</div>
       <div id="toast-msg">Error message goes here.</div>
       <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
   </div>
 
   <!-- COMPLETION OVERLAY -->
@@ -304,6 +323,7 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-04'; 
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -330,6 +350,15 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -366,7 +395,6 @@
 
   // --- GRID RENDER ENGINE (SOUTH AFRICAN COMMA ENABLED) ---
   function parseNum(nStr) {
-      // Split on the SA comma
       let parts = nStr.split(',');
       let intP = parts[0];
       let decP = parts[1] || "";
@@ -401,8 +429,9 @@
          <!-- Line -->
          <div class="line"></div>
          
-         <!-- Answer -->
+         <!-- Final Answer -->
          <div class="ans-row">
+             <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
              <div class="input-box wide" id="${ansId}" onclick="openKeypad('${ansId}', '${appStateContext === 'GUIDED' ? 'g-step-2' : 'practice'}')" style="width: 140px;"></div>
          </div>
       </div>
@@ -430,7 +459,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -458,13 +487,13 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
@@ -473,7 +502,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -500,26 +529,29 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-pad', 'p-ans'].forEach(id => {
           let el = document.getElementById(id);
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
-          ['p-pad', 'p-ans'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-pad', 'practice');
-      }, 5000);
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -534,7 +566,7 @@
     
     if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Basic Subtraction";
     else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bridging Tens";
-    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Two-Digit Math";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Two-Digit Subtraction";
 
     document.getElementById('hud-label').innerText = "TIME REMAINING";
     document.getElementById('hud-track').classList.add('hidden');
@@ -585,6 +617,7 @@
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
@@ -619,12 +652,13 @@
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -635,6 +669,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -649,12 +684,12 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -756,7 +791,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -799,16 +834,17 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Pad the empty space with a zero so the decimals are perfectly aligned.</div>
+          <div class="step-text">1. Pad the empty hundredths space with a zero (0) so the columns match.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Subtract straight down. You must borrow if the bottom number is bigger!</div>
+          <div class="step-text">2. Borrow from the tenths column, subtract, and write your Final Answer.</div>
         </div>
       `;
       openKeypad('g-pad', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { t: "8,5", b: "2,34", ans: "6,16" };
       } else {
@@ -841,13 +877,12 @@
                   
                   openKeypad('g-ans', 'g-step-2');
               } else {
-                  showError("Pad the empty spot with a ZERO.");
+                  showError("Pad the empty spot with a ZERO (0).");
                   flashError(box);
               }
           }
       } else if (activeStepId === 'g-step-2') {
           if (activeBoxId === 'g-ans') {
-              // SEQUENCE CHECK
               if (valPad !== '0') {
                   showError("Pad the zero first.");
                   openKeypad('g-pad', 'g-step-1');
@@ -863,10 +898,13 @@
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
                   
+                  let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+                  logTelemetryEvent("Guided Practice Correct", 100, "Guided_Dec_04", durationSeconds);
+
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Let's do another."); 
+                          showError("Well done! Let's try one more."); 
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
@@ -874,9 +912,9 @@
                   }, 1200);
               } else {
                   if (!val.includes(',')) {
-                      showError("You forgot to drop the decimal comma down into your answer!");
+                      showError("Don't forget to drop the decimal comma straight down into your Final Answer!");
                   } else {
-                      showError("Check your subtraction! Remember to borrow.");
+                      showError("Check your subtraction! Remember to borrow 1 from the tenths column.");
                   }
                   flashError(box);
               }
@@ -896,20 +934,18 @@
   }
 
   function generatePracticeQuestion() {
-    // Top number: 1 decimal place (e.g. 5.2)
-    let w1 = Math.floor(Math.random() * 15) + 1; // 1 to 15
-    let d1 = Math.floor(Math.random() * 10);
+    // Top number: 1 decimal place (e.g. 9,4)
+    let w1 = Math.floor(Math.random() * 14) + 5; // 5 to 18
+    let d1 = Math.floor(Math.random() * 8) + 1;  // 1 to 8
     let topVal = parseFloat(`${w1}.${d1}`);
     
-    // Bottom number: 2 decimal places with a non-zero hundredth (e.g. 1.45)
-    // Guarantees w2 < w1 to prevent negative answers at this stage
-    let w2 = Math.floor(Math.random() * (w1 - 1)) + 1; 
-    let d2 = Math.floor(Math.random() * 10);
-    let h2 = Math.floor(Math.random() * 9) + 1; // 1 to 9 (forces borrowing from tenths)
+    // Bottom number: 2 decimal places with a non-zero hundredth (e.g. 3,25)
+    let w2 = Math.floor(Math.random() * (w1 - 2)) + 1; 
+    let d2 = Math.floor(Math.random() * 8) + 1;
+    let h2 = Math.floor(Math.random() * 8) + 1; // 1 to 8 (forces borrowing from tenths)
     let botVal = parseFloat(`${w2}.${d2}${h2}`);
 
-    let sum = topVal - botVal;
-    sum = Math.round(sum * 100) / 100; // JS float fix
+    let diffVal = Math.round((topVal - botVal) * 100) / 100;
 
     let topStrDot = topVal.toFixed(1);
     let botStrDot = botVal.toFixed(2);
@@ -917,25 +953,31 @@
     // Convert to SA Comma for UI
     let topStr = topStrDot.replace('.', ',');
     let botStr = botStrDot.replace('.', ',');
-    let ansStr = sum.toFixed(2).replace('.', ',');
+    let ansStr = diffVal.toFixed(2).replace('.', ',');
 
-    // Calculate Phantom Zero Trap Answer securely using dots
-    let botTenths = parseFloat(botStrDot.slice(0, -1)); // e.g. 3.85 -> 3.8
-    let diff = (parseFloat(topStrDot) - botTenths).toFixed(1); // e.g. 12.4 - 3.8 = 8.6
-    let trapAnsDot = diff + botStrDot.slice(-1); // "8.65"
-    let trapAns = trapAnsDot.replace('.', ',');
+    // 1. Phantom Zero Trap Answer (dropping h2 down without borrowing from tenths)
+    let botTenths = parseFloat(botStrDot.slice(0, -1));
+    let tenthsDiff = (parseFloat(topStrDot) - botTenths).toFixed(1);
+    let phantomTrapAns = (tenthsDiff + botStrDot.slice(-1)).replace('.', ',');
+
+    // 2. Right-Justification Alignment Trap (lining up by rightmost digit: e.g. 325 - 94)
+    let rawTop = parseInt(topStrDot.replace('.', ''));
+    let rawBot = parseInt(botStrDot.replace('.', ''));
+    let rightJustifyTrapAns = (Math.abs(rawBot - rawTop) / 100).toFixed(2).replace('.', ',');
 
     return { 
         top: topStr, 
         bot: botStr, 
         ans: ansStr,
-        trapAns: trapAns,
+        phantomTrapAns: phantomTrapAns,
+        rightJustifyTrapAns: rightJustifyTrapAns,
         droppedDigit: h2.toString()
     };
   }
 
   function loadPracticeQuestion() {
     currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
     document.getElementById('p-grid-container').innerHTML = buildGridHtml(currentQ.top, currentQ.bot, 'p-ans', 'p-pad', true, 'PRACTICE');
     openKeypad('p-pad', 'practice');
   }
@@ -951,11 +993,11 @@
     let valAns = document.getElementById('p-ans').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     if (activeBoxId === 'p-pad') {
         if(valPad !== '0') {
-            showError("Pad the empty spot with a ZERO.");
+            showError("Pad the empty spot with a ZERO (0).");
             flashError(box);
             return;
         }
@@ -975,6 +1017,7 @@
     }
 
     let isCorrect = (valAns === currentQ.ans);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
 
     if (isCorrect) {
         document.getElementById('p-ans').classList.add('flash-success');
@@ -983,34 +1026,48 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Pad with a 0.\n2. Borrow from the Tenths.\n3. The correct answer is ${currentQ.ans}.`;
-        let errorTag = "General_Subtraction_Error";
+        // HIGH-RESOLUTION DEC-04 TRAPDOORS
+        let errorTitle = "Subtraction Error!";
+        let errorMsg = `1. Pad the hundredths place with 0.\n2. Borrow from the tenths column so 0 becomes 10.\n3. The Final Answer is ${currentQ.ans}.`;
+        let cognitiveTag = "Subtraction_Calculation_Error";
 
         if (!valAns.includes(',')) {
-            errorMsg = `CRITICAL ERROR!\n\nYou forgot to drop the decimal comma down! The commas must form a straight line down into your answer.`;
-            errorTag = "Missing_Decimal_Comma";
-        } else if (valAns === currentQ.trapAns) {
-            errorMsg = `PHANTOM ZERO TRAP!\n\nYou cannot just drop the ${currentQ.droppedDigit} down. You cannot take ${currentQ.droppedDigit} away from nothing! You MUST borrow from the tenths column.`;
-            errorTag = "Phantom_Zero_Misconception";
+            errorTitle = "Decimal Dropping Trap!";
+            errorMsg = `You completely left out the decimal comma! Always drop the comma straight down into your Final Answer: ${currentQ.ans}.`;
+            cognitiveTag = "Decimal_Dropping_Trap";
+        } else if (valAns === currentQ.phantomTrapAns) {
+            errorTitle = "Phantom Zero Trap!";
+            errorMsg = `You dropped the ${currentQ.droppedDigit} straight down instead of subtracting from the padded 0! You must borrow 1 from the tenths column and calculate 10 - ${currentQ.droppedDigit}. The Final Answer is ${currentQ.ans}.`;
+            cognitiveTag = "Phantom_Zero_Trap";
+        } else if (valAns === currentQ.rightJustifyTrapAns) {
+            errorTitle = "Right-Justification Alignment Trap!";
+            errorMsg = `You subtracted the numbers as if they were right-justified whole numbers instead of aligning the decimal commas! The Final Answer is ${currentQ.ans}.`;
+            cognitiveTag = "Right_Justification_Alignment_Trap";
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
     }
   }
 
   // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1020,7 +1077,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1030,7 +1089,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1043,12 +1103,12 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete");
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
   const originalEvaluateSprint = evaluateSprint;
   evaluateSprint = function() {
@@ -1066,18 +1126,27 @@
         profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
     } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
     }
   };
 
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
+    if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
     } else if (event.key === 'Enter') {

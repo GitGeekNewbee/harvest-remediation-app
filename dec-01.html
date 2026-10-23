@@ -68,7 +68,7 @@
     .grid-10 .cell.fill-rose { background: var(--rose); }
 
     /* FADING STEP ARCHITECTURE */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
@@ -81,8 +81,10 @@
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-    /* RESTORED CONSISTENT KEYPAD (12-COLUMN HYBRID) */
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
         width: 100%; 
         background: var(--slate-100); 
@@ -94,6 +96,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 380px; 
@@ -113,13 +116,21 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -141,9 +152,9 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Decimals are built entirely on Base-10 scaling. Prove your fluency with 10s and 100s.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Decimals are built on Base-10 place value. Prove your speed with 10s and 100s first.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
@@ -173,7 +184,7 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">Tenths</div>
-      <p class="instruction-text">Fractions and Decimals are just two different languages to describe the exact same blocks.</p>
+      <p class="instruction-text">Fractions and Decimals are two different ways to write the exact same part of a whole.</p>
       
       <div class="pinned-visual">
         <div style="display:flex; justify-content:center; gap:30px; align-items:center; width:100%;">
@@ -192,14 +203,14 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The first spot behind the comma is the <b>Tenths</b> place. 3 out of 10 blocks is 0,3.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The first place behind the decimal comma is the <b>Tenths</b> column. 3 out of 10 strips is written as <b>0,3</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">Hundredths</div>
-      <p class="instruction-text">If we slice the block into 100 tiny pieces, we are now working in the second spot behind the comma.</p>
+      <p class="instruction-text">If we cut the whole block into 100 equal squares, we use the second place behind the comma.</p>
       
       <div class="pinned-visual">
         <div style="display:flex; justify-content:center; gap:20px; align-items:center; width:100%; flex-wrap:wrap;">
@@ -218,13 +229,13 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We have 4 full columns (tenths) and 5 tiny blocks (hundredths). That gives us <b>0,45</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We have 4 full columns (4 tenths) and 5 small squares (5 hundredths). The Final Answer is <b>0,45</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
-    <!-- Slide 3 (FIXED IMAGE MISMATCH) -->
+    <!-- Slide 3 -->
     <div id="slide-3" class="hidden">
-      <div class="section-title">The Danger Zone</div>
+      <div class="section-title">The Placeholder Zero Trap</div>
       <p class="instruction-text" style="color:var(--rose);">Watch out! Do not mix up Tenths and Hundredths.</p>
       
       <div class="pinned-visual">
@@ -246,7 +257,7 @@
             </div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">3 Hundredths is just 3 tiny blocks (<b>0,03</b>). You MUST put a zero placeholder in the tenths spot!</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">3 Hundredths is only 3 tiny squares (<b>0,03</b>). You MUST write a zero in the tenths place to hold the spot!</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -272,7 +283,10 @@
             
             <div id="g-dec-area" style="display:none; align-items:center;">
                 <div class="operator" style="margin: 0 10px;">➔</div>
-                <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-dec" onclick="openKeypad('g-dec', 'g-step-2')"></div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:0.7rem; color:var(--emerald); font-weight:800; margin-bottom:4px; text-transform:uppercase;">Final Answer</span>
+                    <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-dec" onclick="openKeypad('g-dec', 'g-step-2')"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -298,13 +312,16 @@
             
             <div style="display:flex; align-items:center;">
                 <div class="operator" style="margin: 0 10px;">➔</div>
-                <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-dec" onclick="openKeypad('p-dec', 'practice')"></div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:0.7rem; color:var(--emerald); font-weight:800; margin-bottom:4px; text-transform:uppercase;">Final Answer</span>
+                    <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-dec" onclick="openKeypad('p-dec', 'practice')"></div>
+                </div>
             </div>
         </div>
     </div>
   </div>
 
-  <!-- V2 RESTORED CONSISTENT KEYPAD -->
+  <!-- V2 12-COLUMN HYBRID KEYPAD -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
       <!-- Top 3 Rows (Span 4) -->
@@ -320,7 +337,7 @@
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
       
-      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
+      <!-- Bottom Row (Span 3 - South African Comma Notation) -->
       <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
       <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
       <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
@@ -333,6 +350,14 @@
       <div class="toast-icon">⚠️</div>
       <div id="toast-msg">Error message goes here.</div>
       <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
   </div>
 
   <!-- COMPLETION OVERLAY -->
@@ -352,6 +377,7 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-01'; 
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -379,6 +405,15 @@
   let guidedLevel = 1;
   let gData = {};
 
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
+
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
@@ -388,7 +423,7 @@
       document.getElementById('learn-grid-10').innerHTML = drawAreaGrid(3, 10);
       document.getElementById('learn-grid-100').innerHTML = drawAreaGrid(45, 100);
       document.getElementById('learn-grid-trap-1').innerHTML = drawAreaGrid(3, 100);
-      document.getElementById('learn-grid-trap-2').innerHTML = drawAreaGrid(3, 10); // FIXED IMAGE MISMATCH
+      document.getElementById('learn-grid-trap-2').innerHTML = drawAreaGrid(3, 10);
 
       try {
           let savedProf = localStorage.getItem('harvest_maths_profile');
@@ -458,7 +493,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -486,13 +521,13 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box) return;
       
       // Decimal Comma Specific Logic: Allow one comma, max 5 chars
       if(char === ',' && box.innerText.includes(',')) return; 
@@ -502,7 +537,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -529,26 +564,29 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
           let el = document.getElementById(id);
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
       
-      setTimeout(() => {
-          ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-frac-n', 'practice');
-      }, 4500);
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -616,6 +654,7 @@
 
   function loadSprintQuestion() {
     currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
@@ -650,12 +689,13 @@
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -666,6 +706,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -680,12 +721,12 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -787,7 +828,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -830,21 +871,22 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Write the fraction that matches the visual grid.</div>
+          <div class="step-text">1. Write the fraction that matches the shaded grid.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Convert that fraction into a decimal number.</div>
+          <div class="step-text">2. Write the Final Answer as a decimal number using a comma (,).</div>
         </div>
       `;
       openKeypad('g-frac-n', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
-          gData = { n: "7", d: "10", dec: "0,7", err1: "Count the shaded strips out of the 10 total.", err2: "7 tenths is written as zero comma seven." };
+          gData = { n: "7", d: "10", dec: "0,7", err1: "Count the shaded strips out of the 10 total.", err2: "7 tenths is written as 0,7." };
       } else {
           // Trapdoor preview
-          gData = { n: "5", d: "100", dec: "0,05", err1: "Count the shaded squares out of the 100 total.", err2: "Watch out! It is 5 hundredths, not 5 tenths. You need a zero placeholder." };
+          gData = { n: "5", d: "100", dec: "0,05", err1: "Count the shaded squares out of the 100 total.", err2: "Watch out! It is 5 hundredths, not 5 tenths. You need a zero placeholder: 0,05." };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
@@ -861,9 +903,6 @@
   }
 
   function checkGuidedAnswer() {
-      let valN = document.getElementById('g-frac-n').innerText;
-      let valD = document.getElementById('g-frac-d').innerText;
-      
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
       if (val === '') return;
@@ -883,7 +922,7 @@
                   document.getElementById('g-dec-area').style.display = 'flex';
                   openKeypad('g-dec', 'g-step-2');
               } else {
-                  showError("The denominator is the total blocks in the grid.");
+                  showError("The bottom number is the total blocks in the grid (10 or 100).");
                   flashError(box);
               }
           }
@@ -898,10 +937,13 @@
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
                   
+                  let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+                  logTelemetryEvent("Guided Practice Correct", 100, "Guided_Dec_01", durationSeconds);
+
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Watch out for the zero trap on this next one."); 
+                          showError("Well done! Watch out for the placeholder zero on this next one."); 
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
@@ -935,7 +977,7 @@
         d = 10;
         n = Math.floor(Math.random() * 9) + 1;
     } else if (rand < 0.6) {
-        // Hundredths (Large)
+        // Hundredths (Two-digit)
         d = 100;
         n = Math.floor(Math.random() * 89) + 10; // 10 to 99
     } else {
@@ -957,6 +999,7 @@
 
   function loadPracticeQuestion() {
     currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
     
     ['p-frac-n', 'p-frac-d', 'p-dec'].forEach(id => {
         let el = document.getElementById(id);
@@ -979,7 +1022,7 @@
     let valDec = document.getElementById('p-dec').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     if (activeBoxId === 'p-frac-n') { box.classList.add('flash-success'); openKeypad('p-frac-d', 'practice'); return; }
     if (activeBoxId === 'p-frac-d') { box.classList.add('flash-success'); openKeypad('p-dec', 'practice'); return; }
@@ -988,17 +1031,19 @@
 
     // --- STRICT SEQUENCE INTERCEPT ---
     if (valN === '' || valD === '') {
-        showError("You must write the fraction before converting to a decimal.");
+        showError("Write the fraction first before entering your Final Answer.");
         openKeypad((valN === '') ? 'p-frac-n' : 'p-frac-d', 'practice');
         return; 
     }
 
     let isFracCorrect = (valN === currentQ.n && valD === currentQ.d);
     
-    // Convert back to dot for JS evaluation, but UI remains comma
+    // Convert back to dot for JS evaluation, while UI enforces SA comma
     let userDecNum = parseFloat(valDec.replace(',', '.'));
     let targetDecNum = parseFloat(currentQ.dec.replace(',', '.'));
-    let isDecCorrect = (!isNaN(userDecNum) && userDecNum === targetDecNum);
+    let isDecCorrect = (valDec.includes(',') && !isNaN(userDecNum) && userDecNum === targetDecNum && valDec === currentQ.dec);
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
 
     if (isFracCorrect && isDecCorrect) {
         document.getElementById('p-dec').classList.add('flash-success');
@@ -1007,42 +1052,57 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // DEC-01 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\nThe grid shows ${currentQ.n} out of ${currentQ.d} blocks. The decimal format is ${currentQ.dec}.`;
-        let errorTag = "General_Error";
+        // HIGH-RESOLUTION DEC-01 TRAPDOORS
+        let errorTitle = "Place Value Error!";
+        let errorMsg = `The grid shows ${currentQ.n} out of ${currentQ.d} blocks. The Final Answer is ${currentQ.dec}.`;
+        let cognitiveTag = "General_Place_Value_Error";
 
         if (!isFracCorrect) {
-            errorMsg = `GRID ERROR!\n\nYou did not read the visual correctly. The grid shows ${currentQ.n} shaded blocks out of ${currentQ.d} total blocks.`;
-            errorTag = "Incorrect_Fraction_Read";
+            errorTitle = "Grid Counting Error!";
+            errorMsg = `Look closely at the grid. There are ${currentQ.n} shaded parts out of ${currentQ.d} total parts.`;
+            cognitiveTag = "Incorrect_Fraction_Read";
+        } else if (!valDec.includes(',')) {
+            errorTitle = "Decimal Dropping Trap!";
+            errorMsg = `You wrote a whole number (${valDec}) and left out the decimal comma! Since this is less than 1 whole, your Final Answer must start with 0, and be ${currentQ.dec}.`;
+            cognitiveTag = "Decimal_Dropping_Trap";
         } else if (currentQ.d === '100' && parseInt(currentQ.n) < 10) {
             // Trapdoor for 5/100 written as 0,5
             let trapVal = parseFloat('0.' + currentQ.n);
             if (userDecNum === trapVal) {
-                errorMsg = `PHANTOM ZERO TRAPDOOR!\n\nYou wrote ${currentQ.n} Tenths (0,${currentQ.n}), but the grid shows ${currentQ.n} Hundredths! You MUST put a zero in the tenths spot to hold the place value: ${currentQ.dec}.`;
-                errorTag = "Hundredths_Place_Value_Error";
+                errorTitle = "Placeholder Zero Trap!";
+                errorMsg = `You wrote 0,${currentQ.n} (${currentQ.n} Tenths), but the grid shows ${currentQ.n} Hundredths! You MUST put a 0 in the tenths spot to hold the place value: ${currentQ.dec}.`;
+                cognitiveTag = "Missing_Placeholder_Zero_Trap";
             }
         } else if (currentQ.d === '10' && valDec === ('0,0' + currentQ.n)) {
             // Trapdoor for 3/10 written as 0,03
-            errorMsg = `PLACE VALUE ERROR!\n\nYou wrote ${currentQ.n} Hundredths (${valDec}), but the grid shows ${currentQ.n} Tenths! The tenths spot is right next to the comma: ${currentQ.dec}.`;
-            errorTag = "Tenths_Place_Value_Error";
+            errorTitle = "Tenths vs Hundredths Trap!";
+            errorMsg = `You wrote ${valDec} (${currentQ.n} Hundredths), but the grid shows ${currentQ.n} Tenths! The tenths column is right next to the comma: ${currentQ.dec}.`;
+            cognitiveTag = "Tenths_Place_Value_Trap";
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
     }
   }
 
   // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1052,7 +1112,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1062,7 +1124,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1075,12 +1138,12 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete");
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
   const originalEvaluateSprint = evaluateSprint;
   evaluateSprint = function() {
@@ -1098,18 +1161,27 @@
         profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
     } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
     }
   };
 
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
+    if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
     } else if (event.key === 'Enter') {

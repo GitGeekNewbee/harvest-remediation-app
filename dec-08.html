@@ -99,18 +99,25 @@
     
     .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
-    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    .key-bottom { grid-column: span 3; }
     
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
+    /* V2 ERROR TOAST, TRAPDOOR MODAL & COMPLETION OVERLAY */
     .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
     .toast-container.show { opacity: 1; top: 65px; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.96); z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-card { background: #ffffff; border-top: 6px solid var(--rose); border-radius: var(--radius); padding: 25px 20px; width: 100%; max-width: 420px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+    .trapdoor-badge { display: inline-block; background: var(--rose-light); color: var(--rose); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 5px 12px; border-radius: 20px; margin-bottom: 12px; }
+    .trapdoor-title { font-size: 1.4rem; font-weight: 800; color: var(--slate-900); margin: 0 0 12px 0; }
+    .trapdoor-msg { font-size: 1rem; color: var(--slate-700); line-height: 1.5; font-weight: 600; margin-bottom: 20px; white-space: pre-line; text-align: left; background: var(--slate-50); padding: 15px; border-radius: var(--radius); border: 1px solid var(--slate-200); }
 
     .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
@@ -134,9 +141,9 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
-      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To divide by a decimal, you must quickly identify the power of 10 needed to make it whole.</p>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To divide by a decimal, you must quickly identify the power of 10 needed to make it a whole number.</p>
     </div>
     
     <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
@@ -154,7 +161,7 @@
   <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
   <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
     <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Scale to Whole</div>
-    <p style="color:var(--slate-500); font-weight:600; margin-bottom: 20px;">What do you multiply by to make it whole?</p>
+    <p style="color:var(--slate-500); font-weight:600; margin-bottom: 20px;">What do you multiply by to make it a whole number?</p>
     <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
     <div class="math-row" style="margin-top:20px;">
         <div class="input-box active wide" style="height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
@@ -167,7 +174,7 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">The Divisor Problem</div>
-      <p class="instruction-text">We cannot divide if the divisor (the outside number) is a decimal. It must be a whole number.</p>
+      <p class="instruction-text">We cannot divide directly if the divisor (the second number) is a decimal. It must be a whole number.</p>
       
       <div class="pinned-visual">
         <p style="text-align:center; font-weight:800; color:var(--rose); margin-top:0;">DANGER: Decimal Divisor</p>
@@ -179,14 +186,14 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We can't easily figure out how many "0,4s" fit into something. We need to turn that 0,4 into a <b>4</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We need to turn <b>0,4</b> into the whole number <b>4</b> before dividing.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">The Shift-Shift Rule</div>
-      <p class="instruction-text">To make the divisor whole, we shift the decimal comma (multiply by 10). But to keep it balanced, <b style="color:var(--emerald);">whatever you do to the outside, you MUST do to the inside!</b></p>
+      <p class="instruction-text">To make the divisor a whole number, we shift the decimal comma (multiply by 10). To keep the problem balanced, <b style="color:var(--emerald);">whatever you do to the divisor, you MUST do to the first number too!</b></p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2.5rem; justify-content:center;">
@@ -207,7 +214,7 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Because we shifted BOTH commas one place to the right, $12,8 \div 4$ will give us the exact same answer as $1,28 \div 0,4$.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Because we shifted BOTH commas one place to the right, <b>12,8 ÷ 4</b> gives the exact same Final Answer as <b>1,28 ÷ 0,4</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
@@ -225,7 +232,7 @@
             <div style="color:var(--emerald); font-weight:900;">3,2</div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The problem is now perfectly safe to solve.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The equation is now balanced and ready to solve.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -240,7 +247,6 @@
     </div>
     
     <div class="pinned-visual">
-        <!-- Vertical layout for clear mapping -->
         <div class="math-row" style="margin-bottom:5px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
@@ -255,9 +261,12 @@
            <div class="input-box wide" id="g-shift-b" onclick="openKeypad('g-shift-b', 'g-step-1')"></div>
         </div>
         
-        <div id="g-ans-area" style="display:none; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
-            <div class="operator" style="margin-right:15px;">=</div>
-            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
+        <div id="g-ans-area" style="display:none; flex-direction:column; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
+            <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:5px;">Final Answer</span>
+            <div style="display:flex; align-items:center;">
+                <div class="operator" style="margin-right:15px;">=</div>
+                <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
+            </div>
         </div>
     </div>
   </div>
@@ -268,7 +277,7 @@
     
     <!-- DOM REVERSAL: Warning at the Top -->
     <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Shift BOTH numbers equally before dividing.</p>
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Shift BOTH numbers equally before writing your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
@@ -292,9 +301,12 @@
            </div>
         </div>
         
-        <div style="display:flex; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
-            <div class="operator" style="margin-right:15px;">=</div>
-            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
+            <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:5px;">Final Answer</span>
+            <div style="display:flex; align-items:center;">
+                <div class="operator" style="margin-right:15px;">=</div>
+                <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+            </div>
         </div>
     </div>
   </div>
@@ -302,7 +314,6 @@
   <!-- V2 12-COLUMN HYBRID DECIMAL KEYPAD (FLEXBOX) -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
-      <!-- Standard Numerals (Span 4) -->
       <div class="key-btn" onclick="typeNum('1')">1</div>
       <div class="key-btn" onclick="typeNum('2')">2</div>
       <div class="key-btn" onclick="typeNum('3')">3</div>
@@ -315,7 +326,6 @@
       <div class="key-btn" onclick="typeNum('8')">8</div>
       <div class="key-btn" onclick="typeNum('9')">9</div>
       
-      <!-- Bottom Row (Span 3 - Fits Comma exactly within RAT aesthetic) -->
       <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
       <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
       <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
@@ -328,6 +338,16 @@
       <div class="toast-icon">⚠️</div>
       <div id="toast-msg">Error message goes here.</div>
       <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- V2 RED-SCREEN TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-card">
+          <div class="trapdoor-badge">Primary-School Trapdoor Triggered</div>
+          <h3 class="trapdoor-title" id="trapdoor-title">Streak Reset to 0/5</h3>
+          <div class="trapdoor-msg" id="trapdoor-msg">Trapdoor diagnostic message.</div>
+          <button class="btn btn-primary" style="background:var(--rose); margin-top:0;" onclick="dismissTrapdoor()">I Understand — Try Again</button>
+      </div>
   </div>
 
   <!-- COMPLETION OVERLAY -->
@@ -347,6 +367,7 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'DEC-08'; 
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -373,6 +394,15 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+
+  // --- GOD-MODE BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -500,7 +530,7 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(msg, tag, durationSec = 0) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
@@ -510,16 +540,20 @@
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
-          ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-shift-a', 'practice');
-      }, 5000);
+      closeKeypad();
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+      logTelemetryEvent("Trapdoor Triggered", 0, tag, durationSec);
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
+      });
+      questionStartTime = performance.now();
+      openKeypad('p-shift-a', 'practice');
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -568,7 +602,6 @@
     let qText, ans;
     let base = Math.floor(Math.random() * 11) + 2; // 2 to 12
     
-    // Calculate via US Dot floats safely
     if (level === 1) { 
         let decDot = parseFloat((base / 10).toPrecision(12)).toString();
         qText = `${decDot.replace('.', ',')} × [ ? ] = ${base}`;
@@ -593,6 +626,7 @@
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
     document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+    questionStartTime = performance.now();
   }
 
   function checkSprintAnswer() {
@@ -624,12 +658,13 @@
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -640,6 +675,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -654,12 +690,12 @@
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the focus drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -761,7 +797,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -804,18 +840,16 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. What does the divisor need to be a whole number? Shift BOTH numbers exactly the same amount.</div>
+          <div class="step-text">1. What does the divisor need to become a whole number? Shift BOTH numbers by the exact same amount.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Now the problem is safe to divide. Solve the new equation.</div>
+          <div class="step-text">2. Now the equation is balanced. Divide to find the Final Answer.</div>
         </div>
       `;
       openKeypad('g-shift-a', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
-      guidedSubStep = 1;
-      
       if (guidedLevel === 1) {
           gData = { 
               a: "1,25", b: "0,5", 
@@ -852,13 +886,11 @@
       document.getElementById('g-ans-area').style.display = 'none';
 
       buildGuidedSteps();
+      questionStartTime = performance.now();
   }
 
   function checkGuidedAnswer() {
       let valSA = document.getElementById('g-shift-a').innerText;
-      let valSB = document.getElementById('g-shift-b').innerText;
-      let valAns = document.getElementById('g-ans').innerText;
-      
       let box = document.getElementById(activeBoxId);
       let val = box.innerText;
       if (val === '') return;
@@ -892,7 +924,7 @@
                   document.getElementById('g-ans-area').style.display = 'flex';
                   openKeypad('g-ans', 'g-step-2');
               } else {
-                  showError(`Multiply ${gData.b} × ${gData.mult}. Make it a whole number.`);
+                  showError(`Multiply ${gData.b} × ${gData.mult} to make it a whole number.`);
                   flashError(box);
               }
           }
@@ -910,14 +942,14 @@
                   setTimeout(() => {
                       if (guidedLevel === 1) {
                           guidedLevel = 2;
-                          showError("Excellent! Let's do one more."); 
+                          showError("Well done! Let's do one more."); 
                           loadGuidedQuestion(); 
                       } else {
                           startPractice(); 
                       }
                   }, 1200);
               } else {
-                  showError(`Solve the new safe equation: ${gData.shiftA} ÷ ${gData.shiftB}.`);
+                  showError(`Solve the balanced equation: ${gData.shiftA} ÷ ${gData.shiftB}.`);
                   flashError(box);
               }
           }
@@ -936,18 +968,16 @@
   }
 
   function generatePracticeQuestion() {
-    // Generate base numbers using JS standard formatting
-    let placesB = Math.random() > 0.5 ? 1 : 2; // Divisor places (0.x or 0.0x)
+    let placesB = Math.random() > 0.5 ? 1 : 2; // Divisor places (0,x or 0,0x)
     let bRaw = Math.floor(Math.random() * 12) + 2; // 2 to 13
     let b = bRaw / Math.pow(10, placesB);
 
     let ansRaw = Math.floor(Math.random() * 89) + 11; // 11 to 99
-    let placesAns = Math.random() > 0.5 ? 0 : 1; // Ans places (xx or x.x)
+    let placesAns = Math.random() > 0.5 ? 0 : 1; // Ans places (xx or x,x)
     let ans = ansRaw / Math.pow(10, placesAns);
 
     let a = b * ans;
     
-    // JS float safe logic ensuring precision up to 3 decimal places
     a = Math.round(a * 1000) / 1000;
     b = Math.round(b * 100) / 100;
     ans = Math.round(ans * 10) / 10;
@@ -963,7 +993,8 @@
         shiftB_sa: shiftB.toString().replace('.', ','),
         ans_sa: ans.toString().replace('.', ','),
         mult: multiplier,
-        trapA_sa: a.toString().replace('.', ',') // What A is if they don't shift it
+        trapA_sa: a.toString().replace('.', ','),
+        rawAnsDigits: ans.toString().replace('.', '')
     };
   }
 
@@ -981,6 +1012,7 @@
         <div style="color:var(--rose);">${currentQ.b_sa}</div>
     `;
     
+    questionStartTime = performance.now();
     openKeypad('p-shift-a', 'practice');
   }
 
@@ -1005,11 +1037,12 @@
 
     // --- STRICT SEQUENCE INTERCEPT ---
     if (valSA === '' || valSB === '') {
-        showError("Show your work! Shift both decimals first to create the safe equation.");
+        showError("Show your working! Shift both decimals first to build the balanced equation.");
         openKeypad((valSA === '') ? 'p-shift-a' : 'p-shift-b', 'practice');
         return; 
     }
 
+    let durationSec = Math.round(((performance.now() - questionStartTime) / 1000) * 10) / 10;
     let isSACorrect = (valSA === currentQ.shiftA_sa);
     let isSBCorrect = (valSB === currentQ.shiftB_sa);
     let isAnsCorrect = (valAns === currentQ.ans_sa);
@@ -1021,34 +1054,43 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Progress", durationSec);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        // DEC-08 TRAPDOORS
-        let errorMsg = `Streak Broken!\n\n1. Multiply both by ${currentQ.mult}.\n2. Safe Equation: ${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}.\n3. Final Answer: ${currentQ.ans_sa}.`;
-        let errorTag = "General_Error";
+        // DEC-08 HIGH-RESOLUTION TRAPDOORS
+        let errorMsg = `Streak Broken!\n\n1. Multiply both by ${currentQ.mult}.\n2. Balanced Equation: ${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}.\n3. Final Answer: ${currentQ.ans_sa}.`;
+        let errorTag = "General_Division_Error";
 
         if (valSA === currentQ.trapA_sa && valSB === currentQ.shiftB_sa) {
-            errorMsg = `ASYNCHRONOUS SHIFT TRAP!\n\nYou successfully multiplied the divisor by ${currentQ.mult} to make it whole, but you FORGOT to shift the dividend! Whatever you do to the outside, you MUST do to the inside!`;
-            errorTag = "Forgot_To_Shift_Dividend";
+            errorMsg = `UNBALANCED SHIFT TRAP!\n\nYou multiplied the divisor by ${currentQ.mult} to make it a whole number, but you FORGOT to shift the first number! Whatever you do to the divisor, you MUST do to the dividend too!`;
+            errorTag = "Forgot_To_Shift_Dividend_Trap";
+        } else if (currentQ.ans_sa.includes(',') && !valAns.includes(',') && valAns === currentQ.rawAnsDigits) {
+            errorMsg = `DECIMAL DROPPING TRAP!\n\nYou ignored the decimal comma in your Final Answer! After shifting both numbers to ${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}, float the comma straight up to get ${currentQ.ans_sa}.`;
+            errorTag = "Decimal_Dropping_Trap";
         } else if (!isSACorrect || !isSBCorrect) {
-            errorMsg = `SHIFT ERROR!\n\nTo make ${currentQ.b_sa} a whole number, you must multiply by ${currentQ.mult}. You MUST multiply both numbers by exactly ${currentQ.mult}.`;
-            errorTag = "Incorrect_Shift_Calculation";
+            errorMsg = `SHIFT ERROR!\n\nTo make ${currentQ.b_sa} a whole number, you must multiply by ${currentQ.mult}. You MUST multiply both numbers by ${currentQ.mult} to get ${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}.`;
+            errorTag = "Incorrect_Shift_Calculation_Trap";
         } else if (!isAnsCorrect) {
-             errorMsg = `DIVISION ERROR!\n\nYou successfully built the safe equation: ${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}. Check your division math to find ${currentQ.ans_sa}.`;
+             errorMsg = `DIVISION ERROR!\n\nYou built the correct balanced equation (${currentQ.shiftA_sa} ÷ ${currentQ.shiftB_sa}), but made a division mistake. The Final Answer is ${currentQ.ans_sa}.`;
              errorTag = "Final_Division_Calculation_Error";
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorMsg, errorTag, durationSec);
     }
   }
 
   // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = 0) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -1061,17 +1103,21 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: durationSec,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
   }
 
   function endModule() {
+    let durationSec = Math.round(((performance.now() - questionStartTime) / 1000) * 10) / 10;
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1084,12 +1130,12 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete", durationSec);
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
   const originalEvaluateSprint = evaluateSprint;
   evaluateSprint = function() {
@@ -1107,18 +1153,20 @@
         profile.failedAttempts[currentModuleId]++;
         localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
       }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Sprint_Fail", 60);
     } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Sprint_Pass", 60);
     }
   };
 
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SA COMMA NATIVE) ---
   document.addEventListener('keydown', function(event) {
     if(appState === 'LOCKED') return; 
     
-    if ((event.key >= '0' && event.key <= '9') || event.key === ',') {
+    if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
     } else if (event.key === 'Enter') {
