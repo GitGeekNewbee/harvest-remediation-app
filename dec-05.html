@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { display: none !important; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -64,9 +65,21 @@
     /* INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 110px; }
+    .input-box.locked-box { background: var(--slate-100); border-style: dashed; color: var(--slate-400); cursor: not-allowed; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
+
+    /* CPA COMMA SHIFT STEPPER */
+    .cpa-shifter-wrap { display: flex; flex-direction: column; align-items: center; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 12px; margin-bottom: 12px; box-sizing: border-box; }
+    .cpa-prompt { font-size: 0.85rem; font-weight: 700; color: var(--indigo); margin-bottom: 8px; text-align: center; }
+    .cpa-prompt.done { color: var(--emerald); }
+    .cpa-shift-display { font-size: 2rem; font-weight: 800; color: var(--slate-900); letter-spacing: 3px; background: #ffffff; padding: 6px 16px; border-radius: 6px; border: 2px solid var(--indigo-light); margin-bottom: 10px; }
+    .cpa-shift-display .comma-char { color: var(--rose); font-weight: 900; padding: 0 2px; background: var(--rose-light); border-radius: 4px; }
+    .cpa-shift-btns { display: flex; gap: 10px; }
+    .cpa-shift-btn { padding: 8px 14px; font-size: 0.9rem; font-weight: 800; border-radius: 6px; border: 2px solid var(--indigo); background: var(--indigo-light); color: var(--indigo); cursor: pointer; transition: 0.15s; }
+    .cpa-shift-btn:active { transform: scale(0.95); }
+    .cpa-shift-btn.done { border-color: var(--emerald); background: var(--emerald-light); color: var(--emerald); pointer-events: none; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
     .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
@@ -252,6 +265,7 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-container" style="width:100%;"></div>
         <!-- Horizontal Equation -->
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;" id="g-q-container">
             <!-- Injected by JS -->
@@ -264,11 +278,12 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Check the operation sign (× or ÷) and count the zeros before typing your Final Answer!</p>
     </div>
 
     <div class="pinned-visual">
+        <div id="p-cpa-container" style="width:100%;"></div>
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;" id="p-q-display">
             <!-- Injected by JS -->
         </div>
@@ -358,6 +373,78 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { targetShifts: 0, currentShifts: 0, dir: 'R', numDot: '3.45', done: false, mode: 'guided' };
+
+  function initCPAShifter(numSa, op, powStr, mode) {
+      let shifts = powStr.length - 1;
+      let dir = op === '×' ? 'R' : 'L';
+      cpaState = {
+          targetShifts: shifts,
+          currentShifts: 0,
+          dir: dir,
+          numDot: numSa.replace(',', '.'),
+          done: false,
+          mode: mode
+      };
+      renderCPAShifter();
+  }
+
+  function renderCPAShifter() {
+      let containerId = cpaState.mode === 'guided' ? 'g-cpa-container' : 'p-cpa-container';
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
+      let powCur = Math.pow(10, cpaState.currentShifts).toString();
+      let opChar = cpaState.dir === 'R' ? '×' : '÷';
+      let curStrDot = cpaState.currentShifts === 0 ? cpaState.numDot : safeShiftDecimal(cpaState.numDot, opChar, powCur);
+      if (!curStrDot.includes('.')) curStrDot = curStrDot + ',';
+      else curStrDot = curStrDot.replace('.', ',');
+
+      let parts = curStrDot.split(',');
+      let displayHtml = `${parts[0]}<span class="comma-char">,</span>${parts[1] || ''}`;
+
+      let dirWord = cpaState.dir === 'R' ? 'RIGHT (× makes it bigger)' : 'LEFT (÷ makes it smaller)';
+      let promptText = cpaState.done
+          ? `✅ Comma shifted ${cpaState.targetShifts} place(s) ${cpaState.dir === 'R' ? 'RIGHT' : 'LEFT'}! Now type your answer below.`
+          : `👇 Tap the correct button to shift the comma ${cpaState.targetShifts} place(s) ${dirWord} (${cpaState.currentShifts}/${cpaState.targetShifts}):`;
+
+      container.innerHTML = `
+          <div class="cpa-shifter-wrap">
+              <div class="cpa-prompt ${cpaState.done ? 'done' : ''}">${promptText}</div>
+              <div class="cpa-shift-display">${displayHtml}</div>
+              <div class="cpa-shift-btns">
+                  <button class="cpa-shift-btn ${cpaState.done ? 'done' : ''}" onclick="handleCPAShift('L')">◀ Shift Left</button>
+                  <button class="cpa-shift-btn ${cpaState.done ? 'done' : ''}" onclick="handleCPAShift('R')">Shift Right ▶</button>
+              </div>
+          </div>
+      `;
+  }
+
+  function handleCPAShift(dirClicked) {
+      if (cpaState.done) return;
+      if (dirClicked !== cpaState.dir) {
+          showError(cpaState.dir === 'R' ? "Multiplying makes the number BIGGER! Shift the comma to the RIGHT." : "Dividing makes the number SMALLER! Shift the comma to the LEFT.");
+          return;
+      }
+      cpaState.currentShifts++;
+      if (cpaState.currentShifts >= cpaState.targetShifts) {
+          cpaState.done = true;
+          renderCPAShifter();
+          if (cpaState.mode === 'guided') {
+              ['g-zeros', 'g-ans'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-zeros', 'g-step-1');
+          } else {
+              let el = document.getElementById('p-ans');
+              if (el) el.classList.remove('locked-box');
+              openKeypad('p-ans', 'practice');
+          }
+      } else {
+          renderCPAShifter();
+      }
+  }
 
   // --- GOD-MODE SUPERUSER BYPASS ---
   function enableSuperUser() {
@@ -420,6 +507,10 @@
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Use the Shift Left / Shift Right buttons above to move the comma first!");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -469,7 +560,7 @@
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(!box) return;
+      if(!box || box.classList.contains('locked-box')) return;
       
       // Use South African comma
       if(char === ',' && box.innerText.includes(',')) return; 
@@ -479,7 +570,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box) box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -630,6 +721,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
       sessionMissed = []; 
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
@@ -656,6 +748,16 @@
         unlockLesson();
       }
     } else {
+      let savedProf = localStorage.getItem('harvest_maths_profile');
+      if(savedProf) {
+        let profile = JSON.parse(savedProf);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -814,19 +916,18 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Count the number of zeros in the multiplier or divisor.</div>
+          <div class="step-text">1. Shift the comma using the buttons below, then type the number of zeros in the multiplier or divisor.</div>
           <div class="math-row" style="justify-content:flex-start;">
-              <div class="input-box" id="g-zeros" onclick="openKeypad('g-zeros', 'g-step-1')"></div>
+              <div class="input-box locked-box" id="g-zeros" onclick="openKeypad('g-zeros', 'g-step-1')"></div>
           </div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text" id="g-dir-text">2. Shift the comma that many places and write your Final Answer.</div>
           <div class="math-row" style="justify-content:flex-start;">
-              <div class="input-box wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
+              <div class="input-box wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
           </div>
         </div>
       `;
-      openKeypad('g-zeros', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -847,6 +948,8 @@
       
       buildGuidedSteps();
       document.getElementById('g-dir-text').innerText = "2. " + gData.dirText;
+      initCPAShifter(gData.num, gData.op, gData.pow, 'guided');
+      closeKeypad();
   }
 
   function checkGuidedAnswer() {
@@ -950,11 +1053,12 @@
         <div class="operator" style="margin: 0 10px;">=</div>
         <div style="display:flex; flex-direction:column; align-items:center;">
             <span style="font-size:0.7rem; color:var(--emerald); font-weight:800; margin-bottom:4px; text-transform:uppercase;">Final Answer</span>
-            <div class="input-box wide active" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+            <div class="input-box wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
         </div>
     `;
     
-    openKeypad('p-ans', 'practice');
+    initCPAShifter(currentQ.num_sa, currentQ.op, currentQ.powerStr, 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1071,28 +1175,6 @@
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
   }
-
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
-    }
-  };
 
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {

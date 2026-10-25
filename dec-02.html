@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; padding: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; border: none; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -55,14 +56,17 @@
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
-    /* PLACE VALUE GRID */
+    /* PLACE VALUE GRID & INTERACTIVE ZERO PADDER */
     .pv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; max-width: 300px; text-align: center; margin-bottom: 10px; }
     .pv-header { font-size: 0.75rem; font-weight: 800; color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid var(--slate-200); padding-bottom: 5px;}
-    .pv-cell { font-size: 2rem; font-weight: 700; color: var(--slate-900); padding: 5px 0; display:flex; justify-content:center; align-items:center; }
-    /* SOUTH AFRICAN COMMA FIX */
-    .pv-comma { font-size: 2.5rem; font-weight: 800; color: var(--rose); align-self: flex-end; transform: translateY(4px); line-height: 0.5; margin-left: 2px;}
-    
+    .pv-cell { font-size: 1.9rem; font-weight: 700; color: var(--slate-900); padding: 5px 0; display:flex; justify-content:center; align-items:center; min-height: 40px; }
+    .pv-comma { font-size: 2.3rem; font-weight: 800; color: var(--rose); align-self: flex-end; transform: translateY(4px); line-height: 0.5; margin-left: 2px;}
     .zero-pad { color: var(--emerald); font-weight: 800; background: var(--emerald-light); border-radius: 4px; padding: 2px 8px;}
+    .zero-tap-slot { cursor: pointer; font-size: 1rem; font-weight: 800; color: var(--amber); background: var(--amber-light); border: 2px dashed var(--amber); border-radius: 6px; padding: 4px 10px; transition: 0.2s; }
+    .zero-tap-slot:active { transform: scale(0.92); }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; color: var(--amber); background: var(--amber-light); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--amber); margin-top: 6px; margin-bottom: 8px; transition: 0.3s; text-align: center; }
+    .cpa-status-pill.done { color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
@@ -73,6 +77,7 @@
     /* INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 105px; }
+    .input-box.locked-box { background: var(--slate-100); border-color: var(--slate-200); color: var(--slate-400); cursor: not-allowed; pointer-events: none; opacity: 0.6; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -106,7 +111,7 @@
     
     .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 50px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
     .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
-    .key-bottom { grid-column: span 3; } /* Fits 4 keys securely at the bottom */
+    .key-bottom { grid-column: span 3; }
     
     .key-action { background: var(--slate-300); font-size: 1.2rem;}
     .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
@@ -120,12 +125,11 @@
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
     .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
     .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
     .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
     .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
-    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; white-space: pre-line; }
     .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
     .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
@@ -150,7 +154,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="SuperUser Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To compare decimals fairly, you must make them the same length by padding with zeros.</p>
     </div>
@@ -294,18 +298,20 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-container" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <!-- Interactive Place Value Zero-Padder Injected Here -->
+        </div>
+        <div class="cpa-status-pill" id="g-cpa-status">Tap the +0 slots in the Place Value Grid to make both numbers equal length</div>
         
-        <div class="math-row" style="margin-bottom:15px; font-size:2.5rem; color:var(--slate-400);" id="g-q-container">
+        <div class="math-row" style="margin-bottom:10px; font-size:2.2rem; color:var(--slate-400);" id="g-q-container">
             <!-- E.g., 0,4 vs 0,35 -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
-        
         <!-- Horizontal Answer Equation -->
-        <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
-            <div class="input-box wide" id="g-pad-1" onclick="openKeypad('g-pad-1', 'g-step-1')"></div>
-            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-sign" onclick="openKeypad('g-sign', 'g-step-2')"></div>
-            <div class="input-box wide" id="g-pad-2" onclick="openKeypad('g-pad-2', 'g-step-1')"></div>
+        <div class="math-row" style="margin-top:5px; margin-bottom:10px; gap: 15px;">
+            <div class="input-box wide locked-box" id="g-pad-1" onclick="openKeypad('g-pad-1', 'g-step-1')"></div>
+            <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-sign" onclick="openKeypad('g-sign', 'g-step-2')"></div>
+            <div class="input-box wide locked-box" id="g-pad-2" onclick="openKeypad('g-pad-2', 'g-step-1')"></div>
         </div>
     </div>
   </div>
@@ -315,22 +321,24 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad both numbers with zeros FIRST, then select the comparison sign for your Final Answer.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Tap the +0 slots in the Place Value Grid first, then pad both numbers and select the comparison sign for your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
+        <div id="p-cpa-container" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <!-- Interactive Place Value Zero-Padder Injected Here -->
+        </div>
+        <div class="cpa-status-pill" id="p-cpa-status">Tap the +0 slots in the Place Value Grid to make both numbers equal length</div>
         
-        <div class="math-row" style="margin-bottom:15px; font-size:2.5rem; color:var(--slate-500);" id="p-q-display">
+        <div class="math-row" style="margin-bottom:10px; font-size:2.2rem; color:var(--slate-500);" id="p-q-display">
             <!-- e.g., 0,5 vs 0,125 -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800;">⬇</div>
-        
-        <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
-            <div class="input-box wide active" id="p-pad-1" onclick="openKeypad('p-pad-1', 'practice')"></div>
-            <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-sign" onclick="openKeypad('p-sign', 'practice')"></div>
-            <div class="input-box wide" id="p-pad-2" onclick="openKeypad('p-pad-2', 'practice')"></div>
+        <div class="math-row" style="margin-top:5px; margin-bottom:10px; gap: 15px;">
+            <div class="input-box wide locked-box" id="p-pad-1" onclick="openKeypad('p-pad-1', 'practice')"></div>
+            <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-sign" onclick="openKeypad('p-sign', 'practice')"></div>
+            <div class="input-box wide locked-box" id="p-pad-2" onclick="openKeypad('p-pad-2', 'practice')"></div>
         </div>
     </div>
   </div>
@@ -423,12 +431,14 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { d1: "0,4", d2: "0,35", padLen: 2, row1Zeros: [], row2Zeros: [], done: false };
 
   // --- GOD-MODE SUPERUSER BYPASS ---
   function enableSuperUser() {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       p.studentId = "SuperUser";
       localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      if (sprintTimer) clearInterval(sprintTimer);
       document.getElementById('zone-gate-intro').classList.add('hidden');
       unlockLesson();
   }
@@ -445,7 +455,7 @@
               if(p.gateLevels && p.gateLevels[currentModuleId]) {
                   gateLevel = p.gateLevels[currentModuleId];
               }
-              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
                   isSuperUser = true;
               }
               if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
@@ -466,12 +476,117 @@
       }
   });
 
+  // --- INTERACTIVE CPA PLACE-VALUE ZERO PADDER ---
+  function initCPAState(d1Str, d2Str, padLen, mode) {
+      let frac1 = d1Str.split(',')[1] || '';
+      let frac2 = d2Str.split(',')[1] || '';
+      let r1 = [];
+      let r2 = [];
+      for (let i = 0; i < padLen; i++) {
+          r1.push(i < frac1.length ? 'DIGIT' : 'NEED_ZERO');
+          r2.push(i < frac2.length ? 'DIGIT' : 'NEED_ZERO');
+      }
+      let needsAny = r1.includes('NEED_ZERO') || r2.includes('NEED_ZERO');
+      cpaState = { d1: d1Str, d2: d2Str, padLen, row1Zeros: r1, row2Zeros: r2, done: false };
+      renderCPAPadGrid(mode);
+      if (!needsAny) {
+          // If both already have 2 decimal places, allow tapping a confirm cell or auto-unlock on tap
+          cpaState.row1Zeros[padLen - 1] = 'NEED_VERIFY';
+          renderCPAPadGrid(mode);
+      }
+  }
+
+  function renderCPAPadGrid(mode) {
+      let containerId = mode === 'GUIDED' ? 'g-cpa-container' : 'p-cpa-container';
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
+      let frac1 = cpaState.d1.split(',')[1] || '';
+      let frac2 = cpaState.d2.split(',')[1] || '';
+      let cols = cpaState.padLen === 3 ? 4 : 3;
+      let headers = cpaState.padLen === 3 ? ['Ones', 'Tenths', 'Hund', 'Thous'] : ['Ones', 'Tenths', 'Hund'];
+
+      let html = `<div class="pv-grid" style="grid-template-columns: repeat(${cols}, 1fr);">`;
+      headers.forEach(h => { html += `<div class="pv-header">${h}</div>`; });
+
+      // Row 1
+      html += `<div class="pv-cell" style="color:var(--indigo);">0<span class="pv-comma">,</span></div>`;
+      for (let i = 0; i < cpaState.padLen; i++) {
+          let st = cpaState.row1Zeros[i];
+          if (st === 'DIGIT') {
+              html += `<div class="pv-cell" style="color:var(--indigo);">${frac1[i]}</div>`;
+          } else if (st === 'NEED_ZERO') {
+              html += `<div class="pv-cell"><span class="zero-tap-slot" onclick="handleZeroPadTap(1, ${i}, '${mode}')">+0</span></div>`;
+          } else if (st === 'NEED_VERIFY') {
+              html += `<div class="pv-cell"><span class="zero-tap-slot" onclick="handleZeroPadTap(1, ${i}, '${mode}')">${frac1[i]} ✓</span></div>`;
+          } else {
+              html += `<div class="pv-cell"><span class="zero-pad">0</span></div>`;
+          }
+      }
+
+      // Row 2
+      html += `<div class="pv-cell" style="color:var(--rose);">0<span class="pv-comma">,</span></div>`;
+      for (let i = 0; i < cpaState.padLen; i++) {
+          let st = cpaState.row2Zeros[i];
+          if (st === 'DIGIT') {
+              html += `<div class="pv-cell" style="color:var(--rose);">${frac2[i]}</div>`;
+          } else if (st === 'NEED_ZERO') {
+              html += `<div class="pv-cell"><span class="zero-tap-slot" onclick="handleZeroPadTap(2, ${i}, '${mode}')">+0</span></div>`;
+          } else {
+              html += `<div class="pv-cell"><span class="zero-pad">0</span></div>`;
+          }
+      }
+
+      html += `</div>`;
+      container.innerHTML = html;
+  }
+
+  function handleZeroPadTap(row, idx, mode) {
+      if (cpaState.done) return;
+      if (row === 1) {
+          if (cpaState.row1Zeros[idx] === 'NEED_ZERO') cpaState.row1Zeros[idx] = 'FILLED_ZERO';
+          else if (cpaState.row1Zeros[idx] === 'NEED_VERIFY') cpaState.row1Zeros[idx] = 'DIGIT';
+      } else {
+          if (cpaState.row2Zeros[idx] === 'NEED_ZERO') cpaState.row2Zeros[idx] = 'FILLED_ZERO';
+      }
+      renderCPAPadGrid(mode);
+
+      let remaining = cpaState.row1Zeros.filter(s => s === 'NEED_ZERO' || s === 'NEED_VERIFY').length +
+                      cpaState.row2Zeros.filter(s => s === 'NEED_ZERO').length;
+
+      let statusEl = document.getElementById(mode === 'GUIDED' ? 'g-cpa-status' : 'p-cpa-status');
+      if (remaining === 0) {
+          cpaState.done = true;
+          if (statusEl) {
+              statusEl.innerText = `Both decimals aligned to ${cpaState.padLen} decimal places — Ready!`;
+              statusEl.classList.add('done');
+          }
+          if (mode === 'GUIDED') {
+              ['g-pad-1', 'g-pad-2', 'g-sign'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-pad-1', 'g-step-1');
+          } else {
+              ['p-pad-1', 'p-pad-2', 'p-sign'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('p-pad-1', 'practice');
+          }
+      }
+  }
+
   // --- FLEXBOX SCROLL ENGINE ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Complete the visual step first! Tap the +0 slots in the Place Value Grid above.");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -521,7 +636,7 @@
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(!box) return;
+      if(!box || box.classList.contains('locked-box')) return;
       
       // Allow only one decimal comma
       if(char === ',' && box.innerText.includes(',')) return; 
@@ -543,7 +658,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box) box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -600,6 +715,7 @@
     closeToast(); 
     appState = 'GATEKEEPER';
     sessionMissed = [];
+    questionStartTime = performance.now();
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -704,6 +820,7 @@
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
@@ -729,10 +846,19 @@
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        profile.failedAttempts[currentModuleId] = (profile.failedAttempts[currentModuleId] || 0) + 1;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
-          if(saved) {
-              let p = JSON.parse(saved);
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
               if(!p.remediation) p.remediation = {};
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
@@ -887,21 +1013,22 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Rewrite BOTH numbers below, adding zeros until they have the exact same number of decimal places.</div>
+          <div class="step-text">1. Tap the +0 slots in the Place Value Grid above. Then rewrite BOTH numbers below with equal decimal places.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Select the Final Answer sign: Less Than (&lt;), Equal (=), or Greater Than (&gt;).</div>
         </div>
       `;
-      openKeypad('g-pad-1', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
+      closeKeypad();
       questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { 
               d1: "0,4", d2: "0,35",
               pad1: "0,40", pad2: "0,35",
+              padLen: 2,
               sign: ">",
               err1: "Pad BOTH decimals to 2 decimal places using zeros."
           };
@@ -909,24 +1036,28 @@
           gData = { 
               d1: "0,125", d2: "0,6",
               pad1: "0,125", pad2: "0,600",
+              padLen: 3,
               sign: "<",
               err1: "Pad BOTH decimals to 3 decimal places using zeros."
           };
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      let statusEl = document.getElementById('g-cpa-status');
+      statusEl.innerText = "Tap the +0 slots in the Place Value Grid to make both numbers equal length";
+      statusEl.classList.remove('done');
+
+      initCPAState(gData.d1, gData.d2, gData.padLen, 'GUIDED');
       
-      // Inject visual problem
       document.getElementById('g-q-container').innerHTML = `
           <div style="color:var(--indigo);">${gData.d1}</div>
           <div style="color:var(--slate-300); margin:0 15px;">?</div>
           <div style="color:var(--rose);">${gData.d2}</div>
       `;
       
-      // Clear inputs
       ['g-pad-1', 'g-pad-2', 'g-sign'].forEach(id => {
           let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
       });
 
       buildGuidedSteps();
@@ -1005,32 +1136,30 @@
 
   function generatePracticeQuestion() {
     let dec1_num, dec2_num;
-    let isTrap = Math.random() > 0.25; // High probability of testing Whole Number Bias trap
+    let isTrap = Math.random() > 0.25;
 
     if (isTrap) {
-        // Whole Number Bias trap (e.g., 0,8 vs 0,45 or 0,5 vs 0,125)
         let topDigit = Math.floor(Math.random() * 6) + 4; // 4 to 9
         dec1_num = parseFloat((topDigit / 10).toFixed(1)); 
         
         if (Math.random() > 0.5) {
-            // 2 decimal places trap (e.g. 0,8 vs 0,45)
             let bottomTrap = (Math.floor(Math.random() * (topDigit - 2)) + 1) * 10 + (Math.floor(Math.random() * 8) + 1);
             dec2_num = parseFloat((bottomTrap / 100).toFixed(2));
         } else {
-            // 3 decimal places trap (e.g. 0,5 vs 0,125)
             let bottomTrap = (topDigit - 1) * 100 + (Math.floor(Math.random() * 88) + 11); 
             dec2_num = parseFloat((bottomTrap / 1000).toFixed(3)); 
         }
         
         if (Math.random() > 0.5) { let temp = dec1_num; dec1_num = dec2_num; dec2_num = temp; } 
     } else {
-        // General comparison, varying lengths
-        let val = Math.floor(Math.random() * 89) + 11;
-        dec1_num = parseFloat((val / 100).toFixed(2));
-        dec2_num = (Math.random() > 0.5) ? parseFloat((val / 100).toFixed(2)) : parseFloat(((Math.floor(Math.random() * 89) + 11) / 100).toFixed(2));
+        let topDigit = Math.floor(Math.random() * 8) + 1;
+        dec1_num = parseFloat((topDigit / 10).toFixed(1));
+        let val = Math.floor(Math.random() * 88) + 11;
+        if (val % 10 === 0) val += 1;
+        dec2_num = parseFloat((val / 100).toFixed(2));
+        if (Math.random() > 0.5) { let temp = dec1_num; dec1_num = dec2_num; dec2_num = temp; }
     }
 
-    // Convert cleanly to strings to determine lengths and padding
     let s1 = dec1_num.toString();
     let s2 = dec2_num.toString();
 
@@ -1039,15 +1168,12 @@
     let padLen = Math.max(l1, l2);
     if (padLen < 2) padLen = 2;
 
-    // Pad Strings and Convert to South African format
     let pad1 = dec1_num.toFixed(padLen).replace('.', ',');
     let pad2 = dec2_num.toFixed(padLen).replace('.', ',');
     
-    // Display Decimals in SA format
     let dec1_sa = s1.replace('.', ',');
     let dec2_sa = s2.replace('.', ',');
 
-    // Mathematical Sign Generation
     let ansSign = dec1_num > dec2_num ? '>' : (dec1_num < dec2_num ? '<' : '=');
 
     return { 
@@ -1060,21 +1186,26 @@
   }
 
   function loadPracticeQuestion() {
+    closeKeypad();
     currentQ = generatePracticeQuestion();
     questionStartTime = performance.now();
     
     ['p-pad-1', 'p-pad-2', 'p-sign'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
     });
+
+    let statusEl = document.getElementById('p-cpa-status');
+    statusEl.innerText = "Tap the +0 slots in the Place Value Grid to make both numbers equal length";
+    statusEl.classList.remove('done');
+
+    initCPAState(currentQ.dec1_sa, currentQ.dec2_sa, currentQ.padLen, 'PRACTICE');
 
     document.getElementById('p-q-display').innerHTML = `
         <div style="color:var(--indigo);">${currentQ.dec1_sa}</div>
         <div style="color:var(--slate-300); margin:0 15px;">?</div>
         <div style="color:var(--rose);">${currentQ.dec2_sa}</div>
     `;
-    
-    openKeypad('p-pad-1', 'practice');
   }
 
   function updateProgressBar() {
@@ -1133,7 +1264,6 @@
             errorMsg = `You must add zeros to the end until BOTH numbers have ${currentQ.padLen} digits behind the comma:\n${currentQ.dec1_sa} ➔ ${currentQ.pad1}\n${currentQ.dec2_sa} ➔ ${currentQ.pad2}`;
             cognitiveTag = "Incorrect_Zero_Padding_Trap";
         } else if (!isSignCorrect) {
-            // Whole Number Bias Trapdoor
             if (currentQ.v1 > currentQ.v2 && currentQ.l1 < currentQ.l2 && valS === '<') {
                 errorTitle = "Whole Number Bias Trap!";
                 errorMsg = `You treated ${currentQ.dec2_sa} as bigger than ${currentQ.dec1_sa} just because it has more digits! Compare the padded numbers: ${currentQ.pad1} is larger than ${currentQ.pad2}.`;
@@ -1207,28 +1337,6 @@
     document.getElementById('completion-screen').classList.add('show');
   }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
-    }
-  };
-
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
     if (document.getElementById('trapdoor-screen').classList.contains('show')) {
@@ -1243,6 +1351,7 @@
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
       typeNum(',');
     } else if (event.key === '<' || event.key === '>' || event.key === '=') {
       typeNum(event.key);

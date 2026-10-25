@@ -29,18 +29,24 @@
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
+    .timer-alert { color: var(--rose) !important; animation: pulse 0.8s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* CRITICAL FIX: The content area natively shrinks when the keypad expands */
-    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative;}
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
     .hidden { display: none !important; }
     
     /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; height: 0; padding: 0; opacity: 0; border: none; pointer-events: none; overflow: hidden;}
     body.focus-active .content-area { padding-top: 10px; }
 
     /* V2 TYPOGRAPHY & LAYOUT */
-    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; }
-    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; }
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; }
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; }
     .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
     
     /* BUTTONS */
@@ -56,19 +62,26 @@
     .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; }
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 10px; }
 
-    /* MERGED FRACTION VISUAL */
-    .merged-fraction { display: inline-flex; flex-direction: column; align-items: center; background: var(--slate-50); border: 2px dashed var(--slate-300); border-radius: var(--radius); padding: 10px 15px;}
-    .merged-num { border-bottom: 3px solid var(--slate-900); padding-bottom: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
-    .merged-den { padding-top: 8px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
+    /* MERGED FRACTION VISUAL & INTERACTIVE CPA MERGER */
+    .merged-fraction { display: inline-flex; flex-direction: column; align-items: center; background: var(--slate-50); border: 2px dashed var(--slate-300); border-radius: var(--radius); padding: 10px 15px; font-size: 1.8rem; font-weight: 800; transition: all 0.25s ease;}
+    .merged-fraction.tappable-merge { cursor: pointer; border-color: var(--amber); background: var(--amber-light); }
+    .merged-fraction.tappable-merge:active { transform: scale(0.96); }
+    .merged-fraction.merged-ready { border-color: var(--emerald); border-style: solid; background: #f0fdf4; cursor: default; }
+    .merged-num { border-bottom: 3px solid var(--slate-900); padding-bottom: 6px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
+    .merged-den { padding-top: 6px; width: 100%; text-align: center; display: flex; justify-content: center; gap: 8px;}
+
+    .cpa-status-pill { font-size: 0.78rem; font-weight: 800; padding: 6px 12px; border-radius: 20px; background: var(--amber-light); color: var(--amber); letter-spacing: 0.4px; text-align: center; transition: 0.3s; margin-top: 8px; cursor: pointer; }
+    .cpa-status-pill.ready { background: var(--emerald-light); color: var(--emerald); cursor: default; }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED TO SIT AT TOP) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box; }
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.locked-box { opacity: 0.4; pointer-events: none; background: var(--slate-100); }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -86,7 +99,8 @@
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
         display: flex; 
         justify-content: center; 
-        flex-shrink: 0; /* Protect keypad from being squeezed */
+        flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 350px; 
@@ -117,13 +131,20 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -145,7 +166,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Multiplying fractions requires instant times-tables recall. Prove your fluency.</p>
     </div>
@@ -226,7 +247,7 @@
             <div class="fraction"><div class="frac-num" style="color:var(--emerald);">1</div><div class="frac-den" style="color:var(--emerald);">2</div></div>
         </div>
       </div>
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>6/12</b> is mathematically correct, but <b>1/2</b> is the fully simplified final answer.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>6/12</b> is mathematically correct, but <b>1/2</b> is the fully simplified Final Answer.</p>
       <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
     </div>
   </div>
@@ -241,7 +262,12 @@
     </div>
     
     <div class="pinned-visual">
-        <div class="math-row" style="margin-bottom:15px;" id="g-q-container">
+        <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- CPA Merge Box -->
+        <div id="g-cpa-container" style="display:flex; flex-direction:column; align-items:center; margin-bottom:10px;">
             <!-- Injected by JS -->
         </div>
         
@@ -250,8 +276,8 @@
             <div class="operator" style="margin-right:15px;">=</div>
             <!-- Raw Merged Answer (Step 1) -->
             <div class="fraction" style="font-size:2.5rem;">
-              <div class="frac-num"><div class="input-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-raw-d" onclick="openKeypad('g-raw-d', 'g-step-1')"></div></div>
+              <div class="frac-num"><div class="input-box locked-box" id="g-raw-n" onclick="openKeypad('g-raw-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box locked-box" id="g-raw-d" onclick="openKeypad('g-raw-d', 'g-step-1')"></div></div>
             </div>
 
             <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
@@ -265,26 +291,31 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Rule and Instructions at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:var(--radius); margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Show the raw multiplied fraction AND the fully simplified final fraction.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:var(--radius); margin-bottom:20px; transition: all 0.3s;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: Tap the Merge Box FIRST to bridge the fractions, then type the multiplied fraction and simplified Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
         <!-- Original Equation -->
-        <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
+        <div class="math-row" id="p-q-display" style="margin-bottom:10px;">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- CPA Merge Box -->
+        <div id="p-cpa-container" style="display:flex; flex-direction:column; align-items:center; margin-bottom:10px;">
             <!-- Populated by JS -->
         </div>
         
-        <div class="math-row" style="margin-top:10px;">
+        <div class="math-row" style="margin-top:8px;">
           <div class="operator" style="margin-right:15px;">=</div>
           
           <!-- Raw Answer -->
           <div class="fraction" style="font-size:2.5rem;">
             <div class="frac-num">
-                <div class="input-box active" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div>
+                <div class="input-box locked-box" id="p-raw-n" onclick="openKeypad('p-raw-n', 'practice')"></div>
             </div>
             <div class="frac-den">
-                <div class="input-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div>
+                <div class="input-box locked-box" id="p-raw-d" onclick="openKeypad('p-raw-d', 'practice')"></div>
             </div>
           </div>
 
@@ -293,17 +324,17 @@
           <!-- Simplified Answer -->
           <div class="fraction" style="font-size:2.5rem;">
             <div class="frac-num">
-                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
             </div>
             <div class="frac-den">
-                <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
             </div>
           </div>
         </div>
     </div>
   </div>
 
-  <!-- CRITICAL FIX: KEYPAD STRUCTURAL FLOW (Keypad is now a flex item, not an overlay) -->
+  <!-- CRITICAL FIX: KEYPAD STRUCTURAL FLOW -->
   <div class="keypad-drawer" id="keypad">
     <div class="keypad-grid">
       <div class="key-btn" onclick="typeNum('1')">1</div>
@@ -330,6 +361,14 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">COGNITIVE TRAPDOOR DETECTED</div>
+      <h2 class="trapdoor-title" id="trapdoor-title">Streak Broken!</h2>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -347,6 +386,9 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'RAT-06'; 
+
+  // Telemetry High-Resolution Timer
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -374,6 +416,13 @@
   let guidedLevel = 1;
   let gData = {};
 
+  // CPA Interactive Merger State
+  let cpaState = {
+      mode: 'guided',
+      n1: 1, d1: 2, n2: 1, d2: 2,
+      unlockedAbstract: false
+  };
+
   // MATH HELPER FUNCTIONS
   function getGCD(x, y) {
       x = Math.abs(x); y = Math.abs(y);
@@ -381,7 +430,7 @@
       return x;
   }
 
-  // --- INITIALIZATION ---
+  // --- INITIALIZATION & SUPERUSER INJECTION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       let isSuperUser = false;
@@ -414,12 +463,23 @@
       }
   });
 
-  // --- CRITICAL FIX: THE FLEXBOX STRUCTURAL SCROLL ENGINE ---
+  // --- DEV SECRET BYPASS (CLICK THE CLOCK ICON) ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      
+      let introZone = document.getElementById('zone-gate-intro');
+      if (introZone) introZone.classList.add('hidden');
+      unlockLesson();
+  }
+
+  // --- THE FLEXBOX STRUCTURAL SCROLL ENGINE ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) return;
+      if (!targetBox || targetBox.classList.contains('locked-box')) return;
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -430,33 +490,48 @@
       activeStepId = stepId;
       targetBox.classList.add('active');
 
-      // Focus mode hides the top HUD, expanding the content-area at the top
       document.body.classList.add('focus-active');
 
-      // Opening the keypad natively SHRINKS the content-area at the bottom
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      // Wait for the CSS flexbox transitions to finish squishing the content-area
-      setTimeout(() => {
-          let visualBlock = targetBox.closest('.pinned-visual') || targetBox.closest('.math-row');
-          if (visualBlock) {
-              // Because the content-area is now physically bounded above the keypad,
-              // the browser's native scrollIntoView can perfectly center the fraction safely.
-              visualBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-      }, 350); 
+      let container = document.querySelector('.content-area:not(.hidden)');
+      if (container) {
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let fractionWrapper = targetBox.closest('.fraction') || targetBox.closest('.math-row');
+              let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
   }
 
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box && box.innerText.length < 3) box.innerText += char;
+      if(!box || box.classList.contains('locked-box')) return;
+      if(char === ',' && box.innerText.includes(',')) return;
+      if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
@@ -489,26 +564,77 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-raw-n', 'p-raw-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
           let el = document.getElementById(id);
           if (el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- INTERACTIVE CPA MERGER GENERATOR ---
+  function renderCPAMerger(mode, n1, d1, n2, d2) {
+      let prefix = mode === 'guided' ? 'g' : 'p';
+      cpaState = {
+          mode: mode,
+          n1, d1, n2, d2,
+          unlockedAbstract: false
+      };
+
+      let html = `
+        <div class="merged-fraction tappable-merge" id="${prefix}-merge-box" onclick="handleMergeTap('${prefix}')">
+            <div class="merged-num" id="${prefix}-merge-num">? × ?</div>
+            <div class="merged-den" id="${prefix}-merge-den">? × ?</div>
+        </div>
+        <div class="cpa-status-pill" id="${prefix}-cpa-status" onclick="handleMergeTap('${prefix}')">Step 1: Tap the Merge Box above to bridge (Tops × Tops) and (Bottoms × Bottoms)</div>
+      `;
+      return html;
+  }
+
+  function handleMergeTap(prefix) {
+      if (appState === 'LOCKED' || cpaState.unlockedAbstract) return;
+      let mergeBox = document.getElementById(`${prefix}-merge-box`);
+      if (!mergeBox) return;
+
+      cpaState.unlockedAbstract = true;
+      mergeBox.classList.remove('tappable-merge');
+      mergeBox.classList.add('merged-ready');
+
+      document.getElementById(`${prefix}-merge-num`).innerHTML = `<span style="color:var(--indigo);">${cpaState.n1}</span> <span style="color:var(--slate-400);">×</span> <span style="color:var(--rose);">${cpaState.n2}</span>`;
+      document.getElementById(`${prefix}-merge-den`).innerHTML = `<span style="color:var(--indigo);">${cpaState.d1}</span> <span style="color:var(--slate-400);">×</span> <span style="color:var(--rose);">${cpaState.d2}</span>`;
+
+      let status = document.getElementById(`${prefix}-cpa-status`);
+      status.classList.add('ready');
+      status.innerText = `✓ Fractions Merged Straight Across! Now calculate and simplify.`;
+
+      if (cpaState.mode === 'guided') {
+          document.getElementById('g-raw-n').classList.remove('locked-box');
+          document.getElementById('g-raw-d').classList.remove('locked-box');
+          openKeypad('g-raw-n', 'g-step-1');
+      } else {
           ['p-raw-n', 'p-raw-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
               let el = document.getElementById(id);
-              if (el) { el.innerText = ''; el.classList.remove('flash-error'); }
+              if (el) el.classList.remove('locked-box');
           });
           openKeypad('p-raw-n', 'practice');
-      }, 4000);
+      }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -574,6 +700,7 @@
   }
 
   function loadSprintQuestion() {
+    questionStartTime = performance.now();
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
@@ -605,9 +732,12 @@
   function evaluateSprint() {
     closeKeypad();
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    let durationSeconds = 60 - Math.max(0, timeLeft);
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), null, durationSeconds);
+
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
@@ -615,6 +745,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -625,14 +756,24 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Gatekeeper_Miss", durationSeconds);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
               let p = JSON.parse(saved);
               if(!p.remediation) p.remediation = {};
@@ -644,7 +785,7 @@
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -678,7 +819,7 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
           let p = JSON.parse(saved);
-          let queue = p.remediation[currentModuleId] || [];
+          let queue = (p.remediation && p.remediation[currentModuleId]) ? p.remediation[currentModuleId] : [];
           if(queue.length === 0) {
               endRemediation();
               return;
@@ -789,16 +930,17 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Multiply straight across. (Tops × Tops) and (Bottoms × Bottoms).</div>
+          <div class="step-text">1. Tap the Merge Box first! Then multiply straight across: (Tops × Tops) and (Bottoms × Bottoms).</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Finally, simplify your answer to lowest terms.</div>
+          <div class="step-text">2. Simplify your Final Answer to lowest terms.</div>
         </div>
       `;
-      openKeypad('g-raw-n', 'g-step-1');
+      closeKeypad();
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { 
               q: `
@@ -829,20 +971,28 @@
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       document.getElementById('g-q-container').innerHTML = gData.q;
-      
-      // Clear dynamic answer container from previous rounds
       document.getElementById('g-dynamic-answer-area').innerHTML = '';
       
-      // Clear inputs
       ['g-raw-n', 'g-raw-d'].forEach(id => {
           let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+          if(el) {
+              el.innerText = '';
+              el.classList.remove('flash-success', 'flash-error', 'active');
+              el.classList.add('locked-box');
+          }
       });
+
+      document.getElementById('g-cpa-container').innerHTML = renderCPAMerger('guided', gData.n1, gData.d1, gData.n2, gData.d2);
 
       buildGuidedSteps();
   }
 
   function checkGuidedAnswer() {
+      if (!cpaState.unlockedAbstract) {
+          showError("Tap the Merge Box first to bridge the fractions!");
+          return;
+      }
+
       let box = document.getElementById(activeBoxId);
       if (!box) return;
       let val = box.innerText;
@@ -853,7 +1003,6 @@
               if (val === gData.rawN) { box.classList.add('flash-success'); openKeypad('g-raw-d', 'g-step-1'); }
               else { showError("Multiply the numerators: " + gData.n1 + " × " + gData.n2); flashError(box); }
           } else if (activeBoxId === 'g-raw-d') {
-              // SEQUENCE CHECK
               if (document.getElementById('g-raw-n').innerText === '') {
                   showError("Find the top numerator first.");
                   openKeypad('g-raw-n', 'g-step-1');
@@ -868,7 +1017,6 @@
                   document.getElementById('g-step-1').classList.add('completed');
                   document.getElementById('g-step-2').classList.remove('locked');
                   
-                  // HORIZONTAL INJECTION: Build Step 2 inline (matches practice layout)
                   let answerArea = document.getElementById('g-dynamic-answer-area');
                   answerArea.innerHTML = `
                     <div class="operator" style="margin: 0 15px;">➔</div>
@@ -893,7 +1041,6 @@
               if (val === gData.simpN) { box.classList.add('flash-success'); openKeypad('g-simp-d', 'g-step-2'); }
               else { showError(gData.err2); flashError(box); }
           } else if (activeBoxId === 'g-simp-d') {
-              // SEQUENCE CHECK
               if (document.getElementById('g-simp-n').innerText === '') {
                   showError("Simplify the numerator first.");
                   openKeypad('g-simp-n', 'g-step-2');
@@ -940,7 +1087,6 @@
   function generatePracticeQuestion() {
     let n1, d1, n2, d2, rawN, rawD, gcd;
     
-    // FORCE ALGORITHM: Keep generating until we find a fraction that requires simplification
     do {
         d1 = Math.floor(Math.random() * 8) + 2; 
         d2 = Math.floor(Math.random() * 8) + 2; 
@@ -956,9 +1102,9 @@
     let ansD = rawD / gcd;
 
     let qStr = `
-        <div class="fraction"><div class="frac-num">${n1}</div><div class="frac-den">${d1}</div></div>
+        <div class="fraction"><div class="frac-num" style="color:var(--indigo);">${n1}</div><div class="frac-den">${d1}</div></div>
         <div class="operator">×</div>
-        <div class="fraction"><div class="frac-num">${n2}</div><div class="frac-den">${d2}</div></div>
+        <div class="fraction"><div class="frac-num" style="color:var(--rose);">${n2}</div><div class="frac-den">${d2}</div></div>
     `;
     
     return { 
@@ -972,19 +1118,22 @@
   }
 
   function loadPracticeQuestion() {
-    // 1. Strict State-Sync Verification
+    questionStartTime = performance.now();
     currentQ = generatePracticeQuestion();
     
-    // 2. Clear all boxes safely
     ['p-raw-n', 'p-raw-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) {
+            el.innerText = '';
+            el.classList.remove('flash-success', 'flash-error', 'active');
+            el.classList.add('locked-box');
+        }
     });
 
-    // 3. Render HTML cleanly
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    document.getElementById('p-cpa-container').innerHTML = renderCPAMerger('practice', currentQ.n1, currentQ.d1, currentQ.n2, currentQ.d2);
     
-    openKeypad('p-raw-n', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -994,6 +1143,11 @@
   }
 
   function checkPracticeAnswer() {
+    if (!cpaState.unlockedAbstract) {
+        showError("Tap the Merge Box first to bridge the fractions!");
+        return;
+    }
+
     let valRawN = document.getElementById('p-raw-n').innerText;
     let valRawD = document.getElementById('p-raw-d').innerText;
     let valAnsN = document.getElementById('p-ans-n').innerText;
@@ -1002,14 +1156,12 @@
     let box = document.getElementById(activeBoxId);
     if (!box || box.innerText === '') return;
 
-    // Fast-track navigation for active boxes
     if (activeBoxId === 'p-raw-n') { box.classList.add('flash-success'); openKeypad('p-raw-d', 'practice'); return; }
     if (activeBoxId === 'p-raw-d') { box.classList.add('flash-success'); openKeypad('p-ans-n', 'practice'); return; }
     if (activeBoxId === 'p-ans-n') { box.classList.add('flash-success'); openKeypad('p-ans-d', 'practice'); return; }
 
     if (valAnsD === '') return;
 
-    // --- STRICT SEQUENCE INTERCEPT ---
     if (valRawN === '' || valRawD === '') {
         showError("Show your work! You must calculate the raw multiplied fraction first.");
         let emptyBox = (valRawN === '') ? 'p-raw-n' : 'p-raw-d';
@@ -1017,8 +1169,8 @@
         return; 
     }
 
-    // --- TRAPDOOR EVALUATION ENGINE ---
-    let isCorrect = (valAnsN === currentQ.ansN && valAnsD === currentQ.ansD);
+    let isCorrect = (valRawN === currentQ.rawN && valRawD === currentQ.rawD && valAnsN === currentQ.ansN && valAnsD === currentQ.ansD);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
@@ -1027,41 +1179,59 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Question Correct", 100, "None", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        let errorMsg = `Streak Broken!\n\n1. Multiply Tops: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}.\n2. Multiply Bottoms: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`;
-        let errorTag = "General_Error";
-
-        // Trapdoor Logic
         let isRawCorrect = (valAnsN === currentQ.rawN && valAnsD === currentQ.rawD);
         let userVal = parseFloat(valAnsN) / parseFloat(valAnsD);
         let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
 
-        if (isRawCorrect || (!isNaN(userVal) && userVal === rawVal)) {
-            errorMsg = `NOT SIMPLIFIED!\n\nYour maths is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms to proceed.`;
-            errorTag = "Unsimplified_Answer";
+        if (isRawCorrect || (!isNaN(userVal) && Math.abs(userVal - rawVal) < 0.0001 && valAnsN !== currentQ.ansN)) {
+            triggerStreakBreak(
+                "UNSIMPLIFIED FRACTION TRAP!",
+                `Your multiplication (${currentQ.rawN}/${currentQ.rawD}) is correct, but you MUST simplify to lowest terms!\n\nDivide both ${currentQ.rawN} and ${currentQ.rawD} by their highest common factor.\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Unsimplified_Answer"
+            );
         } else if (valRawN === (currentQ.n1 + currentQ.n2).toString() || valRawD === (currentQ.d1 + currentQ.d2).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou added instead of multiplying! Remember to multiply straight across.`;
-            errorTag = "Added_Instead_Of_Multiplied";
+            triggerStreakBreak(
+                "ADDED INSTEAD OF MULTIPLIED!",
+                `You added the numbers instead of multiplying!\n\nMultiply straight across:\n• Tops: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}\n• Bottoms: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Added_Instead_Of_Multiplied"
+            );
         } else if (valRawN === (currentQ.n1 * currentQ.d2).toString() || valRawN === (currentQ.n2 * currentQ.d1).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou cross-multiplied! We only cross-multiply when solving equations. For regular multiplication, just multiply STRAIGHT across.`;
-            errorTag = "Cross_Multiplied";
+            triggerStreakBreak(
+                "CROSS-MULTIPLICATION TRAP!",
+                `You cross-multiplied diagonally!\n\nFor fraction multiplication, NEVER cross-multiply. Multiply STRAIGHT across:\n• Tops: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}\n• Bottoms: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Cross_Multiplied"
+            );
+        } else {
+            triggerStreakBreak(
+                "FRACTION MULTIPLICATION ERROR!",
+                `1. Multiply Tops: ${currentQ.n1} × ${currentQ.n2} = ${currentQ.rawN}.\n2. Multiply Bottoms: ${currentQ.d1} × ${currentQ.d2} = ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`,
+                "General_Multiplication_Error"
+            );
         }
-
-        triggerStreakBreak(errorMsg, errorTag);
     }
   }
 
-  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  // --- 🔌 DASHBOARD SYNC PATCH & V2 TELEMETRY ---
+  const curriculumOrder = [
+      'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+      'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+      'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let calcDuration = durationSec !== null
+        ? durationSec
+        : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1071,7 +1241,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,         
+      durationSeconds: calcDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1081,7 +1253,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1094,43 +1267,25 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "None", durationSeconds);
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-    }
-  };
-
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN LOCALIZATION) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter') dismissTrapdoor();
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
-      // Catch period from physical keyboard and convert to SA comma standard
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();

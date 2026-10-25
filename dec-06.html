@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { display: none !important; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -70,9 +71,16 @@
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 100px; }
     .input-box.x-wide { width: 130px; }
+    .input-box.locked-box { background: var(--slate-100); border-style: dashed; color: var(--slate-400); cursor: not-allowed; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
+
+    /* CPA DECIMAL PLACE TAPPER */
+    .cpa-prompt { font-size: 0.85rem; font-weight: 700; color: var(--indigo); margin-bottom: 10px; text-align: center; background: var(--indigo-light); padding: 8px 12px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+    .cpa-prompt.done { background: var(--emerald-light); color: var(--emerald); }
+    .cpa-dec-digit { display: inline-block; padding: 2px 6px; margin: 0 2px; border: 2px dashed var(--amber); border-radius: 6px; background: var(--amber-light); cursor: pointer; transition: 0.15s; animation: pulse 1.2s infinite; }
+    .cpa-dec-digit.tapped { border: 2px solid var(--emerald); background: var(--emerald-light); color: var(--emerald); animation: none; cursor: default; }
 
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
     .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
@@ -258,6 +266,7 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-prompt" class="cpa-prompt">👇 Tap every digit behind a decimal comma in BOTH numbers to highlight them:</div>
         <div class="math-row" style="margin-bottom:15px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
@@ -268,18 +277,18 @@
         <div class="math-row" style="gap:15px; margin-bottom:15px;">
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE NUMBERS</span>
-               <div class="input-box wide" id="g-wn" onclick="openKeypad('g-wn', 'g-step-1')"></div>
+               <div class="input-box wide locked-box" id="g-wn" onclick="openKeypad('g-wn', 'g-step-1')"></div>
            </div>
            
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; margin-bottom:5px;">TOTAL PLACES</span>
-               <div class="input-box" id="g-pl" onclick="openKeypad('g-pl', 'g-step-2')"></div>
+               <div class="input-box locked-box" id="g-pl" onclick="openKeypad('g-pl', 'g-step-2')"></div>
            </div>
         </div>
         
         <div id="g-ans-area" style="display:none; align-items:center; width:100%; justify-content:center; gap: 10px;">
             <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
-            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-3')"></div>
+            <div class="input-box x-wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-3')"></div>
         </div>
 
     </div>
@@ -290,11 +299,12 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Multiply as whole numbers, count total places, and enter your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
+        <div id="p-cpa-prompt" class="cpa-prompt">👇 Tap every digit behind a decimal comma in BOTH numbers to highlight them:</div>
         <div class="math-row" style="margin-bottom:15px;" id="p-q-display">
             <!-- Injected by JS -->
         </div>
@@ -304,18 +314,18 @@
         <div class="math-row" style="gap:15px; margin-bottom:15px;">
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--slate-500); font-weight:800; margin-bottom:5px;">WHOLE NUMBERS</span>
-               <div class="input-box wide active" id="p-wn" onclick="openKeypad('p-wn', 'practice')"></div>
+               <div class="input-box wide locked-box" id="p-wn" onclick="openKeypad('p-wn', 'practice')"></div>
            </div>
            
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; margin-bottom:5px;">TOTAL PLACES</span>
-               <div class="input-box" id="p-pl" onclick="openKeypad('p-pl', 'practice')"></div>
+               <div class="input-box locked-box" id="p-pl" onclick="openKeypad('p-pl', 'practice')"></div>
            </div>
         </div>
         
         <div style="display:flex; align-items:center; width:100%; justify-content:center; gap: 10px;">
             <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
-            <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+            <div class="input-box x-wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
         </div>
     </div>
   </div>
@@ -403,6 +413,66 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { totalDigits: 0, tappedCount: 0, done: false, mode: 'guided' };
+
+  function buildInteractiveDecHtml(decStr, colorVar, prefix) {
+      let parts = decStr.split(',');
+      let whole = parts[0];
+      let frac = parts[1] || '';
+      let fracSpans = '';
+      for (let i = 0; i < frac.length; i++) {
+          let spanId = `${prefix}-d-${i}`;
+          fracSpans += `<span class="cpa-dec-digit" id="${spanId}" onclick="handleCPADecTap('${spanId}')">${frac[i]}</span>`;
+      }
+      return `<div style="color:${colorVar};">${whole},${fracSpans}</div>`;
+  }
+
+  function initCPADecTapper(str1, str2, mode) {
+      let f1 = (str1.split(',')[1] || '').length;
+      let f2 = (str2.split(',')[1] || '').length;
+      cpaState = {
+          totalDigits: f1 + f2,
+          tappedCount: 0,
+          done: false,
+          mode: mode
+      };
+      let promptEl = document.getElementById(mode === 'guided' ? 'g-cpa-prompt' : 'p-cpa-prompt');
+      if (promptEl) {
+          promptEl.classList.remove('done');
+          promptEl.innerText = `👇 Tap all ${cpaState.totalDigits} decimal digits behind the commas (0/${cpaState.totalDigits}):`;
+      }
+  }
+
+  function handleCPADecTap(spanId) {
+      let el = document.getElementById(spanId);
+      if (!el || el.classList.contains('tapped')) return;
+      el.classList.add('tapped');
+      cpaState.tappedCount++;
+
+      let promptEl = document.getElementById(cpaState.mode === 'guided' ? 'g-cpa-prompt' : 'p-cpa-prompt');
+      if (cpaState.tappedCount >= cpaState.totalDigits) {
+          cpaState.done = true;
+          if (promptEl) {
+              promptEl.classList.add('done');
+              promptEl.innerText = `✅ All ${cpaState.totalDigits} decimal places highlighted! Now complete the boxes below.`;
+          }
+          if (cpaState.mode === 'guided') {
+              ['g-wn', 'g-pl', 'g-ans'].forEach(id => {
+                  let b = document.getElementById(id);
+                  if (b) b.classList.remove('locked-box');
+              });
+              openKeypad('g-wn', 'g-step-1');
+          } else {
+              ['p-wn', 'p-pl', 'p-ans'].forEach(id => {
+                  let b = document.getElementById(id);
+                  if (b) b.classList.remove('locked-box');
+              });
+              openKeypad('p-wn', 'practice');
+          }
+      } else if (promptEl) {
+          promptEl.innerText = `👇 Tap all ${cpaState.totalDigits} decimal digits behind the commas (${cpaState.tappedCount}/${cpaState.totalDigits}):`;
+      }
+  }
 
   // --- GOD-MODE SUPERUSER BYPASS ---
   function enableSuperUser() {
@@ -479,6 +549,10 @@
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Tap every digit behind a decimal comma in both numbers above first!");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -528,7 +602,7 @@
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(!box) return;
+      if(!box || box.classList.contains('locked-box')) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 7) box.innerText += char;
@@ -537,7 +611,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box) box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -686,6 +760,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
       sessionMissed = []; 
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
@@ -712,6 +787,16 @@
         unlockLesson();
       }
     } else {
+      let savedProf = localStorage.getItem('harvest_maths_profile');
+      if(savedProf) {
+        let profile = JSON.parse(savedProf);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -870,7 +955,7 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Ignore the commas and multiply the numbers as Whole Numbers.</div>
+          <div class="step-text">1. Tap the decimal digits below, then multiply the numbers as Whole Numbers.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Count ALL the digits behind the decimal commas in the question.</div>
@@ -879,7 +964,6 @@
           <div class="step-text">3. Place the comma so your Final Answer has that exact number of decimal places.</div>
         </div>
       `;
-      openKeypad('g-wn', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -893,18 +977,20 @@
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       
       document.getElementById('g-q-container').innerHTML = `
-          <div style="color:var(--indigo);">${gData.str1}</div>
+          ${buildInteractiveDecHtml(gData.str1, 'var(--indigo)', 'g1')}
           <div class="operator" style="color:var(--amber);">×</div>
-          <div style="color:var(--rose);">${gData.str2}</div>
+          ${buildInteractiveDecHtml(gData.str2, 'var(--rose)', 'g2')}
       `;
       
       ['g-wn', 'g-pl', 'g-ans'].forEach(id => {
           let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
       });
       document.getElementById('g-ans-area').style.display = 'none';
 
       buildGuidedSteps();
+      initCPADecTapper(gData.str1, gData.str2, 'guided');
+      closeKeypad();
   }
 
   function checkGuidedAnswer() {
@@ -1034,16 +1120,17 @@
     
     ['p-wn', 'p-pl', 'p-ans'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
     });
 
     document.getElementById('p-q-display').innerHTML = `
-        <div style="color:var(--indigo);">${currentQ.str1}</div>
+        ${buildInteractiveDecHtml(currentQ.str1, 'var(--indigo)', 'p1')}
         <div class="operator" style="color:var(--amber);">×</div>
-        <div style="color:var(--rose);">${currentQ.str2}</div>
+        ${buildInteractiveDecHtml(currentQ.str2, 'var(--rose)', 'p2')}
     `;
     
-    openKeypad('p-wn', 'practice');
+    initCPADecTapper(currentQ.str1, currentQ.str2, 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1175,28 +1262,6 @@
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
   }
-
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
-    }
-  };
 
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {

@@ -577,7 +577,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box) box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -1116,6 +1116,9 @@
               activeBoxId = null;
               xp += 15;
               document.getElementById('xp-counter').innerText = xp;
+
+              let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+              logTelemetryEvent("Guided Practice Correct", 100, "Guided_Int_03", durationSeconds);
               
               setTimeout(() => {
                   if (guidedLevel === 1) {

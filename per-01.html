@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - PER-01</title>
+  <style>
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
+    
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* THE APP CONTAINER */
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    
+    /* V2 MICRO-HUD */
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
+    .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
+    .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
+    .stat-xp { color: var(--amber); }
+
+    /* SCROLL ENGINE: Shrinks naturally when keypad opens */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
+    .hidden { display: none !important; }
+
+    /* FOCUS MODE DYNAMICS */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; padding: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; border: none; }
+    body.focus-active .content-area { padding-top: 10px; }
+    
+    /* TYPOGRAPHY */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
+    
+    /* BUTTONS */
+    .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:active { background: #4338ca; }
+    .btn-warning { background: var(--amber); color: white; }
+
+    /* MATH FORMATTING */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; gap: 8px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
+    .fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 4px; }
+    .frac-num { padding: 0 8px 5px 8px; border-bottom: 3px solid var(--slate-900); width: 100%; text-align: center; transition: color 0.3s;}
+    .frac-den { padding: 5px 8px 0 8px; width: 100%; text-align: center; transition: color 0.3s;}
+    .operator { font-size: 1.8rem; color: var(--slate-400); margin: 0 4px; }
+    .pct-symbol { font-size: 1.8rem; font-weight: 800; color: var(--indigo); }
+
+    /* PER-01 SPECIFIC: INTERACTIVE 10x10 HUNDRED-GRID */
+    .target-banner { background: var(--indigo-light); color: var(--indigo); border: 2px solid var(--indigo); border-radius: var(--radius); padding: 8px 14px; font-size: 0.95rem; font-weight: 800; margin-bottom: 12px; text-align: center; width: 100%; box-sizing: border-box; }
+    
+    .grid-100 { display: grid; grid-template-columns: repeat(10, 1fr); grid-auto-flow: column; grid-template-rows: repeat(10, 1fr); gap: 2px; width: 165px; height: 165px; background: var(--slate-300); border: 2px solid var(--slate-400); border-radius: 6px; padding: 3px; transition: all 0.2s ease;}
+    .grid-100 .cell { background: white; border-radius: 1px; transition: background 0.15s ease; cursor: pointer; }
+    .grid-100 .cell.fill-indigo { background: var(--indigo); }
+    .grid-100 .cell.fill-emerald { background: var(--emerald); }
+    .grid-100 .cell.fill-rose { background: var(--rose); }
+
+    .cpa-controls { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+    .cpa-btn { background: var(--slate-100); border: 2px solid var(--slate-300); color: var(--slate-900); font-weight: 800; font-size: 0.8rem; padding: 7px 11px; border-radius: 6px; cursor: pointer; transition: 0.15s; }
+    .cpa-btn:active { transform: scale(0.95); }
+    .cpa-btn.col-btn { background: var(--indigo-light); border-color: var(--indigo); color: var(--indigo); }
+    .cpa-btn.unit-btn { background: var(--amber-light); border-color: var(--amber); color: var(--amber); }
+    .cpa-btn.clear-btn { background: var(--rose-light); border-color: var(--rose); color: var(--rose); }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; color: var(--amber); background: var(--amber-light); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--amber); margin-top: 8px; margin-bottom: 8px; transition: 0.3s; text-align: center; }
+    .cpa-status-pill.done { color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
+
+    /* FADING STEP ARCHITECTURE */
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 10px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 0.95rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
+    
+    /* INPUT BOXES */
+    .input-box { width: 58px; height: 45px; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.wide { width: 90px; }
+    .input-box.locked-box { background: var(--slate-100); border-color: var(--slate-200); color: var(--slate-400); cursor: not-allowed; pointer-events: none; opacity: 0.6; }
+    .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
+    .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
+    .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
+
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; 
+        box-sizing: border-box;
+    }
+    .keypad-drawer.open { 
+        max-height: 380px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; }
+    
+    .key-action { background: var(--slate-300); font-size: 1.2rem;}
+    .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
+    .key-enter:active { background: #4338ca; }
+
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
+    .completion-overlay.show { opacity: 1; pointer-events: all; }
+    .completion-icon { font-size: 4rem; margin-bottom: 20px; }
+    .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- MICRO HUD -->
+  <div class="micro-hud">
+    <div class="stat-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="hud-center">
+        <span style="color:var(--slate-400); font-size:0.7rem;" id="hud-label">MASTERY</span>
+        <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div style="color:var(--indigo);" id="mastery-text">0/5</div>
+  </div>
+
+  <!-- ZONE 0: GATEKEEPER INTRO -->
+  <div class="content-area" id="zone-gate-intro">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="SuperUser Bypass">⏱️</div>
+      <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Percentages are built on <b>100</b>. Prove your speed with 10s and number bonds to 100 first.</p>
+    </div>
+    
+    <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
+      <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
+      <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
+        <li><b>Level 1:</b> Multiples of 10 (× 10 and ÷ 10)</li>
+        <li><b>Level 2:</b> Number Bonds to 100 (100 − N)</li>
+        <li><b>Level 3:</b> Equal Shares of 100 (÷ 2, ÷ 4, ÷ 5, ÷ 10)</li>
+      </ul>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
+    </div>
+    <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
+  </div>
+
+  <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
+  <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Base-10</div>
+    <div class="math-row" style="font-size:3.5rem; color:var(--indigo);" id="sprint-q"></div>
+    <div class="math-row" style="margin-top:20px;">
+        <div class="input-box active wide" style="height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
+    </div>
+  </div>
+
+  <!-- ZONE 1: GUIDED LEARNING (I DO) -->
+  <div class="content-area hidden" id="zone-learn">
+    
+    <!-- Slide 1 -->
+    <div id="slide-1">
+      <div class="section-title">What is a Percentage?</div>
+      <p class="instruction-text"><b>"Per cent"</b> means <b>out of 100</b>. Look at the <b>%</b> sign — it has one line and two zeros, just like <b>100</b>!</p>
+      
+      <div class="pinned-visual">
+        <div style="display:flex; justify-content:center; gap:25px; align-items:center; width:100%; flex-wrap:wrap;">
+            <div id="learn-grid-1"></div>
+            
+            <div style="display:flex; flex-direction:column; gap:14px;">
+                <div class="math-row" style="justify-content:flex-start; font-size:1.6rem;">
+                    <div style="color:var(--slate-500); font-size:1rem; width:90px;">Fraction:</div>
+                    <div class="fraction"><div class="frac-num" style="color:var(--indigo);">35</div><div class="frac-den">100</div></div>
+                </div>
+                <div class="math-row" style="justify-content:flex-start; font-size:1.6rem;">
+                    <div style="color:var(--slate-500); font-size:1rem; width:90px;">Percent:</div>
+                    <div style="color:var(--indigo);">35%</div>
+                </div>
+                <div class="math-row" style="justify-content:flex-start; font-size:1.6rem;">
+                    <div style="color:var(--slate-500); font-size:1rem; width:90px;">Decimal:</div>
+                    <div style="color:var(--emerald);">0,35</div>
+                </div>
+            </div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">35 coloured squares out of 100 equal squares is <b>35%</b>, or <b>0,35</b> as a decimal.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 2 -->
+    <div id="slide-2" class="hidden">
+      <div class="section-title">Columns of 10% and Squares of 1%</div>
+      <p class="instruction-text">Every full vertical column has 10 squares (<b>10%</b>). Every single square is <b>1%</b>.</p>
+      
+      <div class="pinned-visual">
+        <div style="display:flex; justify-content:center; gap:25px; align-items:center; width:100%; flex-wrap:wrap;">
+            <div id="learn-grid-2"></div>
+            
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="font-size:1.05rem; font-weight:700; color:var(--slate-700);">6 full columns = <span style="color:var(--indigo);">60%</span></div>
+                <div style="font-size:1.05rem; font-weight:700; color:var(--slate-700);">4 single squares = <span style="color:var(--indigo);">4%</span></div>
+                <div style="border-top:2px solid var(--slate-200); padding-top:8px; font-size:1.5rem; font-weight:800; color:var(--emerald);">Total = 64% (0,64)</div>
+            </div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Counting by 10% columns first makes shading and reading a 100-grid fast and accurate.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The Decimal Shift Trap</div>
+      <p class="instruction-text" style="color:var(--rose);">Watch out when a percentage is less than 10%!</p>
+      
+      <div class="pinned-visual">
+        <div class="math-row" style="font-size: 1.7rem; margin-bottom:12px; color:var(--rose);">
+            <div>5%</div>
+            <div class="operator">=</div>
+            <div class="fraction"><div class="frac-num">5</div><div class="frac-den">100</div></div>
+            <div class="operator">=</div>
+            <div style="color:var(--emerald);">0,05</div>
+            <div class="operator">≠</div>
+            <div>0,5</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-around; width:100%; margin-top:10px; align-items: flex-end; gap:10px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="learn-grid-trap-1"></div>
+                <div style="margin-top:8px; font-weight:800; color:var(--emerald); font-size:0.95rem;">5% = 0,05 (5 squares)</div>
+            </div>
+            
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div id="learn-grid-trap-2"></div>
+                <div style="margin-top:8px; font-weight:800; color:var(--rose); font-size:0.95rem;">50% = 0,5 (50 squares)</div>
+            </div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;"><b>5%</b> is 5 hundredths (<b>0,05</b>). If you write <b>0,5</b>, you have shifted the comma only once and made <b>50%</b>!</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
+    </div>
+  </div>
+
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-area hidden" id="zone-guided">
+    <div class="section-title" id="g-title">Guided Practice 1/2</div>
+    
+    <!-- DOM REVERSAL: Instructions at the Top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 10px;">
+        <!-- Steps injected by JS -->
+    </div>
+    
+    <div class="pinned-visual">
+        <div class="target-banner" id="g-target-banner">Target: Shade 40% on the 100-Grid</div>
+        <div id="g-vis-container"></div>
+        <div class="cpa-controls" id="g-cpa-controls">
+            <button class="cpa-btn col-btn" onclick="adjustGrid('GUIDED', 10)">+10 Column</button>
+            <button class="cpa-btn unit-btn" onclick="adjustGrid('GUIDED', 1)">+1 Square</button>
+            <button class="cpa-btn" onclick="adjustGrid('GUIDED', -1)">−1</button>
+            <button class="cpa-btn clear-btn" onclick="adjustGrid('GUIDED', 0)">Clear</button>
+        </div>
+        <div class="cpa-status-pill" id="g-cpa-status">Shaded: 0 / 100 squares — Shade the grid first!</div>
+        
+        <!-- Horizontal Answer Equation -->
+        <div class="math-row" style="margin-top:8px; margin-bottom:6px; gap: 10px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box locked-box" id="g-frac-n" onclick="openKeypad('g-frac-n', 'g-step-1')"></div></div>
+              <div class="frac-den">100</div>
+            </div>
+
+            <div class="operator">=</div>
+
+            <div style="display:flex; align-items:center; gap:3px;">
+              <div class="input-box locked-box" id="g-pct" onclick="openKeypad('g-pct', 'g-step-1')"></div>
+              <span class="pct-symbol">%</span>
+            </div>
+            
+            <div id="g-dec-area" style="display:none; align-items:center;">
+                <div class="operator">=</div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:0.65rem; color:var(--emerald); font-weight:800; margin-bottom:3px; text-transform:uppercase;">Final Answer</span>
+                    <div class="input-box wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-dec" onclick="openKeypad('g-dec', 'g-step-2')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
+  <div class="content-area hidden" id="zone-practice">
+    <div class="section-title">Strict Practice</div>
+    
+    <!-- DOM REVERSAL: Warning at the Top -->
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:12px 15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:15px;">
+      <p style="margin:0; font-size:0.88rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Shade the 10×10 grid first, then write the fraction, percentage, and decimal!</p>
+    </div>
+
+    <div class="pinned-visual">
+        <div class="target-banner" id="p-target-banner">Target: Shade 25% on the 100-Grid</div>
+        <div id="p-vis-container"></div>
+        <div class="cpa-controls" id="p-cpa-controls">
+            <button class="cpa-btn col-btn" onclick="adjustGrid('PRACTICE', 10)">+10 Column</button>
+            <button class="cpa-btn unit-btn" onclick="adjustGrid('PRACTICE', 1)">+1 Square</button>
+            <button class="cpa-btn" onclick="adjustGrid('PRACTICE', -1)">−1</button>
+            <button class="cpa-btn clear-btn" onclick="adjustGrid('PRACTICE', 0)">Clear</button>
+        </div>
+        <div class="cpa-status-pill" id="p-cpa-status">Shaded: 0 / 100 squares — Shade the grid first!</div>
+        
+        <div class="math-row" style="margin-top:8px; margin-bottom:6px; gap: 10px;">
+            <div class="fraction">
+              <div class="frac-num"><div class="input-box locked-box" id="p-frac-n" onclick="openKeypad('p-frac-n', 'practice')"></div></div>
+              <div class="frac-den">100</div>
+            </div>
+
+            <div class="operator">=</div>
+
+            <div style="display:flex; align-items:center; gap:3px;">
+              <div class="input-box locked-box" id="p-pct" onclick="openKeypad('p-pct', 'practice')"></div>
+              <span class="pct-symbol">%</span>
+            </div>
+            
+            <div style="display:flex; align-items:center;">
+                <div class="operator">=</div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:0.65rem; color:var(--emerald); font-weight:800; margin-bottom:3px; text-transform:uppercase;">Final Answer</span>
+                    <div class="input-box wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-dec" onclick="openKeypad('p-dec', 'practice')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- V2 12-COLUMN HYBRID KEYPAD -->
+  <div class="keypad-drawer" id="keypad">
+    <div class="keypad-grid">
+      <!-- Top 3 Rows (Span 4) -->
+      <div class="key-btn" onclick="typeNum('1')">1</div>
+      <div class="key-btn" onclick="typeNum('2')">2</div>
+      <div class="key-btn" onclick="typeNum('3')">3</div>
+      
+      <div class="key-btn" onclick="typeNum('4')">4</div>
+      <div class="key-btn" onclick="typeNum('5')">5</div>
+      <div class="key-btn" onclick="typeNum('6')">6</div>
+      
+      <div class="key-btn" onclick="typeNum('7')">7</div>
+      <div class="key-btn" onclick="typeNum('8')">8</div>
+      <div class="key-btn" onclick="typeNum('9')">9</div>
+      
+      <!-- Bottom Row (Span 3 - South African Comma Notation) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
+    </div>
+  </div>
+
+  <!-- TOAST ERROR MESSAGE -->
+  <div class="toast-container" id="toast">
+      <div class="toast-icon">⚠️</div>
+      <div id="toast-msg">Error message goes here.</div>
+      <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
+  <!-- COMPLETION OVERLAY -->
+  <div class="completion-overlay" id="completion-screen">
+      <div class="completion-icon">🏆</div>
+      <div class="completion-title">Module Mastered!</div>
+      <p style="font-size:1.2rem; color:var(--slate-500); font-weight:600; margin-bottom:30px;">Total XP: <span id="final-xp" style="color:var(--amber);">0</span></p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+  </div>
+
+</div>
+
+<script>
+  // Global State
+  let appState = 'GATEKEEPER'; 
+  let activeBoxId = 'sprint-ans';
+  let activeStepId = 'sprint';
+  let xp = 0;
+  const currentModuleId = 'PER-01'; 
+  let questionStartTime = performance.now();
+
+  // Gatekeeper Variables
+  let gateLevel = 1; 
+  let sprintTimer;
+  let timeLeft = 60; 
+  let sprintAttempts = 0;
+  let sprintCorrect = 0;
+  let currentSprintQ = {};
+  const sprintTargetAttempts = 15;
+
+  // Remediation Variables
+  let sessionMissed = [];
+  let currentRemediationQ = null;
+  let remediationIndex = -1;
+
+  // Mastery Variables
+  let slideIndex = 1;
+  const totalSlides = 3; 
+  let streak = 0;
+  let masteryPoints = 0;
+  const masteryTarget = 5;
+  let currentQ = {}; 
+
+  // Guided Practice Variables
+  let guidedLevel = 1;
+  let gData = {};
+  let cpaState = { shaded: 0, target: 40, unlocked: false };
+
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      if (sprintTimer) clearInterval(sprintTimer);
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+      let startBtn = document.getElementById('btn-start-sprint');
+      let isSuperUser = false;
+
+      // Draw Learn Slides Visuals statically
+      document.getElementById('learn-grid-1').innerHTML = drawStaticGrid100(35, 'fill-indigo');
+      document.getElementById('learn-grid-2').innerHTML = drawStaticGrid100(64, 'fill-indigo');
+      document.getElementById('learn-grid-trap-1').innerHTML = drawStaticGrid100(5, 'fill-emerald');
+      document.getElementById('learn-grid-trap-2').innerHTML = drawStaticGrid100(50, 'fill-rose');
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showError("Focus Drill Active: You must clear missed facts to unlock the Gatekeeper.");
+                  document.getElementById('btn-start-sprint').innerText = "Resume Drill";
+                  document.getElementById('btn-start-sprint').onclick = startRemediation;
+              }
+          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
+      }
+
+      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel + " (Base-100)";
+
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
+  });
+
+  // --- VISUAL GRID GENERATOR ---
+  function drawStaticGrid100(shaded, fillClass) {
+      let html = `<div class="grid-100" style="width:140px; height:140px;">`;
+      for(let i = 1; i <= 100; i++) {
+          let cls = i <= shaded ? fillClass : '';
+          html += `<div class="cell ${cls}"></div>`;
+      }
+      html += `</div>`;
+      return html;
+  }
+
+  // --- INTERACTIVE CPA 10x10 GRID SHADER ---
+  function renderCPAGrid(mode) {
+      let containerId = mode === 'GUIDED' ? 'g-vis-container' : 'p-vis-container';
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
+      let fillCls = cpaState.unlocked ? 'fill-emerald' : 'fill-indigo';
+      let html = `<div class="grid-100">`;
+      for (let i = 1; i <= 100; i++) {
+          let cls = i <= cpaState.shaded ? fillCls : '';
+          html += `<div class="cell ${cls}" onclick="handleCellTap('${mode}', ${i})"></div>`;
+      }
+      html += `</div>`;
+      container.innerHTML = html;
+
+      let statusEl = document.getElementById(mode === 'GUIDED' ? 'g-cpa-status' : 'p-cpa-status');
+      if (statusEl) {
+          if (cpaState.unlocked) {
+              statusEl.innerText = `Shaded ${cpaState.shaded}/100 squares (${cpaState.target}%) — Unlocked!`;
+              statusEl.classList.add('done');
+          } else {
+              statusEl.innerText = `Shaded: ${cpaState.shaded} / 100 squares (Target: ${cpaState.target})`;
+              statusEl.classList.remove('done');
+          }
+      }
+  }
+
+  function handleCellTap(mode, count) {
+      if (cpaState.unlocked) return;
+      cpaState.shaded = count;
+      checkCPACompletion(mode);
+  }
+
+  function adjustGrid(mode, delta) {
+      if (cpaState.unlocked) return;
+      if (delta === 0) {
+          cpaState.shaded = 0;
+      } else {
+          cpaState.shaded = Math.max(0, Math.min(100, cpaState.shaded + delta));
+      }
+      checkCPACompletion(mode);
+  }
+
+  function checkCPACompletion(mode) {
+      if (cpaState.shaded === cpaState.target) {
+          cpaState.unlocked = true;
+          renderCPAGrid(mode);
+          if (mode === 'GUIDED') {
+              ['g-frac-n', 'g-pct', 'g-dec'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-frac-n', 'g-step-1');
+          } else {
+              ['p-frac-n', 'p-pct', 'p-dec'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('p-frac-n', 'practice');
+          }
+      } else {
+          renderCPAGrid(mode);
+      }
+  }
+
+  // --- FLEXBOX SCROLL ENGINE ---
+  function openKeypad(boxId, stepId) {
+      if(appState === 'LOCKED') return;
+
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError(`Complete the visual step first! Shade ${cpaState.target} squares on the 100-grid.`);
+          return;
+      }
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
+      activeBoxId = boxId;
+      activeStepId = stepId;
+      targetBox.classList.add('active');
+
+      document.body.classList.add('focus-active');
+
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
+      
+      let container = document.querySelector('.content-area:not(.hidden)');
+      if (container) {
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let wrapper = targetBox.closest('.math-row') || targetBox.closest('.fraction');
+              let targetRect = (wrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); 
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
+  }
+
+  function typeNum(char) {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
+      
+      if(char === ',' && box.innerText.includes(',')) return; 
+      if(box.innerText.length < 5) box.innerText += char;
+  }
+  
+  function deleteNum() {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
+  }
+
+  function submitAnswer() {
+      if(appState === 'LOCKED') return;
+      if(appState === 'GATEKEEPER') checkSprintAnswer();
+      else if (appState === 'REMEDIATION') checkRemediationAnswer();
+      else if (appState === 'GUIDED') checkGuidedAnswer();
+      else if (appState === 'PRACTICE') checkPracticeAnswer();
+  }
+
+  function flashError(box) {
+      if (!box) return;
+      box.classList.add('flash-error');
+      setTimeout(() => box.classList.remove('flash-error'), 400);
+  }
+
+  function showError(msg) {
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast').classList.add('show');
+      setTimeout(closeToast, 4000);
+  }
+
+  function closeToast() {
+      document.getElementById('toast').classList.remove('show');
+  }
+
+  function triggerStreakBreak(title, msg, cognitiveTag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      closeKeypad();
+      
+      ['p-frac-n', 'p-pct', 'p-dec'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+      
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
+  function startSprint() {
+    closeToast(); 
+    appState = 'GATEKEEPER';
+    sessionMissed = [];
+    questionStartTime = performance.now();
+    
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    document.getElementById('zone-gate-active').classList.remove('hidden');
+    document.getElementById('zone-gate-active').style.display = 'flex';
+    
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Multiples of 10";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Bonds to 100";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: Equal Shares of 100";
+
+    document.getElementById('hud-label').innerText = "TIME REMAINING";
+    document.getElementById('hud-track').classList.add('hidden');
+    document.getElementById('mastery-text').innerText = "01:00";
+    
+    sprintAttempts = 0;
+    sprintCorrect = 0;
+    timeLeft = 60;
+    
+    openKeypad('sprint-ans', 'sprint');
+    loadSprintQuestion();
+    
+    if(sprintTimer) clearInterval(sprintTimer); 
+    
+    sprintTimer = setInterval(() => {
+      timeLeft--;
+      let m = Math.floor(timeLeft / 60);
+      let s = timeLeft % 60;
+      document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+      
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
+      
+      if(timeLeft <= 0) {
+        clearInterval(sprintTimer);
+        evaluateSprint();
+      }
+    }, 1000);
+  }
+
+  function generateGateQuestion(level) {
+    let qText, ans;
+    if (level === 1) { 
+        let a = Math.floor(Math.random() * 10) + 1;
+        if (Math.random() > 0.4) {
+            ans = a * 10;
+            qText = `${a} × 10 =`;
+        } else {
+            let prod = a * 10;
+            ans = a;
+            qText = `${prod} ÷ 10 =`;
+        }
+    } else if (level === 2) { 
+        let choices = [10, 20, 25, 30, 40, 50, 60, 70, 75, 80, 90];
+        let a = choices[Math.floor(Math.random() * choices.length)];
+        ans = 100 - a;
+        qText = `100 − ${a} =`;
+    } else { 
+        let pairs = [
+            { q: '100 ÷ 2 =', a: 50 },
+            { q: '100 ÷ 4 =', a: 25 },
+            { q: '100 ÷ 5 =', a: 20 },
+            { q: '100 ÷ 10 =', a: 10 },
+            { q: '25 × 4 =', a: 100 },
+            { q: '20 × 5 =', a: 100 },
+            { q: '50 × 2 =', a: 100 }
+        ];
+        let pick = pairs[Math.floor(Math.random() * pairs.length)];
+        qText = pick.q;
+        ans = pick.a;
+    }
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: ans.toString() };
+  }
+
+  function loadSprintQuestion() {
+    currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
+    document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
+    document.getElementById('sprint-ans').innerText = '';
+    document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+  }
+
+  function checkSprintAnswer() {
+    let boxText = document.getElementById('sprint-ans').innerText;
+    if(boxText === '') return;
+
+    sprintAttempts++;
+    let box = document.getElementById('sprint-ans');
+    
+    if(boxText === currentSprintQ.ans) {
+      sprintCorrect++;
+      xp += 5;
+      document.getElementById('xp-counter').innerText = xp;
+      box.classList.add('flash-success');
+    } else {
+      box.classList.add('flash-error');
+      let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
+      if(!exists) {
+          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
+      }
+    }
+    setTimeout(loadSprintQuestion, 150);
+  }
+
+  function evaluateSprint() {
+    closeKeypad(); 
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    
+    if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
+      if (gateLevel < 3) {
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
+        gateLevel++;
+        
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
+            p.gateLevels[currentModuleId] = gateLevel;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+
+        resetSprintUI();
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
+      } else {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
+            p.gateLevels[currentModuleId] = 1;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+        unlockLesson();
+      }
+    } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        profile.failedAttempts[currentModuleId] = (profile.failedAttempts[currentModuleId] || 0) + 1;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
+      if(sessionMissed.length > 0) {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(!p.remediation) p.remediation = {};
+              p.remediation[currentModuleId] = sessionMissed;
+              localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          }
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
+          resetSprintUI();
+          document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
+          document.getElementById('btn-start-sprint').onclick = startRemediation;
+      } else {
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
+          resetSprintUI();
+      }
+    }
+  }
+
+  function resetSprintUI() {
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      document.getElementById('zone-gate-active').classList.add('hidden');
+      document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
+  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
+  function startRemediation() {
+      closeToast();
+      appState = 'REMEDIATION';
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      document.getElementById('zone-gate-active').classList.remove('hidden');
+      document.getElementById('zone-gate-active').style.display = 'flex';
+      
+      document.getElementById('sprint-title').innerText = "Focus Drill";
+      document.getElementById('sprint-title').style.color = "var(--rose)";
+      document.getElementById('hud-label').innerText = "FACTS REMAINING";
+      document.getElementById('hud-track').classList.add('hidden');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      
+      openKeypad('sprint-ans', 'sprint');
+      loadRemediationQuestion();
+  }
+
+  function loadRemediationQuestion() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+          let p = JSON.parse(saved);
+          let queue = p.remediation[currentModuleId] || [];
+          if(queue.length === 0) {
+              endRemediation();
+              return;
+          }
+          document.getElementById('mastery-text').innerText = queue.length;
+          remediationIndex = Math.floor(Math.random() * queue.length);
+          currentRemediationQ = queue[remediationIndex];
+          
+          let dots = "⚪⚪⚪";
+          if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
+          if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
+          
+          document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
+          document.getElementById('sprint-q').innerHTML = currentRemediationQ.qText;
+          document.getElementById('sprint-ans').innerText = '';
+          document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+      }
+  }
+
+  function checkRemediationAnswer() {
+      let boxText = document.getElementById('sprint-ans').innerText;
+      if(boxText === '') return;
+
+      let box = document.getElementById('sprint-ans');
+      let saved = localStorage.getItem('harvest_maths_profile');
+      let p = saved ? JSON.parse(saved) : null;
+      if(!p || !p.remediation || !p.remediation[currentModuleId]) return;
+      
+      let queue = p.remediation[currentModuleId];
+
+      if(boxText === currentRemediationQ.ans) {
+          box.classList.add('flash-success');
+          xp += 2; 
+          document.getElementById('xp-counter').innerText = xp;
+          
+          queue[remediationIndex].streak++;
+          if(queue[remediationIndex].streak >= 3) {
+              queue.splice(remediationIndex, 1); 
+          }
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          setTimeout(loadRemediationQuestion, 250);
+      } else {
+          flashError(box);
+          queue[remediationIndex].streak = 0; 
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          
+          appState = 'LOCKED'; 
+          document.getElementById('keypad').style.opacity = '0.5';
+          document.getElementById('keypad').style.pointerEvents = 'none';
+          
+          setTimeout(() => {
+              box.innerText = currentRemediationQ.ans; 
+              box.style.color = 'var(--rose)';
+          }, 300);
+
+          setTimeout(() => {
+              appState = 'REMEDIATION';
+              document.getElementById('keypad').style.opacity = '1';
+              document.getElementById('keypad').style.pointerEvents = 'all';
+              box.style.color = 'var(--slate-900)';
+              loadRemediationQuestion();
+          }, 2000);
+      }
+  }
+
+  function endRemediation() {
+      sessionMissed = [];
+      showError('Drill Complete! Try the Gatekeeper again.');
+      resetSprintUI();
+      document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
+      document.getElementById('btn-start-sprint').onclick = startSprint; 
+  }
+
+  function unlockLesson() {
+    closeToast();
+    appState = 'LEARN';
+    document.getElementById('mastery-text').classList.remove('timer-alert');
+    document.getElementById('hud-label').innerText = "MASTERY";
+    document.getElementById('hud-track').classList.remove('hidden');
+    document.getElementById('mastery-text').innerText = "0/5";
+    document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    closeKeypad(); 
+    document.getElementById('zone-learn').classList.remove('hidden');
+  }
+
+  // --- ZONE 1: GUIDED LEARNING ---
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+    } else {
+      startGuidedPractice();
+    }
+  }
+
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = `
+        <div class="step-container" id="g-step-1">
+          <div class="step-text">1. Shade the 100-grid to match the target. Then fill in the fraction over 100 and the percentage (%).</div>
+        </div>
+        <div class="step-container locked" id="g-step-2">
+          <div class="step-text">2. Write the Final Answer as a decimal number using a comma (,).</div>
+        </div>
+      `;
+  }
+
+  function loadGuidedQuestion() {
+      closeKeypad();
+      questionStartTime = performance.now();
+      if (guidedLevel === 1) {
+          gData = {
+              target: 40,
+              n: "40",
+              pct: "40",
+              decNum: 0.4,
+              decDisplay: "0,40",
+              banner: "Target: Shade 40 out of 100 (4 columns of 10)",
+              err1: "You shaded 40 squares out of 100, so both the numerator and percentage are 40.",
+              err2: "40 hundredths is written as 0,40 (or 0,4)."
+          };
+      } else {
+          gData = {
+              target: 5,
+              n: "5",
+              pct: "5",
+              decNum: 0.05,
+              decDisplay: "0,05",
+              banner: "Target: Shade 5% (5 single squares out of 100)",
+              err1: "You shaded 5 squares out of 100, so write 5.",
+              err2: "Watch out for the Decimal Shift Trap! 5% is 5 hundredths, so write 0,05 (not 0,5)."
+          };
+      }
+
+      cpaState = { shaded: 0, target: gData.target, unlocked: false };
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-target-banner').innerText = gData.banner;
+
+      renderCPAGrid('GUIDED');
+      
+      ['g-frac-n', 'g-pct', 'g-dec'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
+      });
+      document.getElementById('g-dec-area').style.display = 'none';
+
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText;
+      if (val === '') return;
+
+      if (activeStepId === 'g-step-1') {
+          if (activeBoxId === 'g-frac-n') {
+              if (val === gData.n) { box.classList.add('flash-success'); openKeypad('g-pct', 'g-step-1'); }
+              else { showError(gData.err1); flashError(box); }
+          } else if (activeBoxId === 'g-pct') {
+              if (val === gData.pct) {
+                  box.classList.add('flash-success');
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  
+                  document.getElementById('g-dec-area').style.display = 'flex';
+                  openKeypad('g-dec', 'g-step-2');
+              } else {
+                  showError(gData.err1);
+                  flashError(box);
+              }
+          }
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-dec') {
+              let userDec = parseFloat(val.replace(',', '.'));
+              if (val.includes(',') && !isNaN(userDec) && Math.abs(userDec - gData.decNum) < 0.0001) {
+                  box.classList.add('flash-success');
+                  document.getElementById('g-step-2').classList.add('completed');
+                  closeKeypad(); 
+                  
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+                  logTelemetryEvent("Guided Practice Correct", 100, "Guided_Per_01", durationSeconds);
+
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Well done! Now watch out for the single-digit Decimal Shift Trap."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError(gData.err2);
+                  flashError(box);
+              }
+          }
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
+  function startPractice() {
+    appState = 'PRACTICE';
+    document.getElementById('zone-guided').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+
+    masteryPoints = 0; 
+    updateProgressBar();
+    loadPracticeQuestion();
+  }
+
+  function generatePracticeQuestion() {
+    let rand = Math.random();
+    let n;
+    
+    if (rand < 0.4) {
+        // Single-digit percentages (2% to 9%) to test the Decimal Shift Trap
+        n = Math.floor(Math.random() * 8) + 2;
+    } else if (rand < 0.8) {
+        // Two-digit non-multiples of 10 (e.g. 14%, 27%, 63%)
+        let tens = (Math.floor(Math.random() * 8) + 1) * 10;
+        let units = Math.floor(Math.random() * 9) + 1;
+        n = tens + units;
+    } else {
+        // Clean multiples of 10 (10% to 90%)
+        n = (Math.floor(Math.random() * 9) + 1) * 10;
+    }
+
+    let decNum = n / 100;
+    let decDisplay = (n < 10) ? `0,0${n}` : `0,${n}`;
+    let promptStyle = Math.random() > 0.5
+        ? `Target: Shade ${n}% on the 100-Grid`
+        : `Target: Shade ${n} out of 100 squares on the Grid`;
+
+    return { 
+        n: n.toString(),
+        pct: n.toString(),
+        decDisplay: decDisplay,
+        decNum: decNum,
+        numN: n,
+        banner: promptStyle
+    };
+  }
+
+  function loadPracticeQuestion() {
+    closeKeypad();
+    currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
+    cpaState = { shaded: 0, target: currentQ.numN, unlocked: false };
+    
+    ['p-frac-n', 'p-pct', 'p-dec'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
+    });
+
+    document.getElementById('p-target-banner').innerText = currentQ.banner;
+    renderCPAGrid('PRACTICE');
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let valN = document.getElementById('p-frac-n').innerText.trim();
+    let valPct = document.getElementById('p-pct').innerText.trim();
+    let valDec = document.getElementById('p-dec').innerText.trim();
+
+    let box = document.getElementById(activeBoxId);
+    if (!box || box.innerText.trim() === '') return;
+
+    if (activeBoxId === 'p-frac-n') { box.classList.add('flash-success'); openKeypad('p-pct', 'practice'); return; }
+    if (activeBoxId === 'p-pct') { box.classList.add('flash-success'); openKeypad('p-dec', 'practice'); return; }
+
+    if (valDec === '') return;
+
+    if (valN === '' || valPct === '') {
+        showError("Fill in the fraction and percentage boxes before entering your Final Answer.");
+        openKeypad((valN === '') ? 'p-frac-n' : 'p-pct', 'practice');
+        return; 
+    }
+
+    let isNCorrect = (valN === currentQ.n);
+    let isPctCorrect = (valPct === currentQ.pct);
+    
+    // JS Parsing Sandbox: evaluate using standard floats, enforce comma in UI
+    let userDecNum = parseFloat(valDec.replace(',', '.'));
+    let isDecCorrect = (valDec.includes(',') && !isNaN(userDecNum) && Math.abs(userDecNum - currentQ.decNum) < 0.0001);
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+
+    if (isNCorrect && isPctCorrect && isDecCorrect) {
+        document.getElementById('p-dec').classList.add('flash-success');
+        closeKeypad(); 
+        
+        masteryPoints++;
+        streak++;
+        xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
+        updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+    } else {
+        // HIGH-RESOLUTION PER-01 TRAPDOORS
+        let errorTitle = "Percentage Conversion Error!";
+        let errorMsg = `For ${currentQ.numN} shaded squares out of 100:\n• Fraction: ${currentQ.n}/100\n• Percentage: ${currentQ.pct}%\n• Final Answer (Decimal): ${currentQ.decDisplay}`;
+        let cognitiveTag = "General_Percentage_Error";
+
+        let complementN = (100 - currentQ.numN).toString();
+        let singleShiftNum = currentQ.numN / 10; // e.g., 5% -> 0.5 or 35% -> 3.5
+
+        if (!valDec.includes(',') && valDec === currentQ.n) {
+            errorTitle = "Whole Number Percentage Trap!";
+            errorMsg = `You wrote ${valDec} as a raw whole number instead of a decimal!\n\nRemember: ${currentQ.pct}% means ${currentQ.n} out of 100 (less than 1 whole). Dividing by 100 shifts the comma 2 places left to give ${currentQ.decDisplay}.`;
+            cognitiveTag = "Whole_Number_Percentage_Trap";
+        } else if (!isNaN(userDecNum) && Math.abs(userDecNum - singleShiftNum) < 0.0001) {
+            errorTitle = "Decimal Shift Trap!";
+            if (currentQ.numN < 10) {
+                errorMsg = `You wrote ${valDec} (${currentQ.numN}0%), but the grid only has ${currentQ.numN} single squares (${currentQ.pct}%)!\n\nTo convert ${currentQ.pct}% to a decimal, divide by 100 (shift 2 places left) and put a placeholder zero in the tenths spot: ${currentQ.decDisplay}.`;
+            } else {
+                errorMsg = `You wrote ${valDec} by shifting the comma only 1 place (dividing by 10 instead of 100)!\n\n"Per cent" means out of 100, so shift the comma 2 places left: ${currentQ.decDisplay}.`;
+            }
+            cognitiveTag = "Decimal_Shift_Trap";
+        } else if (valN === complementN || valPct === complementN) {
+            errorTitle = "Unshaded Remainder Trap!";
+            errorMsg = `You counted the ${complementN} unshaded white squares instead of the ${currentQ.n} coloured squares!\n\nAlways match the coloured target: ${currentQ.n}/100 = ${currentQ.pct}% = ${currentQ.decDisplay}.`;
+            cognitiveTag = "Unshaded_Complement_Trap";
+        } else if (currentQ.numN < 10 && (valPct === (currentQ.n + '0') || valN === (currentQ.n + '0'))) {
+            errorTitle = "Decimal Shift Trap!";
+            errorMsg = `You treated ${currentQ.numN} single squares as ${currentQ.n}0%!\n\n1 single square is 1%, not 10%. So ${currentQ.numN} squares out of 100 is ${currentQ.pct}% (${currentQ.decDisplay}).`;
+            cognitiveTag = "Decimal_Shift_Trap";
+        }
+
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
+    }
+  }
+
+  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05',
+    'PER-01', 'PER-02', 'PER-03'
+  ];
+
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
+      timestamp: new Date().toISOString() 
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
+
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
+      
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+    }
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete", durationSeconds);
+
+    closeKeypad();
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  }
+
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
+  document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
+    if(appState === 'LOCKED') return; 
+    
+    if (event.key >= '0' && event.key <= '9') {
+      typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
+      typeNum(',');
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
+</body>
+</html>

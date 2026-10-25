@@ -29,6 +29,9 @@
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
+    .timer-alert { color: var(--rose) !important; animation: pulse 0.8s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* CRITICAL FIX: Content area natively shrinks when keypad expands */
     .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
@@ -36,6 +39,9 @@
     
     /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; height: 0; padding: 0; opacity: 0; border: none; pointer-events: none; overflow: hidden;}
     body.focus-active .content-area { padding-top: 10px; }
 
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -56,14 +62,34 @@
     .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; }
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 10px; }
 
+    /* DUAL CPA SLICER BARS */
+    .cpa-dual-bars { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 6px; align-items: center; margin-bottom: 10px; }
+    .frac-bar { display: flex; width: 100%; height: 32px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; cursor: pointer; transition: all 0.2s; }
+    .frac-bar.tappable-bar { box-shadow: 0 0 0 2px var(--amber-light); }
+    .frac-bar.tappable-bar:active { transform: scale(0.98); }
+    .frac-bar.sliced { border-color: var(--emerald); cursor: default; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); display: flex; }
+    .frac-piece:last-child { border-right: none; }
+    .fill-indigo { background-color: var(--indigo); }
+    .fill-rose { background-color: var(--rose); }
+    .fill-empty { background-color: transparent; }
+    .inner-slice { flex: 1; border-right: 1.5px dashed rgba(15, 23, 42, 0.7); opacity: 0; transition: opacity 0.4s ease; height: 100%; }
+    .fill-indigo .inner-slice, .fill-rose .inner-slice { border-right-color: rgba(255, 255, 255, 0.75); }
+    .inner-slice:last-child { border-right: none; }
+    .sliced .inner-slice { opacity: 1; }
+
+    .cpa-status-pill { font-size: 0.78rem; font-weight: 800; padding: 6px 12px; border-radius: 20px; background: var(--amber-light); color: var(--amber); letter-spacing: 0.4px; text-align: center; transition: 0.3s; cursor: pointer; }
+    .cpa-status-pill.ready { background: var(--emerald-light); color: var(--emerald); cursor: default; }
+
     /* FADING STEP ARCHITECTURE (DOM REVERSED TO SIT AT TOP) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box; }
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.locked-box { opacity: 0.4; pointer-events: none; background: var(--slate-100); }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -82,6 +108,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 350px; 
@@ -112,13 +139,20 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -140,7 +174,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To find Common Denominators, you must spot multiples instantly. Prove your fluency.</p>
     </div>
@@ -183,14 +217,14 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If the denominators (bottoms) are different, <b>you must change them</b> before you can do any math.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If the denominators (bottoms) are different, <b>you must change them</b> before you can do any Maths.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">Common Denominators</div>
-      <p class="instruction-text">Use the <b>Slicer</b> trick (Equivalent Fractions) to scale both blocks until the pieces are exactly the same size.</p>
+      <p class="instruction-text">Use the <b>Slicer</b> trick (Equivalent Fractions) to scale both blocks until the pieces are the exact same size.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 1.8rem; margin-bottom:5px;">
@@ -230,22 +264,27 @@
     </div>
     
     <div class="pinned-visual">
-        <div class="math-row" style="margin-bottom:10px;" id="g-q-container">
+        <div class="math-row" style="margin-bottom:8px;" id="g-q-container">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- CPA Dual Slicer Bars -->
+        <div id="g-bar-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:6px;">
             <!-- Injected by JS -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
+        <div style="color:var(--slate-300); font-size:1.3rem; font-weight:800; margin-bottom:6px;">⬇</div>
         
         <!-- HORIZONTAL WORKFLOW: Step 1 and Step 2 share the same row -->
         <div class="math-row">
             <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="g-eq1-n" onclick="openKeypad('g-eq1-n', 'g-step-1')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-eq1-d" onclick="openKeypad('g-eq1-d', 'g-step-1')"></div></div>
+              <div class="frac-num"><div class="input-box locked-box" id="g-eq1-n" onclick="openKeypad('g-eq1-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box locked-box" id="g-eq1-d" onclick="openKeypad('g-eq1-d', 'g-step-1')"></div></div>
             </div>
             <div class="operator" id="g-op-scaled"></div>
             <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="g-eq2-n" onclick="openKeypad('g-eq2-n', 'g-step-1')"></div></div>
-              <div class="frac-den"><div class="input-box" id="g-eq2-d" onclick="openKeypad('g-eq2-d', 'g-step-1')"></div></div>
+              <div class="frac-num"><div class="input-box locked-box" id="g-eq2-n" onclick="openKeypad('g-eq2-n', 'g-step-1')"></div></div>
+              <div class="frac-den"><div class="input-box locked-box" id="g-eq2-d" onclick="openKeypad('g-eq2-d', 'g-step-1')"></div></div>
             </div>
 
             <!-- DYNAMIC INJECTION TARGET FOR STEP 2 -->
@@ -259,37 +298,42 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning box moved to the top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:var(--radius); margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Convert to a Common Denominator before you solve.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:var(--radius); margin-bottom:20px; transition: all 0.3s;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: Tap the fraction bars FIRST to slice them to a Common Denominator, then convert and solve.</p>
     </div>
 
     <div class="pinned-visual">
-        <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
+        <div class="math-row" id="p-q-display" style="margin-bottom:8px;">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- CPA Dual Slicer Bars -->
+        <div id="p-bar-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:6px;">
             <!-- Populated by JS -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:10px;">⬇</div>
+        <div style="color:var(--slate-300); font-size:1.3rem; font-weight:800; margin-bottom:6px;">⬇</div>
         
         <!-- HORIZONTAL WORKFLOW: Converted fractions and Final Answer in one row -->
-        <div class="math-row" style="margin-top:10px;">
+        <div class="math-row" style="margin-top:6px;">
             <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="p-eq1-n" onclick="openKeypad('p-eq1-n', 'practice')"></div></div>
-              <div class="frac-den"><div class="input-box" id="p-eq1-d" onclick="openKeypad('p-eq1-d', 'practice')"></div></div>
+              <div class="frac-num"><div class="input-box locked-box" id="p-eq1-n" onclick="openKeypad('p-eq1-n', 'practice')"></div></div>
+              <div class="frac-den"><div class="input-box locked-box" id="p-eq1-d" onclick="openKeypad('p-eq1-d', 'practice')"></div></div>
             </div>
             <div class="operator" id="p-op-display"></div>
             <div class="fraction">
-              <div class="frac-num"><div class="input-box" id="p-eq2-n" onclick="openKeypad('p-eq2-n', 'practice')"></div></div>
-              <div class="frac-den"><div class="input-box" id="p-eq2-d" onclick="openKeypad('p-eq2-d', 'practice')"></div></div>
+              <div class="frac-num"><div class="input-box locked-box" id="p-eq2-n" onclick="openKeypad('p-eq2-n', 'practice')"></div></div>
+              <div class="frac-den"><div class="input-box locked-box" id="p-eq2-d" onclick="openKeypad('p-eq2-d', 'practice')"></div></div>
             </div>
             
             <div class="operator" style="margin: 0 15px;">=</div>
             
             <div class="fraction">
               <div class="frac-num">
-                  <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                  <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
               </div>
               <div class="frac-den">
-                  <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                  <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
               </div>
             </div>
         </div>
@@ -323,6 +367,14 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">COGNITIVE TRAPDOOR DETECTED</div>
+      <h2 class="trapdoor-title" id="trapdoor-title">Streak Broken!</h2>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -340,6 +392,9 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'RAT-05'; 
+
+  // Telemetry High-Resolution Timer
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -367,6 +422,15 @@
   let guidedLevel = 1;
   let gData = {};
 
+  // CPA Interactive Dual Slicer State
+  let cpaState = {
+      mode: 'guided',
+      s1: 1,
+      s2: 1,
+      lcm: 6,
+      unlockedAbstract: false
+  };
+
   // MATH HELPER FUNCTIONS
   function getGCD(x, y) {
       x = Math.abs(x); y = Math.abs(y);
@@ -377,7 +441,7 @@
       return (x * y) / getGCD(x, y);
   }
 
-  // --- INITIALIZATION ---
+  // --- INITIALIZATION & SUPERUSER INJECTION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       let isSuperUser = false;
@@ -410,15 +474,23 @@
       }
   });
 
+  // --- DEV SECRET BYPASS (CLICK THE CLOCK ICON) ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      
+      let introZone = document.getElementById('zone-gate-intro');
+      if (introZone) introZone.classList.add('hidden');
+      unlockLesson();
+  }
+
   // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) {
-          showError("System Error: Element not found. Please restart module.");
-          return;
-      }
+      if (!targetBox || targetBox.classList.contains('locked-box')) return;
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -435,16 +507,15 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
-          // Dynamically inject a massive bottom padding so we can always scroll anything to the middle
           container.style.paddingBottom = '50vh';
 
           setTimeout(() => {
               let containerRect = container.getBoundingClientRect();
               let keypadRect = keypad.getBoundingClientRect();
               
-              let fractionWrapper = targetBox.closest('.fraction');
+              let fractionWrapper = targetBox.closest('.fraction') || targetBox.closest('.math-row');
               let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
 
               let usableTop = containerRect.top;
@@ -464,14 +535,15 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; // Reset padding
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box && box.innerText.length < 3) box.innerText += char;
+      if(!box || box.classList.contains('locked-box')) return;
+      if(char === ',' && box.innerText.includes(',')) return;
+      if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
@@ -504,26 +576,102 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
           let el = document.getElementById(id);
           if (el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- INTERACTIVE CPA DUAL SLICER GENERATOR ---
+  function renderCPADualBars(mode, n1, d1, n2, d2, lcm) {
+      let prefix = mode === 'guided' ? 'g' : 'p';
+      cpaState = {
+          mode: mode,
+          s1: lcm / d1,
+          s2: lcm / d2,
+          lcm: lcm,
+          unlockedAbstract: false
+      };
+
+      let html = `<div class="cpa-dual-bars" onclick="handleDualBarSlice('${prefix}')">`;
       
-      setTimeout(() => {
+      html += `<div class="frac-bar tappable-bar" id="${prefix}-bar-1">`;
+      for (let i = 0; i < d1; i++) {
+          html += `<div class="frac-piece ${i < n1 ? 'fill-indigo' : 'fill-empty'}"></div>`;
+      }
+      html += `</div>`;
+
+      html += `<div class="frac-bar tappable-bar" id="${prefix}-bar-2">`;
+      for (let j = 0; j < d2; j++) {
+          html += `<div class="frac-piece ${j < n2 ? 'fill-rose' : 'fill-empty'}"></div>`;
+      }
+      html += `</div>`;
+
+      html += `<div class="cpa-status-pill" id="${prefix}-cpa-status">Step 1: Tap the bars to slice both into ${lcm} equal-sized pieces (LCM = ${lcm})</div>`;
+      html += `</div>`;
+      return html;
+  }
+
+  function sliceSingleBar(barEl, pieces) {
+      let blocks = barEl.querySelectorAll('.frac-piece');
+      blocks.forEach(block => {
+          let innerHtml = '';
+          for (let i = 0; i < pieces; i++) {
+              innerHtml += `<div class="inner-slice"></div>`;
+          }
+          block.innerHTML = innerHtml;
+      });
+      void barEl.offsetWidth;
+      barEl.classList.add('sliced');
+      barEl.classList.remove('tappable-bar');
+  }
+
+  function handleDualBarSlice(prefix) {
+      if (appState === 'LOCKED' || cpaState.unlockedAbstract) return;
+      let bar1 = document.getElementById(`${prefix}-bar-1`);
+      let bar2 = document.getElementById(`${prefix}-bar-2`);
+      if (!bar1 || !bar2) return;
+
+      cpaState.unlockedAbstract = true;
+      sliceSingleBar(bar1, cpaState.s1);
+      sliceSingleBar(bar2, cpaState.s2);
+
+      let status = document.getElementById(`${prefix}-cpa-status`);
+      status.classList.add('ready');
+      status.innerText = `✓ Both bars sliced into ${cpaState.lcm}ths! Now convert and solve below.`;
+
+      if (cpaState.mode === 'guided') {
+          ['g-eq1-n', 'g-eq1-d', 'g-eq2-n', 'g-eq2-d'].forEach(id => {
+              let el = document.getElementById(id);
+              if (el) el.classList.remove('locked-box');
+          });
+          openKeypad('g-eq1-d', 'g-step-1');
+      } else {
           ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
               let el = document.getElementById(id);
-              if (el) { el.innerText = ''; el.classList.remove('flash-error'); }
+              if (el) el.classList.remove('locked-box');
           });
           openKeypad('p-eq1-d', 'practice');
-      }, 4000);
+      }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -589,6 +737,7 @@
   }
 
   function loadSprintQuestion() {
+    questionStartTime = performance.now();
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
@@ -618,11 +767,14 @@
   }
 
   function evaluateSprint() {
-    closeKeypad(); // Prevent state transition squeeze
+    closeKeypad(); 
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    let durationSeconds = 60 - Math.max(0, timeLeft);
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), null, durationSeconds);
+
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
@@ -630,6 +782,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -640,14 +793,24 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Gatekeeper_Miss", durationSeconds);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
               let p = JSON.parse(saved);
               if(!p.remediation) p.remediation = {};
@@ -659,7 +822,7 @@
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -693,7 +856,7 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
           let p = JSON.parse(saved);
-          let queue = p.remediation[currentModuleId] || [];
+          let queue = (p.remediation && p.remediation[currentModuleId]) ? p.remediation[currentModuleId] : [];
           if(queue.length === 0) {
               endRemediation();
               return;
@@ -776,7 +939,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    closeKeypad(); // Free up the viewport for learning slides
+    closeKeypad(); 
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -804,19 +967,21 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Convert both fractions so they have the exact same Denominator (Bottom).</div>
+          <div class="step-text">1. Tap the bars to slice them first! Then convert both fractions to the Common Denominator.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Now that the bottoms match, solve and simplify your final answer.</div>
+          <div class="step-text">2. Now that the bottoms match, solve and simplify your Final Answer.</div>
         </div>
       `;
-      openKeypad('g-eq1-d', 'g-step-1');
+      closeKeypad();
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { 
-              qStr: `<div class="fraction"><div class="frac-num">1</div><div class="frac-den">2</div></div> <div class="operator">+</div> <div class="fraction"><div class="frac-num">1</div><div class="frac-den">3</div></div>`,
+              qStr: `<div class="fraction"><div class="frac-num" style="color:var(--indigo);">1</div><div class="frac-den">2</div></div> <div class="operator">+</div> <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den">3</div></div>`,
+              n1: 1, d1: 2, n2: 1, d2: 3, lcm: 6,
               op: "+",
               cd: "6", e1n: "3", e2n: "2",
               ansN: "5", ansD: "6",
@@ -825,7 +990,8 @@
           };
       } else {
           gData = { 
-              qStr: `<div class="fraction"><div class="frac-num">3</div><div class="frac-den">4</div></div> <div class="operator">-</div> <div class="fraction"><div class="frac-num">1</div><div class="frac-den">6</div></div>`,
+              qStr: `<div class="fraction"><div class="frac-num" style="color:var(--indigo);">3</div><div class="frac-den">4</div></div> <div class="operator">-</div> <div class="fraction"><div class="frac-num" style="color:var(--rose);">1</div><div class="frac-den">6</div></div>`,
+              n1: 3, d1: 4, n2: 1, d2: 6, lcm: 12,
               op: "-",
               cd: "12", e1n: "9", e2n: "2",
               ansN: "7", ansD: "12",
@@ -837,20 +1003,28 @@
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       document.getElementById('g-q-container').innerHTML = gData.qStr;
       document.getElementById('g-op-scaled').innerText = gData.op;
-      
-      // Clear dynamic answer container from previous rounds
       document.getElementById('g-dynamic-answer-area').innerHTML = '';
       
-      // Clear inputs
       ['g-eq1-n', 'g-eq1-d', 'g-eq2-n', 'g-eq2-d'].forEach(id => {
           let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+          if(el) {
+              el.innerText = '';
+              el.classList.remove('flash-success', 'flash-error', 'active');
+              el.classList.add('locked-box');
+          }
       });
+
+      document.getElementById('g-bar-container').innerHTML = renderCPADualBars('guided', gData.n1, gData.d1, gData.n2, gData.d2, gData.lcm);
 
       buildGuidedSteps();
   }
 
   function checkGuidedAnswer() {
+      if (!cpaState.unlockedAbstract) {
+          showError("Tap the fraction bars first to slice them to a Common Denominator!");
+          return;
+      }
+
       let box = document.getElementById(activeBoxId);
       if (!box) return;
       let val = box.innerText;
@@ -865,12 +1039,11 @@
               else { showError(gData.err2); flashError(box); }
           } else if (activeBoxId === 'g-eq2-d') {
               if (val === gData.cd) { box.classList.add('flash-success'); openKeypad('g-eq2-n', 'g-step-1'); }
-              else { showError("The denominators MUST be exactly the same."); flashError(box); }
+              else { showError("The denominators MUST be the exact same number."); flashError(box); }
           } else if (activeBoxId === 'g-eq2-n') {
               if (val === gData.e2n) {
                   box.classList.add('flash-success');
                   
-                  // STRICT SEQUENCE VERIFICATION
                   let v1n = document.getElementById('g-eq1-n').innerText;
                   let v1d = document.getElementById('g-eq1-d').innerText;
                   let v2d = document.getElementById('g-eq2-d').innerText;
@@ -882,13 +1055,11 @@
                       return;
                   }
 
-                  // Successfully verified. Unlock Step 2.
                   xp += 5;
                   document.getElementById('xp-counter').innerText = xp;
                   document.getElementById('g-step-1').classList.add('completed');
                   document.getElementById('g-step-2').classList.remove('locked');
                   
-                  // HORIZONTAL INJECTION: Build the Final Answer boxes inline cleanly
                   let answerArea = document.getElementById('g-dynamic-answer-area');
                   answerArea.innerHTML = `
                     <div class="operator" style="margin: 0 15px;">=</div>
@@ -912,9 +1083,8 @@
       } else if (activeStepId === 'g-step-2') {
           if (activeBoxId === 'g-ans-n') {
               if (val === gData.ansN) { box.classList.add('flash-success'); openKeypad('g-ans-d', 'g-step-2'); }
-              else { showError("Check your math! " + gData.e1n + " " + gData.op + " " + gData.e2n); flashError(box); }
+              else { showError("Check your Maths! " + gData.e1n + " " + gData.op + " " + gData.e2n); flashError(box); }
           } else if (activeBoxId === 'g-ans-d') {
-              // SEQUENCE CHECK
               if (document.getElementById('g-ans-n').innerText === '') {
                   showError("Find the numerator first.");
                   openKeypad('g-ans-n', 'g-step-2');
@@ -940,7 +1110,7 @@
                       }
                   }, 1200);
               } else {
-                  showError("The denominator stays exactly the same. Or, simplify if possible.");
+                  showError("The denominator stays the same. Or simplify if possible.");
                   flashError(box);
               }
           }
@@ -961,13 +1131,10 @@
   function generatePracticeQuestion() {
     let d1, d2, lcm, n1, n2, isAdd, scaledN1, scaledN2, rawN, rawD, gcd, ansN, ansD;
     
-    // STRICT GENERATION FILTER: 
-    // Keep generating until the answer is a proper fraction (Top < Bottom) 
-    // AND it is not a whole number (Bottom !== 1)
     do {
         d1 = Math.floor(Math.random() * 4) + 2; // 2 to 5
         d2 = Math.floor(Math.random() * 4) + 2; // 2 to 5
-        if (d1 === d2) d2++; // Ensure unlike denominators
+        if (d1 === d2) d2++; 
         
         lcm = getLCM(d1, d2);
         n1 = Math.floor(Math.random() * (d1 - 1)) + 1;
@@ -977,13 +1144,11 @@
         scaledN1 = n1 * (lcm / d1);
         scaledN2 = n2 * (lcm / d2);
 
-        // If subtract, ensure positive result
         if (!isAdd && (scaledN1 <= scaledN2)) {
             let tempN = n1, tempD = d1, tempS = scaledN1;
             n1 = n2; d1 = d2; scaledN1 = scaledN2;
             n2 = tempN; d2 = tempD; scaledN2 = tempS;
             
-            // Prevent 0 answers by forcing larger N1
             if (scaledN1 === scaledN2) {
                n1++; scaledN1 = n1 * (lcm / d1); 
             }
@@ -1008,23 +1173,30 @@
         n1, d1, n2, d2, isAdd, lcm, scaledN1, scaledN2,
         rawN, rawD, 
         ansN: ansN.toString(),
-        ansD: ansD.toString()
+        ansD: ansD.toString(),
+        naiveNStr: (isAdd ? (n1 + n2) : Math.abs(n1 - n2)).toString(),
+        naiveDStr: (isAdd ? (d1 + d2) : Math.abs(d1 - d2)).toString()
     };
   }
 
   function loadPracticeQuestion() {
+    questionStartTime = performance.now();
     currentQ = generatePracticeQuestion();
     
-    // Clear all boxes safely
     ['p-eq1-n', 'p-eq1-d', 'p-eq2-n', 'p-eq2-d', 'p-ans-n', 'p-ans-d'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) {
+            el.innerText = '';
+            el.classList.remove('flash-success', 'flash-error', 'active');
+            el.classList.add('locked-box');
+        }
     });
 
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
     document.getElementById('p-op-display').innerText = currentQ.isAdd ? '+' : '-';
+    document.getElementById('p-bar-container').innerHTML = renderCPADualBars('practice', currentQ.n1, currentQ.d1, currentQ.n2, currentQ.d2, currentQ.lcm);
     
-    openKeypad('p-eq1-d', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1034,6 +1206,11 @@
   }
 
   function checkPracticeAnswer() {
+    if (!cpaState.unlockedAbstract) {
+        showError("Tap the fraction bars first to slice them to a Common Denominator!");
+        return;
+    }
+
     let valE1N = document.getElementById('p-eq1-n').innerText;
     let valE1D = document.getElementById('p-eq1-d').innerText;
     let valE2N = document.getElementById('p-eq2-n').innerText;
@@ -1044,7 +1221,6 @@
     let box = document.getElementById(activeBoxId);
     if (!box || box.innerText === '') return;
 
-    // Fast-track navigation
     if (activeBoxId === 'p-eq1-d') { box.classList.add('flash-success'); openKeypad('p-eq1-n', 'practice'); return; }
     if (activeBoxId === 'p-eq1-n') { box.classList.add('flash-success'); openKeypad('p-eq2-d', 'practice'); return; }
     if (activeBoxId === 'p-eq2-d') { box.classList.add('flash-success'); openKeypad('p-eq2-n', 'practice'); return; }
@@ -1053,7 +1229,6 @@
 
     if (valAnsD === '') return;
 
-    // --- STRICT SEQUENCE INTERCEPT ---
     if (valE1N === '' || valE1D === '' || valE2N === '' || valE2D === '') {
         showError("Show your work! Convert both fractions to a Common Denominator first.");
         let emptyBox = (valE1D === '') ? 'p-eq1-d' : ((valE1N === '') ? 'p-eq1-n' : ((valE2D === '') ? 'p-eq2-d' : 'p-eq2-n'));
@@ -1061,22 +1236,39 @@
         return; 
     }
 
-    // --- TRAPDOOR EVALUATION ENGINE ---
-    if (valE1D !== valE2D) {
-        triggerStreakBreak("Denominators don't match! You must find a COMMON denominator before you can solve.", "Different_Denominators");
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+
+    if (valAnsN === currentQ.naiveNStr && valAnsD === currentQ.naiveDStr) {
+        triggerStreakBreak(
+            "STRAIGHT-ACROSS ADDITION TRAP!",
+            `You ${currentQ.isAdd ? 'added' : 'subtracted'} the tops and bottoms straight across without finding a Common Denominator!\n\nYou must scale both fractions to ${currentQ.lcm}ths (${currentQ.scaledN1}/${currentQ.lcm} ${currentQ.isAdd ? '+' : '-'} ${currentQ.scaledN2}/${currentQ.lcm}) before combining.\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+            "Added_Unlike_Denominators_Directly"
+        );
         return;
     }
 
-    let userCD = parseInt(valE1D);
-    let isEq1Correct = (parseInt(valE1N) / userCD) === (currentQ.n1 / currentQ.d1);
-    let isEq2Correct = (parseInt(valE2N) / userCD) === (currentQ.n2 / currentQ.d2);
+    if (valE1D !== valE2D) {
+        triggerStreakBreak(
+            "UNMATCHED DENOMINATORS TRAP!",
+            `Your converted denominators (${valE1D} and ${valE2D}) do not match!\n\nYou must convert both fractions to the exact same Common Denominator (${currentQ.lcm}) before you can ${currentQ.isAdd ? 'add' : 'subtract'}.\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+            "Different_Denominators"
+        );
+        return;
+    }
+
+    let userCD = parseFloat(valE1D);
+    let isEq1Correct = Math.abs((parseFloat(valE1N) / userCD) - (currentQ.n1 / currentQ.d1)) < 0.0001;
+    let isEq2Correct = Math.abs((parseFloat(valE2N) / userCD) - (currentQ.n2 / currentQ.d2)) < 0.0001;
 
     if (!isEq1Correct || !isEq2Correct) {
-        triggerStreakBreak("Your converted fractions are not equal to the original ones! Make sure you scaled the top and bottom by the exact same number.", "Incorrect_Equivalent_Fraction");
+        triggerStreakBreak(
+            "EQUIVALENT CONVERSION TRAP!",
+            `Your converted fractions are not equal to the original ones!\n\n• ${currentQ.n1}/${currentQ.d1} converts to ${currentQ.scaledN1}/${currentQ.lcm}\n• ${currentQ.n2}/${currentQ.d2} converts to ${currentQ.scaledN2}/${currentQ.lcm}\n\nMake sure you multiply each top by the same scale factor as its bottom.`,
+            "Incorrect_Equivalent_Fraction"
+        );
         return;
     }
 
-    // 3. Final answer check
     let isCorrect = (valAnsN === currentQ.ansN && valAnsD === currentQ.ansD);
 
     if(isCorrect) {
@@ -1086,7 +1278,9 @@
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Question Correct", 100, "None", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
@@ -1094,23 +1288,42 @@
         let userAnsVal = parseFloat(valAnsN) / parseFloat(valAnsD);
         let rawAnsVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
         
-        if (!isNaN(userAnsVal) && userAnsVal === rawAnsVal && (valAnsN !== currentQ.ansN)) {
-            triggerStreakBreak(`NOT SIMPLIFIED!\n\nYour math is technically correct (${currentQ.rawN}/${currentQ.rawD}), but you MUST simplify to lowest terms.`, "Unsimplified_Answer");
-        } else if (valAnsD !== valE1D) {
-            triggerStreakBreak(`CRITICAL ERROR!\n\nYou ${currentQ.isAdd ? 'added' : 'subtracted'} the bottoms! The denominator stays exactly the same when you combine them.`, "Changed_Denominator_On_AddSub");
+        if (!isNaN(userAnsVal) && Math.abs(userAnsVal - rawAnsVal) < 0.0001 && (valAnsN !== currentQ.ansN)) {
+            triggerStreakBreak(
+                "UNSIMPLIFIED FRACTION TRAP!",
+                `Your calculation (${currentQ.rawN}/${currentQ.rawD}) is correct, but you MUST simplify to lowest terms!\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Unsimplified_Answer"
+            );
+        } else if (valAnsD !== valE1D && valAnsD !== currentQ.ansD) {
+            triggerStreakBreak(
+                "CHANGED DENOMINATOR TRAP!",
+                `You ${currentQ.isAdd ? 'added' : 'subtracted'} the common denominators together!\n\nOnce both fractions share the denominator ${valE1D}, keep ${valE1D} on the bottom and only ${currentQ.isAdd ? 'add' : 'subtract'} the numerators.\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Changed_Denominator_On_AddSub"
+            );
         } else {
-            triggerStreakBreak(`Check your math! The numerators should be ${currentQ.isAdd ? 'added' : 'subtracted'}.`, "Calculation_Error");
+            triggerStreakBreak(
+                "NUMERATOR CALCULATION ERROR!",
+                `Check your numerator calculation:\n\n${currentQ.scaledN1}/${currentQ.lcm} ${currentQ.isAdd ? '+' : '-'} ${currentQ.scaledN2}/${currentQ.lcm} = ${currentQ.rawN}/${currentQ.rawD}\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Calculation_Error"
+            );
         }
     }
   }
 
-  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  // --- 🔌 DASHBOARD SYNC PATCH & V2 TELEMETRY ---
+  const curriculumOrder = [
+      'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+      'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+      'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let calcDuration = durationSec !== null
+        ? durationSec
+        : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -1120,7 +1333,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,         
+      durationSeconds: calcDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -1130,7 +1345,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1143,43 +1359,25 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "None", durationSeconds);
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-    }
-  };
-
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN LOCALIZATION) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter') dismissTrapdoor();
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
-      // Catch period from physical keyboard and convert to SA comma standard
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();

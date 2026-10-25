@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; padding: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; border: none; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -63,21 +64,28 @@
     .whole-num { font-size: 3.5rem; font-weight: 800; color: var(--indigo); margin-right: 5px; }
 
     /* CLEAN FRACTION BARS */
-    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 35px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; }
-    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; }
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 32px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 4px 0; transition: all 0.2s ease; }
+    .frac-bar.tappable-whole { cursor: pointer; border-color: var(--amber); box-shadow: 0 0 0 2px var(--amber-light); }
+    .frac-bar.tappable-whole:active { transform: scale(0.97); }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; color: white; }
     .frac-piece:last-child { border-right: none; }
     .fill-indigo { background-color: var(--indigo); }
     .fill-emerald { background-color: var(--emerald); }
+    .fill-amber { background-color: var(--amber); }
     .fill-empty { background-color: transparent; }
 
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; color: var(--amber); background: var(--amber-light); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--amber); margin-top: 6px; margin-bottom: 8px; transition: 0.3s; text-align: center; }
+    .cpa-status-pill.done { color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
+
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box; }
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.locked-box { background: var(--slate-100); border-color: var(--slate-200); color: var(--slate-400); cursor: not-allowed; pointer-events: none; opacity: 0.6; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -96,6 +104,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 350px; 
@@ -126,13 +135,21 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, TRAPDOOR RED SCREEN & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--rose); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-icon { font-size: 3.5rem; margin-bottom: 10px; }
+    .trapdoor-title { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    .trapdoor-tag { background: rgba(0,0,0,0.25); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.5; font-weight: 600; margin-bottom: 25px; background: rgba(255,255,255,0.12); padding: 15px; border-radius: var(--radius); width: 100%; box-sizing: border-box; white-space: pre-line; }
+    .btn-trapdoor { background: white; color: var(--rose); font-weight: 800; border: none; padding: 15px 30px; border-radius: var(--radius); font-size: 1.05rem; cursor: pointer; width: 100%; }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -154,7 +171,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="SuperUser Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Converting Mixed Numbers requires rapid multiplication. Prove your fluency.</p>
     </div>
@@ -186,7 +203,7 @@
     <!-- Slide 1 -->
     <div id="slide-1">
       <div class="section-title">Mixed vs Improper</div>
-      <p class="instruction-text">A Mixed Number and an Improper Fraction are two different ways to describe the exact same amount of blocks.</p>
+      <p class="instruction-text">A Mixed Number and an Improper Fraction are two different ways to describe the same amount of blocks.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2rem; margin-bottom:15px;">
@@ -204,14 +221,14 @@
         <div class="frac-bar"><div class="frac-piece fill-indigo"></div><div class="frac-piece fill-empty"></div><div class="frac-piece fill-empty"></div><div class="frac-piece fill-empty"></div></div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If you shatter those 2 whole blocks into quarter pieces, you can count that there are exactly <b>9 pieces total</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">If you slice those 2 whole blocks into quarter pieces, you can count that there are <b>9 pieces in total</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
     <!-- Slide 2 -->
     <div id="slide-2" class="hidden">
       <div class="section-title">The M.A.D. Rule</div>
-      <p class="instruction-text">To convert quickly without drawing pictures, use the <b>M.A.D.</b> method.</p>
+      <p class="instruction-text">To convert quickly, use the <b>M.A.D.</b> method.</p>
       
       <div class="pinned-visual">
         <div class="math-row" style="font-size: 2rem; margin-bottom:20px;">
@@ -228,7 +245,7 @@
         <ul style="color:var(--slate-700); line-height:1.6; font-size:1.05rem; text-align:left; width:100%; margin-top:15px; padding-left:20px;">
             <li><b><span style="color:var(--indigo);">M</span>ultiply:</b> Bottom × Whole (<span style="color:var(--indigo);">4</span> × <span style="color:var(--amber);">2</span> = 8)</li>
             <li><b><span style="color:var(--emerald);">A</span>dd:</b> Add the Top (+ <span style="color:var(--emerald);">1</span> = 9)</li>
-            <li><b><span style="color:var(--slate-900);">D</span>enominator:</b> The Bottom stays the exact same.</li>
+            <li><b><span style="color:var(--slate-900);">D</span>enominator:</b> The Bottom stays the same.</li>
         </ul>
 
       </div>
@@ -247,6 +264,11 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-container" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <!-- Interactive Whole-Block Slicer Injected Here -->
+        </div>
+        <div class="cpa-status-pill" id="g-cpa-status">Tap each Whole Block to slice it into equal pieces</div>
+
         <!-- Horizontal Answer Equation -->
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;" id="g-q-container">
             <!-- Injected by JS -->
@@ -259,12 +281,15 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct conversions in a row.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct conversions in a row. Tap the Whole Blocks to slice them into pieces first, then enter your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
-        <p class="instruction-text" style="margin-top:0; width:100%; text-align:center;">Use the M.A.D. rule to convert the Mixed Number into an Improper Fraction.</p>
+        <div id="p-cpa-container" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+            <!-- Interactive Whole-Block Slicer Injected Here -->
+        </div>
+        <div class="cpa-status-pill" id="p-cpa-status">Tap each Whole Block to slice it into equal pieces</div>
         
         <!-- ANTI-WRAP HORIZONTAL GROUPING -->
         <div class="math-row" style="margin-top:10px; margin-bottom:10px; gap: 15px;">
@@ -276,10 +301,10 @@
                 <div class="operator" style="margin: 0 10px;">=</div>
                 <div class="fraction">
                   <div class="frac-num">
-                      <div class="input-box active" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                      <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
                   </div>
                   <div class="frac-den">
-                      <div class="input-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                      <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
                   </div>
                 </div>
             </div>
@@ -314,6 +339,15 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- HIGH-RESOLUTION TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-icon">🚨</div>
+      <div class="trapdoor-tag" id="trapdoor-tag">Cognitive Trap Detected</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -330,6 +364,7 @@
   let activeBoxId = 'sprint-ans';
   let activeStepId = 'sprint';
   let xp = 0;
+  let questionStartTime = performance.now();
   const currentModuleId = 'RAT-08'; 
 
   // Gatekeeper Variables
@@ -357,6 +392,18 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { w: 2, n: 1, d: 4, slicedFlags: [], done: false };
+
+  // --- SUPERUSER BYPASS (GOD-MODE) ---
+  function enableSuperUser() {
+      let savedProf = localStorage.getItem('harvest_maths_profile');
+      let p = savedProf ? JSON.parse(savedProf) : { studentId: 'SuperUser', xp: 0, completedNodes: [], unlockedNodeIndex: 0, gateLevels: {}, failedAttempts: {}, remediation: {} };
+      p.studentId = 'SuperUser';
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      if (sprintTimer) clearInterval(sprintTimer);
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
 
   // --- INITIALIZATION ---
   document.addEventListener('DOMContentLoaded', () => {
@@ -370,7 +417,7 @@
               if(p.gateLevels && p.gateLevels[currentModuleId]) {
                   gateLevel = p.gateLevels[currentModuleId];
               }
-              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
                   isSuperUser = true;
               }
               if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
@@ -391,12 +438,85 @@
       }
   });
 
+  // --- CPA INTERACTIVE WHOLE-BLOCK SLICER ---
+  function renderCPAMADBlocks(mode) {
+      let containerId = mode === 'GUIDED' ? 'g-cpa-container' : 'p-cpa-container';
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
+      let html = '';
+      for (let i = 0; i < cpaState.w; i++) {
+          let isSliced = cpaState.slicedFlags[i];
+          if (!isSliced) {
+              html += `
+                  <div class="frac-bar tappable-whole" onclick="handleWholeSlice(${i}, '${mode}')">
+                      <div class="frac-piece fill-amber" style="font-size:0.85rem;">1 WHOLE — TAP TO SLICE INTO ${cpaState.d} PIECES</div>
+                  </div>
+              `;
+          } else {
+              let piecesHtml = '';
+              for (let p = 0; p < cpaState.d; p++) {
+                  piecesHtml += `<div class="frac-piece fill-indigo"></div>`;
+              }
+              html += `<div class="frac-bar">${piecesHtml}</div>`;
+          }
+      }
+
+      // Render the fractional remainder bar
+      let fracPiecesHtml = '';
+      for (let p = 0; p < cpaState.d; p++) {
+          let cls = p < cpaState.n ? 'fill-emerald' : 'fill-empty';
+          fracPiecesHtml += `<div class="frac-piece ${cls}"></div>`;
+      }
+      html += `<div class="frac-bar">${fracPiecesHtml}</div>`;
+      container.innerHTML = html;
+  }
+
+  function handleWholeSlice(idx, mode) {
+      if (cpaState.slicedFlags[idx]) return;
+      cpaState.slicedFlags[idx] = true;
+      renderCPAMADBlocks(mode);
+
+      let slicedCount = cpaState.slicedFlags.filter(Boolean).length;
+      let statusEl = document.getElementById(mode === 'GUIDED' ? 'g-cpa-status' : 'p-cpa-status');
+
+      if (slicedCount < cpaState.w) {
+          if (statusEl) {
+              statusEl.innerText = `Sliced ${slicedCount} of ${cpaState.w} Whole Blocks (${slicedCount * cpaState.d} pieces so far)`;
+          }
+      } else {
+          cpaState.done = true;
+          let totalPieces = (cpaState.w * cpaState.d) + cpaState.n;
+          if (statusEl) {
+              statusEl.innerText = `All ${cpaState.w} wholes sliced (${cpaState.w * cpaState.d} + ${cpaState.n} = ${totalPieces} pieces) — Ready!`;
+              statusEl.classList.add('done');
+          }
+          if (mode === 'GUIDED') {
+              ['g-ans-n', 'g-ans-d'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-ans-n', 'g-step-1');
+          } else {
+              ['p-ans-n', 'p-ans-d'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('p-ans-n', 'practice');
+          }
+      }
+  }
+
   // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Complete the visual step first! Tap each Whole Block to slice it into pieces.");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -413,16 +533,14 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
-          // Dynamically inject massive padding to scroll safely
           container.style.paddingBottom = '50vh';
 
           setTimeout(() => {
               let containerRect = container.getBoundingClientRect();
               let keypadRect = keypad.getBoundingClientRect();
               
-              // Target the full horizontal math-row or the mixed number to ensure the whole number stays visible
               let fractionWrapper = targetBox.closest('.math-row') || targetBox.closest('.mixed-number') || targetBox.closest('.fraction');
               let targetRect = (fractionWrapper || targetBox).getBoundingClientRect();
 
@@ -443,19 +561,21 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; // Reset padding
+      let container = document.querySelector('.content-area:not(.hidden)');
+      if (container) container.style.paddingBottom = '60px';
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
       if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
       box.innerText = box.innerText.slice(0, -1);
   }
 
@@ -483,26 +603,33 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  function triggerStreakBreak(msg, tag) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
+      let durationSec = Math.round((performance.now() - questionStartTime) / 1000);
       masteryPoints = 0;
       streak = 0;
       updateProgressBar();
+      closeKeypad();
       
       ['p-ans-n', 'p-ans-d'].forEach(id => {
           let el = document.getElementById(id);
           if(el) el.classList.add('flash-error');
       });
       
-      showError(msg);
-      logTelemetryEvent("Trapdoor Triggered", 0, tag);
-      
-      setTimeout(() => {
-          ['p-ans-n', 'p-ans-d'].forEach(id => {
-              let el = document.getElementById(id);
-              if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-          });
-          openKeypad('p-ans-n', 'practice');
-      }, 4500);
+      document.getElementById('trapdoor-tag').innerText = `TRAP: ${cognitiveTag.replace(/_/g, ' ')}`;
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSec);
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      ['p-ans-n', 'p-ans-d'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
+      });
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -510,6 +637,7 @@
     closeToast(); 
     appState = 'GATEKEEPER';
     sessionMissed = [];
+    questionStartTime = performance.now();
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -597,18 +725,21 @@
   }
 
   function evaluateSprint() {
-    closeKeypad(); // Sync Transition
+    closeKeypad();
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    let durationSec = Math.round((performance.now() - questionStartTime) / 1000);
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Verification", durationSec);
       if (gateLevel < 3) {
-        showError(`Level ${gateLevel} Cleared! Awesome speed.`);
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
         
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -619,26 +750,36 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        profile.failedAttempts[currentModuleId] = (profile.failedAttempts[currentModuleId] || 0) + 1;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Deficit", durationSec);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
-          if(saved) {
-              let p = JSON.parse(saved);
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
               if(!p.remediation) p.remediation = {};
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
           }
-          showError(`Accuracy: ${Math.round(accuracy)}%. You need to clear a focus drill first.`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Complete the Focus Drill first.`);
           resetSprintUI();
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -740,7 +881,7 @@
 
   function endRemediation() {
       sessionMissed = [];
-      showError('Drill Complete! Let\'s try the Gatekeeper again.');
+      showError('Drill Complete! Try the Gatekeeper again.');
       resetSprintUI();
       document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
       document.getElementById('btn-start-sprint').onclick = startSprint; 
@@ -755,7 +896,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    closeKeypad(); // Sync Transition
+    closeKeypad();
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -783,18 +924,16 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Find the new Numerator: Multiply the Whole Number by the Bottom, then ADD the Top.</div>
+          <div class="step-text">1. Tap each Whole Block to slice it into pieces. Then enter the new Numerator (Whole × Bottom + Top).</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. The Denominator stays exactly the same.</div>
+          <div class="step-text">2. The Denominator stays the same.</div>
         </div>
       `;
-      openKeypad('g-ans-n', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
-      guidedSubStep = 1;
-      
+      closeKeypad();
       if (guidedLevel === 1) {
           gData = { 
               w: 3, n: 1, d: 2,
@@ -807,6 +946,13 @@
           };
       }
 
+      cpaState = { w: gData.w, n: gData.n, d: gData.d, slicedFlags: new Array(gData.w).fill(false), done: false };
+      let statusEl = document.getElementById('g-cpa-status');
+      statusEl.innerText = "Tap each Whole Block to slice it into equal pieces";
+      statusEl.classList.remove('done');
+
+      renderCPAMADBlocks('GUIDED');
+
       let qStr = `
         <div class="mixed-number">
             <div class="whole-num">${gData.w}</div>
@@ -816,12 +962,11 @@
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       
-      // HORIZONTAL INJECTION: Clean, flat structure
       document.getElementById('g-q-container').innerHTML = qStr + `
           <div class="operator" style="margin: 0 15px;">=</div>
           <div class="fraction">
-            <div class="frac-num"><div class="input-box" id="g-ans-n" onclick="openKeypad('g-ans-n', 'g-step-1')"></div></div>
-            <div class="frac-den"><div class="input-box" id="g-ans-d" onclick="openKeypad('g-ans-d', 'g-step-2')"></div></div>
+            <div class="frac-num"><div class="input-box locked-box" id="g-ans-n" onclick="openKeypad('g-ans-n', 'g-step-1')"></div></div>
+            <div class="frac-den"><div class="input-box locked-box" id="g-ans-d" onclick="openKeypad('g-ans-d', 'g-step-2')"></div></div>
           </div>
       `;
       
@@ -849,7 +994,6 @@
               flashError(box);
           }
       } else if (activeStepId === 'g-step-2') {
-          // SEQUENCE CHECK
           if (document.getElementById('g-ans-n').innerText === '') {
               showError("Find the new top number first.");
               openKeypad('g-ans-n', 'g-step-1');
@@ -860,7 +1004,7 @@
               box.classList.add('flash-success');
               box.classList.remove('active');
               document.getElementById('g-step-2').classList.add('completed');
-              closeKeypad(); // Sync Transition
+              closeKeypad();
               
               activeBoxId = null;
               xp += 10;
@@ -869,14 +1013,14 @@
               setTimeout(() => {
                   if (guidedLevel === 1) {
                       guidedLevel = 2;
-                      showError("Excellent! Let's do one more."); 
+                      showError("Well done! Let's do one more."); 
                       loadGuidedQuestion(); 
                   } else {
                       startPractice(); 
                   }
               }, 1000);
           } else {
-              showError("The denominator stays exactly the same.");
+              showError("The denominator stays the same.");
               flashError(box);
           }
       }
@@ -894,8 +1038,7 @@
   }
 
   function generatePracticeQuestion() {
-    // Math logic guarantees valid mixed numbers and improper fractions.
-    let w = Math.floor(Math.random() * 4) + 1; // 1 to 4
+    let w = Math.floor(Math.random() * 3) + 1; // 1 to 3 whole blocks for clean mobile visual
     let d = Math.floor(Math.random() * 7) + 3; // 3 to 9
     let n = Math.floor(Math.random() * (d - 1)) + 1; // 1 to d-1
 
@@ -918,22 +1061,26 @@
   }
 
   function loadPracticeQuestion() {
-    // 1. Strict State-Sync Verification
+    closeKeypad();
+    questionStartTime = performance.now();
     currentQ = generatePracticeQuestion();
+    cpaState = { w: currentQ.w, n: currentQ.n, d: currentQ.d, slicedFlags: new Array(currentQ.w).fill(false), done: false };
     
-    // 2. Clear inputs safely
     ['p-ans-n', 'p-ans-d'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
     });
 
-    // 3. Render HTML cleanly using horizontal flow
+    let statusEl = document.getElementById('p-cpa-status');
+    statusEl.innerText = "Tap each Whole Block to slice it into equal pieces";
+    statusEl.classList.remove('done');
+
+    renderCPAMADBlocks('PRACTICE');
+
     let displayEl = document.getElementById('p-q-display');
     if (displayEl) {
         displayEl.innerHTML = currentQ.qHtml;
     }
-    
-    openKeypad('p-ans-n', 'practice');
   }
 
   function updateProgressBar() {
@@ -947,7 +1094,7 @@
     let valD = document.getElementById('p-ans-d').innerText;
 
     let box = document.getElementById(activeBoxId);
-    if (box.innerText === '') return;
+    if (!box || box.innerText === '') return;
 
     // Fast-track navigation
     if (activeBoxId === 'p-ans-n') { box.classList.add('flash-success'); openKeypad('p-ans-d', 'practice'); return; }
@@ -963,39 +1110,50 @@
     let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
 
     if(isCorrect) {
+        let durationSec = Math.round((performance.now() - questionStartTime) / 1000);
         document.getElementById('p-ans-d').classList.add('flash-success');
-        closeKeypad(); // Sync Transition
+        closeKeypad();
         
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSec);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        let errorMsg = `Streak Broken!\n\n1. Multiply: ${currentQ.d} × ${currentQ.w} = ${currentQ.d * currentQ.w}.\n2. Add the Top: + ${currentQ.n} = ${currentQ.ansN}.\n3. Keep the bottom the same: ${currentQ.ansD}.`;
+        let errorTitle = "Conversion Error";
+        let errorMsg = `1. Multiply: ${currentQ.d} × ${currentQ.w} = ${currentQ.d * currentQ.w}.\n2. Add the Top: + ${currentQ.n} = ${currentQ.ansN}.\n3. Keep the bottom the same: ${currentQ.ansD}.`;
         let errorTag = "General_Error";
 
         if (valD !== currentQ.ansD) {
-            errorMsg = `CRITICAL ERROR!\n\nThe denominator tells us the size of the pieces. The size of the pieces doesn't change! Keep the bottom the exact same.`;
+            errorTitle = "Changed Denominator";
+            errorMsg = `The denominator tells us the size of the pieces (${currentQ.ansD}).\n\nSlicing whole blocks into pieces does not change the size of the pieces! Keep the bottom number ${currentQ.ansD}.`;
             errorTag = "Changed_Denominator";
         } else if (valN === (currentQ.w * currentQ.d).toString()) {
-            errorMsg = `ALMOST!\n\nYou multiplied the whole number by the bottom, but you forgot to ADD the pieces already on top!`;
+            errorTitle = "Forgot To Add Numerator";
+            errorMsg = `You multiplied ${currentQ.w} × ${currentQ.d} = ${currentQ.w * currentQ.d}, but you forgot to ADD the ${currentQ.n} piece(s) already on top!\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}.`;
             errorTag = "Forgot_To_Add_Numerator";
         } else if (valN === (currentQ.w + currentQ.n).toString()) {
-            errorMsg = `CRITICAL ERROR!\n\nYou just added the whole number. You must MULTIPLY the whole number by the bottom first to shatter the blocks into pieces.`;
+            errorTitle = "Added Instead of Multiplied";
+            errorMsg = `You added ${currentQ.w} + ${currentQ.n} instead of multiplying first.\n\nMultiply ${currentQ.w} × ${currentQ.d} = ${currentQ.w * currentQ.d}, then add ${currentQ.n} to get ${currentQ.ansN}/${currentQ.ansD}.`;
             errorTag = "Added_Instead_Of_Multiplied";
         }
 
-        triggerStreakBreak(errorMsg, errorTag);
+        triggerStreakBreak(errorTitle, errorMsg, errorTag);
     }
   }
 
-  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  // --- 🔌 DASHBOARD SYNC PATCH & V2 TELEMETRY ---
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = "None", durationSec = 0) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
@@ -1008,17 +1166,21 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag,
+      errorType: cognitiveTag,
+      durationSeconds: durationSec,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
   }
 
   function endModule() {
+    let durationSec = Math.round((performance.now() - questionStartTime) / 1000);
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -1031,43 +1193,25 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete", durationSec);
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-    }
-  };
-
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SA LOCALIZATION) ---
   document.addEventListener('keydown', function(event) {
-    if(appState === 'LOCKED') return; 
+    if(appState === 'LOCKED') return;
+    if(document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if(event.key === 'Enter') dismissTrapdoor();
+      return;
+    }
     
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
-      // Catch period from physical keyboard and convert to SA comma standard
+      event.preventDefault();
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();

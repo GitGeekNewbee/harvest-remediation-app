@@ -29,6 +29,9 @@
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
+    .timer-alert { color: var(--rose) !important; animation: pulse 0.8s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* CRITICAL FIX: Content area natively shrinks when keypad expands */
     .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
@@ -36,6 +39,9 @@
     
     /* FOCUS MODE DYNAMICS (Hides HUD to save space) */
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; height: 0; padding: 0; opacity: 0; border: none; pointer-events: none; overflow: hidden;}
     body.focus-active .content-area { padding-top: 10px; }
 
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -49,12 +55,18 @@
     .btn-primary:active { background: #4338ca; }
     .btn-warning { background: var(--amber); color: white; }
 
-    /* CLEAN FRACTION BARS */
-    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 45px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; }
-    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); }
+    /* CLEAN FRACTION BARS & INTERACTIVE CPA TILES */
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 48px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; color: white; transition: all 0.2s; }
     .frac-piece:last-child { border-right: none; }
     .fill-indigo { background-color: var(--indigo); }
     .fill-empty { background-color: transparent; }
+    .frac-piece.tappable { cursor: pointer; }
+    .frac-piece.tappable:active { transform: scale(0.95); }
+    .frac-piece.counted-piece { background-color: var(--emerald) !important; box-shadow: inset 0 0 0 2px #ffffff; }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; padding: 6px 12px; border-radius: 20px; background: var(--amber-light); color: var(--amber); letter-spacing: 0.4px; text-align: center; transition: 0.3s; margin-top: 10px; }
+    .cpa-status-pill.ready { background: var(--emerald-light); color: var(--emerald); }
 
     /* STRICT MATH FORMATTING */
     .math-row { display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 700; gap: 10px; color: var(--slate-900); }
@@ -63,13 +75,14 @@
     .frac-den { padding: 8px 10px 0 10px; width: 100%; text-align: center; }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED TO SIT AT TOP) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box; }
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 60px; height: 50px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.locked-box { opacity: 0.4; pointer-events: none; background: var(--slate-100); }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -88,6 +101,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 350px; 
@@ -118,13 +132,20 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -146,7 +167,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Fractions are all about scaling blocks. Prove you can multiply whole numbers rapidly.</p>
     </div>
@@ -193,12 +214,12 @@
             </div>
             <div style="display:flex; flex-direction:column; align-items:flex-start; font-size:0.95rem; margin-left:15px; color:var(--slate-700); gap:12px; font-weight:600;">
                 <div><b style="color:var(--indigo);">Numerator (Top):</b> The pieces we shade.</div>
-                <div><b style="color:var(--slate-900);">Denominator (Bottom):</b> The total blocks.</div>
+                <div><b style="color:var(--slate-900);">Denominator (Bottom):</b> The total blocks in the whole bar.</div>
             </div>
         </div>
     </div>
     
-    <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The bar has <b>5 total blocks</b>. We have shaded <b>3 blocks</b>. That is the fraction 3/5.</p>
+    <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">The bar has <b>5 total blocks</b>. We have coloured <b>3 blocks</b>. That is the fraction 3/5.</p>
     <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
   </div>
 
@@ -212,8 +233,8 @@
     </div>
     
     <div class="pinned-visual">
-        <!-- Visual Bar -->
-        <div id="g-visual-container" style="width:100%; display:flex; justify-content:center; margin-bottom:20px;">
+        <!-- Interactive CPA Visual Bar -->
+        <div id="g-visual-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:15px;">
             <!-- Visual injected by JS -->
         </div>
 
@@ -230,13 +251,13 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning box moved to the top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Type the fraction for the block below.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px; transition: all 0.3s;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Tap every coloured piece on the bar FIRST to unlock the fraction boxes.</p>
     </div>
 
     <div class="pinned-visual">
-        <!-- Visual Bar -->
-        <div id="p-bar-container" style="width:100%; display:flex; justify-content:center; margin-bottom:15px;">
+        <!-- Interactive CPA Visual Bar -->
+        <div id="p-bar-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:15px;">
           <!-- Populated by JS -->
         </div>
 
@@ -245,10 +266,10 @@
           <div style="font-size:2.5rem; margin-right:15px; color:var(--slate-400);">➔</div>
           <div class="fraction" style="font-size:2.5rem;">
             <div class="frac-num">
-                <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                <div class="input-box locked-box" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
             </div>
             <div class="frac-den">
-                <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                <div class="input-box locked-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
             </div>
           </div>
         </div>
@@ -283,6 +304,14 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">COGNITIVE TRAPDOOR DETECTED</div>
+      <h2 class="trapdoor-title" id="trapdoor-title">Streak Broken!</h2>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -300,6 +329,9 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'RAT-01'; 
+
+  // Telemetry High-Resolution Timer
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -325,7 +357,16 @@
   let guidedLevel = 1;
   let gData = {};
 
-  // --- INITIALIZATION ---
+  // CPA Interactive Bar State
+  let cpaState = {
+      mode: 'guided',
+      tappedCount: 0,
+      targetShaded: 0,
+      totalPieces: 0,
+      unlockedAbstract: false
+  };
+
+  // --- INITIALIZATION & SUPERUSER INJECTION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       let isSuperUser = false;
@@ -358,12 +399,23 @@
       }
   });
 
+  // --- DEV SECRET BYPASS (CLICK THE CLOCK ICON) ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      
+      let introZone = document.getElementById('zone-gate-intro');
+      if (introZone) introZone.classList.add('hidden');
+      unlockLesson();
+  }
+
   // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) return;
+      if (!targetBox || targetBox.classList.contains('locked-box')) return;
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -380,9 +432,8 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
-          // Dynamically inject a massive bottom padding so we can always scroll anything to the middle
           container.style.paddingBottom = '50vh';
 
           setTimeout(() => {
@@ -409,20 +460,21 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; // Reset padding
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
+      if(char === ',' && box.innerText.includes(',')) return;
       if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -434,6 +486,7 @@
   }
 
   function flashError(box) {
+      if(!box) return;
       box.classList.add('flash-error');
       setTimeout(() => box.classList.remove('flash-error'), 400);
   }
@@ -448,15 +501,80 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  // --- HTML GENERATOR FOR STATIC FRACTION BARS ---
-  function drawStaticBar(num, den) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      closeKeypad();
+      
+      ['p-ans-n', 'p-ans-d'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- INTERACTIVE CPA BAR GENERATOR ---
+  function renderCPABar(mode, num, den) {
+      let prefix = mode === 'guided' ? 'g' : 'p';
+      cpaState = {
+          mode: mode,
+          tappedCount: 0,
+          targetShaded: num,
+          totalPieces: den,
+          unlockedAbstract: false
+      };
+
       let html = `<div class="frac-bar">`;
       for (let i = 0; i < den; i++) {
-          let shadeClass = (i < num) ? 'fill-indigo' : 'fill-empty';
-          html += `<div class="frac-piece ${shadeClass}"></div>`;
+          let isShaded = i < num;
+          let shadeClass = isShaded ? 'fill-indigo tappable' : 'fill-empty';
+          let clickAttr = isShaded ? `onclick="handlePieceTap('${prefix}', ${i})"` : `onclick="showError('Tap only the coloured pieces to count the Numerator!')"`;
+          html += `<div class="frac-piece ${shadeClass}" id="${prefix}-piece-${i}" ${clickAttr}></div>`;
       }
       html += `</div>`;
+      html += `<div class="cpa-status-pill" id="${prefix}-cpa-status">Step 1: Tap all ${num} coloured pieces on the bar (0/${num})</div>`;
       return html;
+  }
+
+  function handlePieceTap(prefix, idx) {
+      if (appState === 'LOCKED' || cpaState.unlockedAbstract) return;
+      let piece = document.getElementById(`${prefix}-piece-${idx}`);
+      if (!piece || piece.classList.contains('counted-piece')) return;
+
+      cpaState.tappedCount++;
+      piece.classList.add('counted-piece');
+      piece.innerText = cpaState.tappedCount;
+
+      let status = document.getElementById(`${prefix}-cpa-status`);
+      if (cpaState.tappedCount >= cpaState.targetShaded) {
+          cpaState.unlockedAbstract = true;
+          status.classList.add('ready');
+          status.innerText = `✓ ${cpaState.targetShaded} Coloured Pieces Counted (out of ${cpaState.totalPieces} Total)! Now type the fraction.`;
+
+          if (cpaState.mode === 'guided') {
+              document.getElementById('g-box-d').classList.remove('locked-box');
+              openKeypad('g-box-d', 'g-step-1');
+          } else {
+              document.getElementById('p-ans-n').classList.remove('locked-box');
+              document.getElementById('p-ans-d').classList.remove('locked-box');
+              openKeypad('p-ans-n', 'practice');
+          }
+      } else {
+          status.innerText = `Coloured pieces counted: ${cpaState.tappedCount}/${cpaState.targetShaded} — keep tapping!`;
+      }
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -522,6 +640,7 @@
   }
 
   function loadSprintQuestion() {
+    questionStartTime = performance.now();
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
@@ -551,11 +670,14 @@
   }
 
   function evaluateSprint() {
-    closeKeypad(); // Sync Transition
+    closeKeypad(); 
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    let durationSeconds = 60 - Math.max(0, timeLeft);
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), null, durationSeconds);
+
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
@@ -563,6 +685,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -573,14 +696,24 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Gatekeeper_Miss", durationSeconds);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
               let p = JSON.parse(saved);
               if(!p.remediation) p.remediation = {};
@@ -592,7 +725,7 @@
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -626,7 +759,7 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
           let p = JSON.parse(saved);
-          let queue = p.remediation[currentModuleId] || [];
+          let queue = (p.remediation && p.remediation[currentModuleId]) ? p.remediation[currentModuleId] : [];
           if(queue.length === 0) {
               endRemediation();
               return;
@@ -709,7 +842,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    closeKeypad(); // Sync Transition
+    closeKeypad(); 
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -726,13 +859,13 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Find the Denominator (Bottom). Count ALL the blocks in the entire bar.</div>
+          <div class="step-text">1. Tap the coloured blocks on the bar first, then type the TOTAL blocks (Denominator).</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Find the Numerator (Top). Count ONLY the shaded blocks.</div>
+          <div class="step-text">2. Type the COLOURED blocks (Numerator).</div>
         </div>
         <div class="step-container locked" id="g-step-3">
-          <div class="step-text">3. Write your final fraction below:</div>
+          <div class="step-text">3. Write your Final Answer below:</div>
         </div>
       `;
 
@@ -742,13 +875,13 @@
           
           <div style="display:flex; flex-direction:column; align-items:center;">
               <span style="font-size:0.8rem; color:var(--slate-500); font-weight:700; margin-bottom:5px;">TOTAL</span>
-              <div class="input-box" id="g-box-d" onclick="openKeypad('g-box-d', 'g-step-1')"></div>
+              <div class="input-box locked-box" id="g-box-d" onclick="openKeypad('g-box-d', 'g-step-1')"></div>
           </div>
           
           <div id="g-step-2-area" style="display:none; align-items:center; gap:15px;">
-              <div style="font-size:2rem; color:var(--slate-300);">,</div>
+              <div style="font-size:2rem; color:var(--slate-300);">|</div>
               <div style="display:flex; flex-direction:column; align-items:center;">
-                  <span style="font-size:0.8rem; color:var(--indigo); font-weight:700; margin-bottom:5px;">SHADED</span>
+                  <span style="font-size:0.8rem; color:var(--indigo); font-weight:700; margin-bottom:5px;">COLOURED</span>
                   <div class="input-box" id="g-box-n" onclick="openKeypad('g-box-n', 'g-step-2')"></div>
               </div>
           </div>
@@ -763,10 +896,11 @@
 
         </div>
       `;
-      openKeypad('g-box-d', 'g-step-1');
+      closeKeypad();
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { n: "3", d: "8", err1: "Count EVERY block in the entire bar. The total is 8.", err2: "Count only the coloured blocks. There are 3." };
       } else {
@@ -774,7 +908,7 @@
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-visual-container').innerHTML = drawStaticBar(parseInt(gData.n), parseInt(gData.d));
+      document.getElementById('g-visual-container').innerHTML = renderCPABar('guided', parseInt(gData.n), parseInt(gData.d));
       
       buildGuidedSteps();
   }
@@ -799,7 +933,13 @@
   }
 
   function checkGuidedAnswer() {
+      if (!cpaState.unlockedAbstract) {
+          showError("Tap every coloured piece on the bar first!");
+          return;
+      }
+
       let box = document.getElementById(activeBoxId);
+      if (!box) return;
       let val = box.innerText;
       if (val === '') return;
 
@@ -828,7 +968,7 @@
                   box.classList.remove('active');
                   openKeypad('g-box-f2', 'g-step-3');
               } else {
-                  showError("The Numerator is the shaded pieces. Type " + gData.n);
+                  showError("The Numerator is the coloured pieces. Type " + gData.n);
                   flashError(box);
               }
           } else if (activeBoxId === 'g-box-f2') {
@@ -836,7 +976,7 @@
                   box.classList.add('flash-success');
                   box.classList.remove('active');
                   document.getElementById('g-step-3').classList.add('completed');
-                  closeKeypad(); // Sync Transition
+                  closeKeypad(); 
                   
                   activeBoxId = null;
                   
@@ -869,27 +1009,33 @@
   }
 
   function generatePracticeQuestion() {
-    // Math logic natively restricts numerator to be less than denominator. No whole/improper possible.
     let d = Math.floor(Math.random() * 9) + 2; 
     let n = Math.floor(Math.random() * (d - 1)) + 1; 
     
     return { 
-        html: drawStaticBar(n, d),
+        n: n,
+        d: d,
         ansN: n.toString(),
-        ansD: d.toString()
+        ansD: d.toString(),
+        unshadedStr: (d - n).toString()
     };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans-n').innerText = '';
-    document.getElementById('p-ans-n').classList.remove('flash-success', 'flash-error');
-    document.getElementById('p-ans-d').innerText = '';
-    document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
+    questionStartTime = performance.now();
+    ['p-ans-n', 'p-ans-d'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) {
+            el.innerText = '';
+            el.classList.remove('flash-success', 'flash-error', 'active');
+            el.classList.add('locked-box');
+        }
+    });
     
     currentQ = generatePracticeQuestion();
-    document.getElementById('p-bar-container').innerHTML = currentQ.html;
+    document.getElementById('p-bar-container').innerHTML = renderCPABar('practice', currentQ.n, currentQ.d);
     
-    openKeypad('p-ans-n', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -899,7 +1045,13 @@
   }
 
   function checkPracticeAnswer() {
+    if (!cpaState.unlockedAbstract) {
+        showError("Tap every coloured piece on the bar first!");
+        return;
+    }
+
     let box = document.getElementById(activeBoxId);
+    if (!box) return;
     let val = box.innerText;
     if (val === '') return;
 
@@ -915,53 +1067,58 @@
     if (valD === '') return;
 
     let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
 
     if(isCorrect) {
         document.getElementById('p-ans-d').classList.add('flash-success');
-        closeKeypad(); // Sync Transition
+        closeKeypad(); 
         
         masteryPoints++;
         streak++;
         xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
         updateProgressBar();
+        logTelemetryEvent("Practice Question Correct", 100, "None", durationSeconds);
         
         if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
         else setTimeout(loadPracticeQuestion, 800);
     } else {
-        masteryPoints = 0;
-        streak = 0;
-        updateProgressBar();
-        document.getElementById('p-ans-n').classList.add('flash-error');
-        document.getElementById('p-ans-d').classList.add('flash-error');
-        
-        let errorMsg = `Streak Broken! Top = Shaded (${currentQ.ansN}). Bottom = Total (${currentQ.ansD}).`;
-        let errorTag = "Incorrect_Mapping";
-
         if (valN === currentQ.ansD && valD === currentQ.ansN) {
-            errorMsg = `Format Error! You flipped the numbers upside down. Top = Shaded. Bottom = Total.`;
-            errorTag = "Flipped_Numerator_Denominator";
+            triggerStreakBreak(
+                "INVERTED FRACTION TRAP!",
+                `You wrote ${valN}/${valD}, which flips the fraction upside down!\n\nTop (Numerator) = Coloured pieces (${currentQ.ansN}).\nBottom (Denominator) = Total pieces in the whole bar (${currentQ.ansD}).\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Flipped_Numerator_Denominator"
+            );
+        } else if (valN === currentQ.ansN && valD === currentQ.unshadedStr) {
+            triggerStreakBreak(
+                "PART-TO-PART RATIO TRAP!",
+                `You wrote ${valN}/${valD} by counting only the empty blocks (${currentQ.unshadedStr}) for the bottom number!\n\nThe Denominator must include ALL blocks in the whole bar (coloured + empty = ${currentQ.ansD}).\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Part_To_Part_Denominator_Bias"
+            );
+        } else {
+            triggerStreakBreak(
+                "FRACTION COUNTING ERROR!",
+                `Look closely at the fraction bar:\n\n• Coloured pieces (Top): ${currentQ.ansN}\n• Total blocks in the whole bar (Bottom): ${currentQ.ansD}\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Incorrect_Mapping"
+            );
         }
-
-        showError(errorMsg);
-        logTelemetryEvent("Trapdoor Triggered", 0, errorTag);
-        
-        setTimeout(() => {
-            document.getElementById('p-ans-n').innerText = '';
-            document.getElementById('p-ans-d').innerText = '';
-            document.getElementById('p-ans-n').classList.remove('flash-error');
-            document.getElementById('p-ans-d').classList.remove('flash-error');
-            openKeypad('p-ans-n', 'practice');
-        }, 2000);
     }
   }
 
-  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
-  const curriculumOrder = ['RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08', 'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08'];
+  // --- 🔌 DASHBOARD SYNC PATCH & V2 TELEMETRY ---
+  const curriculumOrder = [
+      'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+      'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+      'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
 
-  function logTelemetryEvent(action, accuracyVal, errorTag = null) {
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
     let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
     let student = p.studentId || "Unknown";
     let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let calcDuration = durationSec !== null
+        ? durationSec
+        : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
     
     let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
     queue.push({
@@ -971,7 +1128,9 @@
       accuracy: accuracyVal,
       fails: fails,
       action: action,
-      errorType: errorTag,         
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,         
+      durationSeconds: calcDuration,
       timestamp: new Date().toISOString() 
     });
     localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
@@ -981,7 +1140,8 @@
     let saved = localStorage.getItem('harvest_maths_profile');
     if(saved) {
       let profile = JSON.parse(saved);
-      profile.xp += xp; 
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
       
       if(!profile.completedNodes.includes(currentModuleId)) {
         profile.completedNodes.push(currentModuleId);
@@ -994,43 +1154,25 @@
       localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
     }
 
-    logTelemetryEvent("Mastered Module", 100);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "None", durationSeconds);
 
     closeKeypad();
     document.getElementById('final-xp').innerText = xp;
     document.getElementById('completion-screen').classList.add('show');
-  };
+  }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy));
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy));
-    }
-  };
-
-  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT ---
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN LOCALIZATION) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter') dismissTrapdoor();
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
-      // Catch period from physical keyboard and convert to SA comma standard
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();

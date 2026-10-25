@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { display: none !important; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -71,11 +72,20 @@
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 110px; }
     .input-box.x-wide { width: 140px; }
+    .input-box.locked-box { background: var(--slate-100); border-style: dashed; color: var(--slate-400); cursor: not-allowed; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
+    /* CPA COMMA FLOAT TAPPER */
+    .cpa-prompt { font-size: 0.85rem; font-weight: 700; color: var(--indigo); margin-bottom: 10px; text-align: center; background: var(--indigo-light); padding: 8px 12px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+    .cpa-prompt.done { background: var(--emerald-light); color: var(--emerald); }
+    .cpa-float-comma { display: inline-block; padding: 0 5px; margin: 0 2px; border: 2px dashed var(--amber); border-radius: 6px; background: var(--amber-light); color: var(--amber); cursor: pointer; transition: 0.15s; animation: pulse 1.2s infinite; }
+    .cpa-float-comma.floated { border: 2px solid var(--emerald); background: var(--emerald-light); color: var(--emerald); animation: none; cursor: default; }
+
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
@@ -250,6 +260,7 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-prompt" class="cpa-prompt">👇 Tap the decimal comma inside the house to float it straight up:</div>
         <div id="g-scaffold" style="width:100%; display:flex; justify-content:center;">
             <!-- Injected by JS -->
         </div>
@@ -261,11 +272,12 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Float the comma straight up, then write your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
+        <div id="p-cpa-prompt" class="cpa-prompt">👇 Tap the decimal comma inside the house to float it straight up:</div>
         <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:5px;">Final Answer</span>
         <div id="p-scaffold" style="width:100%; display:flex; justify-content:center;">
             <!-- Injected by JS -->
@@ -305,7 +317,7 @@
   <!-- V2 RED-SCREEN TRAPDOOR OVERLAY -->
   <div class="trapdoor-overlay" id="trapdoor-screen">
       <div class="trapdoor-card">
-          <div class="trapdoor-badge">Primary-School Trapdoor Triggered</div>
+          <div class="trapdoor-badge" id="trapdoor-tag">Primary-School Trapdoor Triggered</div>
           <h3 class="trapdoor-title" id="trapdoor-title">Streak Reset to 0/5</h3>
           <div class="trapdoor-msg" id="trapdoor-msg">Trapdoor diagnostic message.</div>
           <button class="btn btn-primary" style="background:var(--rose); margin-top:0;" onclick="dismissTrapdoor()">I Understand — Try Again</button>
@@ -356,6 +368,30 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { done: false, mode: 'guided' };
+
+  function handleCPAFloatTap(mode) {
+      if (cpaState.done) return;
+      cpaState.done = true;
+      let commaEl = document.getElementById(mode === 'guided' ? 'g-float-comma' : 'p-float-comma');
+      if (commaEl) commaEl.classList.add('floated');
+      let lineEl = document.getElementById(mode === 'guided' ? 'g-float-line' : 'p-float-line');
+      if (lineEl) lineEl.style.opacity = '1';
+      let promptEl = document.getElementById(mode === 'guided' ? 'g-cpa-prompt' : 'p-cpa-prompt');
+      if (promptEl) {
+          promptEl.classList.add('done');
+          promptEl.innerText = '✅ Comma floated straight up! Now divide and type your Final Answer.';
+      }
+      if (mode === 'guided') {
+          let b = document.getElementById('g-ans');
+          if (b) b.classList.remove('locked-box');
+          openKeypad('g-ans', 'g-step-1');
+      } else {
+          let b = document.getElementById('p-ans');
+          if (b) b.classList.remove('locked-box');
+          openKeypad('p-ans', 'practice');
+      }
+  }
 
   // --- GOD-MODE BYPASS ---
   function enableSuperUser() {
@@ -402,19 +438,23 @@
   });
 
   // --- SCAFFOLD RENDERER (SOUTH AFRICAN COMMA) ---
-  function buildDivScaffold(divisor, dividend, inputId, stepId) {
+  function buildDivScaffold(divisor, dividend, inputId, stepId, mode = 'guided') {
       let commaIndex = dividend.toString().indexOf(',');
       let totalLength = dividend.toString().length;
       let leftPct = ((commaIndex + 0.5) / totalLength) * 100;
+      let parts = dividend.toString().split(',');
+      let commaId = mode === 'guided' ? 'g-float-comma' : 'p-float-comma';
+      let lineId = mode === 'guided' ? 'g-float-line' : 'p-float-line';
+      let dividendHtml = `${parts[0]}<span class="cpa-float-comma" id="${commaId}" onclick="handleCPAFloatTap('${mode}')">,</span>${parts[1] || ''}`;
       
       return `
       <div class="div-house">
           <div class="div-quotient">
-              <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="${inputId}" onclick="openKeypad('${inputId}', '${stepId}')"></div>
+              <div class="input-box x-wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="${inputId}" onclick="openKeypad('${inputId}', '${stepId}')"></div>
           </div>
-          <div class="dot-float-line" style="left:calc(15px + ${leftPct}%);"></div>
+          <div class="dot-float-line" id="${lineId}" style="left:calc(15px + ${leftPct}%); opacity:0.15;"></div>
           <div class="div-divisor">${divisor}</div>
-          <div class="div-dividend">${dividend}</div>
+          <div class="div-dividend">${dividendHtml}</div>
       </div>
       `;
   }
@@ -425,6 +465,10 @@
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Tap the decimal comma inside the division house to float it up first!");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -440,7 +484,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -468,13 +512,13 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
@@ -483,7 +527,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -519,6 +563,8 @@
       if(el) el.classList.add('flash-error');
       
       closeKeypad();
+      let tagEl = document.getElementById('trapdoor-tag');
+      if (tagEl && tag) tagEl.innerText = "TRAPDOOR: " + tag.replace(/_/g, ' ');
       document.getElementById('trapdoor-msg').innerText = msg;
       document.getElementById('trapdoor-screen').classList.add('show');
       logTelemetryEvent("Trapdoor Triggered", 0, tag, durationSec);
@@ -526,10 +572,7 @@
 
   function dismissTrapdoor() {
       document.getElementById('trapdoor-screen').classList.remove('show');
-      let el = document.getElementById('p-ans');
-      if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-      questionStartTime = performance.now();
-      openKeypad('p-ans', 'practice');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -627,6 +670,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Sprint_Pass", 60);
       sessionMissed = []; 
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
@@ -653,6 +697,16 @@
         unlockLesson();
       }
     } else {
+      let savedProf = localStorage.getItem('harvest_maths_profile');
+      if(savedProf) {
+        let profile = JSON.parse(savedProf);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Sprint_Fail", 60);
+
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -811,10 +865,9 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Float the comma! Write your Final Answer with the decimal comma lined up directly above the comma inside the house.</div>
+          <div class="step-text">1. Tap the comma inside the house to float it up, then write your Final Answer.</div>
         </div>
       `;
-      openKeypad('g-ans', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -824,11 +877,19 @@
           gData = { d: "4", D: "0,12", ans: "0,03", err: "You MUST use zero placeholders! 4 cannot go into 0, and 4 cannot go into 1. The Final Answer is 0,03." };
       }
 
+      cpaState = { done: false, mode: 'guided' };
+      let promptEl = document.getElementById('g-cpa-prompt');
+      if (promptEl) {
+          promptEl.classList.remove('done');
+          promptEl.innerText = '👇 Tap the decimal comma inside the house to float it straight up:';
+      }
+
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-scaffold').innerHTML = buildDivScaffold(gData.d, gData.D, 'g-ans', 'g-step-1');
+      document.getElementById('g-scaffold').innerHTML = buildDivScaffold(gData.d, gData.D, 'g-ans', 'g-step-1', 'guided');
       
       buildGuidedSteps();
       questionStartTime = performance.now();
+      closeKeypad();
   }
 
   function checkGuidedAnswer() {
@@ -899,14 +960,17 @@
 
   function loadPracticeQuestion() {
     currentQ = generatePracticeQuestion();
-    
-    let el = document.getElementById('p-ans');
-    if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+    cpaState = { done: false, mode: 'practice' };
+    let promptEl = document.getElementById('p-cpa-prompt');
+    if (promptEl) {
+        promptEl.classList.remove('done');
+        promptEl.innerText = '👇 Tap the decimal comma inside the house to float it straight up:';
+    }
 
-    document.getElementById('p-scaffold').innerHTML = buildDivScaffold(currentQ.d, currentQ.D_sa, 'p-ans', 'practice');
+    document.getElementById('p-scaffold').innerHTML = buildDivScaffold(currentQ.d, currentQ.D_sa, 'p-ans', 'practice', 'practice');
     
     questionStartTime = performance.now();
-    openKeypad('p-ans', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1011,30 +1075,15 @@
     document.getElementById('completion-screen').classList.add('show');
   }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Sprint_Fail", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Sprint_Pass", 60);
-    }
-  };
-
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SA COMMA NATIVE) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
     if (event.key >= '0' && event.key <= '9') {

@@ -29,6 +29,9 @@
     .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
     .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
     .stat-xp { color: var(--amber); }
+    .timer-alert { color: var(--rose) !important; animation: pulse 0.8s infinite; }
+
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* CRITICAL FIX: Content area natively shrinks when keypad expands */
     .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
@@ -38,6 +41,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; height: 0; padding: 0; opacity: 0; border: none; pointer-events: none; overflow: hidden;}
     body.focus-active .content-area { padding-top: 10px; }
     
     /* V2 TYPOGRAPHY & LAYOUT */
@@ -58,23 +62,29 @@
     .frac-den { padding: 6px 10px 0 10px; width: 100%; text-align: center; }
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
-    /* CLEAN FRACTION BARS */
-    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 35px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; }
-    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.3s ease; }
+    /* CLEAN FRACTION BARS & INTERACTIVE CPA TRAY */
+    .frac-bar { display: flex; width: 100%; max-width: 350px; height: 42px; border: 2px solid var(--slate-900); border-radius: 4px; overflow: hidden; margin: 5px 0; }
+    .frac-piece { flex: 1; border-right: 2px solid var(--slate-900); transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 0.9rem; }
     .frac-piece:last-child { border-right: none; }
     .fill-indigo { background-color: var(--indigo); }
     .fill-rose { background-color: var(--rose); }
     .fill-emerald { background-color: var(--emerald); }
     .fill-empty { background-color: transparent; }
+    .frac-piece.tappable-empty { cursor: pointer; background-color: var(--rose-light); }
+    .frac-piece.tappable-empty:active { transform: scale(0.95); }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; padding: 6px 12px; border-radius: 20px; background: var(--amber-light); color: var(--amber); letter-spacing: 0.4px; text-align: center; transition: 0.3s; margin-top: 8px; }
+    .cpa-status-pill.ready { background: var(--emerald-light); color: var(--emerald); }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
-    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; }
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box; }
     .step-container.locked { opacity: 0.3; pointer-events: none; }
     .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
     .step-text { font-size: 1rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
     
     /* SLEEK INPUT BOXES */
     .input-box { width: 60px; height: 50px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.locked-box { opacity: 0.4; pointer-events: none; background: var(--slate-100); }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -93,6 +103,7 @@
         display: flex; 
         justify-content: center; 
         flex-shrink: 0; 
+        box-sizing: border-box;
     }
     .keypad-drawer.open { 
         max-height: 350px; 
@@ -123,13 +134,20 @@
     .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
     .key-enter:active { background: #4338ca; }
 
-    /* V2 ERROR TOAST & COMPLETION OVERLAY */
-    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; }
-    .toast-container.show { opacity: 1; top: 65px; }
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
     .completion-overlay.show { opacity: 1; pointer-events: all; }
     .completion-icon { font-size: 4rem; margin-bottom: 20px; }
     .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
@@ -151,7 +169,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px;">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Before we add fractions, we must make sure adding regular numbers is fully automated in your brain.</p>
     </div>
@@ -212,7 +230,7 @@
         </div>
       </div>
       
-      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We had 1 Indigo piece. We added 2 Rose pieces into the same tray. Now we have <b>3 shaded pieces</b>.</p>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">We had 1 Indigo piece. We added 2 Rose pieces into the same tray. Now we have <b>3 coloured pieces</b>.</p>
       <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
     </div>
 
@@ -300,7 +318,7 @@
             <!-- Injected by JS -->
         </div>
         
-        <div id="g-bar-container" style="width:100%; margin-top: 5px;">
+        <div id="g-bar-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-top: 5px;">
             <!-- Injected by JS -->
         </div>
     </div>
@@ -311,23 +329,28 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Your answer MUST be fully simplified.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px; transition: all 0.3s;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: Tap the empty tray slots FIRST to add the second fraction, then type the simplified Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
-        <div class="math-row" id="p-q-display" style="margin-bottom:15px;">
+        <div class="math-row" id="p-q-display" style="margin-bottom:12px;">
+            <!-- Populated by JS -->
+        </div>
+
+        <!-- CPA Interactive Tray -->
+        <div id="p-bar-container" style="width:100%; display:flex; flex-direction:column; align-items:center; margin-bottom:12px;">
             <!-- Populated by JS -->
         </div>
         
-        <div class="math-row" style="margin-top:10px;">
+        <div class="math-row" style="margin-top:8px;">
           <div class="operator" style="margin-right:15px;">=</div>
           <div class="fraction" style="font-size:2.5rem;">
             <div class="frac-num">
-                <div class="input-box active" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
+                <div class="input-box locked-box" id="p-ans-n" onclick="openKeypad('p-ans-n', 'practice')"></div>
             </div>
             <div class="frac-den">
-                <div class="input-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
+                <div class="input-box locked-box" id="p-ans-d" onclick="openKeypad('p-ans-d', 'practice')"></div>
             </div>
           </div>
         </div>
@@ -361,6 +384,14 @@
       <div class="toast-close" onclick="closeToast()">✕</div>
   </div>
 
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">COGNITIVE TRAPDOOR DETECTED</div>
+      <h2 class="trapdoor-title" id="trapdoor-title">Streak Broken!</h2>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
   <!-- COMPLETION OVERLAY -->
   <div class="completion-overlay" id="completion-screen">
       <div class="completion-icon">🏆</div>
@@ -378,6 +409,9 @@
   let activeStepId = 'sprint';
   let xp = 0;
   const currentModuleId = 'RAT-03'; 
+
+  // Telemetry High-Resolution Timer
+  let questionStartTime = performance.now();
 
   // Gatekeeper Variables
   let gateLevel = 1; 
@@ -405,7 +439,15 @@
   let guidedLevel = 1;
   let gData = {};
 
-  // --- INITIALIZATION ---
+  // CPA Interactive Addition Tray State
+  let cpaState = {
+      mode: 'guided',
+      addedCount: 0,
+      targetAdd: 0,
+      unlockedAbstract: false
+  };
+
+  // --- INITIALIZATION & SUPERUSER INJECTION ---
   document.addEventListener('DOMContentLoaded', () => {
       let startBtn = document.getElementById('btn-start-sprint');
       let isSuperUser = false;
@@ -441,12 +483,23 @@
       }
   });
 
+  // --- DEV SECRET BYPASS (CLICK THE CLOCK ICON) ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      
+      let introZone = document.getElementById('zone-gate-intro');
+      if (introZone) introZone.classList.add('hidden');
+      unlockLesson();
+  }
+
   // --- FINAL BULLETPROOF SCROLL FIX ---
   function openKeypad(boxId, stepId) {
       if(appState === 'LOCKED') return;
 
       let targetBox = document.getElementById(boxId);
-      if (!targetBox) return;
+      if (!targetBox || targetBox.classList.contains('locked-box')) return;
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -463,9 +516,8 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
-          // Dynamically inject a massive bottom padding so we can always scroll anything to the middle
           container.style.paddingBottom = '50vh';
 
           setTimeout(() => {
@@ -492,20 +544,21 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px'; // Reset padding
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
+      if(char === ',' && box.innerText.includes(',')) return;
       if(box.innerText.length < 3) box.innerText += char;
   }
   
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -517,6 +570,7 @@
   }
 
   function flashError(box) {
+      if(!box) return;
       box.classList.add('flash-error');
       setTimeout(() => box.classList.remove('flash-error'), 400);
   }
@@ -531,16 +585,84 @@
       document.getElementById('toast').classList.remove('show');
   }
 
-  // --- VISUAL GENERATORS ---
-  function drawAdditionVisual(n1, n2, den) {
+  function triggerStreakBreak(title, msg, cognitiveTag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      closeKeypad();
+      
+      ['p-ans-n', 'p-ans-d'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- INTERACTIVE CPA ADDITION TRAY GENERATOR ---
+  function renderCPAAdditionTray(mode, n1, n2, den) {
+      let prefix = mode === 'guided' ? 'g' : 'p';
+      cpaState = {
+          mode: mode,
+          addedCount: 0,
+          targetAdd: n2,
+          unlockedAbstract: false
+      };
+
       let html = `<div class="frac-bar">`;
       for (let i = 0; i < den; i++) {
-          if (i < n1) html += `<div class="frac-piece fill-indigo"></div>`;
-          else if (i < n1 + n2) html += `<div class="frac-piece fill-rose"></div>`;
-          else html += `<div class="frac-piece fill-empty"></div>`;
+          if (i < n1) {
+              html += `<div class="frac-piece fill-indigo"></div>`;
+          } else if (i < n1 + n2) {
+              html += `<div class="frac-piece tappable-empty" id="${prefix}-add-${i}" onclick="handleAddPieceTap('${prefix}', ${i}, ${n1 + n2}, ${den})">+</div>`;
+          } else {
+              html += `<div class="frac-piece fill-empty"></div>`;
+          }
       }
       html += `</div>`;
+      html += `<div class="cpa-status-pill" id="${prefix}-cpa-status">Step 1: Tap the ${n2} (+) slot${n2 > 1 ? 's' : ''} to add ${n2}/${den} into the tray (0/${n2})</div>`;
       return html;
+  }
+
+  function handleAddPieceTap(prefix, idx, totalShaded, den) {
+      if (appState === 'LOCKED' || cpaState.unlockedAbstract) return;
+      let piece = document.getElementById(`${prefix}-add-${idx}`);
+      if (!piece || piece.classList.contains('fill-rose')) return;
+
+      cpaState.addedCount++;
+      piece.classList.remove('tappable-empty');
+      piece.classList.add('fill-rose');
+      piece.innerText = '';
+
+      let status = document.getElementById(`${prefix}-cpa-status`);
+      if (cpaState.addedCount >= cpaState.targetAdd) {
+          cpaState.unlockedAbstract = true;
+          status.classList.add('ready');
+          status.innerText = `✓ Combined into ${totalShaded}/${den} in the tray! Now type the answer.`;
+
+          if (cpaState.mode === 'guided') {
+              document.getElementById('g-sum-n').classList.remove('locked-box');
+              document.getElementById('g-sum-d').classList.remove('locked-box');
+              openKeypad('g-sum-n', 'g-step-1');
+          } else {
+              document.getElementById('p-ans-n').classList.remove('locked-box');
+              document.getElementById('p-ans-d').classList.remove('locked-box');
+              openKeypad('p-ans-n', 'practice');
+          }
+      } else {
+          status.innerText = `Pieces added: ${cpaState.addedCount}/${cpaState.targetAdd} — keep tapping (+) slots!`;
+      }
   }
   
   function drawSimplifiedVisual(n, den) {
@@ -619,6 +741,7 @@
   }
 
   function loadSprintQuestion() {
+    questionStartTime = performance.now();
     currentSprintQ = generateGateQuestion(gateLevel);
     document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
     document.getElementById('sprint-ans').innerText = '';
@@ -648,11 +771,14 @@
   }
 
   function evaluateSprint() {
-    closeKeypad(); // Sync Transition
+    closeKeypad(); 
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    let durationSeconds = 60 - Math.max(0, timeLeft);
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), null, durationSeconds);
+
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Awesome speed.`);
         gateLevel++;
@@ -660,6 +786,7 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = gateLevel;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
@@ -671,14 +798,24 @@
         let saved = localStorage.getItem('harvest_maths_profile');
         if(saved) {
             let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
             p.gateLevels[currentModuleId] = 1;
             localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
         }
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Gatekeeper_Miss", durationSeconds);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
               let p = JSON.parse(saved);
               if(!p.remediation) p.remediation = {};
@@ -690,7 +827,7 @@
           document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
           document.getElementById('btn-start-sprint').onclick = startRemediation;
       } else {
-          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practicing!`);
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising!`);
           resetSprintUI();
       }
     }
@@ -724,7 +861,7 @@
       let saved = localStorage.getItem('harvest_maths_profile');
       if(saved) {
           let p = JSON.parse(saved);
-          let queue = p.remediation[currentModuleId] || [];
+          let queue = (p.remediation && p.remediation[currentModuleId]) ? p.remediation[currentModuleId] : [];
           if(queue.length === 0) {
               endRemediation();
               return;
@@ -807,7 +944,7 @@
     document.getElementById('mastery-text').innerText = "0/5";
     document.getElementById('zone-gate-active').classList.add('hidden');
     document.getElementById('zone-gate-intro').classList.add('hidden');
-    closeKeypad(); // Sync Transition
+    closeKeypad(); 
     document.getElementById('zone-learn').classList.remove('hidden');
   }
 
@@ -835,16 +972,17 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Add the Numerators (Tops) and keep the Denominator exactly the same.</div>
+          <div class="step-text">1. Tap the (+) slots in the tray first! Then add the Numerators (Tops) and keep the Denominator the same.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
-          <div class="step-text">2. Finally, simplify your answer to its lowest terms.</div>
+          <div class="step-text">2. Simplify your Final Answer to its lowest terms.</div>
         </div>
       `;
-      openKeypad('g-sum-n', 'g-step-1');
+      closeKeypad();
   }
 
   function loadGuidedQuestion() {
+      questionStartTime = performance.now();
       if (guidedLevel === 1) {
           gData = { 
               q: `
@@ -875,12 +1013,11 @@
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
       
-      // HORIZONTAL WORKFLOW INJECTION
       document.getElementById('g-q-container').innerHTML = gData.q + `
           <div class="operator">=</div>
           <div class="fraction">
-            <div class="frac-num"><div class="input-box" id="g-sum-n" onclick="openKeypad('g-sum-n', 'g-step-1')"></div></div>
-            <div class="frac-den"><div class="input-box" id="g-sum-d" onclick="openKeypad('g-sum-d', 'g-step-1')"></div></div>
+            <div class="frac-num"><div class="input-box locked-box" id="g-sum-n" onclick="openKeypad('g-sum-n', 'g-step-1')"></div></div>
+            <div class="frac-den"><div class="input-box locked-box" id="g-sum-d" onclick="openKeypad('g-sum-d', 'g-step-1')"></div></div>
           </div>
           <div id="g-simp-area" style="display:none; align-items:center;">
               <div class="operator" style="margin: 0 10px;">➔</div>
@@ -891,7 +1028,7 @@
           </div>
       `;
       
-      document.getElementById('g-bar-container').innerHTML = drawAdditionVisual(gData.n1, gData.n2, gData.den);
+      document.getElementById('g-bar-container').innerHTML = renderCPAAdditionTray('guided', gData.n1, gData.n2, gData.den);
       
       buildGuidedSteps();
   }
@@ -908,7 +1045,13 @@
   }
 
   function checkGuidedAnswer() {
+      if (!cpaState.unlockedAbstract) {
+          showError("Tap the (+) slots in the tray first!");
+          return;
+      }
+
       let box = document.getElementById(activeBoxId);
+      if (!box) return;
       let val = box.innerText;
       if (val === '') return;
 
@@ -933,7 +1076,6 @@
                   xp += 5;
                   document.getElementById('xp-counter').innerText = xp;
                   
-                  // Show the simplified input boxes seamlessly inline
                   document.getElementById('g-simp-area').style.display = 'flex';
                   
                   advanceGuidedStep('g-step-1', 'g-step-2', 'g-simp-n');
@@ -963,14 +1105,13 @@
                   box.classList.add('flash-success');
                   box.classList.remove('active');
                   document.getElementById('g-step-2').classList.add('completed');
-                  closeKeypad(); // Sync Transition
+                  closeKeypad(); 
                   
                   activeBoxId = null;
                   xp += 10;
                   document.getElementById('xp-counter').innerText = xp;
                   
-                  // Show the simplified visual
-                  document.getElementById('g-bar-container').innerHTML += `<div style="margin:10px 0; color:var(--slate-400); text-align:center; font-size:1.5rem;">⬇</div>` + drawSimplifiedVisual(parseInt(gData.simpN), parseInt(gData.simpD));
+                  document.getElementById('g-bar-container').innerHTML += `<div style="margin:6px 0; color:var(--slate-400); text-align:center; font-size:1.3rem;">⬇</div>` + drawSimplifiedVisual(parseInt(gData.simpN), parseInt(gData.simpD));
                   
                   setTimeout(() => {
                       if (guidedLevel === 1) {
@@ -980,7 +1121,7 @@
                       } else {
                           startPractice(); 
                       }
-                  }, 2000);
+                  }, 1500);
               } else {
                   showError(gData.err2);
                   flashError(box);
@@ -1009,10 +1150,8 @@
   function generatePracticeQuestion() {
     let d, n1, n2, finalN, simpScale, ansN, ansD;
     
-    // PEDAGOGICAL FILTER: Because finalN is mathematically constrained to be strictly 
-    // less than d (via n1 + n2 <= d - 1), improper fractions and whole numbers are naturally impossible.
     do {
-        d = Math.floor(Math.random() * 8) + 3; // denom 3 to 10
+        d = Math.floor(Math.random() * 8) + 4; // denom 4 to 11
         n1 = Math.floor(Math.random() * (d - 2)) + 1;
         n2 = Math.floor(Math.random() * (d - 1 - n1)) + 1;
         finalN = n1 + n2;
@@ -1029,26 +1168,33 @@
     
     return { 
         qHtml: qStr, 
+        n1: n1,
+        n2: n2,
+        d: d,
         ansN: ansN.toString(),
         ansD: ansD.toString(),
         rawN: finalN.toString(),
-        rawD: d.toString()
+        rawD: d.toString(),
+        addedDenomStr: (d + d).toString()
     };
   }
 
   function loadPracticeQuestion() {
-    document.getElementById('p-ans-n').innerText = '';
-    document.getElementById('p-ans-n').classList.remove('flash-success', 'flash-error');
-    document.getElementById('p-ans-d').innerText = '';
-    document.getElementById('p-ans-d').classList.remove('flash-success', 'flash-error');
+    questionStartTime = performance.now();
+    ['p-ans-n', 'p-ans-d'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) {
+            el.innerText = '';
+            el.classList.remove('flash-success', 'flash-error', 'active');
+            el.classList.add('locked-box');
+        }
+    });
     
-    // 1. Strict State-Sync Verification
     currentQ = generatePracticeQuestion();
-    
-    // 2. Render HTML
     document.getElementById('p-q-display').innerHTML = currentQ.qHtml;
+    document.getElementById('p-bar-container').innerHTML = renderCPAAdditionTray('practice', currentQ.n1, currentQ.n2, currentQ.d);
     
-    openKeypad('p-ans-n', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1058,7 +1204,13 @@
   }
 
   function checkPracticeAnswer() {
+    if (!cpaState.unlockedAbstract) {
+        showError("Tap the (+) slots in the tray first!");
+        return;
+    }
+
     let box = document.getElementById(activeBoxId);
+    if (!box) return;
     let val = box.innerText;
     if (val === '') return;
 
@@ -1072,4 +1224,130 @@
     let valN = document.getElementById('p-ans-n').innerText;
     let valD = document.getElementById('p-ans-d').innerText;
     
-    // --- TRAP
+    if (valN === '' || valD === '') {
+        showError("Show your work! You must fill in both numbers.");
+        let emptyBox = (valN === '') ? 'p-ans-n' : 'p-ans-d';
+        openKeypad(emptyBox, 'practice');
+        return; 
+    }
+
+    let isCorrect = (valN === currentQ.ansN && valD === currentQ.ansD);
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+
+    if(isCorrect) {
+        document.getElementById('p-ans-d').classList.add('flash-success');
+        closeKeypad(); 
+        
+        masteryPoints++;
+        streak++;
+        xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
+        updateProgressBar();
+        logTelemetryEvent("Practice Question Correct", 100, "None", durationSeconds);
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+    } else {
+        let userVal = parseFloat(valN) / parseFloat(valD);
+        let rawVal = parseFloat(currentQ.rawN) / parseFloat(currentQ.rawD);
+        
+        if (valD === currentQ.addedDenomStr || (valD !== currentQ.ansD && valD !== currentQ.rawD && parseInt(valD) === currentQ.d * 2)) {
+            triggerStreakBreak(
+                "ADDED DENOMINATORS TRAP!",
+                `You added the bottom numbers together (${currentQ.d} + ${currentQ.d} = ${currentQ.addedDenomStr})!\n\nAdding pieces into the same tray NEVER changes the size of the tray. Keep the denominator ${currentQ.rawD}, then simplify ${currentQ.rawN}/${currentQ.rawD}.\n\nCorrect Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Added_Denominators"
+            );
+        } else if (!isNaN(userVal) && Math.abs(userVal - rawVal) < 0.0001 && valN !== currentQ.ansN) {
+            triggerStreakBreak(
+                "UNSIMPLIFIED FRACTION TRAP!",
+                `Your addition (${currentQ.rawN}/${currentQ.rawD}) is correct, but you stopped before simplifying!\n\nDivide both ${currentQ.rawN} and ${currentQ.rawD} by their highest common factor to reach lowest terms.\n\nCorrect Final Answer: ${currentQ.ansN}/${currentQ.ansD}`,
+                "Unsimplified_Answer"
+            );
+        } else {
+            triggerStreakBreak(
+                "FRACTION ADDITION ERROR!",
+                `1. Add the numerators: ${currentQ.n1} + ${currentQ.n2} = ${currentQ.rawN}.\n2. Keep the denominator: ${currentQ.rawD}.\n3. Simplify ${currentQ.rawN}/${currentQ.rawD} to get ${currentQ.ansN}/${currentQ.ansD}.`,
+                "General_Addition_Error"
+            );
+        }
+    }
+  }
+
+  // --- 🔌 DASHBOARD SYNC PATCH & V2 TELEMETRY ---
+  const curriculumOrder = [
+      'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+      'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+      'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05'
+  ];
+
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let calcDuration = durationSec !== null
+        ? durationSec
+        : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,         
+      durationSeconds: calcDuration,
+      timestamp: new Date().toISOString() 
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
+
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
+      
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+    }
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "None", durationSeconds);
+
+    closeKeypad();
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  }
+
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN LOCALIZATION) ---
+  document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter') dismissTrapdoor();
+      return;
+    }
+    if(appState === 'LOCKED') return; 
+    
+    if (event.key >= '0' && event.key <= '9') {
+      typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      typeNum(',');
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
+</body>
+</html>

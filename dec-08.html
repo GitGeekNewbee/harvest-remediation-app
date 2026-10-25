@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { display: none !important; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -69,11 +70,20 @@
     .input-box { width: 55px; height: 45px; font-size: 1.6rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 110px; }
     .input-box.x-wide { width: 140px; }
+    .input-box.locked-box { background: var(--slate-100); border-style: dashed; color: var(--slate-400); cursor: not-allowed; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
 
+    /* CPA DUAL SCALE TAPPER */
+    .cpa-prompt { font-size: 0.85rem; font-weight: 700; color: var(--indigo); margin-bottom: 8px; text-align: center; background: var(--indigo-light); padding: 8px 12px; border-radius: 6px; width: 100%; box-sizing: border-box; }
+    .cpa-prompt.done { background: var(--emerald-light); color: var(--emerald); }
+    .cpa-scale-btn { display: inline-flex; align-items: center; gap: 4px; padding: 6px 12px; border-radius: 6px; border: 2px dashed var(--amber); background: var(--amber-light); color: var(--amber); font-size: 0.95rem; font-weight: 800; cursor: pointer; transition: 0.15s; animation: pulse 1.2s infinite; }
+    .cpa-scale-btn.tapped { border: 2px solid var(--emerald); background: var(--emerald-light); color: var(--emerald); animation: none; cursor: default; }
+
     @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
     /* 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
     .keypad-drawer { 
@@ -247,6 +257,7 @@
     </div>
     
     <div class="pinned-visual">
+        <div id="g-cpa-prompt" class="cpa-prompt">👇 Tap BOTH scale buttons below to multiply both numbers equally:</div>
         <div class="math-row" style="margin-bottom:5px;" id="g-q-container">
             <!-- Injected by JS -->
         </div>
@@ -256,16 +267,16 @@
         </div>
         
         <div class="math-row" style="margin-top:5px; margin-bottom:15px; gap: 15px;">
-           <div class="input-box wide" id="g-shift-a" onclick="openKeypad('g-shift-a', 'g-step-1')"></div>
+           <div class="input-box wide locked-box" id="g-shift-a" onclick="openKeypad('g-shift-a', 'g-step-1')"></div>
            <div class="operator">÷</div>
-           <div class="input-box wide" id="g-shift-b" onclick="openKeypad('g-shift-b', 'g-step-1')"></div>
+           <div class="input-box wide locked-box" id="g-shift-b" onclick="openKeypad('g-shift-b', 'g-step-1')"></div>
         </div>
         
         <div id="g-ans-area" style="display:none; flex-direction:column; align-items:center; width:100%; justify-content:center; border-top: 2px dashed var(--slate-200); padding-top: 15px;">
             <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:5px;">Final Answer</span>
             <div style="display:flex; align-items:center;">
                 <div class="operator" style="margin-right:15px;">=</div>
-                <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
+                <div class="input-box x-wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-ans" onclick="openKeypad('g-ans', 'g-step-2')"></div>
             </div>
         </div>
     </div>
@@ -276,28 +287,31 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
       <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Shift BOTH numbers equally before writing your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
-        <div class="math-row" style="margin-bottom:15px;" id="p-q-display">
+        <div id="p-cpa-prompt" class="cpa-prompt">👇 Tap BOTH scale buttons below to multiply both numbers equally:</div>
+        <div class="math-row" style="margin-bottom:5px;" id="p-q-display">
             <!-- Injected by JS -->
         </div>
         
-        <div style="color:var(--slate-300); font-size:1.5rem; font-weight:800; margin-bottom:15px;">⬇</div>
+        <div class="shift-row" id="p-arrow-container" style="margin-bottom:10px;">
+            <!-- Injected by JS -->
+        </div>
         
         <div class="math-row" style="gap:15px; margin-bottom:15px;">
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--indigo); font-weight:800; margin-bottom:5px;">SHIFTED DIVIDEND</span>
-               <div class="input-box wide active" id="p-shift-a" onclick="openKeypad('p-shift-a', 'practice')"></div>
+               <div class="input-box wide locked-box" id="p-shift-a" onclick="openKeypad('p-shift-a', 'practice')"></div>
            </div>
            
            <div class="operator" style="margin-top:15px;">÷</div>
            
            <div style="display:flex; flex-direction:column; align-items:center;">
                <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; margin-bottom:5px;">WHOLE DIVISOR</span>
-               <div class="input-box wide" id="p-shift-b" onclick="openKeypad('p-shift-b', 'practice')"></div>
+               <div class="input-box wide locked-box" id="p-shift-b" onclick="openKeypad('p-shift-b', 'practice')"></div>
            </div>
         </div>
         
@@ -305,7 +319,7 @@
             <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:5px;">Final Answer</span>
             <div style="display:flex; align-items:center;">
                 <div class="operator" style="margin-right:15px;">=</div>
-                <div class="input-box x-wide" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
+                <div class="input-box x-wide locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-ans" onclick="openKeypad('p-ans', 'practice')"></div>
             </div>
         </div>
     </div>
@@ -343,7 +357,7 @@
   <!-- V2 RED-SCREEN TRAPDOOR OVERLAY -->
   <div class="trapdoor-overlay" id="trapdoor-screen">
       <div class="trapdoor-card">
-          <div class="trapdoor-badge">Primary-School Trapdoor Triggered</div>
+          <div class="trapdoor-badge" id="trapdoor-tag">Primary-School Trapdoor Triggered</div>
           <h3 class="trapdoor-title" id="trapdoor-title">Streak Reset to 0/5</h3>
           <div class="trapdoor-msg" id="trapdoor-msg">Trapdoor diagnostic message.</div>
           <button class="btn btn-primary" style="background:var(--rose); margin-top:0;" onclick="dismissTrapdoor()">I Understand — Try Again</button>
@@ -394,6 +408,64 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { tappedA: false, tappedB: false, done: false, mode: 'guided', mult: '10' };
+
+  function initCPAScaleButtons(mult, mode) {
+      cpaState = { tappedA: false, tappedB: false, done: false, mode: mode, mult: mult };
+      let arrowId = mode === 'guided' ? 'g-arrow-container' : 'p-arrow-container';
+      let promptId = mode === 'guided' ? 'g-cpa-prompt' : 'p-cpa-prompt';
+      let prefix = mode === 'guided' ? 'g' : 'p';
+      let promptEl = document.getElementById(promptId);
+      if (promptEl) {
+          promptEl.classList.remove('done');
+          promptEl.innerText = `👇 Tap BOTH (× ${mult}) buttons to shift both decimals equally (0/2):`;
+      }
+      let arrowEl = document.getElementById(arrowId);
+      if (arrowEl) {
+          arrowEl.innerHTML = `
+              <div class="cpa-scale-btn" id="${prefix}-scale-a" onclick="handleCPAScaleTap('A')">↓ × ${mult}</div>
+              <div class="cpa-scale-btn" id="${prefix}-scale-b" onclick="handleCPAScaleTap('B')">↓ × ${mult}</div>
+          `;
+      }
+  }
+
+  function handleCPAScaleTap(which) {
+      if (cpaState.done) return;
+      let prefix = cpaState.mode === 'guided' ? 'g' : 'p';
+      if (which === 'A' && !cpaState.tappedA) {
+          cpaState.tappedA = true;
+          let btn = document.getElementById(`${prefix}-scale-a`);
+          if (btn) btn.classList.add('tapped');
+      } else if (which === 'B' && !cpaState.tappedB) {
+          cpaState.tappedB = true;
+          let btn = document.getElementById(`${prefix}-scale-b`);
+          if (btn) btn.classList.add('tapped');
+      }
+      let count = (cpaState.tappedA ? 1 : 0) + (cpaState.tappedB ? 1 : 0);
+      let promptEl = document.getElementById(`${prefix}-cpa-prompt`);
+      if (count >= 2) {
+          cpaState.done = true;
+          if (promptEl) {
+              promptEl.classList.add('done');
+              promptEl.innerText = `✅ Both numbers scaled by × ${cpaState.mult}! Now fill in the shifted equation below.`;
+          }
+          if (cpaState.mode === 'guided') {
+              ['g-shift-a', 'g-shift-b', 'g-ans'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-shift-a', 'g-step-1');
+          } else {
+              ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('p-shift-a', 'practice');
+          }
+      } else if (promptEl) {
+          promptEl.innerText = `👇 Tap BOTH (× ${cpaState.mult}) buttons to shift both decimals equally (${count}/2):`;
+      }
+  }
 
   // --- GOD-MODE BYPASS ---
   function enableSuperUser() {
@@ -445,6 +517,10 @@
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Tap BOTH scale buttons above to balance the shift first!");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -460,7 +536,7 @@
       let keypad = document.getElementById('keypad');
       keypad.classList.add('open');
       
-      let container = document.querySelector('.content-area');
+      let container = document.querySelector('.content-area:not(.hidden)');
       if (container) {
           container.style.paddingBottom = '50vh';
 
@@ -488,13 +564,13 @@
   function closeKeypad() {
       document.getElementById('keypad').classList.remove('open');
       document.body.classList.remove('focus-active'); 
-      let container = document.querySelector('.content-area');
-      if (container) container.style.paddingBottom = '60px';
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
   }
 
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
@@ -503,7 +579,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -541,6 +617,8 @@
       });
       
       closeKeypad();
+      let tagEl = document.getElementById('trapdoor-tag');
+      if (tagEl && tag) tagEl.innerText = "TRAPDOOR: " + tag.replace(/_/g, ' ');
       document.getElementById('trapdoor-msg').innerText = msg;
       document.getElementById('trapdoor-screen').classList.add('show');
       logTelemetryEvent("Trapdoor Triggered", 0, tag, durationSec);
@@ -548,12 +626,7 @@
 
   function dismissTrapdoor() {
       document.getElementById('trapdoor-screen').classList.remove('show');
-      ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
-          let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-error'); }
-      });
-      questionStartTime = performance.now();
-      openKeypad('p-shift-a', 'practice');
+      loadPracticeQuestion();
   }
 
   // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
@@ -656,6 +729,7 @@
     let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Sprint_Pass", 60);
       sessionMissed = []; 
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
@@ -682,6 +756,16 @@
         unlockLesson();
       }
     } else {
+      let savedProf = localStorage.getItem('harvest_maths_profile');
+      if(savedProf) {
+        let profile = JSON.parse(savedProf);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        if(!profile.failedAttempts[currentModuleId]) profile.failedAttempts[currentModuleId] = 0;
+        profile.failedAttempts[currentModuleId]++;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Sprint_Fail", 60);
+
       if(sessionMissed.length > 0) {
           let saved = localStorage.getItem('harvest_maths_profile');
           if(saved) {
@@ -840,13 +924,12 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. What does the divisor need to become a whole number? Shift BOTH numbers by the exact same amount.</div>
+          <div class="step-text">1. Tap BOTH scale buttons below, then shift BOTH numbers by the exact same amount.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Now the equation is balanced. Divide to find the Final Answer.</div>
         </div>
       `;
-      openKeypad('g-shift-a', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
@@ -874,19 +957,16 @@
           <div style="color:var(--rose);">${gData.b}</div>
       `;
       
-      document.getElementById('g-arrow-container').innerHTML = `
-          <div class="shift-arrow">↓ <span>× ${gData.mult}</span></div>
-          <div class="shift-arrow" style="margin-left: 20px;">↓ <span>× ${gData.mult}</span></div>
-      `;
-      
       ['g-shift-a', 'g-shift-b', 'g-ans'].forEach(id => {
           let el = document.getElementById(id);
-          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
       });
       document.getElementById('g-ans-area').style.display = 'none';
 
       buildGuidedSteps();
+      initCPAScaleButtons(gData.mult, 'guided');
       questionStartTime = performance.now();
+      closeKeypad();
   }
 
   function checkGuidedAnswer() {
@@ -1003,7 +1083,7 @@
     
     ['p-shift-a', 'p-shift-b', 'p-ans'].forEach(id => {
         let el = document.getElementById(id);
-        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error'); }
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
     });
 
     document.getElementById('p-q-display').innerHTML = `
@@ -1012,8 +1092,9 @@
         <div style="color:var(--rose);">${currentQ.b_sa}</div>
     `;
     
+    initCPAScaleButtons(currentQ.mult.toString(), 'practice');
     questionStartTime = performance.now();
-    openKeypad('p-shift-a', 'practice');
+    closeKeypad();
   }
 
   function updateProgressBar() {
@@ -1137,30 +1218,15 @@
     document.getElementById('completion-screen').classList.add('show');
   }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Fluency_Sprint_Fail", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Fluency_Sprint_Pass", 60);
-    }
-  };
-
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SA COMMA NATIVE) ---
   document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
     if(appState === 'LOCKED') return; 
     
     if (event.key >= '0' && event.key <= '9') {

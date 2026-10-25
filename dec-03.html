@@ -38,6 +38,7 @@
     body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
     body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
     body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; padding: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; border: none; }
     body.focus-active .content-area { padding-top: 10px; }
     
     /* TYPOGRAPHY */
@@ -56,13 +57,19 @@
     .operator { font-size: 2.2rem; color: var(--slate-400); margin: 0 5px; }
 
     /* DEC-03: VERTICAL ALIGNMENT GRID */
-    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 20px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; position: relative;}
-    .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); } /* SA Comma Baseline Fix */
+    .vert-grid { display: grid; grid-template-columns: 30px 35px 35px 28px 35px 35px; row-gap: 8px; align-items: center; justify-items: center; font-size: 2.4rem; font-weight: 700; color: var(--slate-900); width: fit-content; margin: 0 auto; position: relative;}
+    .vert-grid .comma { color: var(--rose); font-weight: 900; transform: translateY(2px); }
+    .vert-grid .comma-btn { cursor: pointer; background: var(--amber-light); border: 2px dashed var(--amber); border-radius: 6px; padding: 0 5px; color: var(--amber); transition: all 0.2s; }
+    .vert-grid .comma-btn:active { transform: scale(0.92); }
+    .vert-grid .comma-btn.aligned { background: var(--emerald-light); border: 2px solid var(--emerald); color: var(--emerald); cursor: default; }
     .vert-grid .op { color: var(--slate-400); }
     .vert-grid .line { grid-column: 1 / -1; width: 100%; height: 4px; background: var(--slate-900); border-radius: 2px; margin: 5px 0; }
     .vert-grid .ans-row { grid-column: 1 / -1; display: flex; justify-content: flex-end; align-items: center; gap: 10px; width: 100%; padding-top: 5px; padding-right: 5px; }
     
     .pad-hint { border: 2px dashed var(--slate-300); color: var(--slate-300); width: 35px; height: 45px; display:flex; align-items:center; justify-content:center; border-radius: 6px; }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; color: var(--amber); background: var(--amber-light); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--amber); margin-bottom: 12px; transition: 0.3s; text-align: center; }
+    .cpa-status-pill.done { color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
 
     /* FADING STEP ARCHITECTURE (DOM REVERSED) */
     .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 15px; margin-bottom: 12px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
@@ -73,6 +80,7 @@
     /* INPUT BOXES */
     .input-box { width: 35px; height: 45px; font-size: 1.8rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: 6px; background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
     .input-box.wide { width: 120px; }
+    .input-box.locked-box { background: var(--slate-100); border-color: var(--slate-200); color: var(--slate-400); cursor: not-allowed; pointer-events: none; opacity: 0.6; }
     .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
     .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
     .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
@@ -119,12 +127,11 @@
     .toast-icon { font-size: 1.2rem; }
     .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
 
-    /* RED-SCREEN PRIMARY-SCHOOL TRAPDOOR EXPLANATION */
     .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
     .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
     .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
     .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
-    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; white-space: pre-line; }
     .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
 
     .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
@@ -149,7 +156,7 @@
   <!-- ZONE 0: GATEKEEPER INTRO -->
   <div class="content-area" id="zone-gate-intro">
     <div style="text-align:center; padding: 20px 0;">
-      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="Secret Bypass">⏱️</div>
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="SuperUser Bypass">⏱️</div>
       <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
       <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">To add decimals accurately, your mental addition facts must be fast and reliable.</p>
     </div>
@@ -257,6 +264,7 @@
     </div>
     
     <div class="pinned-visual">
+        <div class="cpa-status-pill" id="g-cpa-status">Tap the decimal commas (,) to lock vertical alignment</div>
         <div id="g-grid-container" style="width:100%;">
             <!-- Vertical Grid Injected by JS -->
         </div>
@@ -268,11 +276,12 @@
     <div class="section-title">Strict Practice</div>
     
     <!-- DOM REVERSAL: Warning at the Top -->
-    <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
-      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Pad the empty space with a zero FIRST, then write your Final Answer.</p>
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:20px;">
+      <p style="margin:0; font-size:0.9rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Tap the decimal commas (,) to lock alignment first, pad with zero, then write your Final Answer.</p>
     </div>
 
     <div class="pinned-visual">
+        <div class="cpa-status-pill" id="p-cpa-status">Tap the decimal commas (,) to lock vertical alignment</div>
         <div id="p-grid-container" style="width:100%;">
             <!-- Vertical Grid Injected by JS -->
         </div>
@@ -362,12 +371,14 @@
   // Guided Practice Variables
   let guidedLevel = 1;
   let gData = {};
+  let cpaState = { aligned: false };
 
   // --- GOD-MODE SUPERUSER BYPASS ---
   function enableSuperUser() {
       let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
       p.studentId = "SuperUser";
       localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      if (sprintTimer) clearInterval(sprintTimer);
       document.getElementById('zone-gate-intro').classList.add('hidden');
       unlockLesson();
   }
@@ -384,7 +395,7 @@
               if(p.gateLevels && p.gateLevels[currentModuleId]) {
                   gateLevel = p.gateLevels[currentModuleId];
               }
-              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
+              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
                   isSuperUser = true;
               }
               if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
@@ -418,12 +429,12 @@
       };
   }
 
-  function buildGridHtml(numTop, numBot, ansId, padId, isActivePad, appStateContext) {
+  function buildGridHtml(numTop, numBot, ansId, padId, appStateContext) {
       let top = parseNum(numTop);
       let bot = parseNum(numBot);
       
       let stepStr = appStateContext === 'GUIDED' ? 'g-step-1' : 'practice';
-      let padHtml = `<div class="input-box ${isActivePad ? 'active' : ''}" style="border-color:var(--emerald); color:var(--emerald);" id="${padId}" onclick="openKeypad('${padId}', '${stepStr}')"></div>`;
+      let padHtml = `<div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="${padId}" onclick="openKeypad('${padId}', '${stepStr}')"></div>`;
       
       let t_d2 = top.d2 === "" ? padHtml : `<div>${top.d2}</div>`;
       let b_d2 = bot.d2 === "" ? padHtml : `<div>${bot.d2}</div>`;
@@ -432,11 +443,11 @@
       <div class="vert-grid">
          <!-- Row 1 -->
          <div></div>
-         <div>${top.t}</div><div>${top.o}</div><div class="comma">,</div><div>${top.d1}</div>${t_d2}
+         <div>${top.t}</div><div>${top.o}</div><div class="comma comma-btn" onclick="handleCommaAlignTap('${appStateContext}')">,</div><div>${top.d1}</div>${t_d2}
          
          <!-- Row 2 -->
          <div class="op">+</div>
-         <div>${bot.t}</div><div>${bot.o}</div><div class="comma">,</div><div>${bot.d1}</div>${b_d2}
+         <div>${bot.t}</div><div>${bot.o}</div><div class="comma comma-btn" onclick="handleCommaAlignTap('${appStateContext}')">,</div><div>${bot.d1}</div>${b_d2}
          
          <!-- Line -->
          <div class="line"></div>
@@ -444,10 +455,41 @@
          <!-- Final Answer -->
          <div class="ans-row">
              <span style="font-size:0.75rem; color:var(--emerald); font-weight:800; text-transform:uppercase;">Final Answer:</span>
-             <div class="input-box wide" id="${ansId}" onclick="openKeypad('${ansId}', '${appStateContext === 'GUIDED' ? 'g-step-2' : 'practice'}')" style="width: 140px;"></div>
+             <div class="input-box wide locked-box" id="${ansId}" onclick="openKeypad('${ansId}', '${appStateContext === 'GUIDED' ? 'g-step-2' : 'practice'}')" style="width: 140px;"></div>
          </div>
       </div>
       `;
+  }
+
+  function handleCommaAlignTap(mode) {
+      if (cpaState.aligned) return;
+      cpaState.aligned = true;
+
+      let containerId = mode === 'GUIDED' ? 'g-grid-container' : 'p-grid-container';
+      let container = document.getElementById(containerId);
+      if (container) {
+          container.querySelectorAll('.comma-btn').forEach(btn => btn.classList.add('aligned'));
+      }
+
+      let statusEl = document.getElementById(mode === 'GUIDED' ? 'g-cpa-status' : 'p-cpa-status');
+      if (statusEl) {
+          statusEl.innerText = "Commas vertically locked — Now pad with 0 and add!";
+          statusEl.classList.add('done');
+      }
+
+      if (mode === 'GUIDED') {
+          ['g-pad', 'g-ans'].forEach(id => {
+              let el = document.getElementById(id);
+              if (el) el.classList.remove('locked-box');
+          });
+          openKeypad('g-pad', 'g-step-1');
+      } else {
+          ['p-pad', 'p-ans'].forEach(id => {
+              let el = document.getElementById(id);
+              if (el) el.classList.remove('locked-box');
+          });
+          openKeypad('p-pad', 'practice');
+      }
   }
 
   // --- FLEXBOX SCROLL ENGINE ---
@@ -456,6 +498,10 @@
 
       let targetBox = document.getElementById(boxId);
       if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Complete the visual step first! Tap the decimal commas (,) to lock vertical alignment.");
+          return;
+      }
 
       if(activeBoxId) {
           let oldBox = document.getElementById(activeBoxId);
@@ -505,7 +551,7 @@
   function typeNum(char) {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(!box) return;
+      if(!box || box.classList.contains('locked-box')) return;
       
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 6) box.innerText += char;
@@ -514,7 +560,7 @@
   function deleteNum() {
       if(appState === 'LOCKED' || !activeBoxId) return;
       let box = document.getElementById(activeBoxId);
-      if(box) box.innerText = box.innerText.slice(0, -1);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
   }
 
   function submitAnswer() {
@@ -571,6 +617,7 @@
     closeToast(); 
     appState = 'GATEKEEPER';
     sessionMissed = [];
+    questionStartTime = performance.now();
     
     document.getElementById('zone-gate-intro').classList.add('hidden');
     document.getElementById('zone-gate-active').classList.remove('hidden');
@@ -663,6 +710,7 @@
     
     if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
       sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
       if (gateLevel < 3) {
         showError(`Level ${gateLevel} Cleared! Great speed.`);
         gateLevel++;
@@ -688,10 +736,19 @@
         unlockLesson();
       }
     } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        profile.failedAttempts[currentModuleId] = (profile.failedAttempts[currentModuleId] || 0) + 1;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
       if(sessionMissed.length > 0) {
-          let saved = localStorage.getItem('harvest_maths_profile');
-          if(saved) {
-              let p = JSON.parse(saved);
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
               if(!p.remediation) p.remediation = {};
               p.remediation[currentModuleId] = sessionMissed;
               localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
@@ -846,17 +903,18 @@
       let container = document.getElementById('g-dynamic-steps');
       container.innerHTML = `
         <div class="step-container" id="g-step-1">
-          <div class="step-text">1. Pad the empty hundredths space with a zero (0) so both decimals have the same length.</div>
+          <div class="step-text">1. Tap the decimal commas (,) to lock vertical alignment. Then pad the empty hundredths space with 0.</div>
         </div>
         <div class="step-container locked" id="g-step-2">
           <div class="step-text">2. Add straight down and drop the decimal comma into your Final Answer.</div>
         </div>
       `;
-      openKeypad('g-pad', 'g-step-1');
   }
 
   function loadGuidedQuestion() {
+      closeKeypad();
       questionStartTime = performance.now();
+      cpaState = { aligned: false };
       if (guidedLevel === 1) {
           gData = { t: "12,4", b: "3,85", ans: "16,25" };
       } else {
@@ -864,7 +922,11 @@
       }
 
       document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
-      document.getElementById('g-grid-container').innerHTML = buildGridHtml(gData.t, gData.b, 'g-ans', 'g-pad', true, 'GUIDED');
+      let statusEl = document.getElementById('g-cpa-status');
+      statusEl.innerText = "Tap the decimal commas (,) to lock vertical alignment";
+      statusEl.classList.remove('done');
+
+      document.getElementById('g-grid-container').innerHTML = buildGridHtml(gData.t, gData.b, 'g-ans', 'g-pad', 'GUIDED');
 
       buildGuidedSteps();
   }
@@ -966,7 +1028,7 @@
     let botStr = botStrDot.replace('.', ',');
     let ansStr = sum.toFixed(2).replace('.', ',');
 
-    // Calculate Right-Justification Trap Answer (lining up by right-most digit)
+    // Calculate Right-Justification Trap Answer
     let tStr = topStrDot.replace('.', '');
     let bStr = botStrDot.replace('.', '');
     let trapSum = parseInt(tStr) + parseInt(bStr);
@@ -984,10 +1046,16 @@
   }
 
   function loadPracticeQuestion() {
+    closeKeypad();
     currentQ = generatePracticeQuestion();
     questionStartTime = performance.now();
-    document.getElementById('p-grid-container').innerHTML = buildGridHtml(currentQ.top, currentQ.bot, 'p-ans', 'p-pad', true, 'PRACTICE');
-    openKeypad('p-pad', 'practice');
+    cpaState = { aligned: false };
+
+    let statusEl = document.getElementById('p-cpa-status');
+    statusEl.innerText = "Tap the decimal commas (,) to lock vertical alignment";
+    statusEl.classList.remove('done');
+
+    document.getElementById('p-grid-container').innerHTML = buildGridHtml(currentQ.top, currentQ.bot, 'p-ans', 'p-pad', 'PRACTICE');
   }
 
   function updateProgressBar() {
@@ -1114,28 +1182,6 @@
     document.getElementById('completion-screen').classList.add('show');
   }
 
-  const originalEvaluateSprint = evaluateSprint;
-  evaluateSprint = function() {
-    originalEvaluateSprint(); 
-    
-    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
-    if(sprintAttempts < sprintTargetAttempts || accuracy < 90) {
-      let saved = localStorage.getItem('harvest_maths_profile');
-      if(saved) {
-        let profile = JSON.parse(saved);
-        if(!profile.failedAttempts) profile.failedAttempts = {};
-        if(!profile.failedAttempts[currentModuleId]) {
-          profile.failedAttempts[currentModuleId] = 0;
-        }
-        profile.failedAttempts[currentModuleId]++;
-        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
-      }
-      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
-    } else {
-      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
-    }
-  };
-
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
   document.addEventListener('keydown', function(event) {
     if (document.getElementById('trapdoor-screen').classList.contains('show')) {
@@ -1150,6 +1196,7 @@
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();
