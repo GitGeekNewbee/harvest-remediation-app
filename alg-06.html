@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harvest Concept Lab - ALG-06</title>
+  <style>
+    /* V2 MATURE COLOR PALETTE & TYPOGRAPHY */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+    
+    :root { 
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0; --slate-300: #cbd5e1;
+      --slate-400: #94a3b8; --slate-500: #64748b; --slate-700: #334155; --slate-900: #0f172a;
+      --indigo: #4f46e5; --indigo-light: #e0e7ff;
+      --emerald: #059669; --emerald-light: #d1fae5;
+      --rose: #e11d48; --rose-light: #ffe4e6;
+      --amber: #d97706; --amber-light: #fef3c7;
+      --radius: 8px;
+    }
+    
+    body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--slate-50); color: var(--slate-900); display: flex; justify-content: center; height: 100dvh; overflow: hidden; user-select: none; touch-action: manipulation; }
+    
+    /* THE APP CONTAINER */
+    .app-container { width: 100%; max-width: 500px; background: #ffffff; height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.05);}
+    
+    /* V2 MICRO-HUD */
+    .micro-hud { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #ffffff; border-bottom: 1px solid var(--slate-200); font-size: 0.8rem; font-weight: 700; color: var(--slate-500); letter-spacing: 0.5px; z-index: 50; transition: all 0.3s ease; transform-origin: top;}
+    .hud-center { flex-grow: 1; display: flex; align-items: center; margin: 0 15px; gap: 10px; }
+    .progress-track { flex-grow: 1; height: 6px; background: var(--slate-200); border-radius: 10px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--indigo); width: 0%; transition: width 0.4s ease; }
+    .stat-xp { color: var(--amber); }
+
+    /* SCROLL ENGINE: Shrinks naturally when keypad opens */
+    .content-area { flex-grow: 1; flex-shrink: 1; overflow-y: auto; padding: 20px 15px; display: flex; flex-direction: column; position: relative; scroll-behavior: smooth;}
+    .hidden { display: none !important; }
+
+    /* FOCUS MODE DYNAMICS */
+    body.focus-active .micro-hud { padding: 0 15px; height: 0; opacity: 0; border-bottom: none; pointer-events: none; overflow: hidden;}
+    body.focus-active .section-title { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .instruction-text { margin-bottom: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden;}
+    body.focus-active .focus-hide { margin: 0; padding: 0; height: 0; opacity: 0; pointer-events: none; overflow: hidden; border: none; }
+    body.focus-active .content-area { padding-top: 10px; }
+    
+    /* TYPOGRAPHY */
+    .section-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--indigo); font-weight: 800; margin-bottom: 15px; transition: all 0.3s ease; transform-origin: top;}
+    .instruction-text { font-size: 1.1rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 20px; font-weight: 600; transition: all 0.3s ease; transform-origin: top;}
+    .pinned-visual { background: #ffffff; border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; z-index: 10;}
+    
+    /* BUTTONS */
+    .btn { padding: 15px 30px; font-size: 1.1rem; font-weight: 700; border: none; border-radius: var(--radius); cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
+    .btn-primary { background: var(--indigo); color: white; }
+    .btn-primary:active { background: #4338ca; }
+    .btn-warning { background: var(--amber); color: white; }
+    .btn-secondary { background: var(--slate-100); color: var(--slate-700); border: 1px solid var(--slate-300); margin-top: 10px; font-size: 0.95rem; padding: 12px 20px; }
+
+    /* MATH FORMATTING */
+    .math-row { display: flex; align-items: center; justify-content: center; font-size: 1.85rem; font-weight: 700; gap: 8px; color: var(--slate-900); width: 100%; flex-wrap: wrap;}
+    .operator { font-size: 1.7rem; color: var(--slate-500); margin: 0 2px; font-weight: 800; }
+    .var-x { font-family: 'Georgia', serif; font-style: italic; font-weight: 800; color: var(--indigo); font-size: 2rem; }
+
+    /* ALG-06 SPECIFIC: WORD-TO-SYMBOL TRANSLATION BUILDER */
+    .sentence-banner { background: var(--slate-900); color: white; padding: 12px 14px; border-radius: var(--radius); font-size: 1.15rem; font-weight: 800; text-align: center; width: 100%; box-sizing: border-box; margin-bottom: 12px; line-height: 1.4; letter-spacing: 0.2px; }
+    .sentence-banner .hl-word { color: #fbbf24; text-decoration: underline; text-underline-offset: 3px; }
+    .sentence-banner .hl-var { color: #a5b4fc; font-family: 'Georgia', serif; font-style: italic; }
+
+    .translator-board { width: 100%; border: 2px dashed var(--amber); background: var(--amber-light); border-radius: var(--radius); padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; box-sizing: border-box; transition: 0.25s; }
+    .translator-board.translated { border-style: solid; border-color: var(--emerald); background: var(--emerald-light); }
+
+    .word-cards-row { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; justify-content: center; }
+    .word-card { flex: 1; min-width: 92px; background: #ffffff; border: 2px solid var(--indigo); border-radius: 8px; padding: 8px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: 0.18s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .word-card:active { transform: scale(0.96); }
+    .word-card.revealed { border-color: var(--emerald); background: #ffffff; cursor: default; }
+    .word-card-phrase { font-size: 0.8rem; font-weight: 700; color: var(--slate-700); margin-bottom: 4px; line-height: 1.25; }
+    .word-card-symbol { font-size: 0.85rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); padding: 3px 8px; border-radius: 12px; }
+    .word-card.revealed .word-card-symbol { color: #ffffff; background: var(--emerald); font-size: 0.95rem; }
+
+    .vocab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+    .vocab-pill { background: var(--slate-50); border: 2px solid var(--slate-200); border-radius: 6px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9rem; font-weight: 700; color: var(--slate-700); }
+    .vocab-sym { background: var(--indigo); color: white; font-weight: 800; padding: 2px 9px; border-radius: 6px; font-size: 1rem; }
+
+    .cpa-status-pill { font-size: 0.8rem; font-weight: 800; color: var(--amber); background: var(--amber-light); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--amber); margin-top: 8px; margin-bottom: 8px; transition: 0.3s; text-align: center; }
+    .cpa-status-pill.done { color: var(--emerald); background: var(--emerald-light); border-color: var(--emerald); }
+
+    /* FADING STEP ARCHITECTURE */
+    .step-container { display: flex; flex-direction: column; width: 100%; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius); padding: 12px 15px; margin-bottom: 10px; transition: opacity 0.4s, border-color 0.3s; box-sizing: border-box;}
+    .step-container.locked { opacity: 0.3; pointer-events: none; }
+    .step-container.completed { opacity: 0.6; border-color: var(--emerald); }
+    .step-text { font-size: 0.95rem; font-weight: 600; color: var(--slate-700); line-height: 1.4; }
+    
+    /* INPUT BOXES */
+    .input-box { width: 62px; height: 45px; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; border: 2px solid var(--slate-300); border-radius: var(--radius); background: #ffffff; color: var(--slate-900); font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); }
+    .input-box.wide { width: 85px; }
+    .input-box.locked-box { background: var(--slate-100); border-color: var(--slate-200); color: var(--slate-400); cursor: not-allowed; pointer-events: none; opacity: 0.6; }
+    .input-box.active { border-color: var(--indigo); box-shadow: 0 0 0 3px var(--indigo-light); color: var(--indigo); transform: translateY(-1px); }
+    .input-box.flash-success { background: var(--emerald-light); border-color: var(--emerald); color: var(--emerald); }
+    .input-box.flash-error { background: var(--rose-light); border-color: var(--rose); color: var(--rose); animation: shake 0.3s; }
+
+    @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    .timer-alert { color: var(--rose) !important; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* V2 12-COLUMN HYBRID KEYPAD (FLEXBOX FLOW) */
+    .keypad-drawer { 
+        width: 100%; 
+        background: var(--slate-100); 
+        max-height: 0; 
+        padding: 0 15px; 
+        opacity: 0;
+        overflow: hidden; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        display: flex; 
+        justify-content: center; 
+        flex-shrink: 0; 
+        box-sizing: border-box;
+    }
+    .keypad-drawer.open { 
+        max-height: 380px; 
+        padding: 15px 15px 25px 15px; 
+        opacity: 1;
+        border-top: 1px solid var(--slate-300); 
+        box-shadow: 0 -4px 15px rgba(0,0,0,0.05);
+    }
+    .keypad-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; width: 100%; max-width: 400px; }
+    
+    .key-btn { grid-column: span 4; background: #ffffff; border: 1px solid var(--slate-300); border-radius: 8px; height: 52px; font-size: 1.5rem; font-weight: 600; color: var(--slate-900); display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.1s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+    .key-btn:active { background: var(--slate-200); transform: scale(0.95); }
+    .key-bottom { grid-column: span 3; }
+    
+    .key-action { background: var(--slate-300); font-size: 1.2rem;}
+    .key-dec { font-size: 2rem; font-weight: 800; color: var(--indigo); background: var(--indigo-light); border-color: var(--indigo); }
+    .key-enter { background: var(--indigo); color: white; border: none; font-size: 1.6rem; }
+    .key-enter:active { background: #4338ca; }
+
+    /* V2 ERROR TOAST, RED-SCREEN TRAPDOOR OVERLAY & COMPLETION OVERLAY */
+    .toast-container { position: fixed; top: 50px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 400px; background: var(--slate-900); color: white; padding: 15px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; pointer-events: none; transition: 0.3s; z-index: 200; display: flex; gap: 10px; align-items: flex-start; box-sizing: border-box; }
+    .toast-container.show { opacity: 1; top: 65px; pointer-events: auto; }
+    .toast-icon { font-size: 1.2rem; }
+    .toast-close { margin-left: auto; color: var(--slate-400); font-size: 1.2rem; cursor: pointer; }
+
+    .trapdoor-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(225, 29, 72, 0.96); color: white; z-index: 250; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; text-align: center; opacity: 0; pointer-events: none; transition: 0.3s; box-sizing: border-box; }
+    .trapdoor-overlay.show { opacity: 1; pointer-events: all; }
+    .trapdoor-badge { background: rgba(0,0,0,0.25); padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.3); }
+    .trapdoor-title { font-size: 1.65rem; font-weight: 800; margin: 0 0 12px 0; line-height: 1.2; }
+    .trapdoor-msg { font-size: 1.05rem; line-height: 1.55; font-weight: 600; background: rgba(0,0,0,0.18); padding: 18px; border-radius: var(--radius); margin-bottom: 20px; text-align: left; border-left: 4px solid #ffffff; width: 100%; max-width: 380px; box-sizing: border-box; white-space: pre-line; }
+    .btn-trapdoor { background: #ffffff; color: var(--rose); font-weight: 800; padding: 14px 28px; border-radius: var(--radius); border: none; font-size: 1.05rem; cursor: pointer; width: 100%; max-width: 320px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+    .completion-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; opacity: 0; pointer-events: none; transition: 0.4s; box-sizing: border-box; }
+    .completion-overlay.show { opacity: 1; pointer-events: all; }
+    .completion-icon { font-size: 4rem; margin-bottom: 20px; }
+    .completion-title { font-size: 2rem; font-weight: 800; color: var(--emerald); margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- MICRO HUD -->
+  <div class="micro-hud">
+    <div class="stat-xp"><span id="xp-counter">0</span> XP</div>
+    <div class="hud-center">
+        <span style="color:var(--slate-400); font-size:0.7rem;" id="hud-label">MASTERY</span>
+        <div class="progress-track" id="hud-track"><div class="progress-fill" id="p-bar"></div></div>
+    </div>
+    <div style="color:var(--indigo);" id="mastery-text">0/5</div>
+  </div>
+
+  <!-- ZONE 0: GATEKEEPER INTRO -->
+  <div class="content-area" id="zone-gate-intro">
+    <div style="text-align:center; padding: 20px 0;">
+      <div style="font-size:3rem; margin-bottom:15px; cursor:pointer;" onclick="enableSuperUser()" title="SuperUser Bypass">⏱️</div>
+      <h2 style="font-size: 1.8rem; color: var(--slate-900); margin:0 0 15px 0;">Fluency Gatekeeper</h2>
+      <p style="color: var(--slate-500); font-size: 1.1rem; line-height:1.5;">Translating English words into Algebraic Sentences requires instant recall of <b>sum, difference, product, and quotient</b>. Warm up your speed or jump straight in!</p>
+    </div>
+    
+    <div style="background:var(--amber-light); border:2px dashed var(--amber); padding:20px; border-radius:var(--radius); margin:15px 0;">
+      <b style="color:var(--slate-900);">The 3-Level Pathway:</b>
+      <ul style="margin:10px 0; padding-left:20px; color:var(--slate-700); line-height:1.6;">
+        <li><b>Level 1:</b> Sum &amp; Difference Vocabulary</li>
+        <li><b>Level 2:</b> Product &amp; Quotient Vocabulary</li>
+        <li><b>Level 3:</b> Mixed Operational Phrases ("Less Than")</li>
+      </ul>
+      <p style="margin-top:10px; font-size:0.9rem; font-weight:700; color:var(--amber);">Target: 15 questions per level at 90% accuracy.</p>
+    </div>
+    <button id="btn-start-sprint" class="btn btn-warning" onclick="startSprint()">Start Level 1</button>
+    <button class="btn btn-secondary" onclick="unlockLesson()">Continue Directly to Lesson (Unlocked Path) ➔</button>
+  </div>
+
+  <!-- ZONE 0.5: GATEKEEPER ACTIVE SPRINT -->
+  <div class="content-area hidden" id="zone-gate-active" style="justify-content:center; align-items:center;">
+    <div class="section-title" id="sprint-title" style="color:var(--amber);">Level 1: Sum &amp; Difference</div>
+    <div class="math-row" style="font-size:2.3rem; color:var(--indigo); text-align:center;" id="sprint-q"></div>
+    <div class="math-row" style="margin-top:20px;">
+        <div class="input-box active wide" style="height:70px; font-size:2.5rem;" id="sprint-ans" onclick="openKeypad('sprint-ans', 'sprint')"></div>
+    </div>
+  </div>
+
+  <!-- ZONE 1: GUIDED LEARNING (I DO) -->
+  <div class="content-area hidden" id="zone-learn">
+    
+    <!-- Slide 1 -->
+    <div id="slide-1">
+      <div class="section-title">The 4 Core Maths Action Words</div>
+      <p class="instruction-text">In Maths, specific English words tell you which operation symbol to write in an algebraic expression:</p>
+      
+      <div class="pinned-visual">
+        <div class="vocab-grid" style="margin-bottom:12px;">
+            <div class="vocab-pill"><span>Sum / More than</span><span class="vocab-sym">+</span></div>
+            <div class="vocab-pill"><span>Difference / Less than</span><span class="vocab-sym" style="background:var(--rose);">−</span></div>
+            <div class="vocab-pill"><span>Product of</span><span class="vocab-sym" style="background:var(--emerald);">×</span></div>
+            <div class="vocab-pill"><span>Quotient of</span><span class="vocab-sym" style="background:var(--amber);">÷</span></div>
+        </div>
+        <div class="math-row" style="font-size:1.35rem;">
+            <span>"The <b>sum</b> of <b>3<i>x</i></b> and <b>4</b>"</span>
+            <span class="operator">➔</span>
+            <span style="color:var(--indigo);">3<i>x</i> + 4</span>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Remember that in Algebra, <b>"the product of 3 and <i>x</i>"</b> means <b>3 × <i>x</i></b>, which we write neatly side-by-side as <b>3<i>x</i></b>.</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 2 -->
+    <div id="slide-2" class="hidden">
+      <div class="section-title">Product &amp; Quotient in Expressions</div>
+      <p class="instruction-text">When a sentence combines <b>product</b> or <b>quotient</b> with addition or subtraction, translate the multiplication or division part first:</p>
+      
+      <div class="pinned-visual">
+        <div style="width:100%; background:var(--slate-50); border:1px solid var(--slate-200); border-radius:6px; padding:10px; margin-bottom:10px;">
+            <div style="font-size:0.85rem; color:var(--slate-500); font-weight:700;">EXAMPLE 1 (PRODUCT &amp; SUM):</div>
+            <div style="font-size:1.05rem; font-weight:800; color:var(--slate-900); margin:4px 0;">"The sum of the product of 4 and <i>x</i>, and 7"</div>
+            <div style="font-size:1.25rem; font-weight:800; color:var(--indigo);">➔ 4<i>x</i> + 7</div>
+        </div>
+        <div style="width:100%; background:var(--slate-50); border:1px solid var(--slate-200); border-radius:6px; padding:10px;">
+            <div style="font-size:0.85rem; color:var(--slate-500); font-weight:700;">EXAMPLE 2 (QUOTIENT &amp; DIFFERENCE):</div>
+            <div style="font-size:1.05rem; font-weight:800; color:var(--slate-900); margin:4px 0;">"The difference between the quotient of 6<i>x</i> and 2, and 5"</div>
+            <div style="font-size:1.25rem; font-weight:800; color:var(--emerald);">➔ (6<i>x</i> ÷ 2) − 5 = 3<i>x</i> − 5</div>
+        </div>
+      </div>
+      
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Also remember the <b>Invisible 1 Rule</b>: if a sentence just says <b><i>x</i></b>, its coefficient is <b>1<i>x</i></b>!</p>
+      <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+    </div>
+
+    <!-- Slide 3 -->
+    <div id="slide-3" class="hidden">
+      <div class="section-title">The "Less Than" Reversal Trap!</div>
+      <p class="instruction-text" style="color:var(--rose);">Watch out for the phrases <b>"less than"</b> and <b>"subtracted from"</b> — they reverse the word order!</p>
+      
+      <div class="pinned-visual">
+        <div style="font-weight:800; font-size:1.15rem; color:var(--slate-900); margin-bottom:10px;">Translate: "5 less than <i>x</i>"</div>
+        <div style="display:flex; flex-direction:column; gap:10px; width:100%; font-size:0.95rem;">
+            <div style="background:var(--rose-light); border-left:4px solid var(--rose); padding:10px; border-radius:4px; font-weight:700; color:var(--rose);">
+                ❌ Trap (Word-for-Word Order): Writing <b>5 − <i>x</i></b> because 5 comes first in the sentence!
+            </div>
+            <div style="background:var(--emerald-light); border-left:4px solid var(--emerald); padding:10px; border-radius:4px; font-weight:700; color:var(--emerald);">
+                ✓ Correct Translation: "5 less than <i>x</i>" means start with <b><i>x</i> (1<i>x</i>)</b> and take <b>5</b> away: <b><i>x</i> − 5</b> (written as <b>1<i>x</i> − 5</b>).
+            </div>
+        </div>
+      </div>
+      <p style="color:var(--slate-700); line-height:1.5; font-size:1.05rem;">Tap every Word Card to reveal its symbol first, then type the coefficient of <i>x</i> and the constant.</p>
+      <button class="btn btn-primary" onclick="startGuidedPractice()">Start Guided Practice</button>
+    </div>
+  </div>
+
+  <!-- ZONE 1.5: GUIDED PRACTICE (WE DO) -->
+  <div class="content-area hidden" id="zone-guided">
+    <div class="section-title" id="g-title">Guided Practice 1/2</div>
+    
+    <!-- DOM REVERSAL: Instructions at the Top -->
+    <div id="g-dynamic-steps" style="width:100%; margin-bottom: 10px;">
+        <!-- Steps injected by JS -->
+    </div>
+    
+    <div class="pinned-visual">
+        <div class="sentence-banner" id="g-sentence-banner">Translate: "The <span class="hl-word">sum</span> of the <span class="hl-word">product of 3 and x</span>, and <span class="hl-word">4</span>"</div>
+        <div id="g-vis-container" style="width:100%;"></div>
+        <div class="cpa-status-pill" id="g-cpa-status">Tap all 3 Word Cards above to reveal their mathematical symbols!</div>
+        
+        <!-- Horizontal Answer Expression -->
+        <div class="math-row" style="margin-top:8px; margin-bottom:6px; gap: 8px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:0.65rem; color:var(--indigo); font-weight:800; margin-bottom:2px; text-transform:uppercase;" id="g-step1-label">x-Term Coefficient</span>
+                <div style="display:flex; align-items:center; gap:4px;">
+                    <div class="input-box locked-box" id="g-coef-box" onclick="openKeypad('g-coef-box', 'g-step-1')"></div>
+                    <span class="var-x">x</span>
+                </div>
+            </div>
+
+            <div id="g-step2-area" style="display:none; align-items:center; gap:8px;">
+                <div class="operator" id="g-op-sym">+</div>
+                <div style="display:flex; flex-direction:column; align-items:center;">
+                    <span style="font-size:0.65rem; color:var(--emerald); font-weight:800; margin-bottom:2px; text-transform:uppercase;" id="g-step2-label">Constant Term</span>
+                    <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="g-const-box" onclick="openKeypad('g-const-box', 'g-step-2')"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2: INDEPENDENT PRACTICE (YOU DO) -->
+  <div class="content-area hidden" id="zone-practice">
+    <div class="section-title">Strict Practice</div>
+    
+    <!-- DOM REVERSAL: Warning at the Top -->
+    <div class="focus-hide" style="background:var(--rose-light); border-left:4px solid var(--rose); padding:12px 15px; border-radius:0 var(--radius) var(--radius) 0; margin-bottom:15px;">
+      <p style="margin:0; font-size:0.88rem; color:var(--rose); font-weight:700;">Strict Mode Active: 5 correct in a row. Tap every Word Card to reveal its symbol first, and watch out for the "less than" subtraction reversal trap!</p>
+    </div>
+
+    <div class="pinned-visual">
+        <div class="sentence-banner" id="p-sentence-banner">Translate: "5 less than the product of 3 and x"</div>
+        <div id="p-vis-container" style="width:100%;"></div>
+        <div class="cpa-status-pill" id="p-cpa-status">Tap all 3 Word Cards above to reveal their mathematical symbols!</div>
+        
+        <div class="math-row" style="margin-top:8px; margin-bottom:6px; gap: 8px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:0.65rem; color:var(--indigo); font-weight:800; margin-bottom:2px; text-transform:uppercase;" id="p-step1-caption">First Term (x-Coefficient)</span>
+                <div style="display:flex; align-items:center; gap:4px;">
+                    <div class="input-box locked-box" id="p-coef-box" onclick="openKeypad('p-coef-box', 'practice')"></div>
+                    <span class="var-x">x</span>
+                </div>
+            </div>
+
+            <div class="operator" id="p-op-sym">−</div>
+
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:0.65rem; color:var(--emerald); font-weight:800; margin-bottom:2px; text-transform:uppercase;" id="p-step2-caption">Second Term (Constant)</span>
+                <div class="input-box locked-box" style="border-color:var(--emerald); color:var(--emerald);" id="p-const-box" onclick="openKeypad('p-const-box', 'practice')"></div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- V2 12-COLUMN HYBRID KEYPAD -->
+  <div class="keypad-drawer" id="keypad">
+    <div class="keypad-grid">
+      <!-- Top 3 Rows (Span 4) -->
+      <div class="key-btn" onclick="typeNum('1')">1</div>
+      <div class="key-btn" onclick="typeNum('2')">2</div>
+      <div class="key-btn" onclick="typeNum('3')">3</div>
+      
+      <div class="key-btn" onclick="typeNum('4')">4</div>
+      <div class="key-btn" onclick="typeNum('5')">5</div>
+      <div class="key-btn" onclick="typeNum('6')">6</div>
+      
+      <div class="key-btn" onclick="typeNum('7')">7</div>
+      <div class="key-btn" onclick="typeNum('8')">8</div>
+      <div class="key-btn" onclick="typeNum('9')">9</div>
+      
+      <!-- Bottom Row (Span 3 - South African Comma Notation) -->
+      <div class="key-btn key-bottom key-dec" onclick="typeNum(',')">,</div>
+      <div class="key-btn key-bottom" onclick="typeNum('0')">0</div>
+      <div class="key-btn key-bottom key-action" onclick="deleteNum()">⌫</div>
+      <div class="key-btn key-bottom key-enter" onclick="submitAnswer()">⏎</div>
+    </div>
+  </div>
+
+  <!-- TOAST ERROR MESSAGE -->
+  <div class="toast-container" id="toast">
+      <div class="toast-icon">⚠️</div>
+      <div id="toast-msg">Error message goes here.</div>
+      <div class="toast-close" onclick="closeToast()">✕</div>
+  </div>
+
+  <!-- RED-SCREEN PRIMARY-SCHOOL TRAPDOOR OVERLAY -->
+  <div class="trapdoor-overlay" id="trapdoor-screen">
+      <div class="trapdoor-badge" id="trapdoor-tag">TRAPDOOR TRIGGERED</div>
+      <div class="trapdoor-title" id="trapdoor-title">Streak Broken!</div>
+      <div class="trapdoor-msg" id="trapdoor-msg">Explanation goes here.</div>
+      <button class="btn-trapdoor" onclick="dismissTrapdoor()">I Understand — Try Next Question</button>
+  </div>
+
+  <!-- COMPLETION OVERLAY -->
+  <div class="completion-overlay" id="completion-screen">
+      <div class="completion-icon">🏆</div>
+      <div class="completion-title">Module Mastered!</div>
+      <p style="font-size:1.2rem; color:var(--slate-500); font-weight:600; margin-bottom:30px;">Total XP: <span id="final-xp" style="color:var(--amber);">0</span></p>
+      <button class="btn btn-primary" onclick="window.location.href='index.html'">Return to Dashboard</button>
+  </div>
+
+</div>
+
+<script>
+  // Global State
+  let appState = 'GATEKEEPER'; 
+  let activeBoxId = 'sprint-ans';
+  let activeStepId = 'sprint';
+  let xp = 0;
+  const currentModuleId = 'ALG-06'; 
+  let questionStartTime = performance.now();
+
+  // Gatekeeper Variables
+  let gateLevel = 1; 
+  let sprintTimer;
+  let timeLeft = 60; 
+  let sprintAttempts = 0;
+  let sprintCorrect = 0;
+  let currentSprintQ = {};
+  const sprintTargetAttempts = 15;
+
+  // Remediation Variables
+  let sessionMissed = [];
+  let currentRemediationQ = null;
+  let remediationIndex = -1;
+
+  // Mastery Variables
+  let slideIndex = 1;
+  const totalSlides = 3; 
+  let streak = 0;
+  let masteryPoints = 0;
+  const masteryTarget = 5;
+  let currentQ = {}; 
+
+  // Guided Practice Variables
+  let guidedLevel = 1;
+  let gData = {};
+  let cpaState = {
+      cards: [],
+      revealed: [false, false, false],
+      allRevealed: false,
+      summaryFormula: ''
+  };
+
+  // --- GOD-MODE SUPERUSER BYPASS ---
+  function enableSuperUser() {
+      let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+      p.studentId = "SuperUser";
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+      if (sprintTimer) clearInterval(sprintTimer);
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      unlockLesson();
+  }
+
+  // --- INITIALIZATION ---
+  document.addEventListener('DOMContentLoaded', () => {
+      let startBtn = document.getElementById('btn-start-sprint');
+      let isSuperUser = false;
+
+      try {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(p.gateLevels && p.gateLevels[currentModuleId]) {
+                  gateLevel = p.gateLevels[currentModuleId];
+              }
+              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
+                  isSuperUser = true;
+              }
+              if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
+                  showError("Focus Drill Available: Practise missed facts or continue to the lesson below.");
+                  document.getElementById('btn-start-sprint').innerText = "Resume Drill";
+                  document.getElementById('btn-start-sprint').onclick = startRemediation;
+              }
+          }
+      } catch (e) {
+          console.error("Profile parsing error", e);
+      }
+
+      if(startBtn && startBtn.innerText !== "Resume Drill") startBtn.innerText = "Start Level " + gateLevel + " (Word Fluency)";
+
+      if (isSuperUser) {
+          document.getElementById('zone-gate-intro').classList.add('hidden');
+          unlockLesson();
+      }
+  });
+
+  // --- INTERACTIVE CPA WORD-TO-SYMBOL TRANSLATION BUILDER ---
+  function renderCPATranslator(mode) {
+      let containerId = mode === 'GUIDED' ? 'g-vis-container' : 'p-vis-container';
+      let container = document.getElementById(containerId);
+      if (!container) return;
+
+      let cardsHtml = cpaState.cards.map((card, idx) => {
+          let isRev = cpaState.revealed[idx];
+          return `
+              <div class="word-card ${isRev ? 'revealed' : ''}" onclick="handleWordCardTap('${mode}', ${idx})">
+                  <div class="word-card-phrase">"${card.phrase}"</div>
+                  <div class="word-card-symbol">${isRev ? card.symbol : 'Tap for Symbol'}</div>
+              </div>
+          `;
+      }).join('');
+
+      container.innerHTML = `
+          <div class="translator-board ${cpaState.allRevealed ? 'translated' : ''}">
+              <div style="font-size:0.76rem; font-weight:800; color:var(--slate-700); text-align:center;">
+                  ${cpaState.allRevealed ? '✓ All Words Translated into Maths Symbols!' : 'Word-to-Symbol Builder (Tap each card to translate)'}
+              </div>
+              <div class="word-cards-row">
+                  ${cardsHtml}
+              </div>
+          </div>
+      `;
+
+      let statusEl = document.getElementById(mode === 'GUIDED' ? 'g-cpa-status' : 'p-cpa-status');
+      if (statusEl) {
+          if (cpaState.allRevealed) {
+              statusEl.innerText = `Symbols Revealed (${cpaState.summaryFormula}) — Now enter the numbers below!`;
+              statusEl.classList.add('done');
+          } else {
+              let remaining = cpaState.revealed.filter(r => !r).length;
+              statusEl.innerText = `Tap ${remaining} more Word Card${remaining > 1 ? 's' : ''} above to reveal their mathematical symbols!`;
+              statusEl.classList.remove('done');
+          }
+      }
+  }
+
+  function handleWordCardTap(mode, idx) {
+      if (cpaState.revealed[idx]) return;
+      cpaState.revealed[idx] = true;
+      cpaState.allRevealed = cpaState.revealed.every(Boolean);
+      renderCPATranslator(mode);
+
+      if (cpaState.allRevealed) {
+          if (mode === 'GUIDED') {
+              ['g-coef-box', 'g-const-box'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('g-coef-box', 'g-step-1');
+          } else {
+              ['p-coef-box', 'p-const-box'].forEach(id => {
+                  let el = document.getElementById(id);
+                  if (el) el.classList.remove('locked-box');
+              });
+              openKeypad('p-coef-box', 'practice');
+          }
+      }
+  }
+
+  // --- FLEXBOX SCROLL ENGINE ---
+  function openKeypad(boxId, stepId) {
+      if(appState === 'LOCKED') return;
+
+      let targetBox = document.getElementById(boxId);
+      if (!targetBox) return;
+      if (targetBox.classList.contains('locked-box')) {
+          showError("Complete the visual step first! Tap all 3 Word Cards to reveal their mathematical symbols.");
+          return;
+      }
+
+      if(activeBoxId) {
+          let oldBox = document.getElementById(activeBoxId);
+          if(oldBox) oldBox.classList.remove('active');
+      }
+      
+      activeBoxId = boxId;
+      activeStepId = stepId;
+      targetBox.classList.add('active');
+
+      document.body.classList.add('focus-active');
+
+      let keypad = document.getElementById('keypad');
+      keypad.classList.add('open');
+      
+      let container = document.querySelector('.content-area:not(.hidden)');
+      if (container) {
+          container.style.paddingBottom = '50vh';
+
+          setTimeout(() => {
+              let containerRect = container.getBoundingClientRect();
+              let keypadRect = keypad.getBoundingClientRect();
+              
+              let wrapper = targetBox.closest('.math-row');
+              let targetRect = (wrapper || targetBox).getBoundingClientRect();
+
+              let usableTop = containerRect.top;
+              let usableBottom = keypadRect.top;
+              let usableHeight = usableBottom - usableTop;
+
+              let targetCenterY = targetRect.top + (targetRect.height / 2);
+              let desiredCenterY = usableTop + (usableHeight / 2);
+              
+              let scrollDelta = targetCenterY - desiredCenterY;
+
+              container.scrollBy({ top: scrollDelta, behavior: 'smooth' });
+          }, 350); 
+      }
+  }
+
+  function closeKeypad() {
+      document.getElementById('keypad').classList.remove('open');
+      document.body.classList.remove('focus-active'); 
+      document.querySelectorAll('.content-area').forEach(c => c.style.paddingBottom = '20px');
+  }
+
+  function typeNum(char) {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      if(!box || box.classList.contains('locked-box')) return;
+      
+      if(char === ',' && box.innerText.includes(',')) return; 
+      if(box.innerText.length < 5) box.innerText += char;
+  }
+  
+  function deleteNum() {
+      if(appState === 'LOCKED' || !activeBoxId) return;
+      let box = document.getElementById(activeBoxId);
+      if(box && !box.classList.contains('locked-box')) box.innerText = box.innerText.slice(0, -1);
+  }
+
+  function submitAnswer() {
+      if(appState === 'LOCKED') return;
+      if(appState === 'GATEKEEPER') checkSprintAnswer();
+      else if (appState === 'REMEDIATION') checkRemediationAnswer();
+      else if (appState === 'GUIDED') checkGuidedAnswer();
+      else if (appState === 'PRACTICE') checkPracticeAnswer();
+  }
+
+  function flashError(box) {
+      if (!box) return;
+      box.classList.add('flash-error');
+      setTimeout(() => box.classList.remove('flash-error'), 400);
+  }
+
+  function showError(msg) {
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast').classList.add('show');
+      setTimeout(closeToast, 4000);
+  }
+
+  function closeToast() {
+      document.getElementById('toast').classList.remove('show');
+  }
+
+  function triggerStreakBreak(title, msg, cognitiveTag) {
+      masteryPoints = 0;
+      streak = 0;
+      updateProgressBar();
+      closeKeypad();
+      
+      ['p-coef-box', 'p-const-box'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) el.classList.add('flash-error');
+      });
+      
+      let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+      logTelemetryEvent("Trapdoor Triggered", 0, cognitiveTag, durationSeconds);
+      
+      document.getElementById('trapdoor-tag').innerText = "TRAPDOOR: " + cognitiveTag.replace(/_/g, ' ');
+      document.getElementById('trapdoor-title').innerText = title;
+      document.getElementById('trapdoor-msg').innerText = msg;
+      document.getElementById('trapdoor-screen').classList.add('show');
+  }
+
+  function dismissTrapdoor() {
+      document.getElementById('trapdoor-screen').classList.remove('show');
+      loadPracticeQuestion();
+  }
+
+  // --- ZONE 0: CASCADING FLUENCY GATEKEEPER ---
+  function startSprint() {
+    closeToast(); 
+    appState = 'GATEKEEPER';
+    sessionMissed = [];
+    questionStartTime = performance.now();
+    
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    document.getElementById('zone-gate-active').classList.remove('hidden');
+    document.getElementById('zone-gate-active').style.display = 'flex';
+    
+    if (gateLevel === 1) document.getElementById('sprint-title').innerText = "Level 1: Sum & Difference";
+    else if (gateLevel === 2) document.getElementById('sprint-title').innerText = "Level 2: Product & Quotient";
+    else if (gateLevel === 3) document.getElementById('sprint-title').innerText = "Level 3: 'Less Than' Order";
+
+    document.getElementById('hud-label').innerText = "TIME REMAINING";
+    document.getElementById('hud-track').classList.add('hidden');
+    document.getElementById('mastery-text').innerText = "01:00";
+    
+    sprintAttempts = 0;
+    sprintCorrect = 0;
+    timeLeft = 60;
+    
+    openKeypad('sprint-ans', 'sprint');
+    loadSprintQuestion();
+    
+    if(sprintTimer) clearInterval(sprintTimer); 
+    
+    sprintTimer = setInterval(() => {
+      timeLeft--;
+      let m = Math.floor(timeLeft / 60);
+      let s = timeLeft % 60;
+      document.getElementById('mastery-text').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+      
+      if(timeLeft <= 10) document.getElementById('mastery-text').classList.add('timer-alert');
+      
+      if(timeLeft <= 0) {
+        clearInterval(sprintTimer);
+        evaluateSprint();
+      }
+    }, 1000);
+  }
+
+  function generateGateQuestion(level) {
+    let qText, ans;
+    if (level === 1) { 
+        let isSum = Math.random() > 0.5;
+        let a = Math.floor(Math.random() * 9) + 6;
+        let b = Math.floor(Math.random() * 5) + 2;
+        if (isSum) {
+            ans = a + b;
+            qText = `Sum of ${a} and ${b} =`;
+        } else {
+            ans = a - b;
+            qText = `Difference of ${a} and ${b} =`;
+        }
+    } else if (level === 2) { 
+        let isProd = Math.random() > 0.45;
+        let a = Math.floor(Math.random() * 7) + 2;
+        let b = Math.floor(Math.random() * 7) + 2;
+        if (isProd) {
+            ans = a * b;
+            qText = `Product of ${a} and ${b} =`;
+        } else {
+            let dividend = a * b;
+            ans = a;
+            qText = `Quotient of ${dividend} and ${b} =`;
+        }
+    } else { 
+        let startNum = Math.floor(Math.random() * 10) + 10;
+        let lessNum = Math.floor(Math.random() * 7) + 2;
+        ans = startNum - lessNum;
+        qText = `${lessNum} less than ${startNum} =`;
+    }
+    let logText = qText.replace('=', ' =').trim();
+    return { qHtml: qText, qText: logText, ans: ans.toString() };
+  }
+
+  function loadSprintQuestion() {
+    currentSprintQ = generateGateQuestion(gateLevel);
+    questionStartTime = performance.now();
+    document.getElementById('sprint-q').innerHTML = currentSprintQ.qHtml;
+    document.getElementById('sprint-ans').innerText = '';
+    document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+  }
+
+  function checkSprintAnswer() {
+    let boxText = document.getElementById('sprint-ans').innerText;
+    if(boxText === '') return;
+
+    sprintAttempts++;
+    let box = document.getElementById('sprint-ans');
+    
+    if(boxText === currentSprintQ.ans) {
+      sprintCorrect++;
+      xp += 5;
+      document.getElementById('xp-counter').innerText = xp;
+      box.classList.add('flash-success');
+    } else {
+      box.classList.add('flash-error');
+      let exists = sessionMissed.find(item => item.qText === currentSprintQ.qText);
+      if(!exists) {
+          sessionMissed.push({ qText: currentSprintQ.qText, ans: currentSprintQ.ans, streak: 0 });
+      }
+    }
+    setTimeout(loadSprintQuestion, 150);
+  }
+
+  function evaluateSprint() {
+    closeKeypad(); 
+    let accuracy = sprintAttempts > 0 ? (sprintCorrect / sprintAttempts) * 100 : 0;
+    
+    if(sprintAttempts >= sprintTargetAttempts && accuracy >= 90) {
+      sessionMissed = []; 
+      logTelemetryEvent("Gatekeeper Cleared", Math.round(accuracy), "Gatekeeper_Pass", 60);
+      if (gateLevel < 3) {
+        showError(`Level ${gateLevel} Cleared! Great speed.`);
+        gateLevel++;
+        
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
+            p.gateLevels[currentModuleId] = gateLevel;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+
+        resetSprintUI();
+        document.getElementById('btn-start-sprint').innerText = `Start Level ${gateLevel}`;
+      } else {
+        let saved = localStorage.getItem('harvest_maths_profile');
+        if(saved) {
+            let p = JSON.parse(saved);
+            if(!p.gateLevels) p.gateLevels = {};
+            p.gateLevels[currentModuleId] = 1;
+            localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+        }
+        unlockLesson();
+      }
+    } else {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+        let profile = JSON.parse(saved);
+        if(!profile.failedAttempts) profile.failedAttempts = {};
+        profile.failedAttempts[currentModuleId] = (profile.failedAttempts[currentModuleId] || 0) + 1;
+        localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+      }
+      logTelemetryEvent("Gatekeeper Failed", Math.round(accuracy), "Gatekeeper_Speed_Or_Accuracy", 60);
+
+      if(sessionMissed.length > 0) {
+          let savedProf = localStorage.getItem('harvest_maths_profile');
+          if(savedProf) {
+              let p = JSON.parse(savedProf);
+              if(!p.remediation) p.remediation = {};
+              p.remediation[currentModuleId] = sessionMissed;
+              localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          }
+          showError(`Accuracy: ${Math.round(accuracy)}%. Try the Focus Drill or continue to the lesson.`);
+          resetSprintUI();
+          document.getElementById('btn-start-sprint').innerText = "Start Focus Drill";
+          document.getElementById('btn-start-sprint').onclick = startRemediation;
+      } else {
+          showError(`Accuracy: ${Math.round(accuracy)}%. Keep practising or continue to the lesson!`);
+          resetSprintUI();
+      }
+    }
+  }
+
+  function resetSprintUI() {
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      document.getElementById('zone-gate-active').classList.add('hidden');
+      document.getElementById('zone-gate-intro').classList.remove('hidden');
+  }
+
+  // --- ZONE 0.5: OPERAND CATCHER REMEDIATION DRILL ---
+  function startRemediation() {
+      closeToast();
+      appState = 'REMEDIATION';
+      document.getElementById('zone-gate-intro').classList.add('hidden');
+      document.getElementById('zone-gate-active').classList.remove('hidden');
+      document.getElementById('zone-gate-active').style.display = 'flex';
+      
+      document.getElementById('sprint-title').innerText = "Focus Drill";
+      document.getElementById('sprint-title').style.color = "var(--rose)";
+      document.getElementById('hud-label').innerText = "FACTS REMAINING";
+      document.getElementById('hud-track').classList.add('hidden');
+      document.getElementById('mastery-text').classList.remove('timer-alert');
+      
+      openKeypad('sprint-ans', 'sprint');
+      loadRemediationQuestion();
+  }
+
+  function loadRemediationQuestion() {
+      let saved = localStorage.getItem('harvest_maths_profile');
+      if(saved) {
+          let p = JSON.parse(saved);
+          let queue = p.remediation[currentModuleId] || [];
+          if(queue.length === 0) {
+              endRemediation();
+              return;
+          }
+          document.getElementById('mastery-text').innerText = queue.length;
+          remediationIndex = Math.floor(Math.random() * queue.length);
+          currentRemediationQ = queue[remediationIndex];
+          
+          let dots = "⚪⚪⚪";
+          if(currentRemediationQ.streak === 1) dots = "🟢⚪⚪";
+          if(currentRemediationQ.streak === 2) dots = "🟢🟢⚪";
+          
+          document.getElementById('sprint-title').innerText = "Focus Drill  " + dots;
+          document.getElementById('sprint-q').innerHTML = currentRemediationQ.qText;
+          document.getElementById('sprint-ans').innerText = '';
+          document.getElementById('sprint-ans').classList.remove('flash-success', 'flash-error');
+      }
+  }
+
+  function checkRemediationAnswer() {
+      let boxText = document.getElementById('sprint-ans').innerText;
+      if(boxText === '') return;
+
+      let box = document.getElementById('sprint-ans');
+      let saved = localStorage.getItem('harvest_maths_profile');
+      let p = saved ? JSON.parse(saved) : null;
+      if(!p || !p.remediation || !p.remediation[currentModuleId]) return;
+      
+      let queue = p.remediation[currentModuleId];
+
+      if(boxText === currentRemediationQ.ans) {
+          box.classList.add('flash-success');
+          xp += 2; 
+          document.getElementById('xp-counter').innerText = xp;
+          
+          queue[remediationIndex].streak++;
+          if(queue[remediationIndex].streak >= 3) {
+              queue.splice(remediationIndex, 1); 
+          }
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          setTimeout(loadRemediationQuestion, 250);
+      } else {
+          flashError(box);
+          queue[remediationIndex].streak = 0; 
+          localStorage.setItem('harvest_maths_profile', JSON.stringify(p));
+          
+          appState = 'LOCKED'; 
+          document.getElementById('keypad').style.opacity = '0.5';
+          document.getElementById('keypad').style.pointerEvents = 'none';
+          
+          setTimeout(() => {
+              box.innerText = currentRemediationQ.ans; 
+              box.style.color = 'var(--rose)';
+          }, 300);
+
+          setTimeout(() => {
+              appState = 'REMEDIATION';
+              document.getElementById('keypad').style.opacity = '1';
+              document.getElementById('keypad').style.pointerEvents = 'all';
+              box.style.color = 'var(--slate-900)';
+              loadRemediationQuestion();
+          }, 2000);
+      }
+  }
+
+  function endRemediation() {
+      sessionMissed = [];
+      showError('Drill Complete! Try the Gatekeeper again.');
+      resetSprintUI();
+      document.getElementById('btn-start-sprint').innerText = "Return to Gatekeeper";
+      document.getElementById('btn-start-sprint').onclick = startSprint; 
+  }
+
+  function unlockLesson() {
+    if (sprintTimer) clearInterval(sprintTimer);
+    closeToast();
+    appState = 'LEARN';
+    document.getElementById('mastery-text').classList.remove('timer-alert');
+    document.getElementById('hud-label').innerText = "MASTERY";
+    document.getElementById('hud-track').classList.remove('hidden');
+    document.getElementById('mastery-text').innerText = "0/5";
+    document.getElementById('zone-gate-active').classList.add('hidden');
+    document.getElementById('zone-gate-intro').classList.add('hidden');
+    closeKeypad(); 
+    document.getElementById('zone-learn').classList.remove('hidden');
+  }
+
+  // --- ZONE 1: GUIDED LEARNING ---
+  function nextSlide() {
+    document.getElementById('slide-' + slideIndex).classList.add('hidden');
+    slideIndex++;
+    if(slideIndex <= totalSlides) {
+      document.getElementById('slide-' + slideIndex).classList.remove('hidden');
+    } else {
+      startGuidedPractice();
+    }
+  }
+
+  // --- ZONE 1.5: GUIDED PRACTICE (WE DO) ---
+  function startGuidedPractice() {
+      appState = 'GUIDED';
+      document.getElementById('zone-learn').classList.add('hidden');
+      document.getElementById('zone-guided').classList.remove('hidden');
+      guidedLevel = 1;
+      loadGuidedQuestion();
+  }
+
+  function buildGuidedSteps() {
+      let container = document.getElementById('g-dynamic-steps');
+      container.innerHTML = `
+        <div class="step-container" id="g-step-1">
+          <div class="step-text">${gData.step1Instruction}</div>
+        </div>
+        <div class="step-container locked" id="g-step-2">
+          <div class="step-text">${gData.step2Instruction}</div>
+        </div>
+      `;
+  }
+
+  function loadGuidedQuestion() {
+      closeKeypad();
+      questionStartTime = performance.now();
+      if (guidedLevel === 1) {
+          gData = {
+              coefAns: "3",
+              constAns: "4",
+              opSym: "+",
+              bannerHtml: `Translate: "The <span class="hl-word">sum</span> of the <span class="hl-word">product of 3 and x</span>, and <span class="hl-word">4</span>"`,
+              step1Label: "x-Coefficient",
+              step2Label: "Constant Term",
+              step1Instruction: "1. Tap all 3 Word Cards to reveal their symbols. Then enter the coefficient of x ('product of 3 and x').",
+              step2Instruction: "2. Enter the constant term added to 3x ('and 4').",
+              cards: [
+                  { phrase: "The sum of", symbol: "+ (Add)" },
+                  { phrase: "product of 3 and x", symbol: "3 × x = 3x" },
+                  { phrase: "and 4", symbol: "+ 4" }
+              ],
+              summaryFormula: "3x + 4",
+              err1: "'The product of 3 and x' means 3 × x = 3x. Enter 3.",
+              err2: "We are adding 4 to 3x, so the constant term is 4."
+          };
+      } else {
+          gData = {
+              coefAns: "1",
+              constAns: "5",
+              opSym: "−",
+              bannerHtml: `Translate: "<span class="hl-word">5</span> <span class="hl-word">less than</span> <span class="hl-var">x</span>"`,
+              step1Label: "First Term (1x)",
+              step2Label: "Subtracted Constant",
+              step1Instruction: "1. Tap all 3 Word Cards to reveal their symbols. Remember: '5 less than x' starts with 1x!",
+              step2Instruction: "2. Now enter the number subtracted at the back (5) to complete 1x − 5.",
+              cards: [
+                  { phrase: "5", symbol: "Constant: 5" },
+                  { phrase: "less than", symbol: "− (Switch Order!)" },
+                  { phrase: "x", symbol: "Start with 1x" }
+              ],
+              summaryFormula: "1x − 5",
+              err1: "Do not put 5 first! '5 less than x' starts with x (which has an invisible 1 in front: 1x). Enter 1.",
+              err2: "We subtract 5 from 1x, so enter 5 in the second box to make 1x − 5."
+          };
+      }
+
+      cpaState = {
+          cards: gData.cards,
+          revealed: [false, false, false],
+          allRevealed: false,
+          summaryFormula: gData.summaryFormula
+      };
+
+      document.getElementById('g-title').innerText = `Guided Practice ${guidedLevel}/2`;
+      document.getElementById('g-sentence-banner').innerHTML = gData.bannerHtml;
+      document.getElementById('g-step1-label').innerText = gData.step1Label;
+      document.getElementById('g-step2-label').innerText = gData.step2Label;
+      document.getElementById('g-op-sym').innerText = gData.opSym;
+
+      renderCPATranslator('GUIDED');
+      
+      ['g-coef-box', 'g-const-box'].forEach(id => {
+          let el = document.getElementById(id);
+          if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
+      });
+      document.getElementById('g-step2-area').style.display = 'none';
+
+      buildGuidedSteps();
+  }
+
+  function checkGuidedAnswer() {
+      let box = document.getElementById(activeBoxId);
+      let val = box.innerText.trim();
+      if (val === '') return;
+
+      if (activeStepId === 'g-step-1') {
+          if (activeBoxId === 'g-coef-box') {
+              if (val === gData.coefAns) {
+                  box.classList.add('flash-success');
+                  xp += 5;
+                  document.getElementById('xp-counter').innerText = xp;
+                  document.getElementById('g-step-1').classList.add('completed');
+                  document.getElementById('g-step-2').classList.remove('locked');
+                  
+                  document.getElementById('g-step2-area').style.display = 'flex';
+                  openKeypad('g-const-box', 'g-step-2');
+              } else {
+                  showError(gData.err1);
+                  flashError(box);
+              }
+          }
+      } else if (activeStepId === 'g-step-2') {
+          if (activeBoxId === 'g-const-box') {
+              if (val === gData.constAns) {
+                  box.classList.add('flash-success');
+                  document.getElementById('g-step-2').classList.add('completed');
+                  closeKeypad(); 
+                  
+                  activeBoxId = null;
+                  xp += 10;
+                  document.getElementById('xp-counter').innerText = xp;
+                  
+                  let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+                  logTelemetryEvent("Guided Practice Correct", 100, "Guided_Alg_06", durationSeconds);
+
+                  setTimeout(() => {
+                      if (guidedLevel === 1) {
+                          guidedLevel = 2;
+                          showError("Great job! Now watch out for the 'less than' Subtraction Reversal Trap."); 
+                          loadGuidedQuestion(); 
+                      } else {
+                          startPractice(); 
+                      }
+                  }, 1200);
+              } else {
+                  showError(gData.err2);
+                  flashError(box);
+              }
+          }
+      }
+  }
+
+  // --- ZONE 2: INDEPENDENT PRACTICE (STRICT MASTERY) ---
+  function startPractice() {
+    appState = 'PRACTICE';
+    document.getElementById('zone-guided').classList.add('hidden');
+    document.getElementById('zone-practice').classList.remove('hidden');
+
+    masteryPoints = 0; 
+    updateProgressBar();
+    loadPracticeQuestion();
+  }
+
+  function generatePracticeQuestion() {
+    // 4 Grade-7 Foundational Vocabulary Archetypes (emphasising "less than" subtraction reversal & operational vocabulary)
+    let roll = Math.random();
+    let a, b, d, opSym, sentencePlain, bannerHtml, cards, summaryFormula, qType;
+
+    if (roll < 0.32) {
+        // Archetype 1: Classic "b less than x" (Subtraction Reversal Trap on x - b vs b - x)
+        qType = 'LESS_THAN_X';
+        a = 1;
+        b = Math.floor(Math.random() * 8) + 2; // 2 to 9
+        opSym = '−';
+        sentencePlain = `${b} less than x`;
+        bannerHtml = `Translate: "<span class="hl-word">${b}</span> <span class="hl-word">less than</span> <span class="hl-var">x</span>"`;
+        cards = [
+            { phrase: `${b}`, symbol: `Constant: ${b}` },
+            { phrase: `less than`, symbol: `− (Switch Order!)` },
+            { phrase: `x`, symbol: `Start with 1x` }
+        ];
+        summaryFormula = `1x − ${b}`;
+    } else if (roll < 0.65) {
+        // Archetype 2: "b less than the product of a and x" / "Subtract b from the product of a and x"
+        qType = 'LESS_THAN_PROD';
+        a = Math.floor(Math.random() * 5) + 2; // 2 to 6
+        b = Math.floor(Math.random() * 7) + 2; // 2 to 8
+        if (b === a) b++;
+        opSym = '−';
+        let useSubtractFrom = Math.random() > 0.5;
+        if (useSubtractFrom) {
+            sentencePlain = `Subtract ${b} from the product of ${a} and x`;
+            bannerHtml = `Translate: "<span class="hl-word">Subtract ${b} from</span> the <span class="hl-word">product of ${a} and x</span>"`;
+            cards = [
+                { phrase: `Subtract ${b}`, symbol: `− ${b} (at back)` },
+                { phrase: `from`, symbol: `Switch Order!` },
+                { phrase: `product of ${a} and x`, symbol: `Start with ${a}x` }
+            ];
+        } else {
+            sentencePlain = `${b} less than the product of ${a} and x`;
+            bannerHtml = `Translate: "<span class="hl-word">${b} less than</span> the <span class="hl-word">product of ${a} and x</span>"`;
+            cards = [
+                { phrase: `${b}`, symbol: `Constant: ${b}` },
+                { phrase: `less than`, symbol: `− (Switch Order!)` },
+                { phrase: `product of ${a} and x`, symbol: `Start with ${a}x` }
+            ];
+        }
+        summaryFormula = `${a}x − ${b}`;
+    } else if (roll < 0.83) {
+        // Archetype 3: "The sum of the product of a and x, and b"
+        qType = 'SUM_PROD';
+        a = Math.floor(Math.random() * 6) + 2; // 2 to 7
+        b = Math.floor(Math.random() * 7) + 2; // 2 to 8
+        if (b === a) b++;
+        opSym = '+';
+        sentencePlain = `The sum of the product of ${a} and x, and ${b}`;
+        bannerHtml = `Translate: "The <span class="hl-word">sum</span> of the <span class="hl-word">product of ${a} and x</span>, and <span class="hl-word">${b}</span>"`;
+        cards = [
+            { phrase: `The sum of`, symbol: `+ (Add)` },
+            { phrase: `product of ${a} and x`, symbol: `${a} × x = ${a}x` },
+            { phrase: `and ${b}`, symbol: `+ ${b}` }
+        ];
+        summaryFormula = `${a}x + ${b}`;
+    } else {
+        // Archetype 4: "The difference between the quotient of (a*d)x and d, and b"
+        qType = 'DIFF_QUOT';
+        a = Math.floor(Math.random() * 4) + 2; // 2 to 5
+        d = Math.floor(Math.random() * 3) + 2; // 2 to 4
+        b = Math.floor(Math.random() * 6) + 2; // 2 to 7
+        if (b === a) b++;
+        let dividendCoef = a * d;
+        opSym = '−';
+        sentencePlain = `The difference between the quotient of ${dividendCoef}x and ${d}, and ${b}`;
+        bannerHtml = `Translate: "The <span class="hl-word">difference</span> between the <span class="hl-word">quotient of ${dividendCoef}x and ${d}</span>, and <span class="hl-word">${b}</span>"`;
+        cards = [
+            { phrase: `The difference`, symbol: `− (Subtract)` },
+            { phrase: `quotient of ${dividendCoef}x and ${d}`, symbol: `${dividendCoef}x ÷ ${d} = ${a}x` },
+            { phrase: `and ${b}`, symbol: `− ${b}` }
+        ];
+        summaryFormula = `${a}x − ${b}`;
+    }
+
+    return {
+        qType: qType,
+        a: a,
+        b: b,
+        d: d || 1,
+        opSym: opSym,
+        coefStr: String(a),
+        constStr: String(b),
+        sentencePlain: sentencePlain,
+        bannerHtml: bannerHtml,
+        cards: cards,
+        summaryFormula: summaryFormula
+    };
+  }
+
+  function loadPracticeQuestion() {
+    closeKeypad();
+    currentQ = generatePracticeQuestion();
+    questionStartTime = performance.now();
+    cpaState = {
+        cards: currentQ.cards,
+        revealed: [false, false, false],
+        allRevealed: false,
+        summaryFormula: currentQ.summaryFormula
+    };
+    
+    document.getElementById('p-sentence-banner').innerHTML = currentQ.bannerHtml;
+    document.getElementById('p-op-sym').innerText = currentQ.opSym;
+
+    ['p-coef-box', 'p-const-box'].forEach(id => {
+        let el = document.getElementById(id);
+        if(el) { el.innerText = ''; el.classList.remove('flash-success', 'flash-error', 'active'); el.classList.add('locked-box'); }
+    });
+
+    renderCPATranslator('PRACTICE');
+  }
+
+  function updateProgressBar() {
+    let pct = (masteryPoints / masteryTarget) * 100;
+    document.getElementById('p-bar').style.width = pct + '%';
+    document.getElementById('mastery-text').innerText = masteryPoints + '/' + masteryTarget;
+  }
+
+  function checkPracticeAnswer() {
+    let valCoef = document.getElementById('p-coef-box').innerText.trim();
+    let valConst = document.getElementById('p-const-box').innerText.trim();
+
+    let box = document.getElementById(activeBoxId);
+    if (!box || box.innerText.trim() === '') return;
+
+    if (activeBoxId === 'p-coef-box') { box.classList.add('flash-success'); openKeypad('p-const-box', 'practice'); return; }
+
+    if (valConst === '') return;
+
+    if (valCoef === '') {
+        showError(`Enter the coefficient of x in the First Term box first!`);
+        openKeypad('p-coef-box', 'practice');
+        return; 
+    }
+
+    let isCoefCorrect = (valCoef === currentQ.coefStr);
+    let isConstCorrect = (valConst === currentQ.constStr);
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+
+    if (isCoefCorrect && isConstCorrect) {
+        document.getElementById('p-const-box').classList.add('flash-success');
+        closeKeypad(); 
+        
+        masteryPoints++;
+        streak++;
+        xp += 50; 
+        document.getElementById('xp-counter').innerText = xp;
+        updateProgressBar();
+        logTelemetryEvent("Practice Correct", 100, "Mastery_Step", durationSeconds);
+        
+        if(masteryPoints >= masteryTarget) setTimeout(endModule, 800);
+        else setTimeout(loadPracticeQuestion, 800);
+    } else {
+        // HIGH-RESOLUTION ALG-06 TRAPDOORS
+        let combinedAdd = String(currentQ.a + currentQ.b);
+        let combinedMult = String(currentQ.a * currentQ.b);
+        let dividendRaw = String(currentQ.a * currentQ.d);
+
+        let errorTitle = "Translation Error!";
+        let errorMsg = `For "${currentQ.sentencePlain}":\n• The x-term is ${currentQ.coefStr}x\n• The constant term is ${currentQ.constStr}\nCorrect Algebraic Expression: ${currentQ.summaryFormula}.`;
+        let cognitiveTag = "General_Translation_Error";
+
+        // 1. SUBTRACTION REVERSAL TRAPDOOR (e.g., translating "5 less than x" as 5 - x instead of x - 5)
+        if (
+            (currentQ.opSym === '−' && valCoef === currentQ.constStr && valConst === currentQ.coefStr) ||
+            ((currentQ.qType === 'LESS_THAN_X' || currentQ.qType === 'LESS_THAN_PROD') && valCoef === currentQ.constStr)
+        ) {
+            errorTitle = "Subtraction Reversal Trap!";
+            if (currentQ.qType === 'LESS_THAN_X') {
+                errorMsg = `You put ${currentQ.b} first! Translating "${currentQ.b} less than x" as ${currentQ.b} − x is the Subtraction Reversal Error.\n\n"${currentQ.b} less than x" means you START with x (1x) and subtract ${currentQ.b} from it:\nCorrect Expression: x − ${currentQ.b} (written as 1x − ${currentQ.b}), never ${currentQ.b} − x!`;
+            } else {
+                errorMsg = `You reversed the subtraction order for "${currentQ.sentencePlain}"!\n\nPhrases like "less than" and "subtracted from" mean you START with the second quantity (${currentQ.coefStr}x) and subtract ${currentQ.constStr} at the back:\nCorrect Expression: ${currentQ.coefStr}x − ${currentQ.constStr} (never ${currentQ.constStr} − ${currentQ.coefStr}x)!`;
+            }
+            cognitiveTag = "Subtraction_Reversal_Error";
+        }
+        // 2. INVISIBLE ONE COEFFICIENT TRAPDOOR (writing 0x instead of 1x for standalone x)
+        else if (currentQ.a === 1 && valCoef === "0") {
+            errorTitle = "Invisible 1 Rule Forgotten!";
+            errorMsg = `When a variable x stands on its own in "${currentQ.sentencePlain}", there is an INVISIBLE 1 in front of it (1x), not 0!\n\nCorrect Expression: 1x ${currentQ.opSym} ${currentQ.constStr}.`;
+            cognitiveTag = "Invisible_One_Coefficient_Error";
+        }
+        // 3. VOCABULARY OPERATION CONFUSION (failing to divide on "quotient of" or multiplying instead)
+        else if (currentQ.qType === 'DIFF_QUOT' && (valCoef === dividendRaw || valCoef === String(currentQ.a * currentQ.d * currentQ.d))) {
+            errorTitle = "Quotient Vocabulary Trap!";
+            errorMsg = `"Quotient" means DIVIDE!\n\n"The quotient of ${dividendRaw}x and ${currentQ.d}" means ${dividendRaw}x ÷ ${currentQ.d} = ${currentQ.coefStr}x.\nCorrect Expression: ${currentQ.summaryFormula}.`;
+            cognitiveTag = "Vocabulary_Operation_Confusion";
+        }
+        // 4. UNLIKE TERMS CONFLATION TRAPDOOR (combining coefficient and constant into a single number)
+        else if (valCoef === combinedAdd || valConst === combinedAdd || valCoef === combinedMult) {
+            errorTitle = "Combined Unlike Terms!";
+            errorMsg = `Keep the x-term (${currentQ.coefStr}x) and the constant (${currentQ.constStr}) separate! Do not merge ${currentQ.coefStr} and ${currentQ.constStr} together.\n\nCorrect Expression: ${currentQ.summaryFormula}.`;
+            cognitiveTag = "Unlike_Terms_Conflation_Error";
+        }
+
+        triggerStreakBreak(errorTitle, errorMsg, cognitiveTag);
+    }
+  }
+
+  // --- 🔌 DASHBOARD SYNC PATCH & TELEMETRY ---
+  const curriculumOrder = [
+    'RAT-01', 'RAT-02', 'RAT-03', 'RAT-04', 'RAT-05', 'RAT-06', 'RAT-07', 'RAT-08',
+    'DEC-01', 'DEC-02', 'DEC-03', 'DEC-04', 'DEC-05', 'DEC-06', 'DEC-07', 'DEC-08',
+    'INT-01', 'INT-02', 'INT-03', 'INT-04', 'INT-05',
+    'PER-01', 'PER-02', 'PER-03',
+    'ALG-01', 'ALG-02', 'ALG-03', 'ALG-04', 'ALG-05', 'ALG-06'
+  ];
+
+  function logTelemetryEvent(action, accuracyVal, cognitiveTag = null, durationSec = null) {
+    let p = JSON.parse(localStorage.getItem('harvest_maths_profile') || '{}');
+    let student = p.studentId || "Unknown";
+    let fails = p.failedAttempts ? (p.failedAttempts[currentModuleId] || 0) : 0;
+    let computedDuration = durationSec !== null ? durationSec : Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    
+    let queue = JSON.parse(localStorage.getItem('harvest_telemetry_queue') || '[]');
+    queue.push({
+      studentId: student,
+      moduleId: currentModuleId,
+      xp: xp,
+      accuracy: accuracyVal,
+      fails: fails,
+      action: action,
+      cognitiveTag: cognitiveTag || "None",
+      errorType: cognitiveTag,
+      durationSeconds: computedDuration,
+      timestamp: new Date().toISOString() 
+    });
+    localStorage.setItem('harvest_telemetry_queue', JSON.stringify(queue));
+  }
+
+  function endModule() {
+    let saved = localStorage.getItem('harvest_maths_profile');
+    if(saved) {
+      let profile = JSON.parse(saved);
+      profile.xp = (profile.xp || 0) + xp; 
+      if(!profile.completedNodes) profile.completedNodes = [];
+      
+      if(!profile.completedNodes.includes(currentModuleId)) {
+        profile.completedNodes.push(currentModuleId);
+        
+        let currentIndex = curriculumOrder.indexOf(currentModuleId);
+        if (profile.unlockedNodeIndex === currentIndex) {
+          profile.unlockedNodeIndex = currentIndex + 1; 
+        }
+      }
+      localStorage.setItem('harvest_maths_profile', JSON.stringify(profile));
+    }
+
+    let durationSeconds = Math.round(((performance.now() - questionStartTime) / 1000) * 100) / 100;
+    logTelemetryEvent("Mastered Module", 100, "Module_Complete", durationSeconds);
+
+    closeKeypad();
+    document.getElementById('final-xp').innerText = xp;
+    document.getElementById('completion-screen').classList.add('show');
+  }
+
+  // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN COMMA ENFORCED) ---
+  document.addEventListener('keydown', function(event) {
+    if (document.getElementById('trapdoor-screen').classList.contains('show')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
+      return;
+    }
+    if(appState === 'LOCKED') return; 
+    
+    if (event.key >= '0' && event.key <= '9') {
+      typeNum(event.key);
+    } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
+      typeNum(',');
+    } else if (event.key === 'Backspace' || event.key === 'Delete') {
+      deleteNum();
+    } else if (event.key === 'Enter') {
+      submitAnswer();
+    }
+  });
+</script>
+</body>
+</html>

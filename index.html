@@ -96,16 +96,16 @@
 </div>
 
 <script>
-  // V2 Curriculum Architecture including INT phase
+  // V2 Curriculum Architecture (Global Synchronized Array)
   const curriculum = [
-    { id: 'RAT-01', name: 'Fraction Basics', group: 'Rational Numbers' },
-    { id: 'RAT-02', name: 'Equivalent Fractions', group: 'Rational Numbers' },
-    { id: 'RAT-03', name: 'Simplifying', group: 'Rational Numbers' },
-    { id: 'RAT-04', name: 'Improper & Mixed', group: 'Rational Numbers' },
-    { id: 'RAT-05', name: 'Adding & Subtracting', group: 'Rational Numbers' },
-    { id: 'RAT-06', name: 'Unlike Denominators', group: 'Rational Numbers' },
-    { id: 'RAT-07', name: 'Multiplying Fractions', group: 'Rational Numbers' },
-    { id: 'RAT-08', name: 'Dividing Fractions', group: 'Rational Numbers' },
+    { id: 'RAT-01', name: 'Equivalent Ratios', group: 'Ratios & Rates' },
+    { id: 'RAT-02', name: 'Simplifying Ratios', group: 'Ratios & Rates' },
+    { id: 'RAT-03', name: 'Sharing in a Ratio', group: 'Ratios & Rates' },
+    { id: 'RAT-04', name: 'Increasing in a Ratio', group: 'Ratios & Rates' },
+    { id: 'RAT-05', name: 'Decreasing in a Ratio', group: 'Ratios & Rates' },
+    { id: 'RAT-06', name: 'Direct Proportion', group: 'Ratios & Rates' },
+    { id: 'RAT-07', name: 'Unit Rates', group: 'Ratios & Rates' },
+    { id: 'RAT-08', name: 'Speed, Distance, Time', group: 'Ratios & Rates' },
     { id: 'DEC-01', name: 'Place Value & Tenths', group: 'Decimals' },
     { id: 'DEC-02', name: 'Hundredths & Thousandths', group: 'Decimals' },
     { id: 'DEC-03', name: 'Comparing Decimals', group: 'Decimals' },
@@ -118,7 +118,16 @@
     { id: 'INT-02', name: 'Subtracting Integers', group: 'Integers' },
     { id: 'INT-03', name: 'Multiplying Integers', group: 'Integers' },
     { id: 'INT-04', name: 'Dividing Integers', group: 'Integers' },
-    { id: 'INT-05', name: 'BODMAS & Integers', group: 'Integers' }
+    { id: 'INT-05', name: 'BODMAS & Integers', group: 'Integers' },
+    { id: 'PER-01', name: '100-Grid Percentages', group: 'Percentages' },
+    { id: 'PER-02', name: 'Scaling to 100', group: 'Percentages' },
+    { id: 'PER-03', name: 'Percentage of an Amount', group: 'Percentages' },
+    { id: 'ALG-01', name: 'Variables & Constants', group: 'Algebra' },
+    { id: 'ALG-02', name: 'Writing Expressions', group: 'Algebra' },
+    { id: 'ALG-03', name: 'Like & Unlike Terms', group: 'Algebra' },
+    { id: 'ALG-04', name: 'Substitution (Basic)', group: 'Algebra' },
+    { id: 'ALG-05', name: 'Spider Diagrams (Flow)', group: 'Algebra' },
+    { id: 'ALG-06', name: 'Translating Word Problems', group: 'Algebra' }
   ];
 
   let p = {

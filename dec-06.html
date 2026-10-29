@@ -604,6 +604,7 @@
       let box = document.getElementById(activeBoxId);
       if(!box || box.classList.contains('locked-box')) return;
       
+      // Use South African comma
       if(char === ',' && box.innerText.includes(',')) return; 
       if(box.innerText.length < 7) box.innerText += char;
   }
@@ -1277,6 +1278,7 @@
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
       typeNum(',');
     } else if (event.key === 'Backspace' || event.key === 'Delete') {
       deleteNum();

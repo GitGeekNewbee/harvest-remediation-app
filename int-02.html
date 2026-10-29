@@ -1374,7 +1374,10 @@
   // --- ⌨️ PHYSICAL KEYBOARD SUPPORT (SOUTH AFRICAN LOCALIZATION) ---
   document.addEventListener('keydown', function(event) {
     if (document.getElementById('trapdoor-screen').classList.contains('show')) {
-      if (event.key === 'Enter') dismissTrapdoor();
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        dismissTrapdoor();
+      }
       return;
     }
     if(appState === 'LOCKED') return; 
@@ -1382,6 +1385,7 @@
     if (event.key >= '0' && event.key <= '9') {
       typeNum(event.key);
     } else if (event.key === ',' || event.key === '.') {
+      event.preventDefault();
       typeNum(','); 
     } else if (event.key === '-') {
       typeNum('-');
@@ -1391,6 +1395,3 @@
       submitAnswer();
     }
   });
-</script>
-</body>
-</html>
