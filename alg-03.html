@@ -449,7 +449,7 @@
               if(p.gateLevels && p.gateLevels[currentModuleId]) {
                   gateLevel = p.gateLevels[currentModuleId];
               }
-              if(p.studentId && String(p.studentId).toLowerCase() === 'superuser') {
+              if(p.studentId && String(p.studentId).toLowerCase().includes('superuser')) {
                   isSuperUser = true;
               }
               if(!isSuperUser && p.remediation && p.remediation[currentModuleId] && p.remediation[currentModuleId].length > 0) {
